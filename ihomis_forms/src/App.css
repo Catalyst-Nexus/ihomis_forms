@@ -1,42 +1,177 @@
 #root {
-  max-width: 1280px;
+  min-height: 100vh;
+}
+
+.app-landing-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.app-landing-ambient {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(56px);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.app-landing-ambient-a {
+  width: 24rem;
+  height: 24rem;
+  left: -4rem;
+  top: -6rem;
+  background: radial-gradient(circle at center, #56ccbd, #56ccbd00);
+}
+
+.app-landing-ambient-b {
+  width: 20rem;
+  height: 20rem;
+  right: -4rem;
+  bottom: -5rem;
+  background: radial-gradient(circle at center, #f2c37e, #f2c37e00);
+}
+
+.app-landing-shell {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, 100%);
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  display: grid;
+  gap: 1rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-landing-hero {
+  background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(16, 54, 63, 0.11);
+  padding: clamp(1.2rem, 2.5vw, 1.8rem);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.app-landing-kicker {
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1b7f79;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.app-landing-hero h1 {
+  margin: 0.42rem 0 0.6rem;
+  color: #10363f;
+  font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+  line-height: 1.12;
+}
+
+.app-landing-hero p {
+  margin: 0;
+  color: #365961;
+}
+
+.app-module-grid {
+  display: grid;
+  gap: 0.95rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.app-module-card {
+  background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 14px 28px rgba(16, 54, 63, 0.08);
+  padding: 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.app-module-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.app-module-card-head h2 {
+  margin: 0;
+  color: #10363f;
+  font-size: 1.03rem;
+}
+
+.app-module-card-head span {
+  border-radius: 999px;
+  padding: 0.32rem 0.65rem;
+  background: rgba(32, 108, 67, 0.12);
+  color: #206c43;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.app-module-card p {
+  margin: 0;
+  color: #365961;
+  font-size: 0.92rem;
+}
+
+.app-open-module {
+  border: none;
+  border-radius: 12px;
+  padding: 0.72rem 0.92rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(120deg, #1b7f79, #1f9d95);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.app-open-module:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(27, 127, 121, 0.24);
+}
+
+.app-module-host {
+  min-height: 100vh;
+}
+
+.app-module-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(16, 54, 63, 0.14);
+  background: rgba(248, 253, 251, 0.94);
+  backdrop-filter: blur(4px);
+}
+
+.app-module-header strong {
+  color: #10363f;
+  font-size: 0.95rem;
+}
+
+.app-back-button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.78rem;
+  background: #10363f;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .app-module-header {
+    padding: 0.62rem 0.75rem;
   }
-  to {
-    transform: rotate(360deg);
+
+  .app-module-header strong {
+    font-size: 0.86rem;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
