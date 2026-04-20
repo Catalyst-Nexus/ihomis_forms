@@ -153,7 +153,9 @@
   font-family: inherit;
   font-size: 0.98rem;
   padding: 0.7rem 0.8rem;
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .lab-field input:focus,
@@ -163,7 +165,7 @@
   box-shadow: 0 0 0 3px var(--lab-ring-soft);
 }
 
-.lab-field input[type='file'] {
+.lab-field input[type="file"] {
   padding: 0.55rem;
 }
 
@@ -184,9 +186,16 @@
   font-size: 0.98rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(120deg, var(--lab-accent-600), var(--lab-accent-500));
+  background: linear-gradient(
+    120deg,
+    var(--lab-accent-600),
+    var(--lab-accent-500)
+  );
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
 }
 
 .lab-form > button:hover:not(:disabled) {

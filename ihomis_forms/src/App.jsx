@@ -1,30 +1,37 @@
-import { useMemo, useState } from 'react'
-import LabUploadModule from './modules/labUpload/LabUploadModule.jsx'
-import './App.css'
+import { useMemo, useState } from "react";
+import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
+import "./App.css";
 
 const modules = [
   {
-    id: 'lab-upload',
-    name: 'Laboratory Upload',
-    description: 'Upload and review laboratory PDF results.',
-    status: 'Ready',
+    id: "lab-upload",
+    name: "Laboratory Upload",
+    description: "Upload and review laboratory PDF results.",
+    status: "Ready",
     Component: LabUploadModule,
   },
-]
+];
 
 function App() {
-  const [activeModuleId, setActiveModuleId] = useState(null)
+  const [activeModuleId, setActiveModuleId] = useState(null);
 
   const activeModule = useMemo(
-    () => modules.find((moduleItem) => moduleItem.id === activeModuleId) || null,
+    () =>
+      modules.find((moduleItem) => moduleItem.id === activeModuleId) || null,
     [activeModuleId],
-  )
+  );
 
   if (!activeModule) {
     return (
       <div className="app-landing-page">
-        <div className="app-landing-ambient app-landing-ambient-a" aria-hidden="true" />
-        <div className="app-landing-ambient app-landing-ambient-b" aria-hidden="true" />
+        <div
+          className="app-landing-ambient app-landing-ambient-a"
+          aria-hidden="true"
+        />
+        <div
+          className="app-landing-ambient app-landing-ambient-b"
+          aria-hidden="true"
+        />
 
         <main className="app-landing-shell">
           <section className="app-landing-hero">
@@ -55,10 +62,10 @@ function App() {
           </section>
         </main>
       </div>
-    )
+    );
   }
 
-  const ActiveComponent = activeModule.Component
+  const ActiveComponent = activeModule.Component;
 
   return (
     <div className="app-module-host">
@@ -75,7 +82,7 @@ function App() {
 
       <ActiveComponent />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

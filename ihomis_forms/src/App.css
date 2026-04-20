@@ -124,7 +124,9 @@
   color: #ffffff;
   background: linear-gradient(120deg, #1b7f79, #1f9d95);
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .app-open-module:hover {
