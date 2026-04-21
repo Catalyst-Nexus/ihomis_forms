@@ -3,6 +3,24 @@ import "./DNRForm.css";
 export default function DNRForm() {
 	return (
 		<div className="dnr-page">
+			<div className="dnr-form-meta">
+				<div>FORM NO.: __________________</div>
+				<div>Revised: ________________</div>
+			</div>
+
+			<div className="dnr-header-row">
+				<div className="dnr-logo" aria-hidden="true" />
+				<div className="dnr-header-center">
+					<div className="dnr-country">Republic of the Philippines</div>
+					<div className="dnr-province">Provincial Health Office</div>
+					<div className="dnr-hospital">AGUSAN DEL NORTE PROVINCIAL HOSPITAL</div>
+					<div className="dnr-address">
+						VILLAGE II, BRGY. LIBERTAD, BUTUAN CITY (Capital) AGUSAN DEL NORTE CARAGA
+					</div>
+					<div className="dnr-contact">Contact no: 085-817-3390</div>
+				</div>
+				<div className="dnr-logo" aria-hidden="true" />
+			</div>
 
 			{/* Header */}
 			<div className="dnr-header">
@@ -26,7 +44,7 @@ export default function DNRForm() {
 			<div className="dnr-checkbox-item">[ ] Pre Arrest Emergency (When breathing is labored or stopped and heart is still breathing)</div>
 
 			{/* Section B */}
-			<div className="dnr-section-label" style={{ marginTop: "8px" }}>
+			<div className="dnr-section-label" style={{ marginTop: "2mm" }}>
 				B. No procedures to restart breathing or heart functioning will be instituted such as:
 			</div>
 			<div className="dnr-checkbox-header">(put a check mark on your choice)</div>
@@ -52,17 +70,17 @@ export default function DNRForm() {
 					<div className="dnr-sig-label">SIGNATURE OVER PRINTED NAME OF NEXT OF<br />KIN</div>
 				</div>
 				<div className="dnr-sig-col">
-					<div className="dnr-sig-label" style={{ marginBottom: "32px" }}>RELATIONSHIP TO THE PATIENT</div>
+					<div className="dnr-sig-line" />
+					<div className="dnr-sig-label" style={{ marginBottom: "3mm" }}>RELATIONSHIP TO THE PATIENT</div>
 				</div>
 				<div className="dnr-sig-col-date">
 					<div className="dnr-date-value">April 21, 2026</div>
-					<div className="dnr-date-label">DATE</div>
+					<div className="dnr-date-label" style={{ marginBottom: "1mm" }}>DATE</div>
 				</div>
 			</div>
 
 			{/* Witness */}
 			<div className="dnr-witness-label">WITNESS:</div>
-			<div className="dnr-witness-line" />
 			<div className="dnr-witness-row">
 				<div className="dnr-sig-col">
 					<div className="dnr-sig-line" />
@@ -70,7 +88,7 @@ export default function DNRForm() {
 				</div>
 				<div className="dnr-sig-col-date">
 					<div className="dnr-date-value">April 21, 2026</div>
-					<div className="dnr-date-label">DATE</div>
+					<div className="dnr-date-label" style={{ marginBottom: "1mm" }}>DATE</div>
 				</div>
 			</div>
 
@@ -89,11 +107,12 @@ export default function DNRForm() {
 					<div className="dnr-sig-label">SIGNATURE OVER PRINTED NAME OF NEXT OF<br />KIN</div>
 				</div>
 				<div className="dnr-sig-col">
-					<div className="dnr-sig-label" style={{ marginBottom: "32px" }}>RELATIONSHIP TO THE PATIENT</div>
+					<div className="dnr-sig-line" />
+					<div className="dnr-sig-label" style={{ marginBottom: "3mm" }}>RELATIONSHIP TO THE PATIENT</div>
 				</div>
 				<div className="dnr-sig-col-date">
 					<div className="dnr-date-value">April 21, 2026</div>
-					<div className="dnr-date-label">DATE</div>
+					<div className="dnr-date-label" style={{ marginBottom: "1mm" }}>DATE</div>
 				</div>
 			</div>
 

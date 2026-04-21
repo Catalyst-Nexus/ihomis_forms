@@ -24,11 +24,11 @@ export default function BloodRequestAdult() {
               <span>MATILOS , EUGENIA MAMBA</span>
             </span>
             <span className="brf-meta-cell">
-              <span className="brf-label">Sex:</span>
+              <span className="brf-label"style={{ marginLeft: "50px" }}>Sex:</span>
               <span>F</span>
             </span>
             <span className="brf-meta-cell">
-              <span className="brf-label">Age:</span>
+              <span className="brf-label" style={{ marginLeft: "200px" }}>Age:</span>
               <span>67 year(s)</span>
             </span>
           </div>
@@ -38,11 +38,11 @@ export default function BloodRequestAdult() {
               <span>ADM-2026-010617</span>
             </span>
             <span className="brf-meta-cell">
-              <span className="brf-label">BirthDate:</span>
+              <span className="brf-label" style={{ marginLeft: "68px" }}>BirthDate:</span>
               <span>January 11, 1959</span>
             </span>
             <span className="brf-meta-cell">
-              <span className="brf-label">Date:</span>
+              <span className="brf-label" style={{ marginLeft: "60px" }}>Date:</span>
               <span>April 21, 2026</span>
             </span>
           </div>
