@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import {
-  getDocument,
-  GlobalWorkerOptions,
-} from "pdfjs-dist/legacy/build/pdf.mjs";
-import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
+import * as pdfjsLib from "pdfjs-dist";
 
-GlobalWorkerOptions.workerSrc = pdfWorker;
+// Set up the worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+const { getDocument, GlobalWorkerOptions } = pdfjsLib;
 
 function getErrorMessage(error) {
   if (error instanceof Error && error.message) {
