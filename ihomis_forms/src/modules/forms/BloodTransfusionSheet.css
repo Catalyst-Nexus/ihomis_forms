@@ -1,0 +1,200 @@
+.bts-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 1.25rem 1.2rem 1.4rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: #000;
+  border: none;
+  border-radius: 0;
+  background-color: #fff;
+  box-shadow: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.bts-header-spacer {
+  height: 2in;
+  flex-shrink: 0;
+}
+
+.bts-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.3px;
+}
+
+.bts-meta-grid {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.bts-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.bts-meta-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.bts-label:nth-of-type(2) {
+  margin-left: 20px;
+}
+
+.bts-meta-item span:last-child {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.bts-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bts-hrn-line {
+  display: inline-block;
+  min-width: 6.5rem;
+  border-bottom: 1px solid #000;
+  height: 0.9em;
+}
+
+.bts-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 1.1rem;
+  font-size: 0.75rem;
+}
+
+.bts-table th,
+.bts-table td {
+  border: 1px solid #000;
+  padding: 0.22rem 0.2rem;
+  vertical-align: middle;
+  background: transparent;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.bts-table th {
+  font-weight: 700;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  padding: 0.25rem 0.2rem;
+}
+
+.bts-table tbody td {
+  height: 1.5rem;
+  vertical-align: top;
+  padding-top: 0.2rem;
+}
+
+/* Column widths */
+.bts-col-bag {
+  width: 8%;
+}
+
+.bts-col-date {
+  width: 12%;
+}
+
+.bts-col-blood {
+  width: 16%;
+}
+
+.bts-col-type {
+  width: 7%;
+}
+
+.bts-col-serial {
+  width: 9%;
+}
+
+.bts-col-expiry {
+  width: 12%;
+}
+
+.bts-col-date-time {
+  width: 12%;
+}
+
+.bts-col-nurse {
+  width: 14%;
+}
+
+.bts-col-remarks {
+  width: 10%;
+}
+
+.bts-footer-line {
+  border-top: 1px solid #000;
+  width: 100%;
+  margin-bottom: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.bts-footer {
+  margin-top: auto;
+}
+
+.bts-default-footer {
+  font-size: 0.7rem;
+  text-align: right;
+  margin-top: 0.8rem;
+  padding-top: 0.4rem;
+}
+
+
+@media (max-width: 760px) {
+  .bts-page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.82rem;
+    padding: 0.65rem;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .bts-header-spacer {
+    height: 1.2rem;
+  }
+
+  .bts-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .bts-table {
+    font-size: 0.72rem;
+  }
+
+  .bts-table th {
+    font-size: 0.66rem;
+    padding: 0.25rem 0.2rem;
+  }
+
+  .bts-table tbody td {
+    height: 1.4rem;
+    padding-top: 0.15rem;
+  }
+
+  
+}

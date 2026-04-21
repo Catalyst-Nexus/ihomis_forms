@@ -1,0 +1,274 @@
+/* ── ABTC Out-Patient Record ── */
+
+/* Inherit .aldrete-page and shared label/footer styles from Forms2.css */
+
+/* ── Header ── */
+.abtc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0;
+}
+
+.abtc-header-logo {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.abtc-seal {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+/* Fallback badge when image fails */
+.abtc-badge-fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #6b8f3e;
+  background: radial-gradient(circle at 40% 35%, #e8f5d8, #b5d88a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.abtc-badge-inner {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #2d5a0e;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.abtc-header-center {
+  flex: 1;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.abtc-republic {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.abtc-office {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.abtc-hospital-name {
+  margin: 0.1rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.abtc-address,
+.abtc-contact {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.abtc-form-revised {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: flex-start;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+}
+
+/* ── Title Block ── */
+.abtc-title-block {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  border: 1px solid #000;
+  border-bottom: none;
+  margin: 0;
+}
+
+.abtc-title-left {
+  padding: 0.4rem 0.6rem;
+  border-right: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.8rem;
+}
+
+.abtc-form-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.abtc-title-right {
+  padding: 0.4rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  min-height: 1.8rem;
+}
+
+/* ── Info Rows (bordered table-like rows) ── */
+.abtc-border-row {
+  border: 1px solid #000;
+  border-top: none;
+  margin: 0;
+}
+
+.abtc-info-row {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  font-size: 0.8rem;
+}
+
+.abtc-patient-name-row {
+  padding: 0.25rem 0.5rem;
+  align-items: center;
+}
+
+/* SR Citizen / Hospital row */
+.abtc-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.abtc-info-cell:first-child {
+  flex: 1;
+  border-right: 1px solid #000;
+}
+
+.abtc-info-cell:last-child {
+  flex: 1;
+}
+
+/* Address row */
+.abtc-address-row {
+  align-items: stretch;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.8fr 0.8fr;
+  gap: 0;
+}
+
+.abtc-address-cell {
+  padding: 0.25rem 0.6rem;
+  border-right: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.abtc-small-cell {
+  padding: 0.25rem 0.6rem;
+  border-right: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.abtc-small-cell:last-child {
+  border-right: none;
+}
+
+/* Details row */
+.abtc-details-row {
+  align-items: stretch;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+}
+
+.abtc-detail-cell {
+  padding: 0.25rem 0.6rem;
+  border-right: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.abtc-detail-cell:last-child {
+  border-right: none;
+}
+
+.aldrete-label {
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: block;
+  margin-bottom: 0.08rem;
+  line-height: 1.1;
+}
+
+/* ── Section Titles ── */
+.abtc-section-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0.3rem 0;
+}
+
+/* ── Exposure Grid ── */
+.abtc-exposure-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.2rem;
+  padding: 0;
+  margin: 0;
+}
+
+.abtc-exposure-field {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.abtc-underline-field {
+  flex: 1;
+  border-bottom: 1px solid #000;
+  min-width: 60px;
+  display: inline-block;
+  height: 1.2rem;
+}
+
+/* ── Remarks space ── */
+.abtc-remarks-space {
+  flex: 1;
+  min-height: 5.5rem;
+  border: none;
+}
+
+/* ── Default footer ── */
+.aldrete-default-footer {
+  font-size: 0.7rem;
+  text-align: right;
+  margin-top: 0.8rem;
+  padding-top: 0.4rem;
+}
+
+/* ── Page container ── */
+.aldrete-page {
+  max-width: 8.5in;
+  margin: 0 auto;
+  padding: 0.5in;
+  background: white;
+  color: #000;
+  font-family: 'Calibri', 'Arial', sans-serif;
+}

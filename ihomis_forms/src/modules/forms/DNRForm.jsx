@@ -1,133 +1,123 @@
-export default function DNRForm({ patientName = 'GARILLOS , JUDITH ALCAZAREN' }) {
-  return (
-    <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.5', padding: '30px', maxWidth: '8.5in', margin: '0 auto', whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-      <div style={{ marginBottom: '15px' }}>
-        <span style={{ color: '#0066cc' }}>I understand that effective today, emergency care for patient {patientName} will be</span>
-      </div>
-      <div style={{ marginBottom: '15px' }}>
-        <span style={{ color: '#0066cc' }}>limited</span>
-      </div>
-      <div style={{ marginBottom: '15px' }}>
-        as described below:
-      </div>
+import "./DNRForm.css";
 
-      <div style={{ marginBottom: '10px', marginLeft: '20px' }}>
-        <strong>A. In the event of</strong> <span style={{ color: '#0066cc' }}>(put a check mark on you choice)</span>
-      </div>
-      <div style={{ marginBottom: '8px', marginLeft: '40px' }}>
-        [ ] Full cardiopulmonary Arrest (When both breathing and heartbeat stops)
-      </div>
-      <div style={{ marginBottom: '15px', marginLeft: '40px' }}>
-        [ ] Pre Arrest Emergency (When breathing is labored or stopped and heart is still breathing)
-      </div>
+export default function DNRForm() {
+	return (
+		<div className="dnr-page">
 
-      <div style={{ marginBottom: '10px', marginLeft: '20px' }}>
-        <strong>B. No procedures to restart breathing or heart functioning will be instituted such as:</strong>
-      </div>
-      <div style={{ marginBottom: '8px', marginLeft: '40px', color: '#0066cc' }}>
-        (put a check mark on your choice)
-      </div>
-      <div style={{ marginBottom: '6px', marginLeft: '40px' }}>
-        [ ] Chest compressions
-      </div>
-      <div style={{ marginBottom: '6px', marginLeft: '40px' }}>
-        [ ] Assisted ventilations
-      </div>
-      <div style={{ marginBottom: '6px', marginLeft: '40px' }}>
-        [ ] Intubations
-      </div>
-      <div style={{ marginBottom: '6px', marginLeft: '40px' }}>
-        [ ] Defibrillations
-      </div>
-      <div style={{ marginBottom: '15px', marginLeft: '40px' }}>
-        [ ] Administration of cardiotomic medications
-      </div>
+			{/* Header */}
+			<div className="dnr-header">
+				<p className="dnr-header-title">
+					ADVANCE DIRECTIVE<br />
+					DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE FORM
+				</p>
+			</div>
 
-      <div style={{ marginBottom: '15px', marginLeft: '20px' }}>
-        Other related medical procedures, please specify: _____________________________________________
-      </div>
+			{/* Intro */}
+			<p className="dnr-intro">
+				I understand that effective today, emergency care for patient MATILOS , EUGENIA MAMBA will be limited
+			</p>
+			<p className="dnr-as-described">as described below:</p>
 
-      <div style={{ marginBottom: '10px', color: '#0066cc' }}>
-        I understand that DO NOT RESUSCITATE maybe revoked any time.
-      </div>
+			{/* Section A */}
+			<div className="dnr-section-label">
+				A. In the event of <span>(put a check mark on you choice)</span>
+			</div>
+			<div className="dnr-checkbox-item">[ ] Full cardiopulmonary Arrest (When both breathing and heartbeat stops)</div>
+			<div className="dnr-checkbox-item">[ ] Pre Arrest Emergency (When breathing is labored or stopped and heart is still breathing)</div>
 
-      <div style={{ marginBottom: '20px', color: '#0066cc' }}>
-        I understand the purpose and effect of this document and sign it knowingly and voluntarily
-      </div>
+			{/* Section B */}
+			<div className="dnr-section-label" style={{ marginTop: "8px" }}>
+				B. No procedures to restart breathing or heart functioning will be instituted such as:
+			</div>
+			<div className="dnr-checkbox-header">(put a check mark on your choice)</div>
+			<div className="dnr-checkbox-item">[ ] Chest compressions</div>
+			<div className="dnr-checkbox-item">[ ] Assisted ventilations</div>
+			<div className="dnr-checkbox-item">[ ] Intubations</div>
+			<div className="dnr-checkbox-item">[ ] Defibrillations</div>
+			<div className="dnr-checkbox-item">[ ] Administration of cardiotonic medications</div>
 
-      <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', gap: '40px' }}>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ borderBottom: '1px solid black', height: '35px', marginBottom: '5px' }}></div>
-          <div style={{ fontSize: '11px', lineHeight: '1.3' }}>SIGNATURE OVER PRINTED NAME OF NEXT OF<br/>KIN</div>
-        </div>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '11px' }}>RELATIONSHIP TO THE PATIENT</div>
-        </div>
-        <div style={{ flex: 0.8, textAlign: 'center' }}>
-          <div style={{ fontSize: '11px', marginBottom: '30px' }}>April 20, 2026</div>
-          <div style={{ fontSize: '11px' }}>DATE</div>
-        </div>
-      </div>
+			{/* Other procedures */}
+			<div className="dnr-other-procedures">
+				Other related medical procedures, please specify: _____________________________________________
+			</div>
 
-      <div style={{ borderTop: '1px solid black', borderBottom: '1px solid black', padding: '15px 0', marginBottom: '20px' }}>
-        <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>WITNESS:</div>
-        <div style={{ borderBottom: '1px solid black', height: '20px', marginBottom: '20px' }}></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '40px', marginTop: '20px' }}>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ borderBottom: '1px solid black', height: '20px', marginBottom: '5px' }}></div>
-            <div style={{ fontSize: '11px' }}>WITNESS SIGNATURE OVER PRINTED NAME</div>
-          </div>
-          <div style={{ flex: 0.8, textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', marginBottom: '20px' }}>April 20, 2026</div>
-            <div style={{ fontSize: '11px' }}>DATE</div>
-          </div>
-        </div>
-      </div>
+			{/* Understand statements */}
+			<p className="dnr-understand">I understand that DO NOT RESUSCITATE maybe revoked any time.</p>
+			<p className="dnr-understand">I understand the purpose and effect of this document and sign it knowingly and voluntarily</p>
 
-      <div style={{ textAlign: 'center', marginBottom: '15px', fontWeight: 'bold', fontSize: '13px' }}>
-        REVOCATION
-      </div>
+			{/* Signature row */}
+			<div className="dnr-sig-row">
+				<div className="dnr-sig-col">
+					<div className="dnr-sig-line" />
+					<div className="dnr-sig-label">SIGNATURE OVER PRINTED NAME OF NEXT OF<br />KIN</div>
+				</div>
+				<div className="dnr-sig-col">
+					<div className="dnr-sig-label" style={{ marginBottom: "32px" }}>RELATIONSHIP TO THE PATIENT</div>
+				</div>
+				<div className="dnr-sig-col-date">
+					<div className="dnr-date-value">April 21, 2026</div>
+					<div className="dnr-date-label">DATE</div>
+				</div>
+			</div>
 
-      <div style={{ color: '#0066cc', marginBottom: '20px' }}>
-        I hereby revoke the above DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE request
-      </div>
+			{/* Witness */}
+			<div className="dnr-witness-label">WITNESS:</div>
+			<div className="dnr-witness-line" />
+			<div className="dnr-witness-row">
+				<div className="dnr-sig-col">
+					<div className="dnr-sig-line" />
+					<div className="dnr-sig-label">WITNESS SIGNATURE OVER PRINTED NAME</div>
+				</div>
+				<div className="dnr-sig-col-date">
+					<div className="dnr-date-value">April 21, 2026</div>
+					<div className="dnr-date-label">DATE</div>
+				</div>
+			</div>
 
-      <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', gap: '40px' }}>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ borderBottom: '1px solid black', height: '35px', marginBottom: '5px' }}></div>
-          <div style={{ fontSize: '11px', lineHeight: '1.3' }}>SIGNATURE OVER PRINTED NAME OF NEXT OF<br/>KIN</div>
-        </div>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '11px' }}>RELATIONSHIP TO THE PATIENT</div>
-        </div>
-        <div style={{ flex: 0.8, textAlign: 'center' }}>
-          <div style={{ fontSize: '11px', marginBottom: '30px' }}>April 20, 2026</div>
-          <div style={{ fontSize: '11px' }}>DATE</div>
-        </div>
-      </div>
+			<hr className="dnr-divider" />
 
-      <div style={{ borderLeft: '1px solid black', paddingLeft: '15px', marginBottom: '15px', fontSize: '11px' }}>
-        <div style={{ marginBottom: '8px', color: '#0066cc' }}>
-          <strong>Note:</strong>
-        </div>
-        <div style={{ marginBottom: '8px' }}>
-          In case the patient is incapable of giving consent for healthcare decision and third party consent is required, the following persons, in the order of priority stated hereunder, may give consent as healthcare proxy:
-        </div>
-        <div style={{ marginLeft: '15px', marginBottom: '8px' }}>
-          <div>1. Spouse</div>
-          <div>2. Son or daughter of legal age</div>
-          <div>3. Parents</div>
-          <div>4. Brother or sister of legal age</div>
-          <div>5. Guardian</div>
-        </div>
-        <div>
-          (As cited in Republic Act No. 4226 otherwise known as Hospital Licensure Act)
-        </div>
-      </div>
+			{/* Revocation */}
+			<div className="dnr-revocation-title">REVOCATION</div>
+			<p className="dnr-revocation-text">
+				I hereby revoke the above DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE request
+			</p>
 
-      <div style={{ textAlign: 'right', marginTop: '20px', fontSize: '10px', color: '#666' }}>
-        Generated by: TCP T. TCP on 2026-04-20 03:18 pm
-      </div>
-    </div>
-  );
+			{/* Revocation signature row */}
+			<div className="dnr-sig-row">
+				<div className="dnr-sig-col">
+					<div className="dnr-sig-line" />
+					<div className="dnr-sig-label">SIGNATURE OVER PRINTED NAME OF NEXT OF<br />KIN</div>
+				</div>
+				<div className="dnr-sig-col">
+					<div className="dnr-sig-label" style={{ marginBottom: "32px" }}>RELATIONSHIP TO THE PATIENT</div>
+				</div>
+				<div className="dnr-sig-col-date">
+					<div className="dnr-date-value">April 21, 2026</div>
+					<div className="dnr-date-label">DATE</div>
+				</div>
+			</div>
+
+			{/* Note block */}
+			<div className="dnr-note-block">
+				<div className="dnr-note-label">Note:</div>
+				<div className="dnr-note-text">
+					In case the patient is incapable of giving consent for healthcare decision and third party consent is required, the following persons, in the order of priority stated hereunder, may give consent as healthcare proxy:
+				</div>
+				<div className="dnr-note-list">
+					<div>1. Spouse</div>
+					<div>2. Son or daughter of legal age</div>
+					<div>3. Parents</div>
+					<div>4. Brother or sister of legal age</div>
+					<div>5. Guardian</div>
+				</div>
+				<div>(As cited in Republic Act No. 4226 otherwise known as Hospital Licensure Act)</div>
+			</div>
+
+			{/* Footer */}
+			<div className="dnr-footer">
+				Generated by: TCP T. TCP on 2026-04-21 10:45 am
+			</div>
+
+		</div>
+	);
 }
