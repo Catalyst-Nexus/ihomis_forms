@@ -1,0 +1,14 @@
+.form-document {
+  width: 100%;
+}
+
+.form-document__body {
+  width: 100%;
+  max-width: 8.5in;
+  margin: 0 auto;
+  border: 1px solid #d8d8d8;
+  border-top: none;
+  background: #ffffff;
+  padding: 0.5rem 0.75rem 0.9rem;
+  box-sizing: border-box;
+}

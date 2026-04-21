@@ -61,8 +61,12 @@
   background: white;
   color: black;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.modal-content > * {
+  width: 100%;
 }
 
 .modal-content .dnr-form {
