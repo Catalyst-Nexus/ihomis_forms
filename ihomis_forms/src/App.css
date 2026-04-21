@@ -177,3 +177,24 @@
     font-size: 0.86rem;
   }
 }
+
+@media (max-width: 560px) {
+  .app-module-header {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .app-back-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-landing-page {
+    padding: 0.75rem;
+  }
+
+  .app-module-card {
+    padding: 0.9rem;
+  }
+}
