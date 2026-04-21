@@ -1,0 +1,194 @@
+/* ── OtherLaboratoryRequest.css ─────────────────────────────────────────────
+   A4: 210mm × 297mm  |  Arial  |  matches image bold/normal exactly
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.olr-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 14mm 20mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Top-right date/time — normal weight ── */
+.olr-date-ordered {
+  text-align: right;
+  font-size: 10pt;
+  font-weight: normal;
+  margin-bottom: 10px;
+}
+
+/* ── Header block — no border ── */
+.olr-header-block {
+  margin-bottom: 2px;
+}
+
+/* Base row */
+.olr-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+
+/* Multi-group row */
+.olr-row-flex {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: nowrap;
+}
+
+.olr-group {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+/* Name group — wider so it doesn't crush Age/Sex */
+.olr-group-name {
+  flex: 0 0 auto;
+  min-width: 180px;
+}
+
+/* Ward group — allow wrap for two-line text */
+.olr-group-ward {
+  flex: 0 0 200px;
+  white-space: normal;
+  align-items: flex-start;
+}
+
+/* ── Bold label (e.g. "Case Number:", "Name of Patient:", etc.) ── */
+.olr-lbl {
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 10.5pt;
+}
+
+/* ── Normal-weight value ── */
+.olr-val {
+  font-weight: normal;
+  font-size: 10.5pt;
+}
+
+/* Diagnosis value is ALSO bold, matching the image */
+.olr-val-bold {
+  font-weight: bold;
+}
+
+/* ── Title ── */
+.olr-title {
+  text-align: center;
+  font-size: 15pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 12px 0 18px 0;
+}
+
+/* ── Section ── */
+.olr-section {
+  margin-bottom: 20px;
+}
+
+/* "HEMATOLOGY" — bold, uppercase */
+.olr-section-title {
+  font-weight: bold;
+  font-size: 10.5pt;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+/* Checkbox items — normal weight */
+.olr-checkbox-item {
+  font-size: 10.5pt;
+  font-weight: normal;
+  margin: 4px 0;
+  line-height: 1.8;
+}
+
+.olr-others-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.olr-specify-line {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  width: 200px;
+  height: 14px;
+  vertical-align: bottom;
+}
+
+/* ── Signature block — right-aligned ── */
+.olr-sig-wrap {
+  margin-top: 36px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 6mm;
+}
+
+.olr-sig-block {
+  text-align: center;
+}
+
+.olr-sig-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.olr-sig-line {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  width: 260px;
+  height: 18px;
+}
+
+/* ",MD" sits right after the line end — normal weight */
+.olr-md {
+  font-size: 10.5pt;
+  font-weight: normal;
+  white-space: nowrap;
+  line-height: 1;
+  padding-bottom: 1px;
+}
+
+/* "Requesting Physician" — normal weight, centered under line */
+.olr-sig-label {
+  font-size: 10.5pt;
+  font-weight: normal;
+  margin: 5px 0 0 0;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.olr-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .olr-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

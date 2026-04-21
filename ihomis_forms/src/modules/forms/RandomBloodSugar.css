@@ -1,0 +1,213 @@
+.rbs-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 1.25rem 1.2rem 1.4rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  overflow: hidden;
+}
+
+.rbs-lbl { font-weight: bold; white-space: nowrap; font-size: 8.5pt; }
+.rbs-val { font-weight: normal; font-size: 8.5pt; }
+
+.rbs-ul {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 12px;
+}
+
+/* ── top row ── */
+.rbs-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+  font-size: 8.5pt;
+  flex-shrink: 0;
+}
+.rbs-case { display: flex; align-items: baseline; }
+.rbs-date-right { display: flex; align-items: baseline; }
+
+/* ── info block ── */
+.rbs-info-block {
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+
+.rbs-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  font-size: 8.5pt;
+  min-height: 18px;
+  line-height: 1.8;
+}
+.rbs-info-left-cell  { display: flex; align-items: baseline; flex: 1; }
+.rbs-info-right-cells {
+  display: flex;
+  align-items: baseline;
+  min-width: 95mm;
+  flex-shrink: 0;
+}
+.rbs-req-row { display: flex; align-items: baseline; gap: 2px; }
+
+/* ── table ── */
+.rbs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  flex-shrink: 0;
+  margin-top: 1mm;
+}
+.rbs-th {
+  border: 1px solid #000;
+  padding: 5px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 8.5pt;
+  background: #fff;
+}
+.rbs-tr { height: 34px; }
+.rbs-td {
+  border: 1px solid #000;
+  padding: 0 4px;
+  font-size: 8.5pt;
+  vertical-align: middle;
+}
+.rbs-col-date   { width: 16%; text-align: center; }
+.rbs-col-time   { width: 12%; text-align: center; }
+.rbs-col-result { width: 38%; text-align: center; padding: 0; }
+.rbs-col-sig    { width: 19%; }
+.rbs-col-rem    { width: 15%; }
+.rbs-mgdl       { font-size: 8.5pt; font-weight: normal; }
+
+.rbs-result-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  padding-right: 4px;
+}
+
+/* ── spacer ── */
+.rbs-spacer {
+  flex: 1;
+  min-height: 2mm;
+}
+
+/* ── signature block ── */
+.rbs-sig-wrap {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 6mm;
+  margin-bottom: 0.7rem;
+  flex-shrink: 0;
+}
+.rbs-sig-block {
+  text-align: center;
+  min-width: 55mm;
+}
+.rbs-sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 2px;
+}
+.rbs-sig-label {
+  font-size: 8.5pt;
+  font-weight: normal;
+  text-align: center;
+  margin-bottom: 3px;
+}
+.rbs-license-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 3px;
+  font-size: 8.5pt;
+}
+
+/* ── footer ── */
+.rbs-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+.rbs-footer-border {
+  border-top: 1px solid #000;
+  margin-bottom: 2px;
+}
+.rbs-footer-text {
+  font-size: 0.74rem;
+  font-weight: bold !important;
+  font-style: italic;
+  text-align: right;
+  color: #000;
+}
+
+/* ══════════════════════════════════════════
+   PRINT STYLES
+   ══════════════════════════════════════════ */
+@media print {
+  .rbs-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 1.25rem 1.2rem 1.4rem !important;
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .rbs-tr {
+    height: 34px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .rbs-spacer {
+    flex: 1 !important;
+    min-height: 2mm !important;
+  }
+
+  .rbs-sig-wrap {
+    flex-shrink: 0 !important;
+    margin-bottom: 0.7rem !important;
+  }
+
+  .rbs-footer {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  .rbs-page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.86rem;
+    padding: 0.75rem;
+    box-shadow: none;
+    border-radius: 4px;
+  }
+
+  .rbs-info-right-cells {
+    min-width: auto;
+  }
+}
