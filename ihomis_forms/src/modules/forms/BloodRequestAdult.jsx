@@ -330,9 +330,9 @@ export default function BloodRequestAdult() {
         {/* SIGNATURES */}
         <div className="brf-sig-row">
           <div className="brf-sig-block">
-            <div className="brf-sig-line-with-md">
-              <span className="brf-sig-md">M. D.</span>
-            </div>
+           <div className="olr-sig-row">
+						<span className="olr-md">M.D.</span>
+					</div>
             <p className="brf-sig-label">Signature over Printed Name of Physician</p>
           </div>
           <div className="brf-sig-block">

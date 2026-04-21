@@ -12,6 +12,11 @@ import BloodRequestPediatric from './BloodRequestPediatric';
 import BloodTransfusionReactionRegistry from './BloodTransfusionReactionRegistry';
 import Abtcform from './Abtcform';
 import BloodTransfusionSheet from './BloodTransfusionSheet';
+import ClinicalReferralSlip from './ClinicalReferralSlip';
+import RandomBloodSugar from './RandomBloodSugar';
+import DoctorsOrder from './DoctorsOrder';
+import OxygenConsumptionSheet from './OxygenConsumptionSheet';
+import OtherLaboratoryRequest from './OtherLaboratoryRequest';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -25,6 +30,7 @@ const ThemeToggle = ({ isDarkMode, onToggle }) => (
 );
 
 const FORMS_LIST = [
+  'ABTC Form',
   'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form',
   'Aldrete Score (Post Anesthesia Recovery Score) Form',
   'Anesthesia Record',
@@ -98,6 +104,7 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
   const patientName = 'DOE, JHON';
+  const patientData = {};
 
   const filteredForms = useMemo(() => {
     if (!searchTerm) return FORMS_LIST;
@@ -157,6 +164,21 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
     if (formName === 'Blood Transfusion Sheet') {
       return <BloodTransfusionSheet />;
+    }
+    if (formName === 'Clinical Referral Slip') {
+      return <ClinicalReferralSlip patientName={patientName} />;
+    }
+    if (formName === 'Random Blood Sugar') {
+      return <RandomBloodSugar patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === "Doctor's Order Form") {
+    return <DoctorsOrder patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Oxygen Consumption Sheet') {
+    return <OxygenConsumptionSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Other Laboratory Request') {
+    return <OtherLaboratoryRequest patientName={patientName} patientData={patientData} />;
     }
     // Add more forms here
     return <div>Form template to be defined</div>;
