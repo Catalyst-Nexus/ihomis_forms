@@ -7,6 +7,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
 
   const handlePrint = () => {
+    if (!contentRef.current) return;
+
     let printContainer = document.getElementById('print-container');
     if (!printContainer) {
       printContainer = document.createElement('div');
@@ -14,12 +16,14 @@ export default function Modal({ isOpen, onClose, title, children }) {
       document.body.appendChild(printContainer);
     }
 
-    printContainer.innerHTML = '';
-    const contentClone = contentRef.current.cloneNode(true);
-    printContainer.appendChild(contentClone);
+    const printableRoot = contentRef.current.firstElementChild
+      ? contentRef.current.firstElementChild.cloneNode(true)
+      : contentRef.current.cloneNode(true);
+
+    printContainer.replaceChildren(printableRoot);
 
     const cleanup = () => {
-      printContainer.innerHTML = '';
+      printContainer.replaceChildren();
     };
 
     window.addEventListener('afterprint', cleanup, { once: true });

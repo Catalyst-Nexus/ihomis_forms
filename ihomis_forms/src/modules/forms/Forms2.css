@@ -131,7 +131,9 @@
   text-align: right;
   font-size: 0.74rem;
   font-style: italic;
+  font-weight: 700;
   color: #000;
+  flex-shrink: 0;
 }
 
 @media (max-width: 760px) {
@@ -160,5 +162,37 @@
   .aldrete-table th:first-child,
   .aldrete-table td:first-child {
     width: auto;
+  }
+}
+
+@media print {
+  .aldrete-page {
+    position: relative !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    padding: 1.25rem 1.2rem 1.4rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.3 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Pin footer to bottom — always visible */
+  .aldrete-default-footer {
+    position: absolute !important;
+    bottom: 1.4rem !important;
+    left: 1.2rem !important;
+    right: 1.2rem !important;
+    margin-top: 0 !important;
+  }
+
+  /* Reserve space so signature block never overlaps footer */
+  .aldrete-signature-wrap {
+    margin-bottom: 3rem !important;
   }
 }
