@@ -74,7 +74,7 @@
 .app-module-grid {
   display: grid;
   gap: 0.95rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .app-module-card {

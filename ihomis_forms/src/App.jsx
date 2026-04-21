@@ -1,8 +1,16 @@
 import { useMemo, useState } from "react";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
+import FormsModule from "./modules/forms/FormsModule.jsx";
 import "./App.css";
 
 const modules = [
+  {
+    id: "forms",
+    name: "Forms",
+    description: "Search, select, and generate patient forms.",
+    status: "Ready",
+    Component: FormsModule,
+  },
   {
     id: "lab-upload",
     name: "Laboratory Upload",
