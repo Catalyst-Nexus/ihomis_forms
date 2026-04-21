@@ -6,6 +6,12 @@ import Forms2 from './Forms2';
 import ApgarScoring from './ApgarScoring';
 import BTLConsent from './BTLConsent';
 import CardioPulmonaryClearance from './CardioPulmonaryClearance';
+import BloodCancellation from './BloodCancellation';
+import BloodRequestAdult from './BloodRequestAdult';
+import BloodRequestPediatric from './BloodRequestPediatric';
+import BloodTransfusionReactionRegistry from './BloodTransfusionReactionRegistry';
+import Abtcform from './Abtcform';
+import BloodTransfusionSheet from './BloodTransfusionSheet';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -133,6 +139,24 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
     if (formName === 'Cardio-Pulmonary Clearance Form') {
       return <CardioPulmonaryClearance />;
+    }
+    if (formName === 'Blood Cancellation Form') {
+      return <BloodCancellation />;
+    }
+    if (formName === 'Blood Request Form (Adult)') {
+      return <BloodRequestAdult />;
+    }
+    if (formName === 'Blood Request Form (Pedia)') {
+      return <BloodRequestPediatric />;
+    }
+    if (formName === 'Blood Transfusion Reaction Registry') {
+      return <BloodTransfusionReactionRegistry />;
+    }
+    if (formName === 'ABTC Form') {
+      return <Abtcform />;
+    }
+    if (formName === 'Blood Transfusion Sheet') {
+      return <BloodTransfusionSheet />;
     }
     // Add more forms here
     return <div>Form template to be defined</div>;
