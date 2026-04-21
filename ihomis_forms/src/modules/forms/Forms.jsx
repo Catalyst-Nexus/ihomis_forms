@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
+import Forms2 from './Forms2';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -117,6 +118,9 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   const renderForm = (formName) => {
     if (formName === 'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form') {
       return <DNRForm patientName={patientName} />;
+    }
+    if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
+      return <Forms2 />;
     }
     // Add more forms here
     return <div>Form template to be defined</div>;

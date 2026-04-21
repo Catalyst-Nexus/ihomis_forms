@@ -7,22 +7,25 @@ export default function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
 
   const handlePrint = () => {
-    // get or create a dedicated print container
     let printContainer = document.getElementById('print-container');
     if (!printContainer) {
       printContainer = document.createElement('div');
       printContainer.id = 'print-container';
-      printContainer.style.display = 'none';
       document.body.appendChild(printContainer);
     }
 
-    // clone only the modal content (DNRForm) into it
-    printContainer.innerHTML = contentRef.current.innerHTML;
-
-    window.print();
-
-    // clean up after printing
     printContainer.innerHTML = '';
+    const contentClone = contentRef.current.cloneNode(true);
+    printContainer.appendChild(contentClone);
+
+    const cleanup = () => {
+      printContainer.innerHTML = '';
+    };
+
+    window.addEventListener('afterprint', cleanup, { once: true });
+    requestAnimationFrame(() => {
+      window.print();
+    });
   };
 
   return (
@@ -34,7 +37,6 @@ export default function Modal({ isOpen, onClose, title, children }) {
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* attach ref here to capture only the form */}
         <div className="modal-content" ref={contentRef}>
           {children}
         </div>

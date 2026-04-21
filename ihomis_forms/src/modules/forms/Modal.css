@@ -77,6 +77,10 @@
   border-top: 1px solid var(--border-light);
 }
 
+#print-container {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .modal {
@@ -106,18 +110,53 @@
 }
 
 /* Print styles */
+@page {
+  size: A4;
+  margin: 6mm;
+}
+
 @media print {
-  /* hide everything on the page */
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   body > * {
     display: none !important;
   }
 
-  /* show only the print container */
   #print-container {
     display: block !important;
-    position: static;
-    width: 100%;
-    padding: 0;
-    margin: 0;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #print-container .modal-content {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  #print-container .modal-content .aldrete-page {
+    width: 100% !important;
+    height: calc(297mm - 12mm) !important;
+    min-height: calc(297mm - 12mm) !important;
+    max-height: calc(297mm - 12mm) !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
   }
 }
