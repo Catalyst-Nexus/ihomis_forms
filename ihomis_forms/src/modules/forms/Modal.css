@@ -107,31 +107,17 @@
 
 /* Print styles */
 @media print {
-  .modal-overlay {
-    display: none;
+  /* hide everything on the page */
+  body > * {
+    display: none !important;
   }
 
-  .modal {
+  /* show only the print container */
+  #print-container {
+    display: block !important;
     position: static;
-    transform: none;
-    top: auto;
-    left: auto;
     width: 100%;
-    max-width: none;
-    border: none;
-    box-shadow: none;
-    max-height: none;
-  }
-
-  .modal-header,
-  .modal-footer {
-    display: none;
-  }
-
-  .modal-content {
     padding: 0;
-    max-height: none;
-    overflow: visible;
+    margin: 0;
   }
 }
-
