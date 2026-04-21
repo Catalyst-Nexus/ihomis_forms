@@ -1,0 +1,251 @@
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.brf-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.brf-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 1.25rem 1.4rem 1.2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--text-primary, #1a1a1a);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #fff);
+  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── HEADER ──────────────────────────────────────────────── */
+.brf-header-spacer {
+  height: 1rem;
+}
+
+.brf-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.brf-title-main {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.brf-title-sub {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── META ────────────────────────────────────────────────── */
+.brf-meta-section {
+  margin-bottom: 0.15rem;
+}
+
+.brf-meta-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 1px;
+}
+
+.brf-meta-cell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-right: 1rem;
+}
+
+.brf-meta-cell--wide {
+  min-width: 260px;
+}
+
+.brf-meta-cell--rest {
+  flex: 1;
+}
+
+.brf-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── INLINE ROWS ─────────────────────────────────────────── */
+.brf-inline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 1px;
+}
+
+.brf-ml4  { margin-left: 0.25rem; }
+.brf-ml8  { margin-left: 0.6rem; }
+
+.brf-indent-where {
+  padding-left: 11.8rem;
+}
+
+/* ─── UNDERLINES ──────────────────────────────────────────── */
+.brf-line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.brf-line--sm   { width: 70px; }
+.brf-line--md   { width: 130px; }
+.brf-line--fill { flex: 1; min-width: 60px; }
+.brf-line--sig  { width: 190px; display: block; }
+.brf-line--full { flex: 1; display: inline-block; }
+
+/* ─── GAPS ────────────────────────────────────────────────── */
+.brf-gap     { height: 0.6rem; }
+.brf-gap-sm  { height: 0.3rem; }
+.brf-gap--tall { height: 1.8rem; }
+
+/* ─── SECTION HEADING ─────────────────────────────────────── */
+.brf-section-heading {
+  font-weight: 700;
+  margin: 0 0 0.15rem 0;
+  text-decoration: underline;
+}
+
+/* ─── COMPONENT ROWS ──────────────────────────────────────── */
+.brf-comp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 0.08rem;
+  flex-wrap: wrap;
+}
+
+.brf-chk {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── ITEM ROWS (sub-items) ───────────────────────────────── */
+.brf-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 0;
+  padding-left: 0.5rem;
+}
+
+.brf-code {
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 5.8rem;
+  display: inline-block;
+}
+
+/* ─── NOTE BLOCKS ─────────────────────────────────────────── */
+.brf-note-block {
+  margin: 0.3rem 0 0.2rem 0;
+}
+
+.brf-note-title {
+  font-weight: 700;
+  margin: 0;
+}
+
+.brf-note-item {
+  margin: 0;
+  padding-left: 0.5rem;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.brf-plain-label {
+  margin: 0 0 0.3rem 0;
+}
+
+.brf-sig-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.brf-sig-block {
+  flex: 1;
+  text-align: center;
+}
+
+.brf-sig-line-with-md {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.brf-sig-md {
+  white-space: nowrap;
+}
+
+.brf-sig-label {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  border-top: 1px solid #000;
+  padding-top: 2px;
+  text-align: center;
+}
+
+/* ─── REMARKS ─────────────────────────────────────────────── */
+.brf-remarks-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.brf-footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #000;
+}
+
+/* ─── PAGE 2 specific ─────────────────────────────────────── */
+.brf-page--p2 {
+  min-height: 297mm;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .brf-page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.8rem;
+    padding: 0.75rem;
+    box-shadow: none;
+  }
+
+  .brf-meta-cell--wide {
+    min-width: auto;
+  }
+
+  .brf-footer {
+    font-size: 0.68rem;
+  }
+
+  .brf-line--sig {
+    width: 140px;
+  }
+}
