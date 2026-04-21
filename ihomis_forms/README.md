@@ -1,8 +1,29 @@
-# React + Vite
+# Hospital Laboratory Upload Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app provides a hospital-focused upload page for laboratory results. It captures these metadata fields before upload:
 
-Currently, two official plugins are available:
+- FHUD
+- ENC
+- User
+- DocIntKey
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The form submits a multipart/form-data request containing metadata and a file attachment.
+
+## Environment Setup
+
+Create a .env file in this project directory (ihomis_forms/ihomis_forms) using .env.example as a guide.
+
+Supported variables:
+
+- VITE_LAB_UPLOAD_API_URL (preferred full upload endpoint)
+- VITE_API_URL (fallback endpoint if preferred key is not set)
+- VITE_LAB_UPLOAD_API_TOKEN (optional bearer token)
+
+## Run Locally
+
+npm install
+npm run dev
+
+## Build
+
+npm run build
