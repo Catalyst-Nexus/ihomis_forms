@@ -1,0 +1,107 @@
+.do-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 12mm 18mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Title ── */
+.do-title-row {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.do-title {
+  font-size: 11pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 4px 0;
+}
+
+/* ── Table ── */
+.do-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+  table-layout: fixed;
+}
+
+/* Column widths matching image proportions */
+.do-col-datetime  { width: 13%; }
+.do-col-progress  { width: 22%; }
+.do-col-order     { width: 65%; }
+
+.do-th {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #000;
+  padding: 3px 4px;
+  background: #fff;
+  text-transform: uppercase;
+}
+
+.do-tr {
+  height: 18px;
+}
+
+.do-td {
+  border: 1px solid #000;
+  padding: 0;
+  height: 18px;
+}
+
+/* ── Patient Info Block ── */
+.do-patient-info {
+  margin-top: 6px;
+  font-size: 8.5pt;
+  line-height: 1.55;
+}
+
+.do-patient-info p {
+  margin: 0;
+}
+
+.do-info-label {
+  font-weight: bold;
+}
+
+.do-info-case {
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* ── Footer ── */
+.do-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print overrides ── */
+@media print {
+  .do-page {
+    margin: 0;
+    padding: 8mm 12mm 18mm 12mm;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

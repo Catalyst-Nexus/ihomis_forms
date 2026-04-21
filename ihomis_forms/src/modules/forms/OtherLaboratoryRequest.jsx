@@ -1,0 +1,137 @@
+import { useMemo } from "react";
+import "./OtherLaboratoryRequest.css";
+
+export default function OtherLaboratoryRequest({ patientName, patientData }) {
+	const name      = patientName            || "PELISCO , BABY GIRL";
+	const age       = patientData?.age       || "1 hour(s)";
+	const sex       = patientData?.sex       || "F";
+	const address   = patientData?.address   || "P-1, MATABAO, BUENAVISTA, AGUSAN DEL NORTE";
+	const caseNum   = patientData?.caseNum   || "ADM-2026-010623";
+	const ward      = patientData?.ward      || "NEWBORN - TRANSIENT - BED 02";
+	const category  = patientData?.category  || "NEWBORN";
+	const birthdate = patientData?.birthdate || "April 21, 2026";
+	const diagnosis = patientData?.diagnosis || "TERM FEMALE NEONATE DELIVERED VIA REPEAT CS WITH AS 8,9 BS 40 WEEKS AOG, BW 3.0 KGS, AGA";
+
+	const { dateTimeOrdered, generatedOn } = useMemo(() => {
+		const now = new Date();
+		const pad = (n) => String(n).padStart(2, "0");
+		const h = now.getHours();
+		const m = now.getMinutes();
+		const ampm = h >= 12 ? "PM" : "AM";
+		const hh = String(h % 12 || 12).padStart(2, "0");
+		const timeStr = `${hh}:${pad(m)} ${ampm}`;
+		const dateOrdered = now.toLocaleDateString("en-US", {
+			year: "numeric", month: "long", day: "numeric",
+		});
+		const dateTimeOrdered = `${dateOrdered} ${timeStr}`;
+		const ampmLower = ampm.toLowerCase();
+		const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${hh}:${pad(m)} ${ampmLower}`;
+		return { dateTimeOrdered, generatedOn };
+	}, []);
+
+	return (
+		<div className="olr-page">
+
+			{/* ── Top-right: Date and Time ordered — normal weight ── */}
+			<div className="olr-date-ordered">
+				Date and Time ordered: {dateTimeOrdered}
+			</div>
+
+			{/* ══════════════════════════════════
+			    PATIENT HEADER — no border box
+			    ══════════════════════════════════ */}
+			<div className="olr-header-block">
+
+				{/* Row 1 — Case Number: [bold label]  [normal value] */}
+				<div className="olr-row">
+					<span className="olr-lbl">Case Number:</span>
+					<span className="olr-val">&nbsp;&nbsp;{caseNum}</span>
+				</div>
+
+				{/* Row 2 — Name of Patient | Age | Sex | Birthdate */}
+				<div className="olr-row olr-row-flex">
+					<div className="olr-group olr-group-name">
+						<span className="olr-lbl">Name of Patient:</span>
+						<span className="olr-val">&nbsp;{name}</span>
+					</div>
+					<div className="olr-group">
+						<span className="olr-lbl">Age:</span>
+						<span className="olr-val">&nbsp;{age}</span>
+					</div>
+					<div className="olr-group">
+						<span className="olr-lbl">Sex:</span>
+						<span className="olr-val">&nbsp;{sex}</span>
+					</div>
+					<div className="olr-group">
+						<span className="olr-lbl">Birthdate:</span>
+						<span className="olr-val">&nbsp;{birthdate}</span>
+					</div>
+				</div>
+
+				{/* Row 3 — Ward/OR# | Category | Case Number */}
+				<div className="olr-row olr-row-flex">
+					<div className="olr-group olr-group-ward">
+						<span className="olr-lbl">Ward/OR#:</span>
+						<span className="olr-val">&nbsp;{ward}</span>
+					</div>
+					<div className="olr-group">
+						<span className="olr-lbl">Category:</span>
+						<span className="olr-val">{category}</span>
+					</div>
+					<div className="olr-group">
+						<span className="olr-lbl">Case Number:</span>
+						<span className="olr-val">{caseNum}</span>
+					</div>
+				</div>
+
+				{/* Row 4 — Address */}
+				<div className="olr-row">
+					<span className="olr-lbl">Address:</span>
+					<span className="olr-val">&nbsp;{address}</span>
+				</div>
+
+				{/* Row 5 — Diagnosis/Chief Complaint:
+				    label is bold, value is bold too (as shown in image) */}
+				<div className="olr-row">
+					<span className="olr-lbl">Diagnosis/Chief Complaint:</span>
+					<span className="olr-val olr-val-bold">&nbsp;{diagnosis}</span>
+				</div>
+
+			</div>
+
+			{/* ── Title — bold, centered, all-caps ── */}
+			<h2 className="olr-title">OTHER LABORATORY REQUEST</h2>
+
+			{/* ── HEMATOLOGY section ── */}
+			<div className="olr-section">
+				{/* "HEMATOLOGY" is bold */}
+				<p className="olr-section-title">HEMATOLOGY</p>
+				<div className="olr-checkbox-item">[ &nbsp;]U/A</div>
+				<div className="olr-checkbox-item">[ &nbsp;]S/E</div>
+				<div className="olr-checkbox-item">[ &nbsp;]Sputum</div>
+				<div className="olr-checkbox-item">[ &nbsp;]Gen Expert</div>
+				<div className="olr-checkbox-item olr-others-row">
+					[ &nbsp;]Others (Specify)&nbsp;
+					<span className="olr-specify-line" />
+				</div>
+			</div>
+
+			{/* ── Signature block ── */}
+			<div className="olr-sig-wrap">
+				<div className="olr-sig-block">
+					<div className="olr-sig-row">
+						<span className="olr-sig-line" />
+						<span className="olr-md">,MD</span>
+					</div>
+					<p className="olr-sig-label">Requesting Physician</p>
+				</div>
+			</div>
+
+			{/* ── Footer ── */}
+			<div className="olr-footer">
+				Generated by: TCP T. TCP on {generatedOn}
+			</div>
+
+		</div>
+	);
+}
