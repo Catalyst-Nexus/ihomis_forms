@@ -1,0 +1,262 @@
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.brp-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.brp-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 1.25rem 1.4rem 1.2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--text-primary, #1a1a1a);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #fff);
+  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── HEADER ──────────────────────────────────────────────── */
+.brp-header-spacer {
+  height: 1rem;
+}
+
+.brp-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.brp-title-main {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.brp-title-sub {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── META ────────────────────────────────────────────────── */
+.brp-meta-section {
+  margin-bottom: 0.15rem;
+}
+
+.brp-meta-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 1px;
+}
+
+.brp-meta-cell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-right: 1rem;
+}
+
+.brp-meta-cell--wide {
+  min-width: 260px;
+}
+
+.brp-meta-cell--rest {
+  flex: 1;
+}
+
+.brp-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── INLINE ROWS ─────────────────────────────────────────── */
+.brp-inline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 1px;
+}
+
+.brp-ml4  { margin-left: 0.25rem; }
+.brp-ml8  { margin-left: 0.6rem; }
+
+.brp-indent-where {
+  padding-left: 11.8rem;
+}
+
+/* ─── UNDERLINES ──────────────────────────────────────────── */
+.brp-line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.brp-line--sm   { width: 70px; }
+.brp-line--md   { width: 130px; }
+.brp-line--fill { flex: 1; min-width: 60px; }
+.brp-line--sig  { width: 190px; display: block; }
+.brp-line--full { flex: 1; display: inline-block; }
+
+/* ─── GAPS ────────────────────────────────────────────────── */
+.brp-gap     { height: 0.6rem; }
+.brp-gap-sm  { height: 0.3rem; }
+.brp-gap--tall { height: 1.8rem; }
+
+/* ─── SECTION HEADING ─────────────────────────────────────── */
+.brp-section-heading {
+  font-weight: 700;
+  margin: 0 0 0.15rem 0;
+  text-decoration: underline;
+}
+
+/* ─── COMPONENT ROWS ──────────────────────────────────────── */
+.brp-comp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 0.05rem;
+  flex-wrap: wrap;
+}
+
+.brp-chk {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── SUBHEADING (For Exchange Transfusion:) ──────────────── */
+.brp-subheading-row {
+  padding-left: 1.2rem;
+  margin-bottom: 0.05rem;
+}
+
+/* ─── ITEM ROWS (sub-items with [ ] checkbox) ─────────────── */
+.brp-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 0;
+  padding-left: 1.5rem;
+}
+
+.brp-chk-indent {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── NOTE BLOCKS ─────────────────────────────────────────── */
+.brp-note-block {
+  margin: 0.3rem 0 0.2rem 0;
+}
+
+.brp-note-title {
+  font-weight: 700;
+  margin: 0;
+}
+
+.brp-note-item {
+  margin: 0;
+  padding-left: 0.5rem;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.brp-plain-label {
+  margin: 0 0 0.3rem 0;
+}
+
+.brp-sig-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.brp-sig-block {
+  flex: 1;
+  text-align: center;
+}
+
+.brp-sig-line-with-md {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}
+
+.brp-sig-line-empty {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  height: 1.4rem;
+}
+
+.brp-sig-md {
+  white-space: nowrap;
+}
+
+.brp-sig-label {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  padding-top: 2px;
+  text-align: center;
+}
+
+/* ─── REMARKS ─────────────────────────────────────────────── */
+.brp-remarks-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.brp-footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #000;
+}
+
+/* ─── PAGE 2 specific ─────────────────────────────────────── */
+.brp-page--p2 {
+  min-height: 297mm;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .brp-page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.8rem;
+    padding: 0.75rem;
+    box-shadow: none;
+  }
+
+  .brp-meta-cell--wide {
+    min-width: auto;
+  }
+
+  .brp-footer {
+    font-size: 0.68rem;
+  }
+
+  .brp-line--sig {
+    width: 140px;
+  }
+}

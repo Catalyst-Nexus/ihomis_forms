@@ -3,6 +3,9 @@ import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
 import Forms2 from './Forms2';
+import ApgarScoring from './ApgarScoring';
+import BTLConsent from './BTLConsent';
+import CardioPulmonaryClearance from './CardioPulmonaryClearance';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -121,6 +124,15 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
     if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
       return <Forms2 />;
+    }
+    if (formName === 'APGAR Score Form') {
+      return <ApgarScoring />;
+    }
+    if (formName === 'BTL Consent Form') {
+      return <BTLConsent />;
+    }
+    if (formName === 'Cardio-Pulmonary Clearance Form') {
+      return <CardioPulmonaryClearance />;
     }
     // Add more forms here
     return <div>Form template to be defined</div>;

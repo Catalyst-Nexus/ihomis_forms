@@ -1,0 +1,170 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: #fff;
+  padding: 10mm 14mm 14mm 14mm;
+  font-family: Arial, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.header-spacer {
+  height: 28mm;
+}
+
+.form-meta {
+  font-size: 8pt;
+  margin-bottom: 2mm;
+  line-height: 1.5;
+}
+
+.form-title {
+  text-align: center;
+  font-size: 13pt;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 3mm 0 4mm;
+}
+
+.case-number-row {
+  font-size: 9.5pt;
+  margin-bottom: 3mm;
+}
+
+.case-number-row strong {
+  font-weight: bold;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 9pt;
+}
+
+.info-table td {
+  border: 1px solid #000;
+  padding: 2.5px 5px;
+  vertical-align: middle;
+}
+
+.info-table .lbl {
+  background: #d9d9d9;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  width: 1%;
+}
+
+.sign-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 9pt;
+}
+
+.sign-table th,
+.sign-table td {
+  border: 1px solid #000;
+  padding: 3px 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.sign-table thead th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  font-size: 9.5pt;
+}
+
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 9pt;
+}
+
+.score-table th,
+.score-table td {
+  border: 1px solid #000;
+  padding: 3.5px 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.score-table thead th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  font-size: 9.5pt;
+}
+
+.score-table td.blank-cell {
+  height: 18px;
+}
+
+.footer-sig {
+  text-align: center;
+  margin-top: 16mm;
+}
+
+.sig-line {
+  border-top: 1px solid #000;
+  width: 55mm;
+  margin: 0 auto 2mm;
+}
+
+.sig-label {
+  font-weight: bold;
+  font-size: 9.5pt;
+}
+
+.generated-by {
+  text-align: right;
+  font-size: 8pt;
+  font-style: italic;
+  font-weight: 700;
+  margin-top: auto;
+  padding-top: 1.6mm;
+  border-top: 1px solid #000;
+  flex-shrink: 0;
+}
+
+@media print {
+  .a4-page {
+    position: relative !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: visible !important;
+    padding: 10mm 14mm 14mm 14mm !important;
+  }
+
+  /* Pin footer to bottom — always visible */
+  .generated-by {
+    position: absolute !important;
+    bottom: 14mm !important;
+    left: 14mm !important;
+    right: 14mm !important;
+    margin-top: 0 !important;
+  }
+
+  /* Reserve space so sig block never overlaps footer */
+  .footer-sig {
+    margin-bottom: 14mm !important;
+  }
+}

@@ -1,0 +1,273 @@
+.blood-cancel-page {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	line-height: 1.5;
+	padding: 40px 50px;
+	width: 794px;
+	min-height: 1123px;
+	margin: 0 auto;
+	background: #fff;
+	color: #000;
+	box-sizing: border-box;
+	position: relative;
+}
+
+/* Header */
+.blood-cancel-header {
+	text-align: center;
+	margin-bottom: 16px;
+}
+
+.blood-cancel-header-title {
+	font-size: 14px;
+	font-weight: bold;
+	letter-spacing: 0.03em;
+	margin: 0;
+	line-height: 1.8;
+}
+
+/* Meta rows */
+.blood-cancel-meta-block {
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
+	padding: 5px 0;
+	margin-bottom: 14px;
+}
+
+.blood-cancel-meta-row {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	margin-bottom: 3px;
+}
+
+.blood-cancel-meta-row:last-child {
+	margin-bottom: 0;
+}
+
+.blood-cancel-label {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+.blood-cancel-value {
+	white-space: nowrap;
+}
+
+.blood-cancel-underline {
+	border-bottom: 1px solid #000;
+	min-width: 180px;
+	display: inline-block;
+	height: 14px;
+	vertical-align: bottom;
+}
+
+.blood-cancel-meta-inline {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	margin-left: 16px;
+}
+
+/* Reasons section */
+.blood-cancel-reasons-title {
+	font-size: 13px;
+	font-weight: bold;
+	margin-bottom: 8px;
+	text-decoration: underline;
+}
+
+.blood-cancel-reasons-body {
+	display: flex;
+	gap: 0;
+}
+
+.blood-cancel-reasons-left {
+	flex: 1;
+}
+
+.blood-cancel-reasons-right {
+	flex: 1;
+	padding-left: 20px;
+}
+
+.blood-cancel-checkbox-item {
+	margin-bottom: 4px;
+}
+
+.blood-cancel-blood-bag-item {
+	margin-bottom: 4px;
+	display: flex;
+	align-items: baseline;
+	gap: 4px;
+}
+
+.blood-cancel-bag-line {
+	border-bottom: 1px solid #000;
+	min-width: 160px;
+	display: inline-block;
+	height: 13px;
+	vertical-align: bottom;
+}
+
+/* Prepared by */
+.blood-cancel-prepared {
+	margin-top: 32px;
+	text-align: center;
+}
+
+.blood-cancel-prepared-line-wrap {
+	display: inline-block;
+	text-align: center;
+}
+
+.blood-cancel-prepared-label {
+	margin-bottom: 0;
+}
+
+.blood-cancel-prepared-sig-line {
+	border-bottom: 1px solid #000;
+	width: 240px;
+	display: inline-block;
+	vertical-align: bottom;
+	height: 14px;
+}
+
+.blood-cancel-prepared-sig-label {
+	font-size: 10px;
+	text-align: center;
+	margin-top: 2px;
+}
+
+/* Footer — screen */
+.blood-cancel-footer {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	right: 0;
+	border-top: 1px solid #000;
+	padding-top: 6px;
+	padding-right: 50px;
+	text-align: right;
+	font-size: 10px;
+	font-style: italic;
+	color: #333;
+}
+
+/* ============================================================
+   SCREEN-ONLY: print-root wrapper & print button
+   ============================================================ */
+
+.blood-cancel-print-root {
+	display: contents;
+}
+
+.blood-cancel-print-btn-wrap {
+	display: flex;
+	justify-content: center;
+	margin: 16px auto 32px;
+	width: 794px;
+}
+
+.blood-cancel-print-btn {
+	padding: 8px 32px;
+	font-size: 13px;
+	font-family: Arial, sans-serif;
+	background: #1a5276;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	letter-spacing: 0.04em;
+}
+
+.blood-cancel-print-btn:hover {
+	background: #154360;
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+
+	@page {
+		size: A4 portrait;
+		margin: 0;
+	}
+
+	html,
+	body {
+		margin: 0 !important;
+		padding: 0 !important;
+		width: 100% !important;
+		height: auto !important;
+		background: #fff !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	/* Hide everything on the page except our form root */
+	body > *:not(.blood-cancel-print-root) {
+		display: none !important;
+	}
+
+	/* Strip any modal/overlay wrappers */
+	.modal-overlay,
+	.modal-backdrop,
+	.modal-wrapper,
+	[class*="modal"],
+	[class*="overlay"],
+	[class*="backdrop"],
+	[class*="dialog"] {
+		all: unset !important;
+		display: block !important;
+		position: static !important;
+		background: none !important;
+		overflow: visible !important;
+	}
+
+	/* Hide the print button */
+	.blood-cancel-print-btn-wrap {
+		display: none !important;
+	}
+
+	/* Unwrap the root container */
+	.blood-cancel-print-root {
+		display: block !important;
+		all: unset;
+	}
+
+	/* Form page — fill A4, reserve space at bottom for fixed footer */
+	.blood-cancel-page {
+		width: 100% !important;
+		min-height: 0 !important;
+		height: auto !important;
+		margin: 0 !important;
+		padding: 16mm 18mm 24mm 18mm !important;
+		box-shadow: none !important;
+		border: none !important;
+		position: relative !important;
+		overflow: hidden !important;
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
+
+	/* Keep borders visible */
+	.blood-cancel-meta-block {
+		border-top: 1px solid #000 !important;
+		border-bottom: 1px solid #000 !important;
+	}
+
+	.blood-cancel-underline,
+	.blood-cancel-bag-line,
+	.blood-cancel-prepared-sig-line {
+		border-bottom: 1px solid #000 !important;
+	}
+
+	/*
+	 * Footer — position: fixed anchors to the physical bottom of the
+	 * printed page (not the document scroll height), which is exactly
+	 * what we want for a page footer.
+	 */
+	
+}

@@ -1,0 +1,387 @@
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.btrr-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.btrr-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 1.25rem 1.4rem 1.2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--text-primary, #1a1a1a);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #fff);
+  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── HEADER SPACER ───────────────────────────────────────── */
+.btrr-header-spacer {
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* ─── HEADER ──────────────────────────────────────────────── */
+.btrr-header {
+  text-align: center;
+  margin-bottom: 0.6rem;
+}
+
+.btrr-title-main {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+/* ─── META ────────────────────────────────────────────────── */
+.btrr-meta-section {
+  margin-bottom: 0.1rem;
+}
+
+.btrr-meta-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.btrr-meta-row--4col {
+  gap: 1.2rem;
+}
+
+.btrr-meta-row--name {
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.btrr-meta-cell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.btrr-meta-cell--name {
+  min-width: 240px;
+}
+
+.btrr-meta-cell--dob {
+  margin-left: auto;
+}
+
+.btrr-meta-cell--requesting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  margin-left: auto;
+  line-height: 1.5;
+}
+
+/* ─── LABELS ──────────────────────────────────────────────── */
+.btrr-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── LINES ───────────────────────────────────────────────── */
+.btrr-line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.btrr-line--sm   { width: 70px; }
+.btrr-line--md   { width: 110px; }
+.btrr-line--lg   { width: 150px; }
+.btrr-line--xl   { flex: 1; min-width: 80px; }
+.btrr-line--fill { flex: 1; min-width: 60px; }
+
+/* ─── GAPS ────────────────────────────────────────────────── */
+.btrr-gap     { height: 0.55rem; }
+.btrr-gap-sm  { height: 0.28rem; }
+.btrr-spacer  { flex: 1; }
+
+/* ─── FIELD ROWS ──────────────────────────────────────────── */
+.btrr-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+  flex-wrap: nowrap;
+}
+
+.btrr-field-row--mt {
+  margin-top: 0.25rem;
+}
+
+/* ─── SECTION LABELS ──────────────────────────────────────── */
+.btrr-section-label {
+  margin: 0 0 0.2rem 0;
+}
+
+.btrr-section-bold {
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+}
+
+.btrr-plain {
+  margin: 0 0 0.1rem 0;
+}
+
+.btrr-italic-note {
+  font-style: normal;
+}
+
+/* ─── DIVIDER ─────────────────────────────────────────────── */
+.btrr-divider {
+  border-top: 1px solid #000;
+  margin: 0;
+}
+
+/* ─── SYMPTOMS GRID ───────────────────────────────────────── */
+.btrr-symptoms-section {
+  margin-bottom: 0;
+}
+
+.btrr-symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px 0;
+  padding-left: 0.4rem;
+}
+
+.btrr-others-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+/* ─── CLERICAL ROW ────────────────────────────────────────── */
+.btrr-clerical-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.1rem;
+}
+
+/* ─── MEDTECH ROW ─────────────────────────────────────────── */
+.btrr-medtech-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.btrr-medtech-label {
+  white-space: nowrap;
+}
+
+/* ─── CENTERED FIELDS ─────────────────────────────────────── */
+.btrr-centered-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0.2rem 0;
+}
+
+.btrr-centered-fields--narrow {
+  align-items: flex-start;
+  padding-left: 2rem;
+}
+
+.btrr-centered-fields--right {
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.btrr-centered-field {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+/* ─── REVIEWED ROW ────────────────────────────────────────── */
+.btrr-reviewed-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.btrr-reviewed-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1;
+  max-width: 220px;
+  margin-left: auto;
+}
+
+.btrr-sig-label-right {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+/* ─── IMPORTANT ───────────────────────────────────────────── */
+.btrr-important {
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── TABLES ──────────────────────────────────────────────── */
+.btrr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 0.1rem;
+}
+
+.btrr-table th,
+.btrr-table td {
+  border: 1px solid #000;
+  padding: 0.1rem 0.3rem;
+  vertical-align: middle;
+}
+
+.btrr-table th {
+  font-weight: 700;
+  text-align: center;
+  background: transparent;
+}
+
+/* Vitals table */
+.btrr-vitals-table th:first-child,
+.btrr-vitals-table td:first-child {
+  width: 40%;
+  text-align: left;
+  font-weight: 400;
+}
+
+.btrr-vitals-table td:first-child {
+  font-weight: 400;
+}
+
+/* Units table */
+.btrr-units-table th,
+.btrr-units-table td {
+  text-align: center;
+}
+
+.btrr-units-table th:first-child,
+.btrr-units-table td:first-child {
+  text-align: left;
+}
+
+/* Bilirubin table */
+.btrr-bilirubin-table {
+  width: 60%;
+}
+
+.btrr-bilirubin-table .btrr-row-label {
+  font-weight: 400;
+  width: 50%;
+}
+
+/* Urine table */
+.btrr-urine-table {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btrr-urine-table th:first-child,
+.btrr-urine-table td:first-child {
+  width: 35%;
+}
+
+/* Repeat testing table */
+.btrr-repeat-table td:first-child {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.btrr-repeat-table th,
+.btrr-repeat-table td {
+  text-align: center;
+  font-size: 0.78rem;
+  padding: 0.08rem 0.15rem;
+}
+
+.btrr-repeat-table td:first-child {
+  text-align: left;
+  padding-left: 0.3rem;
+}
+
+.btrr-group-header {
+  border-bottom: 1px solid #000;
+}
+
+/* Compatibility table */
+.btrr-compat-table {
+  width: 70%;
+}
+
+.btrr-compat-table td:first-child {
+  font-weight: 400;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.btrr-footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #000;
+}
+
+/* ─── PAGE 3 specific ─────────────────────────────────────── */
+.btrr-page--p3 {
+  min-height: 297mm;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .btrr-page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.8rem;
+    padding: 0.75rem;
+    box-shadow: none;
+  }
+
+  .btrr-meta-cell--wide {
+    min-width: auto;
+  }
+
+  .btrr-footer {
+    font-size: 0.68rem;
+  }
+
+  .btrr-symptoms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btrr-urine-table,
+  .btrr-bilirubin-table,
+  .btrr-compat-table {
+    width: 100%;
+  }
+}
