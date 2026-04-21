@@ -8,6 +8,106 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function installCompatibilityPolyfills() {
+        if (typeof Promise.withResolvers !== "function") {
+          Object.defineProperty(Promise, "withResolvers", {
+            configurable: true,
+            writable: true,
+            value: function withResolvers() {
+              var resolve;
+              var reject;
+              var promise = new Promise(function (res, rej) {
+                resolve = res;
+                reject = rej;
+              });
+
+              return {
+                promise: promise,
+                resolve: resolve,
+                reject: reject,
+              };
+            },
+          });
+        }
+
+        if (typeof Promise.withResolver !== "function") {
+          Object.defineProperty(Promise, "withResolver", {
+            configurable: true,
+            writable: true,
+            value: function withResolver() {
+              return Promise.withResolvers();
+            },
+          });
+        }
+
+        if (typeof Promise.try !== "function") {
+          Object.defineProperty(Promise, "try", {
+            configurable: true,
+            writable: true,
+            value: function promiseTry(callback) {
+              var args = Array.prototype.slice.call(arguments, 1);
+
+              return new Promise(function (resolve, reject) {
+                try {
+                  resolve(callback.apply(null, args));
+                } catch (error) {
+                  reject(error);
+                }
+              });
+            },
+          });
+        }
+
+        if (typeof Math.sumPrecise !== "function") {
+          Object.defineProperty(Math, "sumPrecise", {
+            configurable: true,
+            writable: true,
+            value: function sumPrecise(values) {
+              var total = 0;
+
+              if (!values || typeof values.length !== "number") {
+                return total;
+              }
+
+              for (var index = 0; index < values.length; index += 1) {
+                total += Number(values[index]) || 0;
+              }
+
+              return total;
+            },
+          });
+        }
+
+        if (typeof Uint8Array !== "undefined") {
+          if (typeof Uint8Array.prototype.toHex !== "function") {
+            Object.defineProperty(Uint8Array.prototype, "toHex", {
+              configurable: true,
+              writable: true,
+              value: function toHex() {
+                var output = "";
+
+                for (var index = 0; index < this.length; index += 1) {
+                  output += this[index].toString(16).padStart(2, "0");
+                }
+
+                return output;
+              },
+            });
+          }
+
+          if (typeof Uint8Array.prototype.tohex !== "function") {
+            Object.defineProperty(Uint8Array.prototype, "tohex", {
+              configurable: true,
+              writable: true,
+              value: function tohex() {
+                return this.toHex();
+              },
+            });
+          }
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
