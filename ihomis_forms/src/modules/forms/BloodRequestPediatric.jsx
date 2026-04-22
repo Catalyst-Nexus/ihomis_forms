@@ -24,11 +24,11 @@ export default function BloodRequestPediatric() {
               <span>MATILOS , EUGENIA MAMBA</span>
             </span>
             <span className="brp-meta-cell">
-              <span className="brp-label">Sex:</span>
+              <span className="brp-label" style={{ marginLeft: "50px" }}>Sex:</span>
               <span>F</span>
             </span>
             <span className="brp-meta-cell">
-              <span className="brp-label">Age:</span>
+              <span className="brp-label" style={{ marginLeft: "200px" }}>Age:</span>
               <span>67 year(s)</span>
             </span>
           </div>
@@ -38,11 +38,11 @@ export default function BloodRequestPediatric() {
               <span>ADM-2026-010617</span>
             </span>
             <span className="brp-meta-cell">
-              <span className="brp-label">BirthDate:</span>
+              <span className="brp-label" style={{ marginLeft: "68px" }}>BirthDate:</span>
               <span>January 11, 1959</span>
             </span>
             <span className="brp-meta-cell">
-              <span className="brp-label">Date:</span>
+              <span className="brp-label" style={{ marginLeft: "60px" }}>Date:</span>
               <span>April 21, 2026</span>
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function BloodRequestPediatric() {
         <div className="brp-sig-row">
           <div className="brp-sig-block">
             <div className="brp-sig-line-with-md">
-              <span className="brp-sig-md">M. D.</span>
+              <span className="brp-sig-md" style={{ marginLeft: "300px" }}>M. D.</span>
             </div>
             <p className="brp-sig-label">Signature over Printed Name of Physician</p>
           </div>
