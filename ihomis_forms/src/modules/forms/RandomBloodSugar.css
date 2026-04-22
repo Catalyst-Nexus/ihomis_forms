@@ -10,7 +10,6 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color, #ddd);
   border-radius: 4px;
   box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
   overflow: hidden;
@@ -164,7 +163,6 @@
     margin: 0 !important;
     padding: 1.25rem 1.2rem 1.4rem !important;
     box-shadow: none !important;
-    border: 1px solid #000 !important;
     border-radius: 0 !important;
     background: #fff !important;
     display: flex !important;

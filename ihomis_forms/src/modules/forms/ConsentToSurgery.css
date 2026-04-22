@@ -1,0 +1,260 @@
+.csa-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 14mm 18mm 16mm 18mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media print {
+  .csa-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Numbered paragraphs ── */
+.csa-para {
+  font-size: 9pt;
+  line-height: 1.7;
+  margin-bottom: 4mm;
+  display: flex;
+  gap: 2mm;
+  align-items: flex-start;
+}
+
+.csa-para-num {
+  flex: 0 0 4mm;
+  font-weight: normal;
+}
+
+.csa-para-body {
+  flex: 1;
+}
+
+/* inline blanks inside paragraph text */
+.csa-blank {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 50mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+.csa-blank-sm {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 20mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+.csa-blank-lg {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 90mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+/* ── First signature pair (Witness left, Patient right) ── */
+.csa-sig-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;   /* align both columns to the same bottom baseline */
+  margin-top: 8mm;
+  margin-bottom: 2mm;
+}
+
+.csa-sig-left {
+  width: 75mm;
+  text-align: center;
+}
+
+.csa-sig-right {
+  width: 75mm;
+  text-align: center;
+}
+
+.csa-sig-name {
+  font-size: 9pt;
+  font-weight: normal;
+  margin-bottom: 2mm;
+  text-align: center;
+}
+
+.csa-sig-line {
+  border-top: 1px solid #000;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.csa-sig-label {
+  font-size: 8.5pt;
+  text-align: center;
+}
+
+.csa-sig-date {
+  font-size: 9pt;
+  text-align: center;
+  margin-top: 4mm;
+  margin-bottom: 1mm;
+}
+
+.csa-sig-date-label {
+  font-size: 9pt;
+  text-align: center;
+}
+
+/* ── Authorization note block ── */
+.csa-auth-note {
+  font-size: 9pt;
+  line-height: 1.6;
+  margin-top: 6mm;
+  margin-bottom: 2mm;
+}
+
+.csa-auth-note-line {
+  border-top: 1px solid #000;
+  margin: 1mm 0 2mm 0;
+}
+
+.csa-blank-unable {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 120mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+/* ── I, ___ hereby row blanks (sized to fit one line) ── */
+.csa-blank-hereby-name {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 45mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+.csa-blank-hereby-dr {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 45mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+.csa-blank-hereby-dr2 {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 32mm;
+  height: 1px;
+  margin: 0 1mm;
+  vertical-align: bottom;
+}
+
+/* ── I, ___ hereby authorized row ── */
+.csa-hereby-row {
+  font-size: 9pt;
+  line-height: 1.8;
+  margin-bottom: 2mm;
+}
+
+.csa-hereby-cont {
+  font-size: 9pt;
+  line-height: 1.8;
+  margin-bottom: 1mm;
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+}
+
+.csa-hereby-indent {
+  font-size: 9pt;
+  padding-left: 4mm;
+  margin-bottom: 6mm;
+}
+
+/* ── Second sig pair ── */
+.csa-sig-pair2 {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6mm;
+  margin-bottom: 0;
+}
+
+.csa-sig2-left {
+  width: 75mm;
+  text-align: center;
+}
+
+.csa-sig2-right {
+  width: 75mm;
+  text-align: left;
+}
+
+.csa-sig2-line {
+  border-top: 1px solid #000;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.csa-sig2-label {
+  font-size: 8.5pt;
+  text-align: center;
+}
+
+.csa-relationship-block {
+  margin-top: 4mm;
+  width: 75mm;
+}
+
+/* Date rows for second pair */
+.csa-date-pair {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6mm;
+}
+
+.csa-date-block {
+  width: 75mm;
+  text-align: center;
+}
+
+.csa-date-val {
+  font-size: 9pt;
+  text-align: center;
+  margin-bottom: 1mm;
+}
+
+.csa-date-label {
+  font-size: 9pt;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.csa-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 18mm;
+  right: 18mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

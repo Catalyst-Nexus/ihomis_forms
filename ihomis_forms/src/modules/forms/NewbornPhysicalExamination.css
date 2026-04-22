@@ -1,0 +1,181 @@
+.npe-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media print {
+  .npe-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Case Number ── */
+.npe-case-row {
+  font-size: 8pt;
+  margin-bottom: 1mm;
+}
+.npe-case-row strong { font-weight: bold; }
+
+/* ── Main outer table ── */
+.npe-main-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 4mm;
+}
+
+.npe-main-table td,
+.npe-main-table th {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  vertical-align: top;
+  font-size: 8pt;
+}
+
+/* Gap column — visible space only in vitals row */
+.npe-main-table td.npe-gap {
+  border: none !important;
+  background: transparent;
+  padding: 0;
+  width: 6mm;
+}
+
+/* Hidden gap — no border, no space (for other rows) */
+.npe-main-table td.npe-gap-hidden {
+  border: none !important;
+  background: transparent;
+  padding: 0;
+  width: 0;
+}
+
+/* ── Baby info header row ── */
+.npe-baby-header td {
+  font-size: 8pt;
+  vertical-align: middle;
+  padding: 1mm 2mm;
+}
+.npe-baby-label { font-weight: bold; white-space: nowrap; }
+.npe-baby-name  { font-weight: bold; text-align: center; font-size: 9pt; }
+
+/* ── Section headers ── */
+.npe-section-header {
+  font-weight: bold;
+  text-align: center;
+  background: #fff;
+  font-size: 8pt;
+  padding: 1.5mm 2mm !important;
+}
+
+/* ── Vital signs table (left) ── */
+.npe-vs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.npe-vs-table td {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  font-size: 8pt;
+}
+.npe-vs-label { font-weight: bold; width: 55%; }
+.npe-vs-value { width: 45%; }
+
+/* ── Anthropometric table (right) ── */
+.npe-ant-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.npe-ant-table td {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  font-size: 8pt;
+}
+.npe-ant-label { font-weight: bold; }
+.npe-ant-value { text-align: right; }
+
+/* ── Exam section cells ── */
+.npe-exam-cell {
+  vertical-align: top;
+  padding: 1.5mm 2mm !important;
+  font-size: 8pt;
+  line-height: 1.7;
+}
+
+.npe-exam-title {
+  font-weight: bold;
+  margin-bottom: 0.5mm;
+}
+
+.npe-exam-item {
+  display: block;
+  white-space: nowrap;
+}
+
+.npe-underline {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 18mm;
+  height: 1px;
+  vertical-align: bottom;
+  margin: 0 0.5mm;
+}
+
+.npe-underline-sm {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 10mm;
+  height: 1px;
+  vertical-align: bottom;
+  margin: 0 0.5mm;
+}
+
+.npe-underline-lg {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  min-width: 28mm;
+  height: 1px;
+  vertical-align: bottom;
+  margin: 0 0.5mm;
+}
+
+/* ── Pediatrician signature ── */
+.npe-sig-section {
+  text-align: center;
+  margin-top: 6mm;
+}
+
+.npe-sig-line {
+  border-top: 1px solid #000;
+  width: 70mm;
+  margin: 0 auto 2px auto;
+}
+
+.npe-sig-label {
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.npe-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

@@ -1,0 +1,100 @@
+/* ── CertificateOfNoVacancy.css ──────────────────────────────────────────────
+   A4: 210mm × 297mm  |  Arial  |  matches image layout exactly
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.cnv-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 14mm 18mm 20mm 18mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Paragraphs ── */
+.cnv-para {
+  font-size: 10pt;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.cnv-center {
+  text-align: center;
+}
+
+.cnv-justify {
+  text-align: justify;
+}
+
+/* Slight indent to match image's left indent on NBB and WITNESS paragraphs */
+.cnv-indent {
+  padding-left: 8px;
+}
+
+/* ── Signature blocks ── */
+.cnv-sig-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 28px 0 8px 0;
+}
+
+/* Left-aligned second sig block */
+.cnv-sig-wrap-left {
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+.cnv-sig-block {
+  min-width: 220px;
+  text-align: center;
+}
+
+.cnv-sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.cnv-sig-label {
+  font-size: 9.5pt;
+  font-weight: normal;
+  margin: 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── WITNESS label ── */
+.cnv-witness-label {
+  text-align: center;
+  font-size: 10pt;
+  font-weight: normal;
+  margin: 16px 0 0 0;
+}
+
+/* ── Footer ── */
+.cnv-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 18mm;
+  right: 18mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .cnv-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

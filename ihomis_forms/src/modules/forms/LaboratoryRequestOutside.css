@@ -1,0 +1,154 @@
+.lro-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 6mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media print {
+  .lro-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Date/Time top-right ── */
+.lro-datetime {
+  text-align: right;
+  font-size: 8.5pt;
+  margin-bottom: 3mm;
+}
+
+/* ── Patient info rows ── */
+.lro-row1,
+.lro-row2 {
+  display: flex;
+  gap: 6mm;
+  margin-bottom: 1.5mm;
+  font-size: 8.5pt;
+  align-items: baseline;
+}
+
+.lro-row1 > div:first-child { flex: 0 0 auto; }
+
+.lro-field {
+  display: flex;
+  gap: 1mm;
+  align-items: baseline;
+}
+
+.lro-label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.lro-address-row,
+.lro-diag-row {
+  font-size: 8.5pt;
+  margin-bottom: 1.5mm;
+}
+
+/* ── Divider ── */
+.lro-divider {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 2.5mm 0;
+}
+
+/* ── Title ── */
+.lro-title {
+  text-align: center;
+  font-size: 14pt;
+  font-weight: bold;
+  margin: 3mm 0 5mm 0;
+}
+
+/* ── Two-column lab layout ── */
+.lro-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 6mm;
+}
+
+.lro-section-title {
+  font-weight: bold;
+  font-size: 8.5pt;
+  margin: 3mm 0 2.5mm 0;
+}
+
+/* items inside each section */
+.lro-col-wrap {
+  display: flex;
+  gap: 4mm;
+}
+
+.lro-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.lro-item {
+  font-size: 8pt;
+  line-height: 1.75;
+  white-space: nowrap;
+}
+
+/* ── Others ── */
+.lro-others-label {
+  font-size: 8.5pt;
+  margin: 4mm 0 1.5mm 0;
+}
+
+.lro-line {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  height: 5mm;
+  margin-bottom: 2mm;
+}
+
+/* ── MD row ── */
+.lro-md-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 1mm;
+  margin-top: 3mm;
+}
+
+.lro-md-line {
+  width: 85mm;
+  border-bottom: 1px solid #000;
+}
+
+.lro-md-label {
+  font-size: 8.5pt;
+  white-space: nowrap;
+}
+
+.lro-req-physician {
+  text-align: center;
+  font-size: 8.5pt;
+  margin-top: 1.5mm;
+}
+
+/* ── Footer ── */
+.lro-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

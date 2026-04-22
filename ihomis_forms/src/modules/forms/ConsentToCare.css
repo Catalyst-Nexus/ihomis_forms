@@ -1,0 +1,148 @@
+/* ── ConsentToCare.css ───────────────────────────────────────────────────────
+   A4: 210mm × 297mm  |  Arial  |  spacious line spacing
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.ctc-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm 20mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Patient info table ── */
+.ctc-info-table {
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 9.5pt;
+}
+
+.ctc-info-label {
+  font-weight: normal;
+  padding: 3px 0;
+  min-width: 90px;
+  vertical-align: top;
+}
+
+.ctc-info-colon {
+  padding: 3px 8px;
+  vertical-align: top;
+}
+
+.ctc-info-value {
+  font-weight: normal;
+  padding: 3px 0;
+  vertical-align: top;
+}
+
+/* ── Paragraphs 1 & 2 ── */
+.ctc-para {
+  font-size: 9.5pt;
+  line-height: 2;
+  margin: 0 0 18px 0;
+  text-align: justify;
+}
+
+/* ── Inline underline field ── */
+.ctc-inline-line {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 18px;
+  margin: 0 3px;
+}
+
+/* ── Signature rows ── */
+.ctc-sig-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 32px 0 24px 0;
+  gap: 32px;
+}
+
+.ctc-sig-row-bottom {
+  margin-top: 40px;
+}
+
+.ctc-sig-block {
+  flex: 1;
+  text-align: center;
+}
+
+.ctc-sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.ctc-sig-line-relation {
+  margin-top: 24px;
+  border-top: 1px solid #000;
+  margin-bottom: 6px;
+}
+
+.ctc-sig-label {
+  font-size: 9.5pt;
+  font-weight: normal;
+  margin: 3px 0 0 0;
+  text-align: center;
+}
+
+.ctc-sig-date {
+  font-size: 9.5pt;
+  font-weight: normal;
+  margin: 6px 0 0 0;
+  text-align: center;
+}
+
+/* ── Paragraph 3 block ── */
+.ctc-para3 {
+  font-size: 9.5pt;
+  line-height: 2;
+  margin: 0 0 8px 0;
+}
+
+.ctc-para3-text {
+  margin: 0 0 8px 0;
+  text-align: justify;
+}
+
+.ctc-para3-body {
+  margin: 0 0 8px 0;
+  text-align: justify;
+}
+
+.ctc-para3-extra {
+  margin: 0;
+  text-align: left;
+}
+
+/* ── Footer ── */
+.ctc-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .ctc-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

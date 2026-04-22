@@ -1,0 +1,81 @@
+.ir-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm 20mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Opening line ── */
+.ir-opening {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+
+/* ── Patient detail fields (bold label + value) ── */
+.ir-field {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  margin: 0 0 4px 0;
+}
+
+/* ── Body paragraphs ── */
+.ir-body {
+  font-size: 9.5pt;
+  line-height: 3.0;
+  margin: 0 0 10px 0;
+  text-align: justify;
+}
+
+/* ── Inline underline ── */
+.ir-ul {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 15px;
+  margin: 0 2px;
+}
+
+/* ── Physician / License No rows ── */
+.ir-sig-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 9.5pt;
+}
+
+.ir-sig-lbl {
+  white-space: nowrap;
+}
+
+/* ── Footer ── */
+.ir-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .ir-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

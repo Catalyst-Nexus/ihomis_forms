@@ -1,255 +1,276 @@
-.preop-wrap {
-  width: 210mm;
-  display: flex;
-  flex-direction: column;
-}
+/* ── PreOperativeChecklist.css ───────────────────────────────────────────────
+   A4: 210mm × 297mm  |  Arial  |  matches image layout exactly
+   ─────────────────────────────────────────────────────────────────────────── */
 
-.preop-page {
+.poc-page {
   width: 210mm;
   min-height: 297mm;
-  margin: 0 auto;
-  padding: 7mm 9mm 7mm 11mm;
-  box-sizing: border-box;
-  background: #fff;
-  color: #000;
+  padding: 8mm 14mm 20mm 14mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9px;
-  line-height: 1.12;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  font-size: 8.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
 }
 
-.preop-label,
-.preop-question,
-.preop-endorsed-by,
-.preop-sign-caption,
-.preop-header-row,
-.preop-top-meta,
-.preop-second-meta,
-.preop-third-meta {
-  font-weight: 700;
+/* ══════════════════════
+   HEADER
+   ══════════════════════ */
+.poc-header {
+  margin-bottom: 8px;
 }
 
-.preop-header-row,
-.preop-top-meta,
-.preop-second-meta,
-.preop-third-meta {
+.poc-hrow {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   align-items: baseline;
+  margin-bottom: 2px;
+  font-size: 8.5pt;
 }
 
-.preop-header-row {
-  margin-bottom: 1px;
-}
-
-.preop-top-meta {
-  justify-content: space-between;
-  margin-bottom: 1px;
-}
-
-.preop-second-meta {
-  justify-content: space-between;
-  margin-bottom: 1px;
-}
-
-.preop-third-meta {
-  justify-content: space-between;
-  margin-bottom: 7px;
-}
-
-.preop-line,
-.preop-small-line,
-.preop-fill-line,
-.preop-received-line,
-.preop-sign-line,
-.preop-time-line {
-  display: inline-block;
-  border-bottom: 1px solid #000;
-}
-
-.preop-line-short {
-  min-width: 46mm;
-}
-
-.preop-list {
+.poc-hleft {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.preop-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.preop-question {
+  align-items: baseline;
   flex: 1;
-  max-width: 95mm;
 }
 
-.preop-answer-row {
-  min-width: 66mm;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.preop-answer-stack {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.preop-inline-note {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.preop-small-line {
-  min-width: 14mm;
-  height: 11px;
-}
-
-.preop-small-line-wide {
-  min-width: 22mm;
-}
-
-.preop-med-lines > div {
+.poc-hright {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin-top: 1px;
+  min-width: 200px;
+  justify-content: flex-start;
 }
 
-.preop-fill-line {
-  min-width: 60mm;
-  height: 11px;
+.poc-hright-multi {
+  gap: 24px;
 }
 
-.preop-fill-line-sm {
-  min-width: 18mm;
-  height: 11px;
-}
-
-.preop-vitals-grid {
-  display: grid;
-  grid-template-columns: repeat(3, max-content);
-  column-gap: 14px;
-  row-gap: 2px;
-  margin-top: 1px;
-  margin-left: 25mm;
-}
-
-.preop-signoff-block {
-  margin-top: 7mm;
-  display: flex;
-  align-items: flex-start;
-  gap: 10mm;
-}
-
-.preop-ward-line-wrap {
-  flex: 1;
-  text-align: center;
-}
-
-.preop-sign-line {
-  width: 58mm;
-  height: 13px;
-  margin: 0 auto 2px;
-}
-
-.preop-sign-caption {
-  font-size: 8px;
-}
-
-.preop-shift-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  margin: 5mm 0 8mm;
-  padding-left: 9mm;
-  padding-right: 9mm;
-}
-
-.preop-shift-blank {
-  display: inline-block;
-  min-width: 18mm;
-}
-
-.preop-received-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8mm;
-  margin-top: 5mm;
-}
-
-.preop-received-line {
-  width: 62mm;
-  height: 13px;
-  margin: 0 6mm 2px 6mm;
-  vertical-align: middle;
-}
-
-.preop-time-received {
+.poc-lbl {
+  font-weight: bold;
   white-space: nowrap;
-  margin-top: 6px;
+  font-size: 8.5pt;
 }
 
-.preop-time-line {
-  min-width: 26mm;
-  height: 11px;
+.poc-lbl-normal {
+  font-weight: normal;
+  white-space: nowrap;
+  font-size: 8.5pt;
 }
 
-.preop-footer {
-  margin-top: auto;
-  border-top: 1px solid #000;
+.poc-val {
+  font-weight: normal;
+  font-size: 8.5pt;
+}
+
+/* ══════════════════════
+   CHECKLIST
+   ══════════════════════ */
+.poc-checklist {
+  margin-bottom: 10px;
+}
+
+/* Each check row: question left, Yes/No/NA right */
+.poc-check-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 2px;
+  font-size: 8.5pt;
+  line-height: 1.45;
+}
+
+.poc-check-question {
+  flex: 1;
+  font-weight: normal;
+  font-size: 8.5pt;
+  line-height: 1.45;
+  padding-right: 8px;
+}
+
+.poc-check-options {
+  display: flex;
+  gap: 16px;
+  min-width: 230px;
+  flex-shrink: 0;
+  align-items: flex-start;
+  padding-top: 0;
+}
+
+.poc-check-options span {
+  font-size: 8.5pt;
+  white-space: nowrap;
+}
+
+/* Item 7 extra line */
+.poc-item7-extra {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+  font-size: 8.5pt;
+  padding-left: 12px;
+}
+
+/* Item 16 medication */
+.poc-item16 {
+  margin-bottom: 2px;
+  font-size: 8.5pt;
+}
+
+.poc-med-lines {
+  padding-left: 16px;
+}
+
+.poc-med-line-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-size: 8.5pt;
+}
+
+/* Item 19 vital signs */
+.poc-item19 {
+  margin-bottom: 6px;
+  font-size: 8.5pt;
+}
+
+.poc-vitals-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: 3px;
+  padding-left: 12px;
+}
+
+.poc-vitals-row2 {
+  padding-left: 20px;
+}
+
+/* Underline field */
+.poc-ul {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  height: 14px;
+  vertical-align: bottom;
+}
+
+/* ══════════════════════
+   ENDORSEMENT SECTION
+   ══════════════════════ */
+.poc-endorse-section {
+  margin-top: 14px;
+}
+
+/* ── Endorsed By row ── */
+.poc-endorse-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+}
+
+/* "Endorsed By:" — far left, aligned to bottom */
+.poc-endorse-left {
+  flex: 0 0 90px;
+  align-self: flex-end;
+  padding-bottom: 2px;
+}
+
+/* Sig line + label — centered */
+.poc-endorse-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Spacer to balance right side */
+.poc-endorse-right-spacer {
+  flex: 0 0 90px;
+}
+
+/* Label below sig lines */
+.poc-endorse-label {
+  font-size: 8.5pt;
+  font-weight: normal;
+  margin: 3px 0 0 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Shift row — three evenly spaced items ── */
+.poc-shift-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  font-size: 8.5pt;
+  padding: 0 8px;
+}
+
+.poc-shift-item {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  font-size: 8.5pt;
+  white-space: nowrap;
+}
+
+/* ── Received By row ── */
+.poc-received-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  font-size: 8.5pt;
+}
+
+/* "Received By:" — far left */
+.poc-received-left {
+  flex: 0 0 80px;
+  align-self: flex-end;
+  padding-bottom: 2px;
+}
+
+/* OR NOD sig + label — centered */
+.poc-received-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* "Time Received:" + line — far right */
+.poc-received-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* ── Footer ── */
+.poc-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1.5px solid #000;
   padding-top: 2px;
-  text-align: right;
-  font-size: 7px;
+  font-size: 7pt;
+  font-weight: bold;
   font-style: italic;
+  text-align: right;
 }
 
-@page {
-  size: A4;
-  margin: 0;
-}
-
+/* ── Print ── */
 @media print {
-  .preop-wrap,
-  .preop-page {
+  .poc-page {
+    margin: 0;
+    box-shadow: none;
     width: 210mm;
     min-height: 297mm;
-    margin: 0;
-  }
-}
-
-@media (max-width: 760px) {
-  .preop-wrap,
-  .preop-page {
-    width: 100%;
-  }
-
-  .preop-header-row,
-  .preop-top-meta,
-  .preop-second-meta,
-  .preop-third-meta,
-  .preop-item,
-  .preop-shift-row,
-  .preop-received-row,
-  .preop-signoff-block {
-    flex-direction: column;
-  }
-
-  .preop-vitals-grid {
-    margin-left: 0;
-    grid-template-columns: 1fr;
   }
 }

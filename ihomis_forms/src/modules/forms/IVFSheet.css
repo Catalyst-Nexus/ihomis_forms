@@ -1,0 +1,95 @@
+.ivf-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm 16mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media print {
+  .ivf-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Table ── */
+.ivf-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+
+.ivf-table th,
+.ivf-table td {
+  border: 1px solid #000;
+  text-align: center;
+  font-size: 8pt;
+  padding: 1mm 1mm;
+  vertical-align: middle;
+}
+
+.ivf-table th {
+  font-weight: bold;
+  background: #fff;
+  line-height: 1.3;
+  height: 10mm;
+}
+
+.ivf-table td {
+  height: 8mm;
+}
+
+/* Column widths */
+.ivf-col-date      { width: 13%; }
+.ivf-col-bot       { width: 11%; }
+.ivf-col-name      { width: 18%; }
+.ivf-col-incorp    { width: 11%; }
+.ivf-col-flow      { width: 11%; }
+.ivf-col-time      { width: 10%; }
+.ivf-col-remarks   { width: 13%; }
+.ivf-col-sig       { width: 13%; }
+
+/* ── Patient info footer block ── */
+.ivf-patient-info {
+  margin-top: 3mm;
+  font-size: 8.5pt;
+  line-height: 1.8;
+}
+
+.ivf-patient-info .ivf-info-row {
+  display: flex;
+  gap: 1mm;
+}
+
+.ivf-info-label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.ivf-info-value {
+  font-weight: normal;
+}
+
+/* ── Footer ── */
+.ivf-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

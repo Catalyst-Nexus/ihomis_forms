@@ -17,6 +17,38 @@ import RandomBloodSugar from './RandomBloodSugar';
 import DoctorsOrder from './DoctorsOrder';
 import OxygenConsumptionSheet from './OxygenConsumptionSheet';
 import OtherLaboratoryRequest from './OtherLaboratoryRequest';
+import ConsentToCare from './ConsentToCare';
+import RefusalToTreatment from './RefusalToTreatment';
+import IntakeOutputSheet from './IntakeOutputSheet';
+import CertificateOfNoVacancy from './CertificateOfNoVacancy';
+import FamilyPlanning from './FamilyPlanning';
+import KardexSheet from './KardexSheet';
+import NewbornTag from './NewbornTag';
+import LaboratoryRequestOutside from './LaboratoryRequestOutside';
+import WardPreference from './WardPreference';
+import CertificatePatientWardPreference from './CertificatePatientWardPreference';
+import ClaimOfCadaver from './ClaimOfCadaver';
+import DischargePlanReferralSlip from './DischargePlanReferralSlip';
+import ConsentToSurgery from './ConsentToSurgery';
+import IVFSheet from './IVFSheet';
+import CommitmentToBreastfeeding from './CommitmentToBreastfeeding';
+import NewbornPhysicalExamination from './NewbornPhysicalExamination';
+import NewbornDailyWeightAbdominalGirth from './NewbornDailyWeightAbdominalGirth';
+import SpecialEndorsement from './SpecialEndorsement';
+import SurgicalMemorandum from './SurgicalMemorandum';
+import SurgicalMemorandumUmbiCat from './SurgicalMemorandumUmbiCat';
+import SpongeCountSheet from './SpongeCountSheet';
+import PhototherapyForm from './PhototherapyForm';
+import NursesNotes from './NursesNotes';
+import OtoacousticEmissionResults from './OtoacousticEmissionResults';
+import MedicalAbstractDischargeSummary from './MedicalAbstractDischargeSummary';
+import ECGTracing from './ECGTracing';
+import PreOperativeChecklist from './PreOperativeChecklist';
+import IsolationRecommendation from './IsolationRecommendation';
+import DAMAForm from './DAMAForm';
+import HistopathologyCytology from './HistopathologyCytology';
+import LaboratoryResults from './LaboratoryResults';
+import ChestTubeThoracostomy from './ChestTubeThoracostomy';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -180,6 +212,102 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     if (formName === 'Other Laboratory Request') {
     return <OtherLaboratoryRequest patientName={patientName} patientData={patientData} />;
     }
+    if (formName === 'Consent to Care') {
+    return <ConsentToCare patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Refusal to Treatment and Procedure Form') {
+   return <RefusalToTreatment patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Intake and Output Sheet') {
+   return <IntakeOutputSheet patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Certificate of No Vacancy') {
+   return <CertificateOfNoVacancy patientName={patientName} patientData={patientData} />; 
+   }
+   if (formName === 'Family Planning') {
+   return <FamilyPlanning patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Kardex Sheet') {
+   return <KardexSheet patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Newborn Tag') {
+   return <NewbornTag patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Laboratory Request Form (outside)') {
+   return <LaboratoryRequestOutside patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Certificate of Ward Preference') {
+   return <WardPreference patientName={patientName} patientData={patientData} />;
+   }
+   if (formName === 'Certificate of Patient Ward Preference') {
+   return <CertificatePatientWardPreference patientName={patientName} patientData={patientData} />;
+  }
+   if (formName === 'Claim of Cadaver') {
+   return <ClaimOfCadaver patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Discharge Plan/Referral Slip') {
+  return <DischargePlanReferralSlip patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Consent to Surgery and Anesthesia Form') {
+  return <ConsentToSurgery patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'IVF Sheet') {
+  return <IVFSheet patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Commitment to Breastfeeding') {
+  return <CommitmentToBreastfeeding patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Newborn Physical Examination Sheet') {
+  return <NewbornPhysicalExamination patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Daily Weight and Abdominal Girth') {
+  return <NewbornDailyWeightAbdominalGirth patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Special Endorsements (Transient)') {
+  return <SpecialEndorsement patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Surgical Memorandum') {
+  return <SurgicalMemorandum patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Surgical Memorandum Umbi Cat') {
+  return <SurgicalMemorandumUmbiCat patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Sponge Count Sheet') {
+  return <SpongeCountSheet patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Phototherapy Form') {
+  return <PhototherapyForm patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === "Nurse's Notes Form") {
+  return <NursesNotes patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Otoacoustic Emission Results') {
+  return <OtoacousticEmissionResults patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Medical Abstract / Discharge Summary Form') {
+  return <MedicalAbstractDischargeSummary patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'ECG TRACING') {
+  return <ECGTracing patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Pre-Operative Checklist') {
+  return <PreOperativeChecklist patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Certification of Isolation Recommendation') {
+  return <IsolationRecommendation patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Discharge Against Medical Advice (DAMA) / Out on Pass Form') {
+  return <DAMAForm patientName={patientName} patientData={patientData} />; 
+  }
+  if (formName === 'Histopathology/Cytology Request Form') {
+  return <HistopathologyCytology patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Laboratory Results') {
+  return <LaboratoryResults patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Chest Tube Thoracostomy Sheet') {
+  return <ChestTubeThoracostomy patientName={patientName} patientData={patientData} />;
+  }
     // Add more forms here
     return <div>Form template to be defined</div>;
   };
