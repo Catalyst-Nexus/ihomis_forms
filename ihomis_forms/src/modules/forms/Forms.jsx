@@ -49,6 +49,9 @@ import DAMAForm from './DAMAForm';
 import HistopathologyCytology from './HistopathologyCytology';
 import LaboratoryResults from './LaboratoryResults';
 import ChestTubeThoracostomy from './ChestTubeThoracostomy';
+import BallardScore from './BallardScore';
+import NeuroVitalSignsLessThan from './NeuroVitalSignsLessThan';
+import NeuroVitalSignsMoreThan from './NeuroVitalSignsMoreThan';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -306,8 +309,19 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   return <LaboratoryResults patientName={patientName} patientData={patientData} />;
   }
   if (formName === 'Chest Tube Thoracostomy Sheet') {
-  return <ChestTubeThoracostomy patientName={patientName} patientData={patientData} />;
+    return <ChestTubeThoracostomy patientName={patientName} patientData={patientData} />;
+    
   }
+  if (formName === 'Ballard Score') {
+    return <BallardScore patientName={patientName} patientData={patientData} />;
+    }
+  if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old') {
+    return <NeuroVitalSignsLessThan patientName={patientName} patientData={patientData} />;
+    }
+  if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old') {
+    return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
+    }
+    
     // Add more forms here
     return <div>Form template to be defined</div>;
   };
