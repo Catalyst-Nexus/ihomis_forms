@@ -52,6 +52,13 @@ import ChestTubeThoracostomy from './ChestTubeThoracostomy';
 import BallardScore from './BallardScore';
 import NeuroVitalSignsLessThan from './NeuroVitalSignsLessThan';
 import NeuroVitalSignsMoreThan from './NeuroVitalSignsMoreThan';
+import Neurologic from './Neurologic';
+import Partograph from './Partograph';
+import PostAnesthesiaSheet from './PostAnesthesiaSheet';
+import Lubchenco from './Lubchenco';
+import AnesthesiaRecord from './AnesthesiaRecord';
+import ChildImmunizationRecord from './ChildImmunizationRecord';
+import MIS from './MIS';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -321,7 +328,27 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old') {
     return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
     }
-    
+  if (formName === 'Neurologic Examination Form') {
+    return <Neurologic patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Partograph') {  
+      return <Partograph patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Post Anesthesia Care Unit Nurse\'s Notes Form') {
+      return <PostAnesthesiaSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Lubchenco') {
+      return <Lubchenco patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Anesthesia Record') {
+      return <AnesthesiaRecord patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Child Immunization Record') {
+      return <ChildImmunizationRecord patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'MIS Safety Checklist') {
+      return <MIS patientName={patientName} patientData={patientData} />;
+    }
     // Add more forms here
     return <div>Form template to be defined</div>;
   };
