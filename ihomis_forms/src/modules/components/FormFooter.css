@@ -20,11 +20,10 @@
 /* For forms using absolute positioning in print media */
 @media print {
   .form-footer {
-    position: absolute !important;
-    bottom: 1.4rem !important;
-    left: 1.2rem !important;
-    right: 1.2rem !important;
-    margin-top: 0 !important;
+    position: static !important;
+    margin-top: auto !important;
+    padding-top: 1.5mm !important;
+    border-top: 1px solid #000 !important;
     flex-shrink: 0 !important;
   }
 

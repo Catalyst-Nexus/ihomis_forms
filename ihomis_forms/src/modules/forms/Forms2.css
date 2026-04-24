@@ -179,20 +179,20 @@
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    overflow: visible !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   /* Pin footer to bottom — always visible */
   .aldrete-default-footer {
-    position: absolute !important;
-    bottom: 1.4rem !important;
-    left: 1.2rem !important;
-    right: 1.2rem !important;
-    margin-top: 0 !important;
+    position: static !important;
+    margin-top: auto !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Reserve space so signature block never overlaps footer */
+  /* Prevent signature block from overlapping content */
   .aldrete-signature-wrap {
-    margin-bottom: 3rem !important;
+    margin-bottom: 0.7rem !important;
   }
 }
