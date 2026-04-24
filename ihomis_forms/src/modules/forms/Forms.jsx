@@ -3,7 +3,6 @@ import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
 import FormDocument from '../components/FormDocument.jsx';
-import Forms2 from './Forms2';
 import ApgarScoring from './ApgarScoring';
 import BTLConsent from './BTLConsent';
 import CardioPulmonaryClearance from './CardioPulmonaryClearance';
@@ -197,7 +196,6 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     if (renderer) {
       return renderer();
     }
-
     if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
     return <AldreteScore patientName={patientName} patientData={patientData} />;
     }
