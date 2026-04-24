@@ -59,6 +59,17 @@ import Lubchenco from './Lubchenco';
 import AnesthesiaRecord from './AnesthesiaRecord';
 import ChildImmunizationRecord from './ChildImmunizationRecord';
 import MIS from './MIS';
+import TPRSheet from './TPRSheet';
+import SurgicalSafetyChecklist from './SurgicalSafetyChecklist';
+import RequestBloodCompatibility from './RequestBloodCompatibility';
+import RadiologyRequestOutside from './RadiologyRequestOutside';
+import PagtugotWaiver from './PagtugotWaiver';
+import NewbornPersonalInfoSheet from './NewbornPersonalInfoSheet';
+import MonitoringSheet from './MonitoringSheet';
+import MedicationSheet from './MedicationSheet';
+import DoctorsOrderPedia from './DoctorsOrderPedia';
+import AnimalBiteTreatmentRecord from './AnimalBiteTreatmentRecord';
+import AldreteScore from './AldreteScore';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -187,9 +198,7 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
       'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form': () => (
         <DNRForm patientName={patientName} />
       ),
-      'Monitoring Sheet': () => (
-        <div>Monitoring Sheet body template to be defined</div>
-      ),
+      
     };
 
     const renderer = formRendererMap[formName];
@@ -366,6 +375,36 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
     if (formName === 'MIS Safety Checklist') {
       return <MIS patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'TPR Sheet') {
+      return <TPRSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Surgical Safety Checklist') {
+      return <SurgicalSafetyChecklist patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Request for Blood Compatibility Testing Form') {
+      return <RequestBloodCompatibility patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Radiology Request Form (Outside)') {
+      return <RadiologyRequestOutside patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Pagtugot (Waiver)') {
+      return <PagtugotWaiver patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Newborn Personal Information Sheet') {
+      return <NewbornPersonalInfoSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Monitoring Sheet') {
+      return <MonitoringSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Medication Sheet') {
+      return <MedicationSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Doctor\'s Order (for pedia)') {
+      return <DoctorsOrderPedia patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'ABTC Treatment Record') {
+      return <AnimalBiteTreatmentRecord patientName={patientName} patientData={patientData} />;
     }
     // Add more forms here
     return <div>Form template to be defined</div>;
