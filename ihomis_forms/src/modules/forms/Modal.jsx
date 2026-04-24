@@ -20,6 +20,14 @@ export default function Modal({ isOpen, onClose, title, children }) {
       ? contentRef.current.firstElementChild.cloneNode(true)
       : contentRef.current.cloneNode(true);
 
+    const previousTitle = document.title;
+    document.title = '';
+
+    try {
+      window.print();
+    } finally {
+      document.title = previousTitle;
+    }
     printContainer.replaceChildren(printableRoot);
 
     const cleanup = () => {
