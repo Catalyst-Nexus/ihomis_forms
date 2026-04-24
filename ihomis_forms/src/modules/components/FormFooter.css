@@ -19,6 +19,15 @@
 
 /* For forms using absolute positioning in print media */
 @media print {
+  .form-footer {
+    position: absolute !important;
+    bottom: 1.4rem !important;
+    left: 1.2rem !important;
+    right: 1.2rem !important;
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
   .form-footer--absolute-print {
     position: absolute !important;
     bottom: 6mm !important;
