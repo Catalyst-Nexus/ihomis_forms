@@ -1,0 +1,294 @@
+/* ── ClinicalReferralSlip.css ───────────────────────────────────────────────
+   Two-page layout: Page 1 = Clinical Referral Slip, Page 2 = Return Slip
+   Each page is a separate A4-proportioned white card stacked vertically.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Outer wrapper — grey background, stacks pages vertically ── */
+.crs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 32px 16px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ── Each page — A4 white paper card ── */
+.crs-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 15mm 20mm 15mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+   color: var(--text-primary, #1a1a1a);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #fff);
+  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── top border line ── */
+.crs-border-top {
+  border-top: 1.5px solid #000;
+  margin-bottom: 5px;
+}
+
+/* ── instruction line ── */
+.crs-instruction {
+  font-size: 8pt;
+  margin: 0 0 5px 0;
+}
+
+/* ── date / time row ── */
+.crs-datetime-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 5px 0;
+  font-size: 9pt;
+}
+
+.crs-datetime-row > span {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+}
+
+/* ── generic field row (label + stretching underline) ── */
+.crs-field-row {
+  display: flex;
+  align-items: baseline;
+  margin: 4px 0;
+  gap: 4px;
+  font-size: 9pt;
+}
+
+.crs-field-label {
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 9pt;
+}
+
+/* stretching underline */
+.crs-line {
+  border-bottom: 1px solid #000;
+  flex: 1;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 14px;
+  min-width: 40px;
+}
+
+/* fixed-width underline */
+.crs-line-fixed {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 14px;
+}
+
+/* plain text value */
+.crs-value {
+  font-size: 9pt;
+  font-weight: normal;
+}
+
+/* ── plain text rows (Name, Address) ── */
+.crs-plain-row {
+  margin: 3px 0;
+  font-size: 9pt;
+}
+
+/* ── multi-field inline row (Occupation / Age / Sex) ── */
+.crs-multi-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 4px 0;
+  font-size: 9pt;
+  flex-wrap: wrap;
+}
+
+.crs-multi-pair {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+/* ── vital signs rows ── */
+.crs-vitals-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 3px 0;
+  font-size: 9pt;
+}
+
+.crs-vital-pair {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: 1;
+}
+
+/* ── impression / action taken blank lines ── */
+.crs-multiline-block {
+  margin: 4px 0 2px 0;
+}
+
+.crs-blank-line {
+  border-bottom: 1px solid #000;
+  height: 16px;
+  margin: 10px 0;
+  display: block;
+  width: 100%;
+}
+
+/* ── OB HISTORY note ── */
+.crs-ob-note {
+  font-weight: bold;
+  font-size: 9pt;
+  margin: 6px 0 3px 0;
+}
+
+/* ── LMP / AOG / EDC ── */
+.crs-lmp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin: 4px 0;
+  font-size: 9pt;
+}
+
+.crs-lmp-pair {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+/* ── thin section divider ── */
+.crs-section-divider {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 8px 0;
+}
+
+/* ── bottom info fields ── */
+.crs-bottom-field {
+  display: flex;
+  align-items: baseline;
+  margin: 5px 0;
+  gap: 4px;
+  font-size: 9pt;
+}
+
+/* ── half-and-half row ── */
+.crs-half-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 5px 0;
+  gap: 16px;
+  font-size: 9pt;
+}
+
+.crs-half-pair {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: 1;
+}
+
+/* ════════ RETURN SLIP (Page 2) ════════ */
+.crs-return-title {
+  text-align: center;
+  font-size: 14pt;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 4px 0;
+  text-transform: uppercase;
+}
+
+.crs-return-line-sep {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 4px 0 5px 0;
+}
+
+/* ── signature block ── */
+.crs-sig-wrap {
+  margin-top: 10mm;
+  display: flex;
+  justify-content: center;
+}
+
+.crs-sig-block {
+  text-align: center;
+  min-width: 80mm;
+}
+
+.crs-sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 3px;
+}
+
+.crs-sig-name {
+  font-weight: bold;
+  font-size: 8.5pt;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.crs-sig-sub {
+  font-size: 8.5pt;
+  margin: 1px 0 0 0;
+  font-style: italic;
+}
+
+.crs-sig-desig-row {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 9pt;
+}
+
+/* ── footer (absolute inside each .crs-page) ── */
+.crs-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 15mm;
+  right: 15mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── print overrides ── */
+@media print {
+  .crs-wrapper {
+    background: none;
+    padding: 0;
+    gap: 0;
+  }
+
+  .crs-page {
+    box-shadow: none;
+    margin: 0;
+    padding: 10mm 15mm 20mm 15mm;
+    width: 210mm;
+    min-height: 297mm;
+    page-break-after: always;
+  }
+
+  .crs-page:last-child {
+    page-break-after: avoid;
+  }
+}

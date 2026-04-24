@@ -1,0 +1,139 @@
+.fp-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm 20mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── DATE top-right ── */
+.fp-date-line {
+  text-align: right;
+  font-size: 9pt;
+  margin-bottom: 5mm;
+}
+
+/* ── Instruction line ── */
+.fp-instruction {
+  font-style: italic;
+  font-size: 8.5pt;
+  margin-bottom: 1mm;
+}
+
+/* ── REFER FROM / REFER TO table ── */
+.fp-refer-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 4mm;
+  font-size: 8.5pt;
+}
+
+.fp-refer-table td {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  white-space: nowrap;
+}
+
+.fp-refer-table .fp-label-cell {
+  font-weight: bold;
+  width: 22mm;
+  text-align: center;
+}
+
+/* ── Patient info table ── */
+.fp-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 8.5pt;
+}
+
+.fp-info-table td {
+  border: 1px solid #000;
+  padding: 1.2mm 2mm;
+  vertical-align: middle;
+}
+
+.fp-field-label {
+  font-weight: bold;
+}
+
+/* ── Reason for Referral ── */
+.fp-reason-title {
+  font-weight: bold;
+  font-size: 9pt;
+  margin-bottom: 2mm;
+}
+
+.fp-reason-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr;
+  row-gap: 2mm;
+  font-size: 8.5pt;
+  margin-bottom: 6mm;
+}
+
+.fp-checkbox-item {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  white-space: nowrap;
+}
+
+/* ── Referred By ── */
+.fp-referred-by {
+  font-style: italic;
+  font-size: 8.5pt;
+  margin-bottom: 6mm;
+}
+
+/* ── Signature lines ── */
+.fp-sig-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+  margin-bottom: 4mm;
+}
+
+.fp-sig-label {
+  font-weight: bold;
+  font-size: 9pt;
+  white-space: nowrap;
+  min-width: 40mm;
+}
+
+.fp-sig-line {
+  flex: 1;
+  max-width: 80mm;
+  border-bottom: 1px solid #000;
+  height: 4.5mm;
+}
+
+/* ── Footer ── */
+.fp-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .fp-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

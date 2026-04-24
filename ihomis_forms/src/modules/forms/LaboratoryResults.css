@@ -1,0 +1,84 @@
+.lr-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media print {
+  .lr-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Lines table ── */
+.lr-lines-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3mm;
+  flex: 1;
+}
+
+.lr-lines-table td {
+  border: 1px solid #000;
+  height: 11mm;
+  padding: 0;
+}
+
+/* ── Attach label ── */
+.lr-attach-label {
+  text-align: center;
+  font-size: 8.5pt;
+  margin-bottom: 3mm;
+  font-style: normal;
+}
+
+/* ── Patient info block ── */
+.lr-info-block {
+  font-size: 8.5pt;
+  margin-bottom: 2mm;
+}
+
+.lr-info-row {
+  display: flex;
+  margin-bottom: 0.8mm;
+  align-items: baseline;
+}
+
+.lr-info-label {
+  width: 32mm;
+  font-weight: bold;
+}
+
+.lr-info-colon {
+  width: 5mm;
+}
+
+.lr-info-value {
+  flex: 1;
+}
+
+/* ── Footer ── */
+.lr-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

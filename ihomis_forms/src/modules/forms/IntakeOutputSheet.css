@@ -1,0 +1,164 @@
+/* ── IntakeOutputSheet.css ───────────────────────────────────────────────────
+   A4: 210mm × 297mm  |  Arial  |  4 repeated IO table blocks
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.ios-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 10mm 18mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+
+/* ── Patient info strip — below tables ── */
+.ios-patient-strip {
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+}
+
+.ios-strip-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.ios-strip-inline {
+  display: flex;
+  gap: 28px;
+  flex-wrap: nowrap;
+}
+
+.ios-lbl {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.ios-val {
+  font-weight: normal;
+}
+
+/* ── Tables container — 4 blocks stacked ── */
+.ios-tables {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Each IO table ── */
+.ios-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 7.5pt;
+}
+
+/* Column widths */
+.ios-col-date    { width: 7%; }
+.ios-col-sig     { width: 12%; }
+
+/* Group header cells (INTAKE / OUTPUT) */
+.ios-group-header {
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #000;
+  padding: 2px 3px;
+  font-size: 7.5pt;
+  background: #fff;
+}
+
+/* All th cells */
+.ios-th {
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #000;
+  padding: 2px 2px;
+  font-size: 7.5pt;
+  background: #fff;
+}
+
+/* Sub-header row (P.O, NGT/OGT, etc.) */
+.ios-sub {
+  font-weight: bold;
+  font-size: 7pt;
+}
+
+.ios-total-sub {
+  font-weight: bold;
+}
+
+/* Blank output sub-column */
+.ios-output-blank {
+  background: #fff;
+}
+
+/* ── Data rows ── */
+.ios-tr {
+  height: 14px;
+}
+
+.ios-tr-shift-top {
+  height: 13px;
+}
+
+.ios-tr-shift-bot {
+  height: 13px;
+}
+
+.ios-td {
+  border: 1px solid #000;
+  padding: 0 2px;
+  height: 13px;
+  font-size: 7.5pt;
+}
+
+/* Shift label cell — bold, small */
+.ios-shift-label {
+  font-weight: bold;
+  font-size: 7pt;
+  text-align: left;
+  padding-left: 2px;
+  white-space: nowrap;
+}
+
+/* ── TOTAL FOR 24H row ── */
+.ios-tr-total td {
+  border: 1px solid #000;
+  padding: 2px 4px;
+  height: 14px;
+  font-size: 7pt;
+}
+
+.ios-total-label {
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.ios-footer {
+  position: absolute;
+  bottom: 8mm;
+  left: 10mm;
+  right: 10mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ── Print ── */
+@media print {
+  .ios-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}

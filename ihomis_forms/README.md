@@ -1,13 +1,6 @@
 # Hospital Laboratory Upload Page
 
-This app provides a hospital-focused upload page for laboratory results. It captures these metadata fields before upload:
-
-- FHUD
-- ENC
-- User
-- DocIntKey
-
-The form submits a multipart/form-data request containing metadata and a file attachment.
+This app provides a hospital-focused upload page for laboratory results. 
 
 ## Environment Setup
 
