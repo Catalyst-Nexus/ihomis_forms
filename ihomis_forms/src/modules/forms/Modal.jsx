@@ -19,7 +19,14 @@ export default function Modal({ isOpen, onClose, title, children }) {
     // clone only the modal content (DNRForm) into it
     printContainer.innerHTML = contentRef.current.innerHTML;
 
-    window.print();
+    const previousTitle = document.title;
+    document.title = '';
+
+    try {
+      window.print();
+    } finally {
+      document.title = previousTitle;
+    }
 
     // clean up after printing
     printContainer.innerHTML = '';
