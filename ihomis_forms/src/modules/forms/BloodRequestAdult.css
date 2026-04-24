@@ -211,17 +211,6 @@
   gap: 8px;
 }
 
-/* ─── FOOTER ──────────────────────────────────────────────── */
-.brf-footer {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.72rem;
-  font-style: italic;
-  color: #000;
-}
-
 /* ─── PAGE 2 specific ─────────────────────────────────────── */
 .brf-page--p2 {
   min-height: 297mm;
@@ -239,10 +228,6 @@
 
   .brf-meta-cell--wide {
     min-width: auto;
-  }
-
-  .brf-footer {
-    font-size: 0.68rem;
   }
 
   .brf-line--sig {

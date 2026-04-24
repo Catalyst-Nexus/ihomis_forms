@@ -130,17 +130,6 @@
   font-size: 9.5pt;
 }
 
-.generated-by {
-  text-align: right;
-  font-size: 8pt;
-  font-style: italic;
-  font-weight: 700;
-  margin-top: auto;
-  padding-top: 1.6mm;
-  border-top: 1px solid #000;
-  flex-shrink: 0;
-}
-
 @media print {
   .a4-page {
     position: relative !important;
@@ -152,15 +141,6 @@
     max-height: 297mm !important;
     overflow: visible !important;
     padding: 10mm 14mm 14mm 14mm !important;
-  }
-
-  /* Pin footer to bottom — always visible */
-  .generated-by {
-    position: absolute !important;
-    bottom: 14mm !important;
-    left: 14mm !important;
-    right: 14mm !important;
-    margin-top: 0 !important;
   }
 
   /* Reserve space so sig block never overlaps footer */
