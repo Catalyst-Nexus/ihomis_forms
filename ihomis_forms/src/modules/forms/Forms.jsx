@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
+import FormDocument from '../components/FormDocument.jsx';
 import Forms2 from './Forms2';
 import ApgarScoring from './ApgarScoring';
 import BTLConsent from './BTLConsent';
@@ -166,10 +167,29 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
   };
 
-  const renderForm = (formName) => {
-    if (formName === 'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form') {
-      return <DNRForm patientName={patientName} />;
+  const getHeaderConfig = (formName) => ({
+    formNo: '',
+    revised: '',
+    title: (formName || '').toUpperCase(),
+    leftLogoSrc: '',
+    rightLogoSrc: '',
+  });
+
+  const renderFormBody = (formName) => {
+    const formRendererMap = {
+      'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form': () => (
+        <DNRForm patientName={patientName} />
+      ),
+      'Monitoring Sheet': () => (
+        <div>Monitoring Sheet body template to be defined</div>
+      ),
+    };
+
+    const renderer = formRendererMap[formName];
+    if (renderer) {
+      return renderer();
     }
+
     if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
       return <Forms2 />;
     }
@@ -326,6 +346,12 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     return <div>Form template to be defined</div>;
   };
 
+  const renderFormDocument = (formName) => (
+    <FormDocument headerConfig={getHeaderConfig(formName)}>
+      {renderFormBody(formName)}
+    </FormDocument>
+  );
+
   return (
     <div className="forms-container">
       <div className="forms-header">
@@ -413,8 +439,12 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
         )}
       </div>
 
-      <Modal isOpen={!!openForm} onClose={() => setOpenForm(null)} title={openForm}>
-        {openForm && renderForm(openForm)}
+      <Modal
+        isOpen={!!openForm}
+        onClose={() => setOpenForm(null)}
+        title={openForm}
+      >
+          {openForm && renderFormDocument(openForm)}
       </Modal>
     </div>
   );
