@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
+import FormDocument from '../components/FormDocument.jsx';
+import Forms2 from './Forms2';
 import ApgarScoring from './ApgarScoring';
 import BTLConsent from './BTLConsent';
 import CardioPulmonaryClearance from './CardioPulmonaryClearance';
@@ -51,18 +53,13 @@ import ChestTubeThoracostomy from './ChestTubeThoracostomy';
 import BallardScore from './BallardScore';
 import NeuroVitalSignsLessThan from './NeuroVitalSignsLessThan';
 import NeuroVitalSignsMoreThan from './NeuroVitalSignsMoreThan';
-import AnimalBiteTreatmentRecord from './AnimalBiteTreatmentRecord';
-import DoctorsOrderPedia from './DoctorsOrderPedia';
-import MedicationSheet from './MedicationSheet';
-import MonitoringSheet from './MonitoringSheet';
-import PagtugotWaiver from './PagtugotWaiver';
-import PostAnesthesiaNursesNotes from './PostAnesthesiaNursesNotes';
-import TPRSheet from './TPRSheet';
-import SurgicalSafetyChecklist from './SurgicalSafetyChecklist';
-import RequestBloodCompatibility from './RequestBloodCompatibility';
-import RadiologyRequestOutside from './RadiologyRequestOutside';
-import NewbornPersonalInfoSheet from './NewbornPersonalInfoSheet';
-import AldreteScore from './AldreteScore';
+import Neurologic from './Neurologic';
+import Partograph from './Partograph';
+import PostAnesthesiaSheet from './PostAnesthesiaSheet';
+import Lubchenco from './Lubchenco';
+import AnesthesiaRecord from './AnesthesiaRecord';
+import ChildImmunizationRecord from './ChildImmunizationRecord';
+import MIS from './MIS';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -178,10 +175,29 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
   };
 
-  const renderForm = (formName) => {
-    if (formName === 'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form') {
-      return <DNRForm patientName={patientName} />;
+  const getHeaderConfig = (formName) => ({
+    formNo: '',
+    revised: '',
+    title: (formName || '').toUpperCase(),
+    leftLogoSrc: '',
+    rightLogoSrc: '',
+  });
+
+  const renderFormBody = (formName) => {
+    const formRendererMap = {
+      'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form': () => (
+        <DNRForm patientName={patientName} />
+      ),
+      'Monitoring Sheet': () => (
+        <div>Monitoring Sheet body template to be defined</div>
+      ),
+    };
+
+    const renderer = formRendererMap[formName];
+    if (renderer) {
+      return renderer();
     }
+
     if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
     return <AldreteScore patientName={patientName} patientData={patientData} />;
     }
@@ -330,44 +346,38 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   return <NeuroVitalSignsLessThan patientName={patientName} patientData={patientData} />;
   }
   if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old') {
-  return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'ABTC Treatment Record') {
-  return <AnimalBiteTreatmentRecord patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === "Doctor's Order (for pedia)") {
-  return <DoctorsOrderPedia patientName={patientName} patientData={patientData} />;
-  } 
-  if (formName === 'Medication Sheet') {
-  return <MedicationSheet patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Monitoring Sheet') {
-  return <MonitoringSheet patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Pagtugot (Waiver)') {
-  return <PagtugotWaiver patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === "Post Anesthesia Care Unit Nurse's Notes Form") {
-  return <PostAnesthesiaNursesNotes patientName={patientName} patientData={patientData} />; 
-  }
-  if (formName === 'TPR Sheet') {
-  return <TPRSheet patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Surgical Safety Checklist') {
-  return <SurgicalSafetyChecklist patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Request for Blood Compatibility Testing Form') {
-  return <RequestBloodCompatibility patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Radiology Request Form (Outside)') {
-  return <RadiologyRequestOutside patientName={patientName} patientData={patientData} />;
-  }
-  if (formName === 'Newborn Personal Information Sheet') {
-  return <NewbornPersonalInfoSheet patientName={patientName} patientData={patientData} />; 
-  }
+    return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
+    }
+  if (formName === 'Neurologic Examination Form') {
+    return <Neurologic patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Partograph') {  
+      return <Partograph patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Post Anesthesia Care Unit Nurse\'s Notes Form') {
+      return <PostAnesthesiaSheet patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Lubchenco') {
+      return <Lubchenco patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Anesthesia Record') {
+      return <AnesthesiaRecord patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'Child Immunization Record') {
+      return <ChildImmunizationRecord patientName={patientName} patientData={patientData} />;
+    }
+    if (formName === 'MIS Safety Checklist') {
+      return <MIS patientName={patientName} patientData={patientData} />;
+    }
     // Add more forms here
     return <div>Form template to be defined</div>;
   };
+
+  const renderFormDocument = (formName) => (
+    <FormDocument headerConfig={getHeaderConfig(formName)}>
+      {renderFormBody(formName)}
+    </FormDocument>
+  );
 
   return (
     <div className="forms-container">
@@ -456,8 +466,12 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
         )}
       </div>
 
-      <Modal isOpen={!!openForm} onClose={() => setOpenForm(null)} title={openForm}>
-        {openForm && renderForm(openForm)}
+      <Modal
+        isOpen={!!openForm}
+        onClose={() => setOpenForm(null)}
+        title={openForm}
+      >
+          {openForm && renderFormDocument(openForm)}
       </Modal>
     </div>
   );

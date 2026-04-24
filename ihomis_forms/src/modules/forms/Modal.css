@@ -61,8 +61,12 @@
   background: white;
   color: black;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.modal-content > * {
+  width: 100%;
 }
 
 .modal-content .dnr-form {
@@ -116,6 +120,18 @@
 }
 
 @media print {
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* hide everything on the page */
   html,
   body {
     margin: 0;
@@ -130,6 +146,10 @@
 
   #print-container {
     display: block !important;
+    position: static;
+    width: 100%;
+    padding: 0;
+    margin: 0 auto;
     position: static !important;
     width: 210mm !important;
     margin: 0 auto !important;
