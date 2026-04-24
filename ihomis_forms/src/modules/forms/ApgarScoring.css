@@ -9,8 +9,8 @@
   min-height: 297mm;
   background: #fff;
   padding: 10mm 14mm 14mm 14mm;
-  font-family: Arial, sans-serif;
-  font-size: 10pt;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
   color: #000;
   position: relative;
   display: flex;
@@ -23,21 +23,21 @@
 }
 
 .form-meta {
-  font-size: 8pt;
+  font-size: 9.5pt;
   margin-bottom: 2mm;
   line-height: 1.5;
 }
 
 .form-title {
   text-align: center;
-  font-size: 13pt;
+  font-size: 14.5pt;
   font-weight: bold;
   letter-spacing: 2px;
   margin: 3mm 0 4mm;
 }
 
 .case-number-row {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   margin-bottom: 3mm;
 }
 
@@ -49,7 +49,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 5mm;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .info-table td {
@@ -70,7 +70,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 5mm;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .sign-table th,
@@ -85,14 +85,14 @@
   background: #000;
   color: #fff;
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
 }
 
 .score-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 5mm;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .score-table th,
@@ -107,7 +107,7 @@
   background: #000;
   color: #fff;
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
 }
 
 .score-table td.blank-cell {
@@ -127,12 +127,12 @@
 
 .sig-label {
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
 }
 
 .generated-by {
   text-align: right;
-  font-size: 8pt;
+  font-size: 9pt;
   font-style: italic;
   font-weight: 700;
   margin-top: auto;

@@ -25,16 +25,21 @@ export default function SurgicalMemorandum({ patientName, patientData }) {
   return (
     <div className="sm-page">
 
-      {/* ── Patient Info Block ── */}
+      {/* ── Space reserved for header ── */}
+      <div className="sm-header-space" />
+
+      {/* ── Patient Info Block — 4 rows x 2 columns ── */}
       <div className="sm-info-block">
-        <div className="sm-info-row"><span className="sm-info-label">Case Number:</span><span>{caseNumber}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Name</span><span>{name}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Address:</span><span>{address}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Contact:</span><span>{contact}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Sex:</span><span>{sex}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Civil Status:</span><span>{civilStatus}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Age:</span><span>{age}</span></div>
-        <div className="sm-info-row"><span className="sm-info-label">Birth Date:</span><span>{birthDate}</span></div>
+        <div className="sm-info-grid">
+          <div className="sm-info-row"><span className="sm-info-label">Case Number:</span><span>{caseNumber}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Sex:</span><span>{sex}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Name:</span><span>{name}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Civil Status:</span><span>{civilStatus}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Address:</span><span>{address}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Age:</span><span>{age}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Contact:</span><span>{contact}</span></div>
+          <div className="sm-info-row"><span className="sm-info-label">Birth Date:</span><span>{birthDate}</span></div>
+        </div>
       </div>
 
       {/* ── Main Table ── */}
@@ -205,7 +210,6 @@ export default function SurgicalMemorandum({ patientName, patientData }) {
             <td colSpan={1} className="sm-lbl">L</td>
             <td colSpan={4} className="sm-val"></td>
           </tr>
-
         </tbody>
       </table>
 

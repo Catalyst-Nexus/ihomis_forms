@@ -1,0 +1,151 @@
+.ssc-page {
+  width: 210mm;
+  min-height: auto;
+  padding: 10mm 12mm 10mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media print {
+  .ssc-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Reserved space for header (add header here later) ── */
+.ssc-header-space {
+  height: 30mm;
+}
+
+/* ── Top patient info table ── */
+.ssc-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3mm;
+}
+
+.ssc-info-table td {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  font-size: 8pt;
+  vertical-align: middle;
+}
+
+.ssc-info-label {
+  font-weight: bold;
+  white-space: nowrap;
+  width: 18%;
+}
+
+.ssc-info-value {
+  width: 32%;
+}
+
+.ssc-name-val {
+  font-weight: bold;
+  text-align: center;
+}
+
+.ssc-bold {
+  font-weight: bold;
+}
+
+/* ── Title ── */
+.ssc-title {
+  text-align: center;
+  font-size: 11pt;
+  font-weight: bold;
+  margin-top: 3mm;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3mm;
+}
+
+.ssc-subtitle {
+  text-align: center;
+  font-size: 8.5pt;
+  margin-bottom: 3mm;
+}
+
+/* ── Main checklist table ── */
+.ssc-main-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 3mm;
+}
+
+.ssc-main-table th,
+.ssc-main-table td {
+  border: 1px solid #000;
+  vertical-align: top;
+  font-size: 8pt;
+  padding: 1.5mm 2mm;
+}
+
+.ssc-main-table th {
+  text-align: center;
+  background: #fff;
+  line-height: 1.5;
+}
+
+/* Equal column widths */
+.ssc-col-before   { width: 33.33%; }
+.ssc-col-incision { width: 33.33%; }
+.ssc-col-leaves   { width: 33.34%; }
+
+/* ── Content cells ── */
+.ssc-cell {
+  vertical-align: top;
+  line-height: 1.55;
+  padding: 1.5mm 2mm !important;
+}
+
+.ssc-content-row td {
+  vertical-align: top;
+}
+
+/* ── Typography helpers ── */
+.ssc-indent {
+  padding-left: 5mm;
+}
+
+.ssc-mt {
+  margin-top: 1.5mm;
+}
+
+.ssc-center {
+  text-align: center;
+}
+
+/* ── Blank lines ── */
+.ssc-blank-line {
+  border-bottom: 1px solid #000;
+  height: 5mm;
+  margin: 0.5mm 0;
+}
+
+/* ── Footer ── */
+.ssc-footer {
+  margin-top: 2mm;
+}
+
+.ssc-footer-line {
+  border-top: 1px solid #000;
+  margin-bottom: 1px;
+}
+
+.ssc-footer-text {
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

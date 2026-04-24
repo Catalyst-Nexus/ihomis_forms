@@ -24,7 +24,7 @@ body {
   flex-direction: column;
   padding: 10.5mm 12mm 8mm;
   color: #222;
-  font-size: 8pt;
+  font-size: 9.5pt;
   line-height: 1.05;
 }
 
@@ -39,7 +39,7 @@ body {
 
 .form-title {
   text-align: center;
-  font-size: 18pt;
+  font-size: 19pt;
   font-weight: 700;
   letter-spacing: 0.3px;
   margin-bottom: 1mm;
@@ -47,7 +47,7 @@ body {
 
 .form-subtitle {
   text-align: center;
-  font-size: 18pt;
+  font-size: 19pt;
   font-weight: 700;
   margin-bottom: 4mm;
 }
@@ -78,16 +78,19 @@ body {
 .meta-label {
   font-weight: 700;
   white-space: nowrap;
+  font-size: 9.5pt;
 }
 
 .meta-value-inline {
   margin-left: 2.2mm;
+  font-size: 9.5pt;
 }
 
 .meta-value {
   min-width: 0;
   flex: 0 0 auto;
   white-space: nowrap;
+  font-size: 9.5pt;
 }
 
 .meta-value-name {
@@ -178,7 +181,7 @@ body {
 .pupil-number {
   width: 4mm;
   text-align: left;
-  font-size: 6pt;
+  font-size: 7pt;
 }
 
 .pupil-circle {
@@ -209,7 +212,7 @@ body {
   justify-content: space-between;
   height: 18.5mm;
   padding-top: 0.2mm;
-  font-size: 6.5pt;
+  font-size: 7.5pt;
   font-weight: 700;
   line-height: 1;
 }
@@ -225,7 +228,7 @@ body {
   table-layout: fixed;
   border: 0.25mm solid #8a8a8a;
   width: 100%;
-  font-size: 6pt;
+  font-size: 7pt;
 }
 
 .pupil-table-size {
@@ -247,7 +250,7 @@ body {
 .table-heading {
   background: #d9d9d9;
   font-weight: 700;
-  font-size: 6.5pt;
+  font-size: 7.5pt;
 }
 
 .reaction-label {
@@ -255,7 +258,7 @@ body {
   text-align: left !important;
   background: #f3f3f3;
   font-weight: 700;
-  font-size: 6pt;
+  font-size: 7pt;
 }
 
 .lr-label {
@@ -269,7 +272,7 @@ body {
   padding-top: 1.5mm;
   border-top: 0.25mm solid #111;
   text-align: right;
-  font-size: 6pt;
+  font-size: 7.5pt;
   font-style: italic;
 }
 

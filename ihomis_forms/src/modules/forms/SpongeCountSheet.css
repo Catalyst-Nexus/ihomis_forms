@@ -1,11 +1,7 @@
-/* ══════════════════════════════════════════════
-   SpongeCountSheet.css
-   ══════════════════════════════════════════════ */
-
 .scs-page {
   width: 210mm;
-  min-height: 297mm;
-  padding: 10mm 12mm 16mm 12mm;
+  min-height: auto;
+  padding: 10mm 12mm 10mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   color: #000;
@@ -22,6 +18,11 @@
     width: 210mm;
     min-height: 297mm;
   }
+}
+
+/* ── Reserved space for header ── */
+.scs-header-space {
+  height: 30mm;
 }
 
 /* ── Case Number ── */
@@ -180,10 +181,7 @@
 
 /* ── Footer ── */
 .scs-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 12mm;
-  right: 12mm;
+  margin-top: 2mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
   font-size: 7pt;

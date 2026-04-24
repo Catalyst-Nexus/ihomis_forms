@@ -3,7 +3,7 @@
   min-height: 297mm;
   padding: 10mm 12mm 16mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
+  font-size: 9.5pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -22,7 +22,7 @@
 
 /* ── Case Number ── */
 .npe-case-row {
-  font-size: 8pt;
+  font-size: 9.5pt;
   margin-bottom: 1mm;
 }
 .npe-case-row strong { font-weight: bold; }
@@ -40,7 +40,7 @@
   border: 1px solid #000;
   padding: 1mm 2mm;
   vertical-align: top;
-  font-size: 8pt;
+  font-size: 9pt;
 }
 
 /* Gap column — visible space only in vitals row */
@@ -61,19 +61,19 @@
 
 /* ── Baby info header row ── */
 .npe-baby-header td {
-  font-size: 8pt;
+  font-size: 9pt;
   vertical-align: middle;
   padding: 1mm 2mm;
 }
 .npe-baby-label { font-weight: bold; white-space: nowrap; }
-.npe-baby-name  { font-weight: bold; text-align: center; font-size: 9pt; }
+.npe-baby-name  { font-weight: bold; text-align: center; font-size: 10pt; }
 
 /* ── Section headers ── */
 .npe-section-header {
   font-weight: bold;
   text-align: center;
   background: #fff;
-  font-size: 8pt;
+  font-size: 9pt;
   padding: 1.5mm 2mm !important;
 }
 
@@ -85,7 +85,7 @@
 .npe-vs-table td {
   border: 1px solid #000;
   padding: 1mm 2mm;
-  font-size: 8pt;
+  font-size: 9pt;
 }
 .npe-vs-label { font-weight: bold; width: 55%; }
 .npe-vs-value { width: 45%; }
@@ -98,7 +98,7 @@
 .npe-ant-table td {
   border: 1px solid #000;
   padding: 1mm 2mm;
-  font-size: 8pt;
+  font-size: 9pt;
 }
 .npe-ant-label { font-weight: bold; }
 .npe-ant-value { text-align: right; }
@@ -107,7 +107,7 @@
 .npe-exam-cell {
   vertical-align: top;
   padding: 1.5mm 2mm !important;
-  font-size: 8pt;
+  font-size: 9pt;
   line-height: 1.7;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .npe-sig-label {
-  font-size: 9pt;
+  font-size: 10pt;
   font-weight: bold;
   text-align: center;
 }
@@ -174,7 +174,7 @@
   right: 12mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

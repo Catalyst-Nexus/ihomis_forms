@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import './Forms.css';
 import Modal from './Modal';
 import DNRForm from './DNRForm';
-import Forms2 from './Forms2';
 import ApgarScoring from './ApgarScoring';
 import BTLConsent from './BTLConsent';
 import CardioPulmonaryClearance from './CardioPulmonaryClearance';
@@ -52,6 +51,18 @@ import ChestTubeThoracostomy from './ChestTubeThoracostomy';
 import BallardScore from './BallardScore';
 import NeuroVitalSignsLessThan from './NeuroVitalSignsLessThan';
 import NeuroVitalSignsMoreThan from './NeuroVitalSignsMoreThan';
+import AnimalBiteTreatmentRecord from './AnimalBiteTreatmentRecord';
+import DoctorsOrderPedia from './DoctorsOrderPedia';
+import MedicationSheet from './MedicationSheet';
+import MonitoringSheet from './MonitoringSheet';
+import PagtugotWaiver from './PagtugotWaiver';
+import PostAnesthesiaNursesNotes from './PostAnesthesiaNursesNotes';
+import TPRSheet from './TPRSheet';
+import SurgicalSafetyChecklist from './SurgicalSafetyChecklist';
+import RequestBloodCompatibility from './RequestBloodCompatibility';
+import RadiologyRequestOutside from './RadiologyRequestOutside';
+import NewbornPersonalInfoSheet from './NewbornPersonalInfoSheet';
+import AldreteScore from './AldreteScore';
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -66,6 +77,7 @@ const ThemeToggle = ({ isDarkMode, onToggle }) => (
 
 const FORMS_LIST = [
   'ABTC Form',
+  'ABTC Treatment Record',
   'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form',
   'Aldrete Score (Post Anesthesia Recovery Score) Form',
   'Anesthesia Record',
@@ -171,7 +183,7 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
       return <DNRForm patientName={patientName} />;
     }
     if (formName === 'Aldrete Score (Post Anesthesia Recovery Score) Form') {
-      return <Forms2 />;
+    return <AldreteScore patientName={patientName} patientData={patientData} />;
     }
     if (formName === 'APGAR Score Form') {
       return <ApgarScoring />;
@@ -309,19 +321,50 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
   return <LaboratoryResults patientName={patientName} patientData={patientData} />;
   }
   if (formName === 'Chest Tube Thoracostomy Sheet') {
-    return <ChestTubeThoracostomy patientName={patientName} patientData={patientData} />;
-    
+  return <ChestTubeThoracostomy patientName={patientName} patientData={patientData} />; 
   }
   if (formName === 'Ballard Score') {
-    return <BallardScore patientName={patientName} patientData={patientData} />;
-    }
+  return <BallardScore patientName={patientName} patientData={patientData} />;
+  }
   if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old') {
-    return <NeuroVitalSignsLessThan patientName={patientName} patientData={patientData} />;
-    }
+  return <NeuroVitalSignsLessThan patientName={patientName} patientData={patientData} />;
+  }
   if (formName === 'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old') {
-    return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
-    }
-    
+  return <NeuroVitalSignsMoreThan patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'ABTC Treatment Record') {
+  return <AnimalBiteTreatmentRecord patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === "Doctor's Order (for pedia)") {
+  return <DoctorsOrderPedia patientName={patientName} patientData={patientData} />;
+  } 
+  if (formName === 'Medication Sheet') {
+  return <MedicationSheet patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Monitoring Sheet') {
+  return <MonitoringSheet patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Pagtugot (Waiver)') {
+  return <PagtugotWaiver patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === "Post Anesthesia Care Unit Nurse's Notes Form") {
+  return <PostAnesthesiaNursesNotes patientName={patientName} patientData={patientData} />; 
+  }
+  if (formName === 'TPR Sheet') {
+  return <TPRSheet patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Surgical Safety Checklist') {
+  return <SurgicalSafetyChecklist patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Request for Blood Compatibility Testing Form') {
+  return <RequestBloodCompatibility patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Radiology Request Form (Outside)') {
+  return <RadiologyRequestOutside patientName={patientName} patientData={patientData} />;
+  }
+  if (formName === 'Newborn Personal Information Sheet') {
+  return <NewbornPersonalInfoSheet patientName={patientName} patientData={patientData} />; 
+  }
     // Add more forms here
     return <div>Form template to be defined</div>;
   };

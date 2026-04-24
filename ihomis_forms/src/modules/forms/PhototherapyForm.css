@@ -1,13 +1,9 @@
-/* ══════════════════════════════════════════════
-   PhototherapyForm.css
-   ══════════════════════════════════════════════ */
-
 .pt-page {
   width: 210mm;
   min-height: 297mm;
-  padding: 10mm 12mm 16mm 12mm;
+  padding: 28mm 12mm 16mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
+  font-size: 9pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -29,8 +25,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 3mm;
-  font-size: 8pt;
+  margin-bottom: 4mm;
+  font-size: 9pt;
 }
 
 .pt-header-left {
@@ -83,7 +79,7 @@
 .pt-table th,
 .pt-table td {
   border: 1px solid #000;
-  font-size: 8pt;
+  font-size: 9pt;
   vertical-align: middle;
   text-align: center;
   padding: 1mm 1.5mm;
@@ -96,7 +92,7 @@
 }
 
 .pt-table td {
-  height: 8.5mm;
+  height: 9mm;
 }
 
 /* Column widths */
@@ -112,7 +108,7 @@
   right: 12mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

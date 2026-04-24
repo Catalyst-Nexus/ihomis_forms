@@ -36,39 +36,43 @@ export default function LaboratoryRequestOutside({ patientName, patientData }) {
       {/* ── Date/Time ── */}
       <div className="lro-datetime">Date and Time ordered: {dateTimeStr}</div>
 
-      {/* ── Row 1 ── */}
-      <div className="lro-row1">
-        <div className="lro-field">
-          <span className="lro-label">Name of Patient:</span>
-          <span>{name}</span>
+      {/* ── Patient details ── */}
+      <div className="lro-details-grid">
+        <div className="lro-detail-row">
+          <div className="lro-field">
+            <span className="lro-label">Case Number:</span>
+            <span>{caseNo}</span>
+          </div>
+          <div className="lro-field">
+            <span className="lro-label">Age:</span>
+            <span>{age}</span>
+          </div>
         </div>
-        <div className="lro-field">
-          <span className="lro-label">Age:</span>
-          <span>{age}</span>
+        <div className="lro-detail-row">
+          <div className="lro-field">
+            <span className="lro-label">Name of Patient:</span>
+            <span>{name}</span>
+          </div>
+          <div className="lro-field">
+            <span className="lro-label">Sex:</span>
+            <span>{sex}</span>
+          </div>
         </div>
-        <div className="lro-field">
-          <span className="lro-label">Sex:</span>
-          <span>{sex}</span>
+        <div className="lro-detail-row">
+          <div className="lro-field">
+            <span className="lro-label">Ward/OR#:</span>
+            <span>{ward}</span>
+          </div>
+          <div className="lro-field">
+            <span className="lro-label">Birthdate:</span>
+            <span>{birthdate}</span>
+          </div>
         </div>
-        <div className="lro-field">
-          <span className="lro-label">Birthdate:</span>
-          <span>{birthdate}</span>
-        </div>
-      </div>
-
-      {/* ── Row 2 ── */}
-      <div className="lro-row2">
-        <div className="lro-field">
-          <span className="lro-label">Ward/OR#:</span>
-          <span>{ward}</span>
-        </div>
-        <div className="lro-field">
-          <span className="lro-label">Category:</span>
-          <span>{category}</span>
-        </div>
-        <div className="lro-field">
-          <span className="lro-label">Case Number:</span>
-          <span>{caseNo}</span>
+        <div className="lro-detail-row lro-detail-row-single">
+          <div className="lro-field">
+            <span className="lro-label">Category:</span>
+            <span>{category}</span>
+          </div>
         </div>
       </div>
 

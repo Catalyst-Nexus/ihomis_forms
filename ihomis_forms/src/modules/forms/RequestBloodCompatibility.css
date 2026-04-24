@@ -1,0 +1,235 @@
+.rbc-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header space ── */
+.rbc-header-space {
+  height: 40mm;
+  flex-shrink: 0;
+}
+
+@media print {
+  .rbc-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Header info ── */
+.rbc-header {
+  font-size: 10pt;
+  margin-bottom: 2mm;
+  line-height: 1.7;
+}
+
+.rbc-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+  align-items: baseline;
+  margin-bottom: 0.5mm;
+}
+
+.rbc-lbl { font-weight: bold; white-space: nowrap; }
+.rbc-val { font-weight: normal; }
+
+.rbc-address-row {
+  font-size: 10pt;
+  margin-bottom: 0.5mm;
+}
+
+.rbc-diag-row {
+  font-size: 10pt;
+  margin-bottom: 3mm;
+  line-height: 1.6;
+}
+
+.rbc-ul {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  vertical-align: bottom;
+  height: 12px;
+}
+
+/* ── Info grid: 2 cols x 3 rows ── */
+.rbc-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5mm 6mm;
+  margin-bottom: 1.5mm;
+}
+
+.rbc-info-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  font-size: 10pt;
+  line-height: 1.7;
+}
+
+/* ── Blood type checklist ── */
+.rbc-blood-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5mm 0;
+  margin-bottom: 4mm;
+  font-size: 10pt;
+}
+
+.rbc-check-item {
+  font-size: 10pt;
+  line-height: 1.8;
+}
+
+/* ── Routine / Emergency ── */
+.rbc-routine-section {
+  margin-bottom: 4mm;
+  font-size: 10pt;
+  line-height: 2;
+}
+
+/* ── Extreme need section ── */
+.rbc-extreme-section {
+  margin-bottom: 4mm;
+}
+
+.rbc-extreme-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 10pt;
+  margin-bottom: 1mm;
+}
+
+.rbc-extreme-subtitle {
+  text-align: center;
+  font-size: 10pt;
+  margin-bottom: 0.5mm;
+}
+
+.rbc-extreme-sub2 {
+  text-align: center;
+  font-size: 10pt;
+  margin-bottom: 1mm;
+}
+
+.rbc-extreme-items {
+  padding-left: 30mm;
+  font-size: 10pt;
+  line-height: 1.9;
+}
+
+.rbc-extreme-item {
+  font-size: 10pt;
+}
+
+/* ── Justification line ── */
+.rbc-just-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+  font-size: 10pt;
+  margin-bottom: 1mm;
+}
+
+.rbc-just-line {
+  border-bottom: 1px solid #000;
+  flex: 1;
+  height: 4mm;
+}
+
+.rbc-full-line {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  height: 4mm;
+  margin-bottom: 3mm;
+}
+
+/* ── Requested by ── */
+.rbc-req-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+  font-size: 10pt;
+  margin-bottom: 5mm;
+}
+
+/* ── MD / RN signature row ── */
+.rbc-sig-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1mm;
+}
+
+.rbc-sig-block {
+  width: 80mm;
+}
+
+.rbc-sig-line-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+  margin-bottom: 1px;
+}
+
+.rbc-sig-line {
+  border-bottom: 1px solid #000;
+  flex: 1;
+  height: 5mm;
+}
+
+.rbc-sig-suffix {
+  font-size: 10pt;
+  white-space: nowrap;
+}
+
+.rbc-sig-label {
+  font-size: 10pt;
+}
+
+/* ── Received / Date row ── */
+.rbc-received-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 3mm;
+  font-size: 10pt;
+}
+
+.rbc-received-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+}
+
+.rbc-received-line {
+  border-bottom: 1px solid #000;
+  width: 55mm;
+  height: 4mm;
+}
+
+/* ── Footer ── */
+.rbc-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7.5pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

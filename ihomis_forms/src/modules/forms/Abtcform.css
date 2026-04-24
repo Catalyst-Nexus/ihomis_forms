@@ -38,7 +38,7 @@
 }
 
 .abtc-badge-inner {
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #2d5a0e;
   text-align: center;
@@ -53,24 +53,24 @@
 
 .abtc-republic {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .abtc-office {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.98rem;
 }
 
 .abtc-hospital-name {
   margin: 0.1rem 0;
-  font-size: 1.05rem;
+  font-size: 1.18rem;
   font-weight: 700;
 }
 
 .abtc-address,
 .abtc-contact {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 
 .abtc-form-revised {
@@ -78,7 +78,7 @@
   gap: 1.5rem;
   justify-content: flex-start;
   margin-top: 0.5rem;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
 }
 
 /* ── Title Block ── */
@@ -101,7 +101,7 @@
 
 .abtc-form-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.12rem;
   font-weight: 700;
   text-align: center;
   letter-spacing: 0.02em;
@@ -114,7 +114,7 @@
   justify-content: flex-end;
   gap: 0.3rem;
   white-space: nowrap;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   min-height: 1.8rem;
 }
 
@@ -130,7 +130,7 @@
   align-items: stretch;
   padding: 0;
   gap: 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .abtc-patient-name-row {
@@ -144,7 +144,7 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.25rem 0.6rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .abtc-info-cell:first-child {
@@ -171,7 +171,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .abtc-small-cell {
@@ -180,7 +180,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .abtc-small-cell:last-child {
@@ -194,6 +194,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0;
+  font-size: 0.9rem;
 }
 
 .abtc-detail-cell {
@@ -202,7 +203,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 0.8rem;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9rem;
 }
 
 .abtc-detail-cell:last-child {
@@ -220,7 +223,7 @@
 /* ── Section Titles ── */
 .abtc-section-title {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.96rem;
   margin: 0.5rem 0 0.3rem 0;
 }
 
@@ -237,7 +240,7 @@
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .abtc-underline-field {
@@ -257,7 +260,7 @@
 
 /* ── Default footer ── */
 .aldrete-default-footer {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   text-align: right;
   margin-top: 0.8rem;
   padding-top: 0.4rem;
@@ -270,5 +273,6 @@
   padding: 0.5in;
   background: white;
   color: #000;
-  font-family: 'Calibri', 'Arial', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
 }
