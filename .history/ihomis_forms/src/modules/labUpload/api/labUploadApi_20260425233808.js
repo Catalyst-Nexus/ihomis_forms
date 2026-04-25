@@ -136,11 +136,11 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   const identifiers = requestContext.identifiers || {};
 
   const id =
-    identifiers.enccode ||
-    source?.hpercode ||
-    source?.id ||
-    [identifiers.fhud, identifiers.docointkey].filter(Boolean).join("|") ||
-    `candidate-${fallbackIndex}`;
+    identifiers.enccode
+    || source?.hpercode
+    || source?.id
+    || [identifiers.fhud, identifiers.docointkey].filter(Boolean).join('|')
+    || `candidate-${fallbackIndex}`;
 
   const fullName = [
     requestContext.patient?.firstName,
@@ -148,32 +148,35 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     requestContext.patient?.lastName,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   const displayName =
-    fullName || source?.hpercode || identifiers.enccode || "Unlabeled Patient";
+    fullName
+    || source?.hpercode
+    || identifiers.enccode
+    || 'Unlabeled Patient';
 
   const facilityLabel =
-    source?.facility_name ||
-    (identifiers.fhud ? `Facility ${identifiers.fhud}` : "");
+    source?.facility_name
+    || (identifiers.fhud ? `Facility ${identifiers.fhud}` : '');
 
   const description = [
     facilityLabel,
-    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : "",
+    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : '',
     requestContext.panelName,
     requestContext.requestedAt,
   ]
     .filter(Boolean)
-    .join(" \u2022 ");
+    .join(' \u2022 ');
 
   return {
     id,
     displayName,
     description,
     contextParams: {
-      enccode: identifiers.enccode || "",
-      fhud: identifiers.fhud || identifiers.facility_code || "",
-      docointkey: identifiers.docointkey || "",
+      enccode: identifiers.enccode || '',
+      fhud: identifiers.fhud || identifiers.facility_code || '',
+      docointkey: identifiers.docointkey || '',
     },
     requestContext,
   };
@@ -290,16 +293,19 @@ const patientLastNameKeys = parseKeyList("VITE_LAB_CONTEXT_PATIENT_LAST_KEYS", [
   "patient.lname",
 ]);
 
-const facilityNameKeys = parseKeyList("VITE_LAB_CONTEXT_FACILITY_NAME_KEYS", [
-  "facility_name",
-  "facilityName",
-  "data.facility_name",
-  "data.facilityName",
-  "request.facilityName",
-  "data.request.facilityName",
-  "context.facilityName",
-  "metadata.facilityName",
-]);
+const facilityNameKeys = parseKeyList(
+  "VITE_LAB_CONTEXT_FACILITY_NAME_KEYS",
+  [
+    "facility_name",
+    "facilityName",
+    "data.facility_name",
+    "data.facilityName",
+    "request.facilityName",
+    "data.request.facilityName",
+    "context.facilityName",
+    "metadata.facilityName",
+  ],
+);
 
 const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
   "hpercode",
@@ -445,12 +451,11 @@ export async function fetchLabPatientCandidates({
   payloadRows.forEach((row, index) => {
     const candidate = buildPatientCandidate(row, index + 1);
 
-    if (!candidate.id || candidate.id.startsWith("candidate-")) {
-      candidate.id =
-        candidate.requestContext?.identifiers?.enccode ||
-        row.hpercode ||
-        row.id ||
-        `candidate-${index + 1}`;
+    if (!candidate.id || candidate.id.startsWith('candidate-')) {
+      candidate.id = candidate.requestContext?.identifiers?.enccode
+        || row.hpercode
+        || row.id
+        || `candidate-${index + 1}`;
     }
 
     if (!dedupedCandidates.has(candidate.id)) {

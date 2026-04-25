@@ -1116,7 +1116,6 @@
     border-color 150ms,
     background 150ms;
   -moz-appearance: textfield;
-  appearance: textfield;
 }
 
 .lab-fs-jump-input::-webkit-inner-spin-button,

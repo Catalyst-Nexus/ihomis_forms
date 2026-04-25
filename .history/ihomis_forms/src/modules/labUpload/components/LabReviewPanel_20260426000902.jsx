@@ -144,14 +144,26 @@ function LabReviewPanel({
           aria-modal="true"
           aria-label="Full screen PDF preview"
         >
-          <div className="lab-fullscreen-body">
-            <PdfCanvasPreview
-              file={activePreviewFile}
-              url={activePreviewUrl}
-              token={token}
-              fullscreen
-              onCloseFullscreen={onCloseFullscreen}
-            />
+          <div className="lab-fullscreen-modal">
+            <div className="lab-fullscreen-header">
+              <h3>Full Screen PDF Review</h3>
+              <button
+                type="button"
+                className="lab-fullscreen-close"
+                onClick={onCloseFullscreen}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="lab-fullscreen-body">
+              <PdfCanvasPreview
+                file={activePreviewFile}
+                url={activePreviewUrl}
+                token={token}
+                fullscreen
+              />
+            </div>
           </div>
         </div>
       ) : null}

@@ -268,4 +268,25 @@ LabUploadFormPanel.propTypes = {
   statusClassName: PropTypes.string.isRequired,
 };
 
+LabUploadFormPanel.propTypes = {
+  uploadedFiles: PropTypes.array.isRequired,
+  reviewSource: PropTypes.string.isRequired,
+  activeUploadedFileIndex: PropTypes.number.isRequired,
+  hasLocalPreview: PropTypes.bool.isRequired,
+  hasUploadedPreview: PropTypes.bool.isRequired,
+  hasActivePreview: PropTypes.bool.isRequired,
+  hasAnyPdf: PropTypes.bool.isRequired,
+  activePreviewFile: PropTypes.any,
+  activePreviewUrl: PropTypes.string,
+  token: PropTypes.string.isRequired,
+  onOpenFullscreen: PropTypes.func.isRequired,
+  onCloseFullscreen: PropTypes.func.isRequired,
+  onClearPdfSelection: PropTypes.func.isRequired,
+  onShowLocalPreview: PropTypes.func.isRequired,
+  onShowUploadedPreview: PropTypes.func.isRequired,
+  onPreviewUploadedFile: PropTypes.func.isRequired,
+  uploadSummary: PropTypes.array.isRequired,
+  isReviewFullscreen: PropTypes.bool.isRequired,
+};
+
 export default LabUploadFormPanel;

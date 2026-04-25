@@ -156,6 +156,10 @@ function buildUploadSummary({
   contextLoading,
   displayContext,
   hasApiUrl,
+  
+  resultFileCount,
+  reviewSource,
+  uploadedFileCount,
 }) {
   return [
     {
@@ -185,6 +189,12 @@ function buildUploadSummary({
     {
       label: "Document Key",
       value: displayContext.identifiers.docointkey,
+    },
+    {
+      label: "Attachment Queue",
+      value: resultFileCount
+        ? `${resultFileCount} PDF file(s) selected`
+        : "No PDFs selected",
     },
   ];
 }

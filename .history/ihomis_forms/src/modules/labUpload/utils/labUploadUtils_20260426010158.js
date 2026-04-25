@@ -156,6 +156,8 @@ function buildUploadSummary({
   contextLoading,
   displayContext,
   hasApiUrl,
+
+  resultFileCount,
 }) {
   return [
     {

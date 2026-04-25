@@ -60,6 +60,91 @@ function parseKeyList(name, defaultKeys) {
   return Array.from(new Set(merged));
 }
 
+function splitFullName(fullName) {
+  if (!fullName) {
+    return { firstName: "", middleName: "", lastName: "" };
+  }
+
+  const cleanedName = fullName.trim();
+  if (!cleanedName) {
+    return { firstName: "", middleName: "", lastName: "" };
+  }
+
+  if (cleanedName.includes(",")) {
+    const [lastPart, restPart = ""] = cleanedName
+      .split(",")
+      .map((piece) => piece.trim());
+    const restTokens = restPart.split(/\s+/).filter(Boolean);
+
+    return {
+      firstName: restTokens[0] || "",
+      middleName: restTokens.slice(1).join(" "),
+      lastName: lastPart,
+    };
+  }
+
+  const tokens = cleanedName.split(/\s+/).filter(Boolean);
+  if (!tokens.length) {
+    return { firstName: "", middleName: "", lastName: "" };
+  }
+
+  if (tokens.length === 1) {
+    return {
+      firstName: tokens[0],
+      middleName: "",
+      lastName: "",
+    };
+  }
+
+  return {
+    firstName: tokens[0],
+    middleName: tokens.slice(1, -1).join(" "),
+    lastName: tokens[tokens.length - 1],
+  };
+}
+
+function deriveContextFromDocointkey(docointkey) {
+  if (!docointkey) {
+    return {
+      requestedAt: "",
+      panelName: "",
+    };
+  }
+
+  const parts = String(docointkey)
+    .split("-")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (!parts.length) {
+    return {
+      requestedAt: "",
+      panelName: "",
+    };
+  }
+
+  const requestedAt = parts[1] || "";
+  const codeToken = parts[parts.length - 1] || "";
+
+  let panelName = "";
+  if (codeToken) {
+    if (/^LABOR/i.test(codeToken)) {
+      panelName = `Laboratory ${codeToken}`;
+    } else if (/^RADIO/i.test(codeToken)) {
+      panelName = `Radiology ${codeToken}`;
+    } else if (/^DISCH$/i.test(codeToken)) {
+      panelName = "Discharge Document";
+    } else {
+      panelName = codeToken;
+    }
+  }
+
+  return {
+    requestedAt,
+    panelName,
+  };
+}
+
 function buildRequestUrl(baseUrl, queryParams) {
   if (!baseUrl) {
     return "";
@@ -136,11 +221,9 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   const identifiers = requestContext.identifiers || {};
 
   const id =
-    identifiers.enccode ||
-    source?.hpercode ||
-    source?.id ||
-    [identifiers.fhud, identifiers.docointkey].filter(Boolean).join("|") ||
-    `candidate-${fallbackIndex}`;
+    [identifiers.enccode, identifiers.fhud, identifiers.docointkey]
+      .filter(Boolean)
+      .join("|") || `candidate-${fallbackIndex}`;
 
   const fullName = [
     requestContext.patient?.firstName,
@@ -151,20 +234,19 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     .join(" ");
 
   const displayName =
-    fullName || source?.hpercode || identifiers.enccode || "Unlabeled Patient";
-
-  const facilityLabel =
-    source?.facility_name ||
-    (identifiers.fhud ? `Facility ${identifiers.fhud}` : "");
+    fullName ||
+    (identifiers.enccode
+      ? `Encounter ${identifiers.enccode}`
+      : "Unlabeled Patient");
 
   const description = [
-    facilityLabel,
-    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : "",
+    identifiers.fhud ? `Facility ${identifiers.fhud}` : "",
+    identifiers.docointkey ? `Document ${identifiers.docointkey}` : "",
     requestContext.panelName,
     requestContext.requestedAt,
   ]
     .filter(Boolean)
-    .join(" \u2022 ");
+    .join(" • ");
 
   return {
     id,
@@ -172,7 +254,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     description,
     contextParams: {
       enccode: identifiers.enccode || "",
-      fhud: identifiers.fhud || identifiers.facility_code || "",
+      fhud: identifiers.fhud || "",
       docointkey: identifiers.docointkey || "",
     },
     requestContext,
@@ -242,84 +324,83 @@ const requestedAtKeys = parseKeyList("VITE_LAB_CONTEXT_REQUESTED_AT_KEYS", [
 const patientFirstNameKeys = parseKeyList(
   "VITE_LAB_CONTEXT_PATIENT_FIRST_KEYS",
   [
-    "first_name",
     "firstName",
-    "data.first_name",
-    "data.firstName",
+    "patient.firstName",
+    "patient.fname",
     "request.patient.firstName",
     "request.patient.fname",
+    "data.firstName",
     "data.patient.firstName",
     "data.patient.fname",
     "data.context.patient.firstName",
     "metadata.patient.firstName",
-    "patient.firstName",
-    "patient.fname",
   ],
 );
 
 const patientMiddleNameKeys = parseKeyList(
   "VITE_LAB_CONTEXT_PATIENT_MIDDLE_KEYS",
   [
-    "middle_name",
     "middleName",
-    "data.middle_name",
-    "data.middleName",
+    "patient.middleName",
+    "patient.mname",
     "request.patient.middleName",
     "request.patient.mname",
+    "data.middleName",
     "data.patient.middleName",
     "data.patient.mname",
     "data.context.patient.middleName",
     "metadata.patient.middleName",
-    "patient.middleName",
-    "patient.mname",
   ],
 );
 
 const patientLastNameKeys = parseKeyList("VITE_LAB_CONTEXT_PATIENT_LAST_KEYS", [
-  "last_name",
   "lastName",
-  "data.last_name",
-  "data.lastName",
+  "patient.lastName",
+  "patient.lname",
   "request.patient.lastName",
   "request.patient.lname",
+  "data.lastName",
   "data.patient.lastName",
   "data.patient.lname",
   "data.context.patient.lastName",
   "metadata.patient.lastName",
-  "patient.lastName",
-  "patient.lname",
 ]);
 
-const facilityNameKeys = parseKeyList("VITE_LAB_CONTEXT_FACILITY_NAME_KEYS", [
-  "facility_name",
-  "facilityName",
-  "data.facility_name",
-  "data.facilityName",
-  "request.facilityName",
-  "data.request.facilityName",
-  "context.facilityName",
-  "metadata.facilityName",
-]);
+const patientFullNameKeys = parseKeyList(
+  "VITE_LAB_CONTEXT_PATIENT_FULLNAME_KEYS",
+  [
+    "patient.fullName",
+    "patient.name",
+    "request.patient.fullName",
+    "request.patient.name",
+    "data.patient.fullName",
+    "data.patient.name",
+    "context.patient.fullName",
+    "context.patient.name",
+    "data.context.patient.fullName",
+    "metadata.patient.fullName",
+    "patientName",
+    "request.patientName",
+    "data.patientName",
+    "context.patientName",
+    "metadata.patientName",
+  ],
+);
 
 const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
-  "hpercode",
-  "id",
   "enccode",
   "data.0.enccode",
   "data.enccode",
-  "data.hpercode",
-  "data.id",
   "request.enccode",
   "context.enccode",
   "metadata.enccode",
+  "data.enccode",
 ]);
 
 const facilityRefKeys = parseKeyList("VITE_LAB_CONTEXT_FHUD_KEYS", [
-  "facility_code",
   "fhud",
   "data.0.fhud",
   "data.fhud",
-  "data.facility_code",
   "request.fhud",
   "context.fhud",
   "metadata.fhud",
@@ -354,13 +435,30 @@ export function resolveRequestContext(payload) {
     docointkey: resolveFirstString(payload, docointkeyKeys),
   };
 
-  const panelName = resolveFirstString(payload, panelNameKeys);
+  const derivedContext = deriveContextFromDocointkey(identifiers.docointkey);
 
-  const requestedAt = resolveFirstString(payload, requestedAtKeys);
+  const panelName =
+    resolveFirstString(payload, panelNameKeys) || derivedContext.panelName;
+
+  const requestedAt =
+    resolveFirstString(payload, requestedAtKeys) || derivedContext.requestedAt;
 
   let firstName = resolveFirstString(payload, patientFirstNameKeys);
+
   let middleName = resolveFirstString(payload, patientMiddleNameKeys);
+
   let lastName = resolveFirstString(payload, patientLastNameKeys);
+
+  if (!firstName || !lastName) {
+    const fullName = resolveFirstString(payload, patientFullNameKeys);
+
+    if (fullName) {
+      const parsedName = splitFullName(fullName);
+      firstName = firstName || parsedName.firstName;
+      middleName = middleName || parsedName.middleName;
+      lastName = lastName || parsedName.lastName;
+    }
+  }
 
   const hasAnyContext = Boolean(
     panelName ||
@@ -445,12 +543,8 @@ export async function fetchLabPatientCandidates({
   payloadRows.forEach((row, index) => {
     const candidate = buildPatientCandidate(row, index + 1);
 
-    if (!candidate.id || candidate.id.startsWith("candidate-")) {
-      candidate.id =
-        candidate.requestContext?.identifiers?.enccode ||
-        row.hpercode ||
-        row.id ||
-        `candidate-${index + 1}`;
+    if (!candidate.requestContext.hasAnyContext) {
+      return;
     }
 
     if (!dedupedCandidates.has(candidate.id)) {

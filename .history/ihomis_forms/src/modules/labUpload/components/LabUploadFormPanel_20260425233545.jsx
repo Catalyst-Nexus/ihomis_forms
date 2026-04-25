@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
-  selectedPatient = null,
+  selectedPatient,
   displayContext,
   onSubmit,
   isDragActive,
@@ -39,37 +39,20 @@ function LabUploadFormPanel({
 
       <section className="lab-patient-card" aria-label="Patient information">
         <h3>Patient Information</h3>
-        {selectedPatient ? (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>Patient ID</dt>
-              <dd>{selectedPatient.id || "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Name</dt>
-              <dd>{selectedPatient.displayName || "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Facility</dt>
-              <dd>{selectedPatient.description || "Not provided"}</dd>
-            </div>
-          </dl>
-        ) : (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>First Name</dt>
-              <dd>{displayContext.patient.firstName}</dd>
-            </div>
-            <div>
-              <dt>Middle Name</dt>
-              <dd>{displayContext.patient.middleName}</dd>
-            </div>
-            <div>
-              <dt>Last Name</dt>
-              <dd>{displayContext.patient.lastName}</dd>
-            </div>
-          </dl>
-        )}
+        <dl className="lab-patient-grid">
+          <div>
+            <dt>First Name</dt>
+            <dd>{displayContext.patient.firstName}</dd>
+          </div>
+          <div>
+            <dt>Middle Name</dt>
+            <dd>{displayContext.patient.middleName}</dd>
+          </div>
+          <div>
+            <dt>Last Name</dt>
+            <dd>{displayContext.patient.lastName}</dd>
+          </div>
+        </dl>
       </section>
 
       <div
@@ -221,17 +204,6 @@ function LabUploadFormPanel({
 }
 
 LabUploadFormPanel.propTypes = {
-  selectedPatient: PropTypes.shape({
-    id: PropTypes.string,
-    displayName: PropTypes.string,
-    description: PropTypes.string,
-    contextParams: PropTypes.shape({
-      enccode: PropTypes.string,
-      fhud: PropTypes.string,
-      docointkey: PropTypes.string,
-      hpercode: PropTypes.string,
-    }),
-  }),
   displayContext: PropTypes.shape({
     panelName: PropTypes.string.isRequired,
     requestedAt: PropTypes.string.isRequired,

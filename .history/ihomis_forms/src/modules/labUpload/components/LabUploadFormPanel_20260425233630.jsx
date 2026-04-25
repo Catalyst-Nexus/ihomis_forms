@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
-  selectedPatient = null,
+  selectedPatient,
   displayContext,
   onSubmit,
   isDragActive,

@@ -75,12 +75,13 @@ function PdfCanvasPreview({
   useEffect(() => {
     if (!containerRef.current) return undefined;
 
-    const measure = () => {
-      const w = containerRef.current?.getBoundingClientRect().width;
-      if (w) setContainerWidth(Math.floor(w));
-    };
-
-    measure(); // immediate fallback in case observer doesn't fire (e.g. fullscreen)
+    // Fallback: measure immediately if container has no width yet
+    if (containerWidth === 0) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.width > 0) {
+        setContainerWidth(Math.floor(rect.width));
+      }
+    }
 
     const observer = new ResizeObserver(([entry]) => {
       setContainerWidth(Math.max(0, Math.floor(entry.contentRect.width)));
@@ -284,62 +285,32 @@ function PdfCanvasPreview({
         <div className="lab-fs-bar" role="toolbar" aria-label="PDF controls">
           {/* Left — document icon + title */}
           <div className="lab-fs-bar-left">
-            <svg
-              className="lab-fs-icon"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
+            <svg className="lab-fs-icon" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              aria-hidden="true">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14,2 14,8 20,8" />
             </svg>
             <span className="lab-fs-bar-title">
-              {pageCount
-                ? `Page ${pageNumber} of ${pageCount}`
-                : "Loading PDF..."}
+              {pageCount ? `Page ${pageNumber} of ${pageCount}` : "Loading PDF..."}
             </span>
           </div>
 
           {/* Center — navigation + zoom */}
           <div className="lab-fs-bar-center">
-            <button
-              type="button"
-              className="lab-fs-btn"
+            <button type="button" className="lab-fs-btn"
               onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
               disabled={isPreviewLoading || pageNumber <= 1}
-              title="Previous page (←)"
-              aria-label="Previous page"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
+              title="Previous page (←)" aria-label="Previous page">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="15,18 9,12 15,6" />
               </svg>
             </button>
 
-            <form
-              onSubmit={handleJumpSubmit}
-              className="lab-fs-jump"
-              aria-label="Jump to page"
-            >
+            <form onSubmit={handleJumpSubmit} className="lab-fs-jump" aria-label="Jump to page">
               <input
-                type="number"
-                min="1"
-                max={pageCount || 1}
+                type="number" min="1" max={pageCount || 1}
                 value={jumpInput}
                 onChange={(e) => setJumpInput(e.target.value)}
                 placeholder={String(pageNumber)}
@@ -349,104 +320,46 @@ function PdfCanvasPreview({
               <span className="lab-fs-jump-total">of {pageCount || "—"}</span>
             </form>
 
-            <button
-              type="button"
-              className="lab-fs-btn"
-              onClick={() =>
-                setPageNumber((p) => Math.min(p + 1, pageCount || 1))
-              }
+            <button type="button" className="lab-fs-btn"
+              onClick={() => setPageNumber((p) => Math.min(p + 1, pageCount || 1))}
               disabled={isPreviewLoading || pageNumber >= pageCount}
-              title="Next page (→)"
-              aria-label="Next page"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
+              title="Next page (→)" aria-label="Next page">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="9,18 15,12 9,6" />
               </svg>
             </button>
 
             <div className="lab-fs-sep" aria-hidden="true" />
 
-            <button
-              type="button"
-              className="lab-fs-btn"
+            <button type="button" className="lab-fs-btn"
               onClick={() => setZoom((z) => Math.max(z - 0.25, 0.25))}
-              title="Zoom out (-)"
-              aria-label="Zoom out"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              title="Zoom out (-)" aria-label="Zoom out">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 <line x1="8" y1="11" x2="14" y2="11" />
               </svg>
             </button>
             <span className="lab-fs-zoom-label">{Math.round(zoom * 100)}%</span>
-            <button
-              type="button"
-              className="lab-fs-btn"
+            <button type="button" className="lab-fs-btn"
               onClick={() => setZoom((z) => Math.min(z + 0.25, 3))}
-              title="Zoom in (+)"
-              aria-label="Zoom in"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                <line x1="11" y1="8" x2="11" y2="14" />
-                <line x1="8" y1="11" x2="14" y2="11" />
+              title="Zoom in (+)" aria-label="Zoom in">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
               </svg>
             </button>
           </div>
 
           {/* Right — close */}
           <div className="lab-fs-bar-right">
-            <button
-              type="button"
-              className="lab-fs-close"
-              onClick={onCloseFullscreen}
-              aria-label="Close fullscreen preview"
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+            <button type="button" className="lab-fs-close"
+              onClick={onCloseFullscreen} aria-label="Close fullscreen preview">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
               Close
             </button>
@@ -467,21 +380,11 @@ function PdfCanvasPreview({
                 {errorMessage ? (
                   <p className="lab-pdf-error">{errorMessage}</p>
                 ) : (
-                  <canvas
-                    className="lab-pdf-canvas lab-pdf-canvas-ready"
-                    ref={canvasRef}
-                  />
+                  <canvas className="lab-pdf-canvas lab-pdf-canvas-ready" ref={canvasRef} />
                 )}
-                <div
-                  className={`lab-pdf-preloader lab-pdf-preloader-fullscreen ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
-                  role="status"
-                  aria-live="polite"
-                  aria-hidden={!showPreloader}
-                >
-                  <span
-                    className="lab-pdf-preloader-spinner"
-                    aria-hidden="true"
-                  />
+                <div className={`lab-pdf-preloader lab-pdf-preloader-fullscreen ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
+                  role="status" aria-live="polite" aria-hidden={!showPreloader}>
+                  <span className="lab-pdf-preloader-spinner" aria-hidden="true" />
                   <p>{loadingLabel}</p>
                 </div>
               </div>
@@ -491,48 +394,24 @@ function PdfCanvasPreview({
       ) : (
         <>
           <div className="lab-pdf-toolbar">
-            <button
-              type="button"
+            <button type="button"
               onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
-              disabled={isPreviewLoading || pageNumber <= 1}
-            >
-              Previous
-            </button>
-            <span>
-              {pageCount
-                ? `Page ${pageNumber} of ${pageCount}`
-                : "Loading pages..."}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                setPageNumber((p) => Math.min(p + 1, pageCount || 1))
-              }
-              disabled={isPreviewLoading || pageNumber >= pageCount}
-            >
-              Next
-            </button>
+              disabled={isPreviewLoading || pageNumber <= 1}>Previous</button>
+            <span>{pageCount ? `Page ${pageNumber} of ${pageCount}` : "Loading pages..."}</span>
+            <button type="button"
+              onClick={() => setPageNumber((p) => Math.min(p + 1, pageCount || 1))}
+              disabled={isPreviewLoading || pageNumber >= pageCount}>Next</button>
           </div>
           <div className="lab-pdf-canvas-shell" ref={containerRef}>
             <div className="lab-pdf-canvas-stage">
               {errorMessage ? (
                 <p className="lab-pdf-error">{errorMessage}</p>
               ) : (
-                <canvas
-                  className={`lab-pdf-canvas ${showPreloader ? "lab-pdf-canvas-loading" : "lab-pdf-canvas-ready"}`}
-                  ref={canvasRef}
-                />
+                <canvas className={`lab-pdf-canvas ${showPreloader ? "lab-pdf-canvas-loading" : "lab-pdf-canvas-ready"}`} ref={canvasRef} />
               )}
-              <div
-                className={`lab-pdf-preloader ${fullscreen ? "lab-pdf-preloader-fullscreen" : ""} ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
-                role="status"
-                aria-live="polite"
-                aria-hidden={!showPreloader}
-              >
-                <span
-                  className="lab-pdf-preloader-spinner"
-                  aria-hidden="true"
-                />
+              <div className={`lab-pdf-preloader ${fullscreen ? "lab-pdf-preloader-fullscreen" : ""} ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
+                role="status" aria-live="polite" aria-hidden={!showPreloader}>
+                <span className="lab-pdf-preloader-spinner" aria-hidden="true" />
                 <p>{loadingLabel}</p>
               </div>
             </div>

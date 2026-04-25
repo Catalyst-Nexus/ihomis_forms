@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
-  selectedPatient = null,
+  selectedPatient,
   displayContext,
   onSubmit,
   isDragActive,
@@ -29,48 +29,32 @@ function LabUploadFormPanel({
 }) {
   return (
     <form className="lab-panel lab-form" onSubmit={onSubmit}>
-      <div className="lab-request-header">
+      <div className="lab-form-header">
         <div>
-          <p className="lab-request-label">Laboratory Panel</p>
+          <p className="lab-form-label">Laboratory Result Upload</p>
           <h2>{displayContext.panelName}</h2>
         </div>
-        <p className="lab-request-time">{displayContext.requestedAt}</p>
+        <span className="lab-form-date">{displayContext.requestedAt}</span>
       </div>
 
-      <section className="lab-patient-card" aria-label="Patient information">
-        <h3>Patient Information</h3>
-        {selectedPatient ? (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>Patient ID</dt>
-              <dd>{selectedPatient.id || "Not provided"}</dd>
+      {selectedPatient ? (
+        <div className="lab-patient-card" aria-label="Patient information">
+          <div className="lab-patient-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </div>
+          <div className="lab-patient-card-body">
+            <div className="lab-patient-name">{selectedPatient.displayName}</div>
+            <div className="lab-patient-meta">
+              <span className="lab-patient-id">{selectedPatient.id}</span>
+              {selectedPatient.description ? (
+                <span className="lab-patient-facility">{selectedPatient.description}</span>
+              ) : null}
             </div>
-            <div>
-              <dt>Name</dt>
-              <dd>{selectedPatient.displayName || "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Facility</dt>
-              <dd>{selectedPatient.description || "Not provided"}</dd>
-            </div>
-          </dl>
-        ) : (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>First Name</dt>
-              <dd>{displayContext.patient.firstName}</dd>
-            </div>
-            <div>
-              <dt>Middle Name</dt>
-              <dd>{displayContext.patient.middleName}</dd>
-            </div>
-            <div>
-              <dt>Last Name</dt>
-              <dd>{displayContext.patient.lastName}</dd>
-            </div>
-          </dl>
-        )}
-      </section>
+          </div>
+        </div>
+      ) : null}
 
       <div
         className={`lab-dropzone ${isDragActive ? "lab-dropzone-active" : ""}`}
@@ -266,6 +250,10 @@ LabUploadFormPanel.propTypes = {
     message: PropTypes.string.isRequired,
   }).isRequired,
   statusClassName: PropTypes.string.isRequired,
+};
+
+LabUploadFormPanel.defaultProps = {
+  selectedPatient: null,
 };
 
 export default LabUploadFormPanel;

@@ -51,6 +51,10 @@ function useLabRequestContext({ contextUrl, token, contextParams }) {
   }, [contextParams, contextUrl, token]);
 
   function applyContextFromApi(nextContext) {
+    if (!nextContext?.hasAnyContext) {
+      return;
+    }
+
     setRequestContext((currentContext) =>
       mergeRequestContext(currentContext, nextContext),
     );

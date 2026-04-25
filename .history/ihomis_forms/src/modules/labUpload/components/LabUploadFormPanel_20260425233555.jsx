@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
-  selectedPatient = null,
+  selectedPatient,
   displayContext,
   onSubmit,
   isDragActive,
@@ -221,17 +221,6 @@ function LabUploadFormPanel({
 }
 
 LabUploadFormPanel.propTypes = {
-  selectedPatient: PropTypes.shape({
-    id: PropTypes.string,
-    displayName: PropTypes.string,
-    description: PropTypes.string,
-    contextParams: PropTypes.shape({
-      enccode: PropTypes.string,
-      fhud: PropTypes.string,
-      docointkey: PropTypes.string,
-      hpercode: PropTypes.string,
-    }),
-  }),
   displayContext: PropTypes.shape({
     panelName: PropTypes.string.isRequired,
     requestedAt: PropTypes.string.isRequired,

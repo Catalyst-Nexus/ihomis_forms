@@ -142,33 +142,65 @@ function LabUploadModule() {
 
       <main className="lab-layout">
         <section className="lab-panel lab-hero lab-reveal">
-          <p className="lab-kicker">Hospital Information System</p>
-          <h1>Upload Result for {displayContext.panelName}</h1>
-          <p>Requested on {displayContext.requestedAt}</p>
-
-          <span
-            className={`lab-api-state ${
-              requestContext.hasAnyContext ? "lab-api-ready" : "lab-api-missing"
-            }`}
-          >
-            {contextLoading
-              ? "Loading request context from API..."
-              : requestContext.hasAnyContext
-                ? "Request context loaded from API"
-                : "Waiting for request context from API response"}
-          </span>
+          <div className="lab-hero-top">
+            <div>
+              <p className="lab-kicker">Hospital Information System</p>
+              <h1>Upload Laboratory Result</h1>
+            </div>
+            <div className="lab-hero-status" aria-live="polite">
+              {contextLoading ? (
+                <span className="lab-status-badge lab-status-loading">
+                  <span className="lab-badge-spinner" aria-hidden="true" />
+                  Loading context&hellip;
+                </span>
+              ) : requestContext.hasAnyContext ? (
+                <span className="lab-status-badge lab-status-ready">
+                  <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z" />
+                  </svg>
+                  Context loaded
+                </span>
+              ) : (
+                <span className="lab-status-badge lab-status-waiting">
+                  Awaiting context
+                </span>
+              )}
+            </div>
+          </div>
 
           {patientPicker.selectionConfirmed && patientPicker.selectedPatient ? (
-            <div className="lab-selection-note">
-              <p>
-                Selected:{" "}
+            <div className="lab-context-strip">
+              <div className="lab-context-patient">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <span className="lab-context-label">Patient</span>
                 <strong>{patientPicker.selectedPatient.displayName}</strong>
-              </p>
-              <button type="button" onClick={handleChangeSelection}>
+                <span className="lab-context-mono">{patientPicker.selectedPatient.id}</span>
+                {patientPicker.selectedPatient.description ? (
+                  <em>{patientPicker.selectedPatient.description}</em>
+                ) : null}
+              </div>
+              <div className="lab-context-enc">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108A2.251 2.251 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z" />
+                </svg>
+                <span className="lab-context-label">Encounter</span>
+                <strong>{displayContext.identifiers?.enccode || displayContext.requestedAt || "—"}</strong>
+              </div>
+              <button
+                type="button"
+                className="lab-context-change"
+                onClick={handleChangeSelection}
+              >
                 Change Patient
               </button>
             </div>
-          ) : null}
+          ) : (
+            <p className="lab-hero-hint">
+              Select a patient below to associate this lab result with their record.
+            </p>
+          )}
         </section>
 
         {patientPicker.shouldShowPicker ? (

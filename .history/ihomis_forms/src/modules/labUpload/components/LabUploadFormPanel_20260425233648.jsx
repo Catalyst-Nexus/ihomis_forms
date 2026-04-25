@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
-  selectedPatient = null,
+  selectedPatient,
   displayContext,
   onSubmit,
   isDragActive,
@@ -266,6 +266,10 @@ LabUploadFormPanel.propTypes = {
     message: PropTypes.string.isRequired,
   }).isRequired,
   statusClassName: PropTypes.string.isRequired,
+};
+
+LabUploadFormPanel.defaultProps = {
+  selectedPatient: null,
 };
 
 export default LabUploadFormPanel;
