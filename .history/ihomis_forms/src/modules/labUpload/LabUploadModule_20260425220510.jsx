@@ -20,10 +20,7 @@ import {
 import "./LabUploadModule.css";
 
 function LabUploadModule() {
-  const initialContextParams = useMemo(
-    () => getContextParamsFromLocation(),
-    [],
-  );
+  const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
   const patientPicker = useLabPatientPicker({
     patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
     contextUrl: LAB_UPLOAD_CONTEXT_URL,
@@ -161,8 +158,7 @@ function LabUploadModule() {
           {patientPicker.selectionConfirmed && patientPicker.selectedPatient ? (
             <div className="lab-selection-note">
               <p>
-                Selected:{" "}
-                <strong>{patientPicker.selectedPatient.displayName}</strong>
+                Selected: <strong>{patientPicker.selectedPatient.displayName}</strong>
               </p>
               <button type="button" onClick={handleChangeSelection}>
                 Change Patient

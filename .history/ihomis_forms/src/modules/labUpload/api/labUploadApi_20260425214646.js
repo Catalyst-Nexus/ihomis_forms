@@ -235,9 +235,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
 
   const displayName =
     fullName ||
-    (identifiers.enccode
-      ? `Encounter ${identifiers.enccode}`
-      : "Unlabeled Patient");
+    (identifiers.enccode ? `Encounter ${identifiers.enccode}` : "Unlabeled Patient");
 
   const description = [
     identifiers.fhud ? `Facility ${identifiers.fhud}` : "",
@@ -484,29 +482,21 @@ export function resolveRequestContext(payload) {
 }
 
 export async function fetchLabPatientCandidates({
-  patientSearchUrl,
   contextUrl,
   token,
   contextParams,
-  search = "",
-  user = "",
   limit = 25,
   offset = 0,
 }) {
-  const searchUrl = patientSearchUrl || contextUrl;
-
-  if (!searchUrl) {
+  if (!contextUrl) {
     return {
       payload: null,
       candidates: [],
     };
   }
 
-  const requestUrl = buildRequestUrl(searchUrl, {
+  const requestUrl = buildRequestUrl(contextUrl, {
     ...contextParams,
-    search,
-    q: search,
-    user,
     limit,
     offset,
   });

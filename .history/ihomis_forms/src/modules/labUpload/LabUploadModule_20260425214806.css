@@ -163,21 +163,6 @@
   margin-top: 0.9rem;
 }
 
-.lab-picker-pagination {
-  margin-top: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.55rem;
-  flex-wrap: wrap;
-}
-
-.lab-picker-page-indicator {
-  color: var(--lab-ink-700);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
 .lab-picker-loading {
   margin-top: 0.9rem;
   border: 1px solid var(--lab-line-soft);

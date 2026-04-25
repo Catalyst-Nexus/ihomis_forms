@@ -235,9 +235,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
 
   const displayName =
     fullName ||
-    (identifiers.enccode
-      ? `Encounter ${identifiers.enccode}`
-      : "Unlabeled Patient");
+    (identifiers.enccode ? `Encounter ${identifiers.enccode}` : "Unlabeled Patient");
 
   const description = [
     identifiers.fhud ? `Facility ${identifiers.fhud}` : "",
