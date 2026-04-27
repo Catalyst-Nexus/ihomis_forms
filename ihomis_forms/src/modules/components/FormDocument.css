@@ -90,31 +90,36 @@
 
 @page {
   size: A4;
-  margin: 0.5in;
+  margin: 0;
 }
 
 @media print {
-  html,
-  body {
+  html, body {
+    width: 210mm;
+    height: 297mm;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
   }
-
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .form-document {
-    width: 100% !important;
+    width: 100% !important; /* Change from 210mm to 100% */
+    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
   .form-document__title-block,
   .form-document__body {
+    width: 100% !important;
     max-width: none !important;
-    padding: 0 !important;
+    /* Use the variable for consistent internal margins */
+    padding: 0 var(--form-page-padding) !important; 
+    margin: 0 auto !important;
   }
 
   .form-document .form-document__body [class*='-page'],

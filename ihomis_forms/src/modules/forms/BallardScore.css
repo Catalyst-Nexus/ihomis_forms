@@ -11,11 +11,11 @@
 
 .ballard-page {
   width: 210mm;
-  min-height: 297mm; /* instead of height */
+  min-height: 297mm;
   padding: 8mm 9mm;
   box-sizing: border-box;
   background: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0 auto; /* Center it for screen view */
 }
 
 .ballard-content {
@@ -158,8 +158,9 @@
 
 .ballard-chart {
   width: 100%;
+  height: auto; /* Ensure aspect ratio stays perfect */
+  display: block;
   max-width: 100%;
-  max-height: 160mm; 
   object-fit: contain;
 }
 
@@ -265,15 +266,22 @@
 }
 
 @media print {
-  .ballard-page {
-    page-break-after: always;
-    break-after: page;
+  /* Hide the grey background wrapper in print */
+  .ballard-page-wrap {
+    display: block !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    min-height: auto !important;
   }
 
-  .ballard-chart,
-  table,
-  .ballard-info-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  /* Make the component expand to its parent (FormDocument) */
+  .ballard-page {
+    width: 100% !important; 
+    height: auto !important;
+    min-height: auto !important;
+    padding: 0 !important; /* Let FormDocument handle the outer padding */
+    margin: 0 !important;
+    border: none !important;
   }
 }
