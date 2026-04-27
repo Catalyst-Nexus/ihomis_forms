@@ -3,7 +3,7 @@
   min-height: 297mm;
   padding: 10mm 14mm 16mm 14mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -22,66 +22,49 @@
 
 /* ── Title ── */
 .dp-title {
-  font-size: 10pt;
+  font-size: 11pt;
   font-weight: bold;
   margin-bottom: 3mm;
 }
 
-/* ── Address / Department row ── */
-.dp-address-row {
+/* ── Top details grid ── */
+.dp-details-grid {
   display: flex;
-  gap: 6mm;
-  font-size: 8pt;
-  margin-bottom: 1.5mm;
+  flex-direction: column;
+  gap: 1.5mm;
+  margin-bottom: 3mm;
+}
+
+.dp-detail-row {
+  display: flex;
+  font-size: 9.5pt;
   align-items: flex-start;
-}
-
-.dp-address {
-  flex: 1;
-}
-
-.dp-department {
-  flex: 0 0 50mm;
-  font-weight: bold;
-}
-
-/* ── Hospital No row ── */
-.dp-hosp-row {
-  font-size: 8.5pt;
-  margin-bottom: 1mm;
-}
-
-.dp-hosp-row strong {
-  font-weight: bold;
-}
-
-/* ── Patient info row ── */
-.dp-patient-row {
-  display: flex;
   gap: 8mm;
-  font-size: 8.5pt;
-  margin-bottom: 3mm;
+}
+
+.dp-detail-row .dp-detail-cell {
+  flex: 1 1 0;
+}
+
+.dp-detail-row--full {
+  justify-content: flex-start;
+}
+
+.dp-detail-cell {
+  display: flex;
+  gap: 1mm;
   align-items: baseline;
+  white-space: nowrap;
 }
 
-.dp-patient-name { flex: 1; }
-.dp-sex { flex: 0 0 20mm; }
-.dp-age { flex: 0 0 30mm; }
-
-/* ── Date row ── */
-.dp-date-row {
-  display: flex;
-  gap: 8mm;
-  font-size: 8.5pt;
-  margin-bottom: 4mm;
+.dp-detail-cell strong {
+  font-weight: bold;
 }
-
-.dp-date-item { flex: 1; }
 
 /* ── Section label ── */
 .dp-section {
   font-weight: bold;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin-bottom: 1mm;
 }
 
@@ -96,7 +79,7 @@
 .dp-vitals-row {
   display: flex;
   gap: 6mm;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin: 1mm 0 3mm 4mm;
   align-items: baseline;
 }
@@ -122,21 +105,21 @@
 }
 
 .dp-disposition-label {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   font-weight: bold;
   white-space: nowrap;
   padding-top: 1mm;
 }
 
 .dp-disposition-sub {
-  font-size: 8pt;
+  font-size: 9pt;
   font-weight: normal;
 }
 
 .dp-mgh-box {
   border: 1px solid #000;
   padding: 2mm 4mm;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   font-weight: bold;
   line-height: 1.8;
   min-width: 55mm;
@@ -157,7 +140,7 @@
 
 /* ── Diet ── */
 .dp-diet-row {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   font-weight: bold;
   margin-bottom: 3mm;
 }
@@ -176,12 +159,12 @@
 
 .dp-med-title {
   font-weight: bold;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin-bottom: 1mm;
 }
 
 .dp-med-item {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   line-height: 1.7;
 }
 
@@ -189,7 +172,7 @@
   border: 1px solid #000;
   padding: 2mm 3mm;
   min-width: 55mm;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
 }
 
 .dp-other-title {
@@ -206,7 +189,7 @@
 
 .dp-other-bracket {
   white-space: nowrap;
-  font-size: 8pt;
+  font-size: 9pt;
 }
 
 .dp-other-line {
@@ -237,12 +220,12 @@
   display: flex;
   align-items: flex-start;
   gap: 2mm;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   line-height: 1.6;
 }
 
 .dp-check {
-  font-size: 9pt;
+  font-size: 10pt;
   margin-top: 0.5mm;
 }
 
@@ -253,7 +236,7 @@
 
 .dp-bottom-label {
   font-weight: bold;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin-bottom: 1mm;
 }
 
@@ -270,7 +253,7 @@
   right: 14mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

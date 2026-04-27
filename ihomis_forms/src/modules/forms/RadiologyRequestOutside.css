@@ -1,0 +1,186 @@
+.rro-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 40mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media print {
+  .rro-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* ── Labels ── */
+.rro-lbl { font-weight: bold; white-space: nowrap; }
+.rro-val { font-weight: normal; }
+
+/* ── Date ordered ── */
+.rro-date-row {
+  font-size: 10pt;
+  margin-bottom: 2mm;
+}
+
+/* ── Info rows ── */
+.rro-info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+  flex-wrap: wrap;
+}
+
+.rro-info-row-spaced {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+.rro-field {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  white-space: nowrap;
+}
+
+.rro-patient-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+.rro-patient-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;
+  align-items: baseline;
+}
+
+.rro-field-right {
+  justify-self: end;
+}
+
+.rro-age-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+/* Ward | Case Number | Category row */
+.rro-ward-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+  align-items: baseline;
+}
+
+/* ── History of Present Illness ── */
+.rro-history-label {
+  font-weight: bold;
+  font-size: 10pt;
+  margin-bottom: 3mm;
+}
+
+/* ── Divider ── */
+.rro-divider {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 2mm 0;
+}
+
+/* ── Title ── */
+.rro-title {
+  text-align: center;
+  font-size: 13pt;
+  font-weight: bold;
+  margin: 3mm 0 4mm 0;
+}
+
+/* ── Blank lines for requests ── */
+.rro-blank-line {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  height: 7mm;
+  margin-bottom: 2mm;
+}
+
+/* ── Signature row ── */
+.rro-sig-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 6mm;
+  margin-bottom: 1mm;
+}
+
+.rro-sig-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+}
+
+.rro-sig-line-left {
+  border-bottom: 1px solid #000;
+  width: 55mm;
+  height: 5mm;
+}
+
+.rro-sig-suffix {
+  font-size: 10pt;
+  white-space: nowrap;
+}
+
+.rro-sig-line-right {
+  border-bottom: 1px solid #000;
+  width: 65mm;
+  height: 5mm;
+}
+
+/* ── Sig labels ── */
+.rro-sig-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10pt;
+}
+
+.rro-sig-label-left {
+  width: 65mm;
+  text-align: center;
+}
+
+.rro-sig-label-right {
+  width: 65mm;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.rro-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

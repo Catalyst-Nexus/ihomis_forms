@@ -24,6 +24,9 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 	return (
 		<div className="rtt-page">
 
+			{/* ── Space reserved for header ── */}
+			<div className="rtt-header-space" />
+
 			{/* ── Opening paragraph ── */}
 			<p className="rtt-opening">
 				I,&nbsp;
@@ -47,7 +50,6 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 			</p>
 
 			{/* ── Signature row 1 ── */}
-			{/* Left: sig line + label | Right: sig line + label */}
 			<div className="rtt-sig-row">
 				<div className="rtt-sig-block">
 					<div className="rtt-sig-line" />
@@ -60,7 +62,6 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 			</div>
 
 			{/* ── Signature row 2 ── */}
-			{/* Left: sig line + "Relation to patient" | Right: datetime text + "Date and Time signed" */}
 			<div className="rtt-sig-row">
 				<div className="rtt-sig-block">
 					<div className="rtt-sig-line" />

@@ -41,47 +41,42 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 			    PATIENT HEADER — no border box
 			    ══════════════════════════════════ */}
 			<div className="olr-header-block">
-
-				{/* Row 1 — Case Number: [bold label]  [normal value] */}
-				<div className="olr-row">
-					<span className="olr-lbl">Case Number:</span>
-					<span className="olr-val">&nbsp;&nbsp;{caseNum}</span>
+				<div className="olr-details-grid">
+					<div className="olr-details-row">
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Case Number:</span>
+							<span className="olr-val">&nbsp;{caseNum}</span>
+						</div>
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Age:</span>
+							<span className="olr-val">&nbsp;{age}</span>
+						</div>
+					</div>
+					<div className="olr-details-row">
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Name of Patient:</span>
+							<span className="olr-val">&nbsp;{name}</span>
+						</div>
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Sex:</span>
+							<span className="olr-val">&nbsp;{sex}</span>
+						</div>
+					</div>
+					<div className="olr-details-row">
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Ward/OR#:</span>
+							<span className="olr-val">&nbsp;{ward}</span>
+						</div>
+						<div className="olr-details-cell">
+							<span className="olr-lbl">Birthdate:</span>
+							<span className="olr-val">&nbsp;{birthdate}</span>
+						</div>
+					</div>
 				</div>
 
-				{/* Row 2 — Name of Patient | Age | Sex | Birthdate */}
-				<div className="olr-row olr-row-flex">
-					<div className="olr-group olr-group-name">
-						<span className="olr-lbl">Name of Patient:</span>
-						<span className="olr-val">&nbsp;{name}</span>
-					</div>
-					<div className="olr-group">
-						<span className="olr-lbl">Age:</span>
-						<span className="olr-val">&nbsp;{age}</span>
-					</div>
-					<div className="olr-group">
-						<span className="olr-lbl">Sex:</span>
-						<span className="olr-val">&nbsp;{sex}</span>
-					</div>
-					<div className="olr-group">
-						<span className="olr-lbl">Birthdate:</span>
-						<span className="olr-val">&nbsp;{birthdate}</span>
-					</div>
-				</div>
-
-				{/* Row 3 — Ward/OR# | Category | Case Number */}
-				<div className="olr-row olr-row-flex">
-					<div className="olr-group olr-group-ward">
-						<span className="olr-lbl">Ward/OR#:</span>
-						<span className="olr-val">&nbsp;{ward}</span>
-					</div>
-					<div className="olr-group">
-						<span className="olr-lbl">Category:</span>
-						<span className="olr-val">{category}</span>
-					</div>
-					<div className="olr-group">
-						<span className="olr-lbl">Case Number:</span>
-						<span className="olr-val">{caseNum}</span>
-					</div>
+				<div className="olr-category-row">
+					<span className="olr-lbl">Category:</span>
+					<span className="olr-val">&nbsp;{category}</span>
 				</div>
 
 				{/* Row 4 — Address */}

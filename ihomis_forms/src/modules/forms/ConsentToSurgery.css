@@ -3,7 +3,7 @@
   min-height: 297mm;
   padding: 14mm 18mm 16mm 18mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9pt;
+  font-size: 10pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -22,7 +22,7 @@
 
 /* ── Numbered paragraphs ── */
 .csa-para {
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: 1.7;
   margin-bottom: 4mm;
   display: flex;
@@ -87,7 +87,7 @@
 }
 
 .csa-sig-name {
-  font-size: 9pt;
+  font-size: 9.5pt;
   font-weight: normal;
   margin-bottom: 2mm;
   text-align: center;
@@ -100,25 +100,25 @@
 }
 
 .csa-sig-label {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   text-align: center;
 }
 
 .csa-sig-date {
-  font-size: 9pt;
+  font-size: 9.5pt;
   text-align: center;
   margin-top: 4mm;
   margin-bottom: 1mm;
 }
 
 .csa-sig-date-label {
-  font-size: 9pt;
+  font-size: 9.5pt;
   text-align: center;
 }
 
 /* ── Authorization note block ── */
 .csa-auth-note {
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: 1.6;
   margin-top: 6mm;
   margin-bottom: 2mm;
@@ -168,13 +168,13 @@
 
 /* ── I, ___ hereby authorized row ── */
 .csa-hereby-row {
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: 1.8;
   margin-bottom: 2mm;
 }
 
 .csa-hereby-cont {
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: 1.8;
   margin-bottom: 1mm;
   display: flex;
@@ -183,7 +183,7 @@
 }
 
 .csa-hereby-indent {
-  font-size: 9pt;
+  font-size: 10pt;
   padding-left: 4mm;
   margin-bottom: 6mm;
 }
@@ -213,7 +213,7 @@
 }
 
 .csa-sig2-label {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   text-align: center;
 }
 
@@ -235,13 +235,13 @@
 }
 
 .csa-date-val {
-  font-size: 9pt;
+  font-size: 9.5pt;
   text-align: center;
   margin-bottom: 1mm;
 }
 
 .csa-date-label {
-  font-size: 9pt;
+  font-size: 9.5pt;
   text-align: center;
 }
 
@@ -253,7 +253,7 @@
   right: 18mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

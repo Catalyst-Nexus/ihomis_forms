@@ -1,3 +1,5 @@
+import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
+
 function parseResponsePayload(responseText) {
   if (!responseText) {
     return null;
@@ -58,91 +60,6 @@ function parseKeyList(name, defaultKeys) {
 
   const merged = [...customKeys, ...defaultKeys];
   return Array.from(new Set(merged));
-}
-
-function splitFullName(fullName) {
-  if (!fullName) {
-    return { firstName: "", middleName: "", lastName: "" };
-  }
-
-  const cleanedName = fullName.trim();
-  if (!cleanedName) {
-    return { firstName: "", middleName: "", lastName: "" };
-  }
-
-  if (cleanedName.includes(",")) {
-    const [lastPart, restPart = ""] = cleanedName
-      .split(",")
-      .map((piece) => piece.trim());
-    const restTokens = restPart.split(/\s+/).filter(Boolean);
-
-    return {
-      firstName: restTokens[0] || "",
-      middleName: restTokens.slice(1).join(" "),
-      lastName: lastPart,
-    };
-  }
-
-  const tokens = cleanedName.split(/\s+/).filter(Boolean);
-  if (!tokens.length) {
-    return { firstName: "", middleName: "", lastName: "" };
-  }
-
-  if (tokens.length === 1) {
-    return {
-      firstName: tokens[0],
-      middleName: "",
-      lastName: "",
-    };
-  }
-
-  return {
-    firstName: tokens[0],
-    middleName: tokens.slice(1, -1).join(" "),
-    lastName: tokens[tokens.length - 1],
-  };
-}
-
-function deriveContextFromDocointkey(docointkey) {
-  if (!docointkey) {
-    return {
-      requestedAt: "",
-      panelName: "",
-    };
-  }
-
-  const parts = String(docointkey)
-    .split("-")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (!parts.length) {
-    return {
-      requestedAt: "",
-      panelName: "",
-    };
-  }
-
-  const requestedAt = parts[1] || "";
-  const codeToken = parts[parts.length - 1] || "";
-
-  let panelName = "";
-  if (codeToken) {
-    if (/^LABOR/i.test(codeToken)) {
-      panelName = `Laboratory ${codeToken}`;
-    } else if (/^RADIO/i.test(codeToken)) {
-      panelName = `Radiology ${codeToken}`;
-    } else if (/^DISCH$/i.test(codeToken)) {
-      panelName = "Discharge Document";
-    } else {
-      panelName = codeToken;
-    }
-  }
-
-  return {
-    requestedAt,
-    panelName,
-  };
 }
 
 function buildRequestUrl(baseUrl, queryParams) {
@@ -216,6 +133,91 @@ function createFileKey(file) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
+function buildPatientCandidate(source, fallbackIndex = 0) {
+  const requestContext = resolveRequestContext(source);
+  const identifiers = requestContext.identifiers || {};
+  const resolvedUser = requestContext.user || "";
+
+  let id = "";
+  let idSource = "";
+
+  if (identifiers.enccode) {
+    id = identifiers.enccode;
+    idSource = "enc";
+  } else if (source?.hpercode) {
+    id = String(source.hpercode).trim();
+    idSource = "enc";
+  } else if (source?.id) {
+    id = String(source.id).trim();
+
+    if (identifiers.enccode && id === identifiers.enccode) {
+      idSource = "enc";
+    } else if (identifiers.fhud && id === identifiers.fhud) {
+      idSource = "fhud";
+    } else if (resolvedUser && id === resolvedUser) {
+      idSource = "user";
+    }
+  } else if (identifiers.fhud) {
+    id = identifiers.fhud;
+    idSource = "fhud";
+  } else if (resolvedUser) {
+    id = resolvedUser;
+    idSource = "user";
+  } else {
+    const fallbackComposite = [identifiers.fhud, identifiers.docointkey]
+      .filter(Boolean)
+      .join("|");
+
+    if (fallbackComposite) {
+      id = fallbackComposite;
+      idSource = identifiers.fhud ? "fhud" : "";
+    }
+  }
+
+  if (!id) {
+    id = `candidate-${fallbackIndex}`;
+  }
+
+  const fullName = [
+    requestContext.patient?.firstName,
+    requestContext.patient?.middleName,
+    requestContext.patient?.lastName,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const displayName =
+    fullName || source?.hpercode || identifiers.enccode || "Unlabeled Patient";
+
+  const facilityLabel =
+    source?.facility_name ||
+    (identifiers.fhud ? `Facility ${identifiers.fhud}` : "");
+
+  const description = [
+    facilityLabel,
+    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : "",
+    requestContext.panelName,
+    requestContext.requestedAt,
+  ]
+    .filter(Boolean)
+    .join(" \u2022 ");
+
+  return {
+    id,
+    idSource,
+    displayName,
+    description,
+    contextParams: {
+      enccode: identifiers.enccode || "",
+      enc: identifiers.enccode || "",
+      fhud: identifiers.fhud || identifiers.facility_code || "",
+      docointkey: identifiers.docointkey || "",
+      user: resolvedUser,
+    },
+    requestContext,
+  };
+}
+
 const panelNameKeys = parseKeyList("VITE_LAB_CONTEXT_PANEL_KEYS", [
   "panelName",
   "panel",
@@ -279,82 +281,90 @@ const requestedAtKeys = parseKeyList("VITE_LAB_CONTEXT_REQUESTED_AT_KEYS", [
 const patientFirstNameKeys = parseKeyList(
   "VITE_LAB_CONTEXT_PATIENT_FIRST_KEYS",
   [
-    "patient.firstName",
-    "patient.fname",
+    "first_name",
+    "firstName",
+    "data.first_name",
+    "data.firstName",
     "request.patient.firstName",
     "request.patient.fname",
     "data.patient.firstName",
     "data.patient.fname",
-    "context.patient.firstName",
-    "context.patient.fname",
     "data.context.patient.firstName",
     "metadata.patient.firstName",
+    "patient.firstName",
+    "patient.fname",
   ],
 );
 
 const patientMiddleNameKeys = parseKeyList(
   "VITE_LAB_CONTEXT_PATIENT_MIDDLE_KEYS",
   [
-    "patient.middleName",
-    "patient.mname",
+    "middle_name",
+    "middleName",
+    "data.middle_name",
+    "data.middleName",
     "request.patient.middleName",
     "request.patient.mname",
     "data.patient.middleName",
     "data.patient.mname",
-    "context.patient.middleName",
-    "context.patient.mname",
     "data.context.patient.middleName",
     "metadata.patient.middleName",
+    "patient.middleName",
+    "patient.mname",
   ],
 );
 
 const patientLastNameKeys = parseKeyList("VITE_LAB_CONTEXT_PATIENT_LAST_KEYS", [
-  "patient.lastName",
-  "patient.lname",
+  "last_name",
+  "lastName",
+  "data.last_name",
+  "data.lastName",
   "request.patient.lastName",
   "request.patient.lname",
   "data.patient.lastName",
   "data.patient.lname",
-  "context.patient.lastName",
-  "context.patient.lname",
   "data.context.patient.lastName",
   "metadata.patient.lastName",
+  "patient.lastName",
+  "patient.lname",
 ]);
 
-const patientFullNameKeys = parseKeyList(
-  "VITE_LAB_CONTEXT_PATIENT_FULLNAME_KEYS",
-  [
-    "patient.fullName",
-    "patient.name",
-    "request.patient.fullName",
-    "request.patient.name",
-    "data.patient.fullName",
-    "data.patient.name",
-    "context.patient.fullName",
-    "context.patient.name",
-    "data.context.patient.fullName",
-    "metadata.patient.fullName",
-    "patientName",
-    "request.patientName",
-    "data.patientName",
-    "context.patientName",
-    "metadata.patientName",
-  ],
-);
+// const facilityNameKeys = parseKeyList("VITE_LAB_CONTEXT_FACILITY_NAME_KEYS", [
+//   "facility_name",
+//   "facilityName",
+//   "data.facility_name",
+//   "data.facilityName",
+//   "request.facilityName",
+//   "data.request.facilityName",
+//   "context.facilityName",
+//   "metadata.facilityName",
+// ]);
 
 const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
+  "hpercode",
+  "id",
   "enccode",
+  "enc",
   "data.0.enccode",
+  "data.0.enc",
   "data.enccode",
+  "data.enc",
+  "data.hpercode",
+  "data.id",
   "request.enccode",
+  "request.enc",
   "context.enccode",
+  "context.enc",
   "metadata.enccode",
+  "metadata.enc",
 ]);
 
 const facilityRefKeys = parseKeyList("VITE_LAB_CONTEXT_FHUD_KEYS", [
+  "facility_code",
   "fhud",
   "data.0.fhud",
   "data.fhud",
+  "data.facility_code",
   "request.fhud",
   "context.fhud",
   "metadata.fhud",
@@ -367,6 +377,29 @@ const docointkeyKeys = parseKeyList("VITE_LAB_CONTEXT_DOCOINTKEY_KEYS", [
   "request.docointkey",
   "context.docointkey",
   "metadata.docointkey",
+]);
+
+const userKeys = parseKeyList("VITE_LAB_CONTEXT_USER_KEYS", [
+  "user",
+  "userid",
+  "username",
+  "account",
+  "data.user",
+  "data.userid",
+  "data.username",
+  "data.account",
+  "request.user",
+  "request.userid",
+  "request.username",
+  "request.account",
+  "context.user",
+  "context.userid",
+  "context.username",
+  "context.account",
+  "metadata.user",
+  "metadata.userid",
+  "metadata.username",
+  "metadata.account",
 ]);
 
 export function resolveRequestContext(payload) {
@@ -389,30 +422,15 @@ export function resolveRequestContext(payload) {
     docointkey: resolveFirstString(payload, docointkeyKeys),
   };
 
-  const derivedContext = deriveContextFromDocointkey(identifiers.docointkey);
+  const user = resolveFirstString(payload, userKeys);
 
-  const panelName =
-    resolveFirstString(payload, panelNameKeys) || derivedContext.panelName;
+  const panelName = resolveFirstString(payload, panelNameKeys);
 
-  const requestedAt =
-    resolveFirstString(payload, requestedAtKeys) || derivedContext.requestedAt;
+  const requestedAt = resolveFirstString(payload, requestedAtKeys);
 
   let firstName = resolveFirstString(payload, patientFirstNameKeys);
-
   let middleName = resolveFirstString(payload, patientMiddleNameKeys);
-
   let lastName = resolveFirstString(payload, patientLastNameKeys);
-
-  if (!firstName || !lastName) {
-    const fullName = resolveFirstString(payload, patientFullNameKeys);
-
-    if (fullName) {
-      const parsedName = splitFullName(fullName);
-      firstName = firstName || parsedName.firstName;
-      middleName = middleName || parsedName.middleName;
-      lastName = lastName || parsedName.lastName;
-    }
-  }
 
   const hasAnyContext = Boolean(
     panelName ||
@@ -420,6 +438,7 @@ export function resolveRequestContext(payload) {
     firstName ||
     middleName ||
     lastName ||
+    user ||
     identifiers.enccode ||
     identifiers.fhud ||
     identifiers.docointkey,
@@ -429,12 +448,110 @@ export function resolveRequestContext(payload) {
     panelName,
     requestedAt,
     identifiers,
+    user,
     patient: {
       firstName,
       middleName,
       lastName,
     },
     hasAnyContext,
+  };
+}
+
+export async function fetchLabPatientCandidates({
+  patientSearchUrl,
+  contextUrl,
+  token,
+  contextParams,
+  search = "",
+  user = "",
+  limit = 25,
+  offset = 0,
+}) {
+  const searchUrl = patientSearchUrl || contextUrl;
+
+  if (!searchUrl) {
+    return {
+      payload: null,
+      candidates: [],
+    };
+  }
+
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
+  const resolvedUser = user || normalizedContextParams.user || "";
+
+  const requestUrl = buildRequestUrl(searchUrl, {
+    ...normalizedContextParams,
+    search,
+    q: search,
+    user: resolvedUser,
+    limit,
+    offset,
+  });
+
+  const headers = {};
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(requestUrl, {
+    method: "GET",
+    headers,
+  });
+
+  const responseText = await response.text();
+  const responsePayload = parseResponsePayload(responseText);
+
+  if (!response.ok) {
+    throw new Error(buildErrorMessage(response, responsePayload));
+  }
+
+  const payloadRows = Array.isArray(responsePayload?.data)
+    ? responsePayload.data
+    : Array.isArray(responsePayload)
+      ? responsePayload
+      : responsePayload && typeof responsePayload === "object"
+        ? [responsePayload]
+        : [];
+
+  const dedupedCandidates = new Map();
+
+  payloadRows.forEach((row, index) => {
+    const candidate = buildPatientCandidate(row, index + 1);
+
+    if (!candidate.id || candidate.id.startsWith("candidate-")) {
+      candidate.id =
+        candidate.requestContext?.identifiers?.enccode ||
+        row.hpercode ||
+        row.id ||
+        `candidate-${index + 1}`;
+
+      if (candidate.requestContext?.identifiers?.enccode === candidate.id) {
+        candidate.idSource = "enc";
+      } else if (candidate.requestContext?.identifiers?.fhud === candidate.id) {
+        candidate.idSource = "fhud";
+      } else if (candidate.requestContext?.user === candidate.id) {
+        candidate.idSource = "user";
+      }
+    }
+
+    if (!dedupedCandidates.has(candidate.id)) {
+      dedupedCandidates.set(candidate.id, candidate);
+    }
+  });
+
+  if (!dedupedCandidates.size) {
+    const fallbackCandidate = buildPatientCandidate(responsePayload, 1);
+
+    if (fallbackCandidate.requestContext.hasAnyContext) {
+      dedupedCandidates.set(fallbackCandidate.id, fallbackCandidate);
+    }
+  }
+
+  return {
+    payload: responsePayload,
+    candidates: Array.from(dedupedCandidates.values()),
   };
 }
 
@@ -450,7 +567,8 @@ export async function fetchLabRequestContext({
     };
   }
 
-  const requestUrl = buildRequestUrl(contextUrl, contextParams);
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
+  const requestUrl = buildRequestUrl(contextUrl, normalizedContextParams);
   const headers = {};
 
   if (token) {
@@ -482,8 +600,17 @@ export async function uploadLabResult({
   remarks,
   contextParams,
 }) {
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
   const payload = new FormData();
   payload.append("resultFile", resultFile);
+
+  ["enccode", "enc", "fhud", "docointkey", "user"].forEach((key) => {
+    const value = normalizedContextParams[key];
+
+    if (typeof value === "string" && value.trim()) {
+      payload.append(key, value.trim());
+    }
+  });
 
   if (remarks?.trim()) {
     payload.append("remarks", remarks.trim());
@@ -494,7 +621,7 @@ export async function uploadLabResult({
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const requestUrl = buildRequestUrl(uploadUrl, contextParams);
+  const requestUrl = buildRequestUrl(uploadUrl, normalizedContextParams);
   const response = await fetch(requestUrl, {
     method: "POST",
     headers,

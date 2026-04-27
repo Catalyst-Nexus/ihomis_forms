@@ -38,20 +38,29 @@ export default function SpecialEndorsement({ patientName, patientData }) {
   return (
     <div className="se-page">
 
-      {/* ── Header ── */}
+      {/* ── Header: 2 rows, each with left and right content ── */}
       <div className="se-header">
-        <div className="se-header-left">
-          <div className="se-header-row">
-            <strong>Hospital No.:</strong>&nbsp;{hospitalNumber}&nbsp;&nbsp;
+
+        {/* Row 1: Hospital No. (left) | Case Number (right) */}
+        <div className="se-header-row">
+          <div className="se-header-left">
+            <strong>Hospital No.:</strong>&nbsp;{hospitalNumber}
+          </div>
+          <div className="se-header-right">
             <strong>Case Number:</strong>&nbsp;{caseNumber}
           </div>
-          <div className="se-header-row">
+        </div>
+
+        {/* Row 2: NAME (left) | DATE OF BIRTH (right) */}
+        <div className="se-header-row">
+          <div className="se-header-left">
             <strong>NAME:</strong>&nbsp;{name}
           </div>
+          <div className="se-header-right">
+            <strong>DATE OF BIRTH:</strong>&nbsp;{dateOfBirth}
+          </div>
         </div>
-        <div className="se-header-right">
-          <div><strong>DATE OF BIRTH:</strong>&nbsp;{dateOfBirth}</div>
-        </div>
+
       </div>
 
       {/* ── Table ── */}

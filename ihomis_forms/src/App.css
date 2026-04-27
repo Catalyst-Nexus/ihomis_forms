@@ -5,7 +5,7 @@
 .app-landing-page {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   padding: clamp(1rem, 2vw, 2rem);
 }
 
@@ -77,6 +77,38 @@
   grid-template-columns: 1fr;
 }
 
+.app-patient-picker {
+  background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(16, 54, 63, 0.08);
+  overflow: hidden;
+}
+
+.app-patient-picker .pk-panel {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.app-selected-patient-panel {
+  background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 14px 28px rgba(16, 54, 63, 0.08);
+  padding: 0.9rem;
+}
+
+.app-selected-patient-card {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.app-selected-patient-card .lab-hero-patient,
+.app-selected-patient-card .lab-hero-badge {
+  width: 100%;
+}
+
 .app-module-card {
   background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
   border: 1px solid rgba(16, 54, 63, 0.16);
@@ -132,6 +164,13 @@
 .app-open-module:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 22px rgba(27, 127, 121, 0.24);
+}
+
+.app-open-module:disabled {
+  cursor: not-allowed;
+  background: #9aaeb2;
+  box-shadow: none;
+  transform: none;
 }
 
 .app-module-host {

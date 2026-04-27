@@ -6,10 +6,8 @@
   box-sizing: border-box;
   background: #fff;
   color: #000;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
   line-height: 1.25;
   display: flex;
   flex-direction: column;
@@ -35,6 +33,7 @@
 
 .cardio-label {
   font-weight: 700;
+  font-size: 13px;
 }
 
 .cardio-date-label {
@@ -66,7 +65,7 @@
 
 .cardio-section-title {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 
@@ -76,7 +75,7 @@
 
 .cardio-subheading {
   margin: 1.3mm 0 0.6mm 3.8mm;
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 
 .cardio-subheading-gap {
@@ -169,7 +168,7 @@
 }
 
 .cardio-physician-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -178,7 +177,7 @@
   border-top: 1px solid #000;
   padding-top: 1.4mm;
   text-align: right;
-  font-size: 11px;
+  font-size: 12px;
   font-style: italic;
   font-weight: 700;
   flex-shrink: 0;
@@ -189,7 +188,7 @@
     width: 100%;
     min-height: auto;
     padding: 14px 14px 12px;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.25;
   }
 
@@ -255,7 +254,7 @@
     margin: 0 !important;
     /* 8mm top · 14mm sides · 6mm bottom — matches the on-screen modal view */
     padding: 8mm 14mm 6mm !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     line-height: 1.25 !important;
     box-shadow: none !important;
     border: none !important;
@@ -314,7 +313,7 @@
     border-top: 1px solid #000 !important;
     padding-top: 1.4mm !important;
     text-align: right !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     font-style: italic !important;
     font-weight: 700 !important;
   }

@@ -46,14 +46,8 @@ export default function DoctorsOrder({ patientName, patientData }) {
 
 			{/* ── Patient Info Block ── */}
 			<div className="do-patient-info">
-				<p><span className="do-info-label">Hospital No.:</span> {hospitalNo}</p>
-				<p><span className="do-info-label">Patient Name:</span> {name}</p>
-				<p><span className="do-info-label">Sex:</span> {sex}</p>
-				<p><span className="do-info-label">Age:</span> {age}</p>
-				<p>
-					<span className="do-info-label">Case Number:</span>
-					<span className="do-info-case">&nbsp;{caseNum}</span>
-				</p>
+				<p><span className="do-info-label">Hospital No.:</span> {hospitalNo}&nbsp;&nbsp;&nbsp;<span className="do-info-label">Case Number:</span> {caseNum}</p>
+				<p><span className="do-info-label">Patient Name:</span> {name}&nbsp;&nbsp;&nbsp;<span className="do-info-label">Sex:</span> {sex}&nbsp;&nbsp;&nbsp;<span className="do-info-label">Age:</span> {age}</p>
 			</div>
 
 			{/* ── Footer ── */}

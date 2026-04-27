@@ -29,6 +29,9 @@ export default function RandomBloodSugar({ patientName, patientData }) {
   return (
     <div className="rbs-page">
 
+      {/* ── 15mm header space ── */}
+      <div className="rbs-header-space" />
+
       {/* ── Case Number | Date ── */}
       <div className="rbs-top-row">
         <div className="rbs-case">

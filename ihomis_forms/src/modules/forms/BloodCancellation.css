@@ -1,6 +1,6 @@
 .blood-cancel-page {
-	font-family: Arial, sans-serif;
-	font-size: 3.5mm;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 4.1mm;
 	line-height: 1.25;
 	width: 210mm;
 	height: 297mm;
@@ -40,10 +40,12 @@
 .blood-cancel-label {
 	font-weight: bold;
 	white-space: nowrap;
+	font-size: 3.8mm;
 }
 
 .blood-cancel-value {
 	white-space: nowrap;
+	font-size: 3.8mm;
 }
 
 .blood-cancel-underline {
@@ -63,7 +65,7 @@
 
 /* Reasons section */
 .blood-cancel-reasons-title {
-	font-size: 3.2mm;
+	font-size: 3.9mm;
 	font-weight: bold;
 	margin-bottom: 2mm;
 }
@@ -113,6 +115,7 @@
 }
 
 .blood-cancel-prepared-label {
+	font-size: 3.8mm;
 	margin-bottom: 0;
 }
 
@@ -125,7 +128,7 @@
 }
 
 .blood-cancel-prepared-sig-label {
-	font-size: 2.4mm;
+	font-size: 3mm;
 	text-align: center;
 	margin-top: 1mm;
 }
@@ -140,7 +143,7 @@
 	padding-top: 1.5mm;
 	padding-right: 14mm;
 	text-align: right;
-	font-size: 0.72rem;
+	font-size: 0.82rem;
     font-style: italic;
 	color: #000;
 }
@@ -164,7 +167,7 @@
 .blood-cancel-print-btn {
 	padding: 8px 32px;
 	font-size: 13px;
-	font-family: Arial, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 	background: #1a5276;
 	color: #fff;
 	border: none;

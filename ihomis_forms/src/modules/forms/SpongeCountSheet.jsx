@@ -71,6 +71,9 @@ export default function SpongeCountSheet({ patientName, patientData }) {
   return (
     <div className="scs-page">
 
+      {/* ── Reserved space for header ── */}
+      <div className="scs-header-space" />
+
       {/* ── Case Number ── */}
       <div className="scs-case-row">
         <strong>Case Number:</strong>&nbsp;&nbsp;{caseNumber}
@@ -93,7 +96,7 @@ export default function SpongeCountSheet({ patientName, patientData }) {
             <td className="scs-hl">Sex:</td>
             <td className="scs-hv">{sex}</td>
             <td className="scs-hl">Anesthesia</td>
-            <td className="scs-hv"></td>
+            <td className="scs-hv">{anesthesia}</td>
           </tr>
           <tr>
             <td className="scs-hl">Surgeon:</td>

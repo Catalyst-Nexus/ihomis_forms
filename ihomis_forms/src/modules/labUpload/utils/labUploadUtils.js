@@ -60,6 +60,45 @@ function isPdfFile(file) {
   return mimeType === "application/pdf" || fileName.endsWith(".pdf");
 }
 
+function normalizeLabContextParams(contextParams = {}) {
+  const normalized = { ...contextParams };
+
+  const encounterCode =
+    normalized.enccode || normalized.enc || normalized.hpercode || "";
+  if (encounterCode) {
+    normalized.enccode = encounterCode;
+    normalized.enc = encounterCode;
+  }
+
+  const facilityCode =
+    normalized.fhud ||
+    normalized.facility_code ||
+    normalized.facilityCode ||
+    "";
+  if (facilityCode) {
+    normalized.fhud = facilityCode;
+    normalized.facility_code = facilityCode;
+  }
+
+  const documentKey =
+    normalized.docointkey || normalized.documentKey || normalized.docKey || "";
+  if (documentKey) {
+    normalized.docointkey = documentKey;
+  }
+
+  const resolvedUser =
+    normalized.user ||
+    normalized.userid ||
+    normalized.username ||
+    normalized.account ||
+    "";
+  if (resolvedUser) {
+    normalized.user = resolvedUser;
+  }
+
+  return normalized;
+}
+
 function getContextParamsFromLocation() {
   if (typeof window === "undefined") {
     return {};
@@ -77,11 +116,11 @@ function getContextParamsFromLocation() {
     params[key] = normalized;
   }
 
-  return params;
+  return normalizeLabContextParams(params);
 }
 
 function mergeRequestContext(previousContext, nextContext) {
-  if (!nextContext || !nextContext.hasAnyContext) {
+  if (!nextContext) {
     return previousContext;
   }
 
@@ -89,6 +128,7 @@ function mergeRequestContext(previousContext, nextContext) {
     ...previousContext,
     panelName: nextContext.panelName || previousContext.panelName,
     requestedAt: nextContext.requestedAt || previousContext.requestedAt,
+    user: nextContext.user || previousContext.user || "",
     identifiers: {
       enccode:
         nextContext.identifiers?.enccode ||
@@ -117,7 +157,7 @@ function mergeRequestContext(previousContext, nextContext) {
         previousContext.patient?.lastName ||
         "",
     },
-    hasAnyContext: true,
+    hasAnyContext: nextContext.hasAnyContext ?? previousContext.hasAnyContext,
   };
 }
 
@@ -156,10 +196,6 @@ function buildUploadSummary({
   contextLoading,
   displayContext,
   hasApiUrl,
-  hasUploadedPreview,
-  resultFileCount,
-  reviewSource,
-  uploadedFileCount,
 }) {
   return [
     {
@@ -190,25 +226,6 @@ function buildUploadSummary({
       label: "Document Key",
       value: displayContext.identifiers.docointkey,
     },
-    {
-      label: "Attachment Queue",
-      value: resultFileCount
-        ? `${resultFileCount} PDF file(s) selected`
-        : "No PDFs selected",
-    },
-    {
-      label: "Uploaded Files",
-      value: uploadedFileCount
-        ? `${uploadedFileCount} uploaded item(s)`
-        : "No uploaded PDFs yet",
-    },
-    {
-      label: "Review Mode",
-      value:
-        reviewSource === "uploaded" && hasUploadedPreview
-          ? "Uploaded PDF from API response"
-          : "Local in-app preview",
-    },
   ];
 }
 
@@ -223,4 +240,5 @@ export {
   mapSuccessToUploadedEntry,
   mergeRequestContext,
   mergeUniqueFiles,
+  normalizeLabContextParams,
 };
