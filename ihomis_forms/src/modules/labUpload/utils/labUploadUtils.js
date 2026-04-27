@@ -60,6 +60,45 @@ function isPdfFile(file) {
   return mimeType === "application/pdf" || fileName.endsWith(".pdf");
 }
 
+function normalizeLabContextParams(contextParams = {}) {
+  const normalized = { ...contextParams };
+
+  const encounterCode =
+    normalized.enccode || normalized.enc || normalized.hpercode || "";
+  if (encounterCode) {
+    normalized.enccode = encounterCode;
+    normalized.enc = encounterCode;
+  }
+
+  const facilityCode =
+    normalized.fhud ||
+    normalized.facility_code ||
+    normalized.facilityCode ||
+    "";
+  if (facilityCode) {
+    normalized.fhud = facilityCode;
+    normalized.facility_code = facilityCode;
+  }
+
+  const documentKey =
+    normalized.docointkey || normalized.documentKey || normalized.docKey || "";
+  if (documentKey) {
+    normalized.docointkey = documentKey;
+  }
+
+  const resolvedUser =
+    normalized.user ||
+    normalized.userid ||
+    normalized.username ||
+    normalized.account ||
+    "";
+  if (resolvedUser) {
+    normalized.user = resolvedUser;
+  }
+
+  return normalized;
+}
+
 function getContextParamsFromLocation() {
   if (typeof window === "undefined") {
     return {};
@@ -77,7 +116,7 @@ function getContextParamsFromLocation() {
     params[key] = normalized;
   }
 
-  return params;
+  return normalizeLabContextParams(params);
 }
 
 function mergeRequestContext(previousContext, nextContext) {
@@ -89,6 +128,7 @@ function mergeRequestContext(previousContext, nextContext) {
     ...previousContext,
     panelName: nextContext.panelName || previousContext.panelName,
     requestedAt: nextContext.requestedAt || previousContext.requestedAt,
+    user: nextContext.user || previousContext.user || "",
     identifiers: {
       enccode:
         nextContext.identifiers?.enccode ||
@@ -200,4 +240,5 @@ export {
   mapSuccessToUploadedEntry,
   mergeRequestContext,
   mergeUniqueFiles,
+  normalizeLabContextParams,
 };

@@ -20,8 +20,6 @@ function LabUploadFormPanel({
   submitting,
   retryingFileKey,
   onRetryFailedUpload,
-  remarks,
-  onRemarksChange,
   canSubmit,
   uploadProgressMessage,
   status,
@@ -191,18 +189,6 @@ function LabUploadFormPanel({
         </section>
       ) : null}
 
-      <label htmlFor="remarks" className="lab-field lab-textarea">
-        Clinical Notes
-        <textarea
-          id="remarks"
-          name="remarks"
-          rows="4"
-          value={remarks}
-          onChange={(event) => onRemarksChange(event.target.value)}
-          placeholder="Optional lab comments and critical details"
-        />
-      </label>
-
       <button type="submit" disabled={!canSubmit}>
         {submitting ? "Uploading PDF Files..." : "Upload PDF Files"}
       </button>
@@ -226,9 +212,11 @@ LabUploadFormPanel.propTypes = {
     displayName: PropTypes.string,
     description: PropTypes.string,
     contextParams: PropTypes.shape({
+      enc: PropTypes.string,
       enccode: PropTypes.string,
       fhud: PropTypes.string,
       docointkey: PropTypes.string,
+      user: PropTypes.string,
       hpercode: PropTypes.string,
     }),
   }),
@@ -257,8 +245,6 @@ LabUploadFormPanel.propTypes = {
   submitting: PropTypes.bool.isRequired,
   retryingFileKey: PropTypes.string.isRequired,
   onRetryFailedUpload: PropTypes.func.isRequired,
-  remarks: PropTypes.string.isRequired,
-  onRemarksChange: PropTypes.func.isRequired,
   canSubmit: PropTypes.bool.isRequired,
   uploadProgressMessage: PropTypes.string.isRequired,
   status: PropTypes.shape({

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchLabPatientCandidates } from "../api/labUploadApi.js";
+import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 
 const PAGE_SIZE = 10;
 const API_LIMIT = PAGE_SIZE + 5; // request more to compensate for dedup removal
@@ -25,6 +26,11 @@ function useLabPatientPicker({
   token,
   initialContextParams,
 }) {
+  const normalizedInitialContextParams = useMemo(
+    () => normalizeLabContextParams(initialContextParams),
+    [initialContextParams],
+  );
+
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(
     Boolean(patientSearchUrl || contextUrl),
@@ -39,8 +45,8 @@ function useLabPatientPicker({
   const skipNextSearchSyncRef = useRef(false);
 
   const explicitUserFilter = useMemo(
-    () => resolveUserFilter(initialContextParams),
-    [initialContextParams],
+    () => resolveUserFilter(normalizedInitialContextParams),
+    [normalizedInitialContextParams],
   );
 
   useEffect(() => {
@@ -92,7 +98,7 @@ function useLabPatientPicker({
             patientSearchUrl,
             contextUrl,
             token,
-            contextParams: initialContextParams,
+            contextParams: normalizedInitialContextParams,
             search: debouncedSearchTerm,
             user: explicitUserFilter,
             limit: API_LIMIT,
@@ -174,8 +180,8 @@ function useLabPatientPicker({
             const candidateDocointkey =
               candidate.contextParams?.docointkey || "";
             return (
-              Boolean(initialContextParams.docointkey) &&
-              candidateDocointkey === initialContextParams.docointkey
+              Boolean(normalizedInitialContextParams.docointkey) &&
+              candidateDocointkey === normalizedInitialContextParams.docointkey
             );
           }) || candidates[0];
 
@@ -216,7 +222,7 @@ function useLabPatientPicker({
     patientSearchUrl,
     contextUrl,
     token,
-    initialContextParams,
+    normalizedInitialContextParams,
     explicitUserFilter,
     debouncedSearchTerm,
     pageIndex,
@@ -229,15 +235,21 @@ function useLabPatientPicker({
 
   const activeContextParams = useMemo(() => {
     if (!selectionConfirmed || !selectedPatient) {
-      return initialContextParams;
+      return normalizedInitialContextParams;
     }
 
-    return {
-      ...initialContextParams,
+    return normalizeLabContextParams({
+      ...normalizedInitialContextParams,
       ...selectedPatient.contextParams,
       hpercode: selectedPatient.id,
-    };
-  }, [initialContextParams, selectedPatient, selectionConfirmed]);
+      user: explicitUserFilter || normalizedInitialContextParams.user || "",
+    });
+  }, [
+    normalizedInitialContextParams,
+    selectedPatient,
+    selectionConfirmed,
+    explicitUserFilter,
+  ]);
 
   function confirmSelection() {
     if (!selectedPatientId || !selectedPatient) {
@@ -257,6 +269,7 @@ function useLabPatientPicker({
       return;
     }
 
+    setSelectionConfirmed(false);
     setSelectedPatientId(selectedCandidate.id);
 
     const chosenLabel =
