@@ -1,7 +1,7 @@
 .form-sheet-header {
   width: 100%;
   max-width: 210mm;
-  margin: 0 auto;
+  margin: var(--form-page-top, 0.20in) auto 0;
   background: #ffffff;
   color: #000000;
   padding: var(--form-space-2, 8px) var(--form-page-padding, 0.5in) var(--form-space-1, 4px);

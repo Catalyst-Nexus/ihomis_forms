@@ -23,18 +23,15 @@ export default function Modal({ isOpen, onClose, title, children }) {
     const previousTitle = document.title;
     document.title = '';
 
-    try {
-      window.print();
-    } finally {
-      document.title = previousTitle;
-    }
     printContainer.replaceChildren(printableRoot);
 
     const cleanup = () => {
+      document.title = previousTitle;
       printContainer.replaceChildren();
     };
 
     window.addEventListener('afterprint', cleanup, { once: true });
+
     requestAnimationFrame(() => {
       window.print();
     });
