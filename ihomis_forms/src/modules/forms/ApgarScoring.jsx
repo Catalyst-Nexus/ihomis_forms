@@ -4,18 +4,6 @@ export default function ApgarScoring() {
   return (
     <div className="a4-page">
 
-      {/* Header replaced with spacer */}
-      <div className="header-spacer" />
-
-      {/* Form meta */}
-      <div className="form-meta">
-        FORM NO.: ___________<br />
-        Revised: ___________
-      </div>
-
-      {/* Title */}
-      <div className="form-title">APGAR SCORING</div>
-
       {/* Case Number */}
       <div className="case-number-row">
         <strong>Case Number:</strong>&nbsp; ADM-2026-010617

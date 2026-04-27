@@ -3,10 +3,6 @@ import "./BloodTransfusionSheet.css";
 export default function BloodTransfusionSheet() {
 	return (
 		<div className="bts-page">
-			<div className="bts-header-spacer" aria-hidden="true" />
-
-			<div className="bts-title">Blood Transfusion Sheet</div>
-
 			<div className="bts-meta-grid">
 				<div className="bts-meta-col">
 					<div className="bts-meta-item">
@@ -74,7 +70,7 @@ export default function BloodTransfusionSheet() {
 				</tbody>
 			</table>
 
-			<div className="bts-footer">
+			<div className="bts-footer form-footer">
 				<div className="bts-footer-line" aria-hidden="true" />
 
 				<div className="bts-default-footer">

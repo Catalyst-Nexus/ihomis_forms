@@ -2,141 +2,131 @@ import "./Abtcform.css";
 
 export default function ABTCForm() {
 	return (
-		<div className="aldrete-page">
-			{/* Header with logos and hospital info */}
-			<div className="abtc-header">
-			
-			</div>
+			<div className="aldrete-page">
+					<div className="abtc-content">
+						{/* Case number */}
+						<div className="abtc-title-block">
+							<span className="aldrete-label">CASE NO.:</span>
+							<span>ADM-2026-010617</span>
+						</div>
 
-			{/* Form title block */}
-			<div className="abtc-title-block">
-				<div className="abtc-title-left">
-					<h1 className="abtc-form-title">ABTC OUT-PATIENT RECORD</h1>
-				</div>
-				<div className="abtc-title-right">
-					<span className="aldrete-label">CASE NO.: </span>
-					<span>ADM-2026-010617</span>
-				</div>
-			</div>
+						{/* SR. Citizen / Hospital No */}
+						<div className="abtc-info-row abtc-border-row">
+							<div className="abtc-info-cell abtc-border-right">
+								<span className="aldrete-label">SR. CITIZEN NO.:</span>
+								<span>&nbsp;</span>
+							</div>
+							<div className="abtc-info-cell">
+								<span className="aldrete-label">HOSPITAL NO.: </span>
+								<span>000000000020971</span>
+							</div>
+						</div>
 
-			{/* SR. Citizen / Hospital No */}
-			<div className="abtc-info-row abtc-border-row">
-				<div className="abtc-info-cell abtc-border-right">
-					<span className="aldrete-label">SR. CITIZEN NO.:</span>
-					<span>&nbsp;</span>
-				</div>
-				<div className="abtc-info-cell">
-					<span className="aldrete-label">HOSPITAL NO.: </span>
-					<span>000000000020971</span>
-				</div>
-			</div>
+						{/* Patient Name */}
+						<div className="abtc-info-row abtc-border-row abtc-patient-name-row">
+							<span className="aldrete-label">PATIENT NAME: </span>
+							<span>MATILOS , EUGENIA MAMBA</span>
+						</div>
 
-			{/* Patient Name */}
-			<div className="abtc-info-row abtc-border-row abtc-patient-name-row">
-				<span className="aldrete-label">PATIENT NAME: </span>
-				<span>MATILOS , EUGENIA MAMBA</span>
-			</div>
+						{/* Address / Tel / Sex / Civil Status */}
+						<div className="abtc-info-row abtc-border-row abtc-address-row">
+							<div className="abtc-address-cell abtc-border-right">
+								<div className="aldrete-label">PERMANENT ADDRESS</div>
+								<div>P-1, ALUBIJID, BUENAVISTA, AGUSAN DEL NORTE</div>
+							</div>
+							<div className="abtc-small-cell abtc-border-right">
+								<div className="aldrete-label">TEL.NO./CP NO.</div>
+								<div>09941085350</div>
+							</div>
+							<div className="abtc-small-cell abtc-border-right">
+								<div className="aldrete-label">Sex</div>
+								<div>F</div>
+							</div>
+							<div className="abtc-small-cell">
+								<div className="aldrete-label">Civil Status</div>
+								<div>M</div>
+							</div>
+						</div>
 
-			{/* Address / Tel / Sex / Civil Status */}
-			<div className="abtc-info-row abtc-border-row abtc-address-row">
-				<div className="abtc-address-cell abtc-border-right">
-					<div className="aldrete-label">PERMANENT ADDRESS</div>
-					<div>P-1, ALUBIJID, BUENAVISTA, AGUSAN DEL NORTE</div>
-				</div>
-				<div className="abtc-small-cell abtc-border-right">
-					<div className="aldrete-label">TEL.NO./CP NO.</div>
-					<div>09941085350</div>
-				</div>
-				<div className="abtc-small-cell abtc-border-right">
-					<div className="aldrete-label">Sex</div>
-					<div>F</div>
-				</div>
-				<div className="abtc-small-cell">
-					<div className="aldrete-label">Civil Status</div>
-					<div>M</div>
-				</div>
-			</div>
+						{/* Birthdate / Age / Birth Place / Nationality / Religion / Occupation / Indigenous */}
+						<div className="abtc-info-row abtc-border-row abtc-details-row">
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">BIRTHDATE</div>
+								<div>January 11, 1959</div>
+							</div>
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">Age</div>
+								<div>67 year(s)</div>
+							</div>
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">BIRTH PLACE</div>
+								<div>BTA</div>
+							</div>
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">NATIONALITY</div>
+								<div>FILIPINO</div>
+							</div>
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">RELIGION</div>
+								<div>Unknown</div>
+							</div>
+							<div className="abtc-detail-cell abtc-border-right">
+								<div className="aldrete-label">OCCUPATION</div>
+								<div>&nbsp;</div>
+							</div>
+							<div className="abtc-detail-cell">
+								<div className="aldrete-label">INDIGENOUS</div>
+								<div>&nbsp;</div>
+							</div>
+						</div>
 
-			{/* Birthdate / Age / Birth Place / Nationality / Religion / Occupation / Indigenous */}
-			<div className="abtc-info-row abtc-border-row abtc-details-row">
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">BIRTHDATE</div>
-					<div>January 11, 1959</div>
-				</div>
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">Age</div>
-					<div>67 year(s)</div>
-				</div>
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">BIRTH PLACE</div>
-					<div>BTA</div>
-				</div>
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">NATIONALITY</div>
-					<div>FILIPINO</div>
-				</div>
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">RELIGION</div>
-					<div>Unknown</div>
-				</div>
-				<div className="abtc-detail-cell abtc-border-right">
-					<div className="aldrete-label">OCCUPATION</div>
-					<div>&nbsp;</div>
-				</div>
-				<div className="abtc-detail-cell">
-					<div className="aldrete-label">INDIGENOUS</div>
-					<div>&nbsp;</div>
-				</div>
-			</div>
+						{/* Spacer */}
+						<div style={{ height: "1.2rem" }} />
 
-			{/* Spacer */}
-			<div style={{ height: "1.2rem" }} />
+						{/* History of Exposure */}
+						<div className="abtc-section-title">HISTORY OF EXPOSURE</div>
 
-			{/* History of Exposure */}
-			<div className="abtc-section-title">HISTORY OF EXPOSURE</div>
+						<div style={{ height: "0.5rem" }} />
 
-			<div style={{ height: "0.5rem" }} />
+						<div className="abtc-exposure-grid">
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Date of Exposure:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Time of Exposure:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Source of Exposure:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Animal Status:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Type of Exposure:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Category Exposure:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">
+								<span className="aldrete-label">Place of Incident:</span>
+								<span className="abtc-underline-field">&nbsp;</span>
+							</div>
+							<div className="abtc-exposure-field">&nbsp;</div>
+						</div>
 
-			<div className="abtc-exposure-grid">
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Date of Exposure:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Time of Exposure:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Source of Exposure:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Animal Status:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Type of Exposure:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Category Exposure:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">
-					<span className="aldrete-label">Place of Incident:</span>
-					<span className="abtc-underline-field">&nbsp;</span>
-				</div>
-				<div className="abtc-exposure-field">&nbsp;</div>
-			</div>
+						<div style={{ height: "1.2rem" }} />
 
-			<div style={{ height: "1.2rem" }} />
-
-			{/* Remarks */}
-			<div className="abtc-section-title">REMARKS:</div>
-
-			<div className="abtc-remarks-space" />
-
-			<div className="aldrete-default-footer">
+						{/* Remarks */}
+						<div className="abtc-section-title">REMARKS:</div>
+					</div>
+				<div className="abtc-remarks-space" />
+			<div className="aldrete-default-footer form-footer">
 				Generated by: TCP T. TCP on 2026-04-21 02:22 pm
 			</div>
 		</div>

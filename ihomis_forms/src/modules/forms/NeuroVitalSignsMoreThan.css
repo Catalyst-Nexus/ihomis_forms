@@ -273,24 +273,6 @@ body {
   font-style: italic;
 }
 
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
-  .neuro-vital-signs-container {
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-    box-shadow: none;
-  }
-
-  .neuro-vital-signs {
-    padding: 10.5mm 12mm 7.5mm;
-  }
-}
-
 @media screen {
   .neuro-vital-signs-container {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);

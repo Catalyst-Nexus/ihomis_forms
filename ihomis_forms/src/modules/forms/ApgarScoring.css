@@ -18,23 +18,6 @@
   box-sizing: border-box;
 }
 
-.header-spacer {
-  height: 28mm;
-}
-
-.form-meta {
-  font-size: 8pt;
-  margin-bottom: 2mm;
-  line-height: 1.5;
-}
-
-.form-title {
-  text-align: center;
-  font-size: 13pt;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin: 3mm 0 4mm;
-}
 
 .case-number-row {
   font-size: 9.5pt;

@@ -135,6 +135,42 @@ const FORMS_LIST = [
   'TPR Sheet',
 ];
 
+const HEADER_OVERRIDES = {
+  'ABTC Form': {
+    title: 'ABTC OUT-PATIENT RECORD',
+  },
+  'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form': {
+    title: 'ADVANCE DIRECTIVE DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE FORM',
+  },
+  'APGAR Score Form': {
+    title: 'APGAR SCORING',
+  },
+  'Blood Cancellation Form': {
+    title: 'BLOOD CANCELLATION FORM',
+  },
+  'Discharge Plan/Referral Slip': {
+    title: 'DISCHARGE PLAN/REFERRAL SLIP',
+    subtitle: 'TO: TAKE HOME MEDICATION',
+  },
+  'Laboratory Request Form (outside)': {
+    title: 'LABORATORY REQUEST',
+  },
+  'Other Laboratory Request': {
+    title: 'OTHER LABORATORY REQUEST',
+  },
+  "Nurse's Notes Form": {
+    title: "NURSE'S NOTES",
+  },
+  'Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old': {
+    title: 'NEURO VITAL SIGNS STATUS',
+    subtitle: 'GLASGOW COMA SCALE LESS THAN 2 YEARS OLD',
+  },
+  'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old': {
+    title: 'NEURO VITAL SIGNS STATUS',
+    subtitle: 'GLASGOW COMA SCALE',
+  },
+};
+
 export default function Forms({ isDarkMode, setIsDarkMode }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedForms, setSelectedForms] = useState(new Set());
@@ -167,13 +203,19 @@ export default function Forms({ isDarkMode, setIsDarkMode }) {
     }
   };
 
-  const getHeaderConfig = (formName) => ({
-    formNo: '',
-    revised: '',
-    title: (formName || '').toUpperCase(),
-    leftLogoSrc: '',
-    rightLogoSrc: '',
-  });
+  const getHeaderConfig = (formName) => {
+    const override = HEADER_OVERRIDES[formName] || {};
+    const baseTitle = override.title || formName || '';
+
+    return {
+      formNo: '',
+      revised: '',
+      title: override.title ? override.title : baseTitle.toUpperCase(),
+      subtitle: override.subtitle || '',
+      leftLogoSrc: '',
+      rightLogoSrc: '',
+    };
+  };
 
   const renderFormBody = (formName) => {
     const formRendererMap = {

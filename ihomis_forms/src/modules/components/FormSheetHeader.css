@@ -1,10 +1,10 @@
 .form-sheet-header {
   width: 100%;
-  max-width: 8.5in;
+  max-width: 210mm;
   margin: 0 auto;
   background: #ffffff;
   color: #000000;
-  padding: 0.58rem 0.78rem 0.42rem;
+  padding: var(--form-space-2, 8px) var(--form-page-padding, 0.5in) var(--form-space-1, 4px);
   font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
@@ -88,38 +88,6 @@
   font-style: italic;
 }
 
-.form-sheet-header__meta-row {
-  margin-top: 0.2rem;
-  font-size: 0.84rem;
-  line-height: 1.12;
-  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-}
-
-.form-sheet-header__meta-row p {
-  margin: 0;
-}
-
-.form-sheet-header__meta-label {
-  font-weight: 800;
-}
-
-.form-sheet-header__meta-value {
-  display: inline-block;
-  min-width: 100px;
-  border-bottom: 1px solid #212121;
-  vertical-align: middle;
-  height: 1em;
-}
-
-.form-sheet-header__title {
-  margin: 0.22rem 0 0;
-  text-align: center;
-  font-size: clamp(0.86rem, 1.5vw, 1.2rem);
-  font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: 0.004em;
-  font-family: 'Arial Black', Arial, 'Helvetica Neue', Helvetica, sans-serif;
-}
 
 @media (max-width: 760px) {
   .form-sheet-header {
@@ -156,19 +124,6 @@
   .form-sheet-header__line--small {
     font-size: 0.5rem;
   }
-
-  .form-sheet-header__meta-row {
-    font-size: 0.64rem;
-  }
-
-  .form-sheet-header__meta-value {
-    min-width: 64px;
-    border-bottom-width: 1px;
-  }
-
-  .form-sheet-header__title {
-    font-size: 0.96rem;
-  }
 }
 
 @media (max-width: 640px) {
@@ -181,7 +136,4 @@
     font-size: 0.92rem;
   }
 
-  .form-sheet-header__title {
-    font-size: 0.95rem;
-  }
 }

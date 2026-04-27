@@ -21,19 +21,6 @@
   flex-direction: column;
 }
 
-.cardio-header-spacer {
-  height: 6mm;
-  flex-shrink: 0;
-}
-
-.cardio-title {
-  margin: 0 0 5mm;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  line-height: 1;
-}
 
 .cardio-top-row {
   display: flex;
@@ -206,9 +193,6 @@
     line-height: 1.25;
   }
 
-  .cardio-title {
-    font-size: 22px;
-  }
 
   .cardio-date-label {
     margin-left: 0;
@@ -282,14 +266,6 @@
     overflow: hidden !important;
   }
 
-  .cardio-header-spacer {
-    height: 6mm !important;
-  }
-
-  .cardio-title {
-    font-size: 20px !important;
-    margin: 0 0 5mm !important;
-  }
 
   .cardio-check-row,
   .cardio-line-row,

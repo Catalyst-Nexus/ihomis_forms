@@ -11,20 +11,16 @@
 
 .ballard-page {
   width: 210mm;
-  height: 297mm;
-  padding: 8mm 9mm 8mm 9mm;
+  min-height: 297mm; /* instead of height */
+  padding: 8mm 9mm;
   box-sizing: border-box;
   background: #ffffff;
-  color: #000000;
-  font-family: "Arial", "Helvetica", sans-serif;
-  font-size: 3.2mm;
-  box-shadow: 0 2mm 6mm rgba(0, 0, 0, 0.12);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .ballard-content {
-  width: 192mm;
-  height: 281mm;
-  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -153,14 +149,18 @@
 
 .ballard-chart-wrap {
   width: 100%;
-  height: auto;
-  margin-bottom: 6mm;
+  flex: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 .ballard-chart {
   width: 100%;
-  height: 200mm;
-  max-width: 192mm;
+  max-width: 100%;
+  max-height: 160mm; 
+  object-fit: contain;
 }
 
 .ballard-right {
@@ -229,13 +229,11 @@
 }
 
 .ballard-footer {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 1.5mm;
-  margin-top: auto;
-  font-style: italic;
-  font-weight: bold;
 }
 
 .ballard-default-footer{
@@ -267,22 +265,15 @@
 }
 
 @media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
-  body {
-    margin: 0;
-    background: #ffffff;
-  }
-
-  .ballard-page-wrap {
-    padding: 0;
-    background: #ffffff;
-  }
-
   .ballard-page {
-    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .ballard-chart,
+  table,
+  .ballard-info-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
