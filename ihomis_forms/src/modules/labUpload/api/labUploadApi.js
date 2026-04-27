@@ -207,6 +207,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     idSource,
     displayName,
     description,
+    rawData: source,
     contextParams: {
       enccode: identifiers.enccode || "",
       enc: identifiers.enccode || "",

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState, useMemo } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
@@ -82,111 +83,441 @@ const ThemeToggle = ({ isDarkMode, onToggle }) => (
   </button>
 );
 
-const FORMS_LIST = [
-  'ABTC Form',
-  'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form',
-  'Aldrete Score (Post Anesthesia Recovery Score) Form',
-  'Anesthesia Record',
-  'APGAR Score Form',
-  'Ballard Score',
-  'Blood Cancellation Form',
-  'Blood Request Form (Adult)',
-  'Blood Request Form (Pedia)',
-  'Blood Transfusion Reaction Registry',
-  'Blood Transfusion Sheet',
-  'BTL Consent Form',
-  'Cardio-Pulmonary Clearance Form',
-  'Certificate of No Vacancy',
-  'Certificate of Patient Ward Preference',
-  'Certificate of Ward Preference',
-  'Certification of Isolation Recommendation',
-  'Chest Tube Thoracostomy Sheet',
-  'Child Immunization Record',
-  'Claim of Cadaver',
-  'Clinical Referral Slip',
-  'Commitment to Breastfeeding',
-  'Consent to Care',
-  'Consent to Surgery and Anesthesia Form',
-  'Daily Weight and Abdominal Girth',
-  'Discharge Against Medical Advice (DAMA) / Out on Pass Form',
-  'Discharge Plan/Referral Slip',
-  'Doctor\'s Order (for pedia)',
-  'Doctor\'s Order Form',
-  'ECG TRACING',
-  'Family Planning',
-  'Histopathology/Cytology Request Form',
-  'Intake and Output Sheet',
-  'IVF Sheet',
-  'Kardex Sheet',
-  'Laboratory Request Form (outside)',
-  'Laboratory Results',
-  'Lubchenco',
-  'Medical Abstract / Discharge Summary Form',
-  'Medication Sheet',
-  'MIS Safety Checklist',
-  'Monitoring Sheet',
-  'Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old',
-  'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old',
-  'Neurologic Examination Form',
-  'Newborn Personal Information Sheet',
-  'Newborn Physical Examination Sheet',
-  'Newborn Tag',
-  'Nurse\'s Notes Form',
-  'Other Laboratory Request',
-  'Otoacoustic Emission Results',
-  'Oxygen Consumption Sheet',
-  'Pagtugot (Waiver)',
-  'Partograph',
-  'Phototherapy Form',
-  'Post Anesthesia Care Unit Nurse\'s Notes Form',
-  'Pre-Operative Checklist',
-  'Radiology Request Form (Outside)',
-  'Random Blood Sugar',
-  'Refusal to Treatment and Procedure Form',
-  'Request for Blood Compatibility Testing Form',
-  'Special Endorsements (Transient)',
-  'Sponge Count Sheet',
-  'Surgical Memorandum',
-  'Surgical Memorandum Umbi Cat',
-  'Surgical Safety Checklist',
-  'TPR Sheet',
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
-const HEADER_OVERRIDES = {
-  'ABTC Form': {
-    title: 'ABTC OUT-PATIENT RECORD',
-  },
-  'Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form': {
-    title: 'ADVANCE DIRECTIVE DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE FORM',
-  },
-  'APGAR Score Form': {
-    title: 'APGAR SCORING',
-  },
-  'Blood Cancellation Form': {
-    title: 'BLOOD CANCELLATION FORM',
-  },
-  'Discharge Plan/Referral Slip': {
-    title: 'DISCHARGE PLAN/REFERRAL SLIP',
-    subtitle: 'TO: TAKE HOME MEDICATION',
-  },
-  'Laboratory Request Form (outside)': {
-    title: 'LABORATORY REQUEST',
-  },
-  'Other Laboratory Request': {
-    title: 'OTHER LABORATORY REQUEST',
-  },
-  "Nurse's Notes Form": {
-    title: "NURSE'S NOTES",
-  },
-  'Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old': {
-    title: 'NEURO VITAL SIGNS STATUS',
-    subtitle: 'GLASGOW COMA SCALE LESS THAN 2 YEARS OLD',
-  },
-  'Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old': {
-    title: 'NEURO VITAL SIGNS STATUS',
-    subtitle: 'GLASGOW COMA SCALE',
-  },
+function toSafeString(value) {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value).trim();
+}
+
+function toTitleCase(value) {
+  return toSafeString(value).replace(/\b\w+/g, (word) => {
+    if (!word.length) {
+      return word;
+    }
+
+    return word[0].toUpperCase() + word.slice(1).toLowerCase();
+  });
+}
+
+function parseDateParts(value) {
+  const text = toSafeString(value);
+
+  if (!text) {
+    return null;
+  }
+
+  const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (isoMatch) {
+    return {
+      year: Number(isoMatch[1]),
+      month: Number(isoMatch[2]),
+      day: Number(isoMatch[3]),
+    };
+  }
+
+  const parsedDate = new Date(text);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return {
+    year: parsedDate.getFullYear(),
+    month: parsedDate.getMonth() + 1,
+    day: parsedDate.getDate(),
+  };
+}
+
+function formatDateLabel(value) {
+  const parts = parseDateParts(value);
+
+  if (!parts) {
+    return toSafeString(value);
+  }
+
+  const monthName = MONTH_NAMES[parts.month - 1];
+
+  if (!monthName) {
+    return toSafeString(value);
+  }
+
+  return `${monthName} ${parts.day}, ${parts.year}`;
+}
+
+function calculateAgeFromBirthDate(value) {
+  const parts = parseDateParts(value);
+
+  if (!parts) {
+    return "";
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - parts.year;
+
+  const hasHadBirthdayThisYear =
+    today.getMonth() + 1 > parts.month ||
+    (today.getMonth() + 1 === parts.month && today.getDate() >= parts.day);
+
+  if (!hasHadBirthdayThisYear) {
+    age -= 1;
+  }
+
+  if (!Number.isFinite(age) || age < 0) {
+    return "";
+  }
+
+  return `${age} year(s)`;
+}
+
+function normalizeSexValue(value) {
+  const normalized = toSafeString(value).toLowerCase();
+
+  if (!normalized) {
+    return {
+      code: "",
+      label: "",
+    };
+  }
+
+  if (["f", "female", "woman", "girl"].includes(normalized)) {
+    return {
+      code: "F",
+      label: "Female",
+    };
+  }
+
+  if (["m", "male", "man", "boy"].includes(normalized)) {
+    return {
+      code: "M",
+      label: "Male",
+    };
+  }
+
+  const fallback = normalized.toUpperCase();
+
+  return {
+    code: fallback,
+    label: toTitleCase(fallback),
+  };
+}
+
+function normalizeCivilStatusValue(value) {
+  const code = toSafeString(value).toUpperCase();
+
+  if (!code) {
+    return {
+      code: "",
+      label: "",
+    };
+  }
+
+  const labels = {
+    S: "Single",
+    M: "Married",
+    W: "Widowed",
+    D: "Divorced",
+    SEP: "Separated",
+    A: "Annulled",
+  };
+
+  return {
+    code,
+    label: labels[code] || toTitleCase(code),
+  };
+}
+
+function normalizeNationalityValue(value) {
+  const code = toSafeString(value).toUpperCase();
+
+  if (!code) {
+    return {
+      code: "",
+      label: "",
+    };
+  }
+
+  const labels = {
+    FILIP: "Filipino",
+    FILIPINO: "Filipino",
+  };
+
+  return {
+    code,
+    label: labels[code] || toTitleCase(code),
+  };
+}
+
+function normalizeReligionValue(value) {
+  const code = toSafeString(value).toUpperCase();
+
+  if (!code) {
+    return {
+      code: "",
+      label: "",
+    };
+  }
+
+  const labels = {
+    CATHO: "Catholic",
+    CATHOLIC: "Catholic",
+  };
+
+  return {
+    code,
+    label: labels[code] || toTitleCase(code),
+  };
+}
+
+function buildPatientAddress(rawPatient) {
+  const addressParts = [
+    rawPatient?.street,
+    rawPatient?.brgy_name || rawPatient?.barangay || rawPatient?.brgyName,
+    rawPatient?.city_name || rawPatient?.city || rawPatient?.cityName,
+    rawPatient?.province_name || rawPatient?.province || rawPatient?.provinceName,
+    rawPatient?.region_name || rawPatient?.region || rawPatient?.regionName,
+    rawPatient?.zip_code || rawPatient?.zipCode || rawPatient?.postalCode,
+  ]
+    .map(toSafeString)
+    .filter(Boolean);
+
+  return addressParts.join(", ");
+}
+
+function buildPatientFullName(rawPatient, requestPatient = {}) {
+  const firstName = toSafeString(
+    rawPatient?.first_name || rawPatient?.firstName || requestPatient.firstName,
+  );
+  const middleName = toSafeString(
+    rawPatient?.middle_name || rawPatient?.middleName || requestPatient.middleName,
+  );
+  const lastName = toSafeString(
+    rawPatient?.last_name || rawPatient?.lastName || requestPatient.lastName,
+  );
+  const extName = toSafeString(rawPatient?.ext_name || rawPatient?.extName);
+
+  return [firstName, middleName, lastName, extName].filter(Boolean).join(" ");
+}
+
+function buildPatientFormData(selectedPatient) {
+  const rawPatient = selectedPatient?.rawData || selectedPatient || {};
+  const contextParams = selectedPatient?.contextParams || {};
+  const requestPatient = selectedPatient?.requestContext?.patient || {};
+
+  const fullName = buildPatientFullName(rawPatient, requestPatient);
+  const sex = normalizeSexValue(
+    rawPatient.sex || rawPatient.sex_code || rawPatient.sexCode || requestPatient.sex,
+  );
+  const civilStatus = normalizeCivilStatusValue(
+    rawPatient.civil_status_code ||
+      rawPatient.civilStatusCode ||
+      rawPatient.civil_status ||
+      rawPatient.civilStatus,
+  );
+  const nationality = normalizeNationalityValue(
+    rawPatient.nationality_code ||
+      rawPatient.nationalityCode ||
+      rawPatient.nationality ||
+      rawPatient.nationality_name,
+  );
+  const religion = normalizeReligionValue(
+    rawPatient.religion_code ||
+      rawPatient.religionCode ||
+      rawPatient.religion ||
+      rawPatient.religion_name,
+  );
+  const birthDateValue =
+    rawPatient.birth_date ||
+    rawPatient.birthDate ||
+    rawPatient.birthdate ||
+    rawPatient.dob ||
+    "";
+  const birthDateLabel = formatDateLabel(birthDateValue);
+  const contactNumber = toSafeString(
+    rawPatient.contact_number || rawPatient.contactNumber,
+  );
+  const hospitalNo = toSafeString(
+    rawPatient.hpercode || rawPatient.id || selectedPatient?.id || contextParams.hpercode || contextParams.enccode,
+  );
+  const caseNumber = toSafeString(
+    rawPatient.case_num ||
+      rawPatient.caseNum ||
+      rawPatient.case_number ||
+      contextParams.caseNum ||
+      contextParams.caseNo ||
+      contextParams.docointkey,
+  );
+  const address = buildPatientAddress(rawPatient);
+
+  return {
+    ...rawPatient,
+    ...contextParams,
+    id: hospitalNo,
+    hpercode: hospitalNo,
+    hospitalNo,
+    hospitalNumber: hospitalNo,
+    caseNum: caseNumber,
+    caseNo: caseNumber,
+    displayName: fullName || selectedPatient?.displayName || "",
+    fullName: fullName || selectedPatient?.displayName || "",
+    patientName: fullName || selectedPatient?.displayName || "",
+    firstName: toSafeString(
+      rawPatient.first_name || rawPatient.firstName || requestPatient.firstName,
+    ),
+    middleName: toSafeString(
+      rawPatient.middle_name || rawPatient.middleName || requestPatient.middleName,
+    ),
+    lastName: toSafeString(
+      rawPatient.last_name || rawPatient.lastName || requestPatient.lastName,
+    ),
+    extName: toSafeString(rawPatient.ext_name || rawPatient.extName),
+    sex: sex.code,
+    sexCode: sex.code,
+    sexLabel: sex.label,
+    birthDateISO: toSafeString(birthDateValue),
+    birthdate: birthDateLabel,
+    birthDate: birthDateLabel,
+    dob: birthDateLabel,
+    birthPlace: toSafeString(
+      rawPatient.birth_place || rawPatient.birthPlace || "",
+    ),
+    age: calculateAgeFromBirthDate(birthDateValue),
+    ageYears: calculateAgeFromBirthDate(birthDateValue),
+    civilStatus: civilStatus.label,
+    civilStatusCode: civilStatus.code,
+    civilStatusLabel: civilStatus.label,
+    nationality: nationality.label,
+    nationalityCode: nationality.code,
+    religion: religion.label,
+    religionCode: religion.code,
+    address,
+    street: toSafeString(rawPatient.street || rawPatient.street_name || ""),
+    barangay: toSafeString(
+      rawPatient.brgy_name || rawPatient.barangay || rawPatient.brgyName || "",
+    ),
+    city: toSafeString(rawPatient.city_name || rawPatient.city || rawPatient.cityName || ""),
+    province: toSafeString(
+      rawPatient.province_name ||
+        rawPatient.province ||
+        rawPatient.provinceName ||
+        "",
+    ),
+    region: toSafeString(
+      rawPatient.region_name || rawPatient.region || rawPatient.regionName || "",
+    ),
+    zipCode: toSafeString(rawPatient.zip_code || rawPatient.zipCode || rawPatient.postalCode || ""),
+    telNo: contactNumber,
+    contactNo: contactNumber,
+    contactNumber,
+    facilityCode: toSafeString(
+      rawPatient.facility_code || rawPatient.facilityCode || contextParams.fhud,
+    ),
+    facilityName: toSafeString(
+      rawPatient.facility_name || rawPatient.facilityName || "",
+    ),
+    occupation: toSafeString(rawPatient.occupation || ""),
+    indigenous: toSafeString(rawPatient.indigenous || ""),
+    srCitizen: toSafeString(rawPatient.srCitizen || rawPatient.seniorCitizen || ""),
+    patientRecord: rawPatient,
+  };
+}
+
+ThemeToggle.propTypes = {
+  isDarkMode: PropTypes.bool,
+  onToggle: PropTypes.func,
 };
+
+const FORMS_LIST = [
+  "ABTC Form",
+  "ABTC Treatment Record",
+  "Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form",
+  "Aldrete Score (Post Anesthesia Recovery Score) Form",
+  "Anesthesia Record",
+  "APGAR Score Form",
+  "Ballard Score",
+  "Blood Cancellation Form",
+  "Blood Request Form (Adult)",
+  "Blood Request Form (Pedia)",
+  "Blood Transfusion Reaction Registry",
+  "Blood Transfusion Sheet",
+  "BTL Consent Form",
+  "Cardio-Pulmonary Clearance Form",
+  "Certificate of No Vacancy",
+  "Certificate of Patient Ward Preference",
+  "Certificate of Ward Preference",
+  "Certification of Isolation Recommendation",
+  "Chest Tube Thoracostomy Sheet",
+  "Child Immunization Record",
+  "Claim of Cadaver",
+  "Clinical Referral Slip",
+  "Commitment to Breastfeeding",
+  "Consent to Care",
+  "Consent to Surgery and Anesthesia Form",
+  "Daily Weight and Abdominal Girth",
+  "Discharge Against Medical Advice (DAMA) / Out on Pass Form",
+  "Discharge Plan/Referral Slip",
+  "Doctor's Order (for pedia)",
+  "Doctor's Order Form",
+  "ECG TRACING",
+  "Family Planning",
+  "Histopathology/Cytology Request Form",
+  "Intake and Output Sheet",
+  "IVF Sheet",
+  "Kardex Sheet",
+  "Laboratory Request Form (outside)",
+  "Laboratory Results",
+  "Lubchenco",
+  "Medical Abstract / Discharge Summary Form",
+  "Medication Sheet",
+  "MIS Safety Checklist",
+  "Monitoring Sheet",
+  "Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old",
+  "Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old",
+  "Neurologic Examination Form",
+  "Newborn Personal Information Sheet",
+  "Newborn Physical Examination Sheet",
+  "Newborn Tag",
+  "Nurse's Notes Form",
+  "Other Laboratory Request",
+  "Otoacoustic Emission Results",
+  "Oxygen Consumption Sheet",
+  "Pagtugot (Waiver)",
+  "Partograph",
+  "Phototherapy Form",
+  "Post Anesthesia Care Unit Nurse's Notes Form",
+  "Pre-Operative Checklist",
+  "Radiology Request Form (Outside)",
+  "Random Blood Sugar",
+  "Refusal to Treatment and Procedure Form",
+  "Request for Blood Compatibility Testing Form",
+  "Special Endorsements (Transient)",
+  "Sponge Count Sheet",
+  "Surgical Memorandum",
+  "Surgical Memorandum Umbi Cat",
+  "Surgical Safety Checklist",
+  "TPR Sheet",
+];
 
 export default function Forms({
   isDarkMode,
@@ -196,11 +527,12 @@ export default function Forms({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
-  const patientName = selectedPatient?.displayName || "DOE, JHON";
-  const patientData = {
-    ...(selectedPatient?.contextParams || {}),
-    hpercode: selectedPatient?.id || "",
-  };
+  const patientData = useMemo(
+    () => buildPatientFormData(selectedPatient),
+    [selectedPatient],
+  );
+  const patientName =
+    patientData.fullName || selectedPatient?.displayName || "DOE, JHON";
 
   const filteredForms = useMemo(() => {
     if (!searchTerm) return FORMS_LIST;
@@ -227,24 +559,18 @@ export default function Forms({
     }
   };
 
-  const getHeaderConfig = (formName) => {
-    const override = HEADER_OVERRIDES[formName] || {};
-    const baseTitle = override.title || formName || '';
-
-    return {
-      formNo: '',
-      revised: '',
-      title: override.title ? override.title : baseTitle.toUpperCase(),
-      subtitle: override.subtitle || '',
-      leftLogoSrc: '',
-      rightLogoSrc: '',
-    };
-  };
+  const getHeaderConfig = (formName) => ({
+    formNo: "",
+    revised: "",
+    title: (formName || "").toUpperCase(),
+    leftLogoSrc: "",
+    rightLogoSrc: "",
+  });
 
   const renderFormBody = (formName) => {
     const formRendererMap = {
       "Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form":
-        () => <DNRForm patientName={patientName} />,
+        () => <DNRForm patientName={patientName} patientData={patientData} />,
     };
 
     const renderer = formRendererMap[formName];
@@ -257,31 +583,50 @@ export default function Forms({
       );
     }
     if (formName === "APGAR Score Form") {
-      return <ApgarScoring />;
+      return <ApgarScoring patientName={patientName} patientData={patientData} />;
     }
     if (formName === "BTL Consent Form") {
-      return <BTLConsent />;
+      return <BTLConsent patientName={patientName} patientData={patientData} />;
     }
     if (formName === "Cardio-Pulmonary Clearance Form") {
       return <CardioPulmonaryClearance />;
     }
     if (formName === "Blood Cancellation Form") {
-      return <BloodCancellation />;
+      return (
+        <BloodCancellation patientName={patientName} patientData={patientData} />
+      );
     }
     if (formName === "Blood Request Form (Adult)") {
-      return <BloodRequestAdult />;
+      return (
+        <BloodRequestAdult patientName={patientName} patientData={patientData} />
+      );
     }
     if (formName === "Blood Request Form (Pedia)") {
-      return <BloodRequestPediatric />;
+      return (
+        <BloodRequestPediatric
+          patientName={patientName}
+          patientData={patientData}
+        />
+      );
     }
     if (formName === "Blood Transfusion Reaction Registry") {
-      return <BloodTransfusionReactionRegistry />;
+      return (
+        <BloodTransfusionReactionRegistry
+          patientName={patientName}
+          patientData={patientData}
+        />
+      );
     }
     if (formName === "ABTC Form") {
-      return <Abtcform />;
+      return <Abtcform patientName={patientName} patientData={patientData} />;
     }
     if (formName === "Blood Transfusion Sheet") {
-      return <BloodTransfusionSheet />;
+      return (
+        <BloodTransfusionSheet
+          patientName={patientName}
+          patientData={patientData}
+        />
+      );
     }
     if (formName === "Clinical Referral Slip") {
       return <ClinicalReferralSlip patientName={patientName} />;
@@ -752,7 +1097,7 @@ export default function Forms({
         </table>
         {filteredForms.length === 0 && (
           <div className="no-results">
-            <p>No forms found matching "{searchTerm}"</p>
+            <p>No forms found matching &quot;{searchTerm}&quot;</p>
           </div>
         )}
       </div>
@@ -767,3 +1112,13 @@ export default function Forms({
     </div>
   );
 }
+
+Forms.propTypes = {
+  isDarkMode: PropTypes.bool,
+  setIsDarkMode: PropTypes.func,
+  selectedPatient: PropTypes.shape({
+    displayName: PropTypes.string,
+    id: PropTypes.string,
+    contextParams: PropTypes.object,
+  }),
+};
