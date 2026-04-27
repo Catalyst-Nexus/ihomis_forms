@@ -12,7 +12,10 @@ const LAB_UPLOAD_CONTEXT_URL = (
 ).trim();
 
 const LAB_UPLOAD_PATIENT_SEARCH_URL = (
-  import.meta.env.VITE_LAB_PATIENT_SEARCH_URL || LAB_UPLOAD_CONTEXT_URL
+  import.meta.env.VITE_LAB_PATIENT_SEARCH_URL ||
+  (API_BASE_URL
+    ? `${API_BASE_URL.replace(/\/+$/, "")}/api/db/patients`
+    : LAB_UPLOAD_CONTEXT_URL)
 ).trim();
 
 const LAB_UPLOAD_API_TOKEN = (
@@ -22,6 +25,7 @@ const LAB_UPLOAD_API_TOKEN = (
 const defaultRequestContext = {
   panelName: "Laboratory Request",
   requestedAt: "",
+  user: "",
   identifiers: {
     enccode: "",
     fhud: "",

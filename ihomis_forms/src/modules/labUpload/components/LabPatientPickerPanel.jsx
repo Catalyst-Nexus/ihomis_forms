@@ -45,6 +45,32 @@ PatientAvatar.propTypes = {
 
 function PatientCard({ patient, isSelected, onSelect }) {
   const { displayName, id, description } = patient;
+  const contextParams = patient.contextParams || {};
+
+  let idType = "ID";
+  if ((patient.idSource || "").toLowerCase() === "enc") {
+    idType = "ENC";
+  } else if ((patient.idSource || "").toLowerCase() === "fhud") {
+    idType = "FHUD";
+  } else if ((patient.idSource || "").toLowerCase() === "user") {
+    idType = "USER";
+  } else if (contextParams.enccode && id === contextParams.enccode) {
+    idType = "ENC";
+  } else if (contextParams.fhud && id === contextParams.fhud) {
+    idType = "FHUD";
+  } else if (contextParams.user && id === contextParams.user) {
+    idType = "USER";
+  }
+
+  const idTypeClassName =
+    idType === "ENC"
+      ? "pk-id-source pk-id-source--enc"
+      : idType === "FHUD"
+        ? "pk-id-source pk-id-source--fhud"
+        : idType === "USER"
+          ? "pk-id-source pk-id-source--user"
+          : "pk-id-source";
+
   return (
     <button
       type="button"
@@ -74,6 +100,7 @@ function PatientCard({ patient, isSelected, onSelect }) {
 
         <div className="pk-card-meta">
           <code className="pk-card-id">{id}</code>
+          <span className={idTypeClassName}>{idType}</span>
           {description && <span className="pk-card-desc">{description}</span>}
         </div>
       </div>
@@ -84,12 +111,15 @@ function PatientCard({ patient, isSelected, onSelect }) {
 PatientCard.propTypes = {
   patient: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    idSource: PropTypes.string,
     displayName: PropTypes.string.isRequired,
     description: PropTypes.string,
     contextParams: PropTypes.shape({
+      enc: PropTypes.string,
       enccode: PropTypes.string,
       fhud: PropTypes.string,
       docointkey: PropTypes.string,
+      user: PropTypes.string,
     }),
   }).isRequired,
   isSelected: PropTypes.bool.isRequired,
@@ -179,6 +209,9 @@ function LabPatientPickerPanel({
   onConfirmSelection,
   onNextPage,
   onPreviousPage,
+  title,
+  subtitle,
+  confirmLabel,
 }) {
   const hasSelection = Boolean(selectedPatientId);
 
@@ -204,10 +237,8 @@ function LabPatientPickerPanel({
           </svg>
         </div>
         <div className="pk-header-text">
-          <h2 className="pk-header-title">Select Patient Before Upload</h2>
-          <p className="pk-header-sub">
-            Choose whose laboratory result you are uploading.
-          </p>
+          <h2 className="pk-header-title">{title}</h2>
+          <p className="pk-header-sub">{subtitle}</p>
         </div>
         {hasSelection && (
           <button
@@ -228,7 +259,7 @@ function LabPatientPickerPanel({
                 clipRule="evenodd"
               />
             </svg>
-            Continue to Lab Upload
+            {confirmLabel}
           </button>
         )}
       </div>
@@ -388,12 +419,15 @@ LabPatientPickerPanel.propTypes = {
   patients: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
+      idSource: PropTypes.string,
       displayName: PropTypes.string.isRequired,
       description: PropTypes.string,
       contextParams: PropTypes.shape({
+        enc: PropTypes.string,
         enccode: PropTypes.string,
         fhud: PropTypes.string,
         docointkey: PropTypes.string,
+        user: PropTypes.string,
       }),
     }),
   ).isRequired,
@@ -409,6 +443,15 @@ LabPatientPickerPanel.propTypes = {
   onConfirmSelection: PropTypes.func.isRequired,
   onNextPage: PropTypes.func.isRequired,
   onPreviousPage: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  confirmLabel: PropTypes.string,
+};
+
+LabPatientPickerPanel.defaultProps = {
+  title: "Select Patient Before Upload",
+  subtitle: "Choose whose laboratory result you are uploading.",
+  confirmLabel: "Continue to Lab Upload",
 };
 
 export default LabPatientPickerPanel;

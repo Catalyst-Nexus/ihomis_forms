@@ -1,3 +1,5 @@
+import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
+
 function parseResponsePayload(responseText) {
   if (!responseText) {
     return null;
@@ -134,13 +136,47 @@ function createFileKey(file) {
 function buildPatientCandidate(source, fallbackIndex = 0) {
   const requestContext = resolveRequestContext(source);
   const identifiers = requestContext.identifiers || {};
+  const resolvedUser = requestContext.user || "";
 
-  const id =
-    identifiers.enccode ||
-    source?.hpercode ||
-    source?.id ||
-    [identifiers.fhud, identifiers.docointkey].filter(Boolean).join("|") ||
-    `candidate-${fallbackIndex}`;
+  let id = "";
+  let idSource = "";
+
+  if (identifiers.enccode) {
+    id = identifiers.enccode;
+    idSource = "enc";
+  } else if (source?.hpercode) {
+    id = String(source.hpercode).trim();
+    idSource = "enc";
+  } else if (source?.id) {
+    id = String(source.id).trim();
+
+    if (identifiers.enccode && id === identifiers.enccode) {
+      idSource = "enc";
+    } else if (identifiers.fhud && id === identifiers.fhud) {
+      idSource = "fhud";
+    } else if (resolvedUser && id === resolvedUser) {
+      idSource = "user";
+    }
+  } else if (identifiers.fhud) {
+    id = identifiers.fhud;
+    idSource = "fhud";
+  } else if (resolvedUser) {
+    id = resolvedUser;
+    idSource = "user";
+  } else {
+    const fallbackComposite = [identifiers.fhud, identifiers.docointkey]
+      .filter(Boolean)
+      .join("|");
+
+    if (fallbackComposite) {
+      id = fallbackComposite;
+      idSource = identifiers.fhud ? "fhud" : "";
+    }
+  }
+
+  if (!id) {
+    id = `candidate-${fallbackIndex}`;
+  }
 
   const fullName = [
     requestContext.patient?.firstName,
@@ -168,12 +204,15 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
 
   return {
     id,
+    idSource,
     displayName,
     description,
     contextParams: {
       enccode: identifiers.enccode || "",
+      enc: identifiers.enccode || "",
       fhud: identifiers.fhud || identifiers.facility_code || "",
       docointkey: identifiers.docointkey || "",
+      user: resolvedUser,
     },
     requestContext,
   };
@@ -305,13 +344,19 @@ const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
   "hpercode",
   "id",
   "enccode",
+  "enc",
   "data.0.enccode",
+  "data.0.enc",
   "data.enccode",
+  "data.enc",
   "data.hpercode",
   "data.id",
   "request.enccode",
+  "request.enc",
   "context.enccode",
+  "context.enc",
   "metadata.enccode",
+  "metadata.enc",
 ]);
 
 const facilityRefKeys = parseKeyList("VITE_LAB_CONTEXT_FHUD_KEYS", [
@@ -334,6 +379,29 @@ const docointkeyKeys = parseKeyList("VITE_LAB_CONTEXT_DOCOINTKEY_KEYS", [
   "metadata.docointkey",
 ]);
 
+const userKeys = parseKeyList("VITE_LAB_CONTEXT_USER_KEYS", [
+  "user",
+  "userid",
+  "username",
+  "account",
+  "data.user",
+  "data.userid",
+  "data.username",
+  "data.account",
+  "request.user",
+  "request.userid",
+  "request.username",
+  "request.account",
+  "context.user",
+  "context.userid",
+  "context.username",
+  "context.account",
+  "metadata.user",
+  "metadata.userid",
+  "metadata.username",
+  "metadata.account",
+]);
+
 export function resolveRequestContext(payload) {
   if (!payload || typeof payload !== "object") {
     return {
@@ -354,6 +422,8 @@ export function resolveRequestContext(payload) {
     docointkey: resolveFirstString(payload, docointkeyKeys),
   };
 
+  const user = resolveFirstString(payload, userKeys);
+
   const panelName = resolveFirstString(payload, panelNameKeys);
 
   const requestedAt = resolveFirstString(payload, requestedAtKeys);
@@ -368,6 +438,7 @@ export function resolveRequestContext(payload) {
     firstName ||
     middleName ||
     lastName ||
+    user ||
     identifiers.enccode ||
     identifiers.fhud ||
     identifiers.docointkey,
@@ -377,6 +448,7 @@ export function resolveRequestContext(payload) {
     panelName,
     requestedAt,
     identifiers,
+    user,
     patient: {
       firstName,
       middleName,
@@ -405,11 +477,14 @@ export async function fetchLabPatientCandidates({
     };
   }
 
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
+  const resolvedUser = user || normalizedContextParams.user || "";
+
   const requestUrl = buildRequestUrl(searchUrl, {
-    ...contextParams,
+    ...normalizedContextParams,
     search,
     q: search,
-    user,
+    user: resolvedUser,
     limit,
     offset,
   });
@@ -451,6 +526,14 @@ export async function fetchLabPatientCandidates({
         row.hpercode ||
         row.id ||
         `candidate-${index + 1}`;
+
+      if (candidate.requestContext?.identifiers?.enccode === candidate.id) {
+        candidate.idSource = "enc";
+      } else if (candidate.requestContext?.identifiers?.fhud === candidate.id) {
+        candidate.idSource = "fhud";
+      } else if (candidate.requestContext?.user === candidate.id) {
+        candidate.idSource = "user";
+      }
     }
 
     if (!dedupedCandidates.has(candidate.id)) {
@@ -484,7 +567,8 @@ export async function fetchLabRequestContext({
     };
   }
 
-  const requestUrl = buildRequestUrl(contextUrl, contextParams);
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
+  const requestUrl = buildRequestUrl(contextUrl, normalizedContextParams);
   const headers = {};
 
   if (token) {
@@ -516,8 +600,17 @@ export async function uploadLabResult({
   remarks,
   contextParams,
 }) {
+  const normalizedContextParams = normalizeLabContextParams(contextParams);
   const payload = new FormData();
   payload.append("resultFile", resultFile);
+
+  ["enccode", "enc", "fhud", "docointkey", "user"].forEach((key) => {
+    const value = normalizedContextParams[key];
+
+    if (typeof value === "string" && value.trim()) {
+      payload.append(key, value.trim());
+    }
+  });
 
   if (remarks?.trim()) {
     payload.append("remarks", remarks.trim());
@@ -528,7 +621,7 @@ export async function uploadLabResult({
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const requestUrl = buildRequestUrl(uploadUrl, contextParams);
+  const requestUrl = buildRequestUrl(uploadUrl, normalizedContextParams);
   const response = await fetch(requestUrl, {
     method: "POST",
     headers,
