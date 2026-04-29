@@ -3,34 +3,10 @@ import "./BloodCancellation.css";
 export default function BloodCancellation() {
 	return (
 		<div className="blood-cancel-page">
-			<div className="blood-cancel-form-meta">
-				<div className="blood-cancel-meta-item">
-					FORM NO.: <span className="blood-cancel-meta-line" />
-				</div>
-				<div className="blood-cancel-meta-item">
-					Revised: <span className="blood-cancel-meta-line blood-cancel-meta-line--short" />
-				</div>
-			</div>
+			
 
-			<div className="blood-cancel-header-row">
-				<div className="blood-cancel-logo" aria-hidden="true" />
-				<div className="blood-cancel-header-center">
-					<div className="blood-cancel-country">Republic of the Philippines</div>
-					<div className="blood-cancel-province">Provincial Health Office</div>
-					<div className="blood-cancel-hospital">AGUSAN DEL NORTE PROVINCIAL HOSPITAL</div>
-					<div className="blood-cancel-address">
-						VILLAGE II, BRGY. LIBERTAD, BUTUAN CITY (Capital) AGUSAN DEL NORTE CARAGA
-					</div>
-					<div className="blood-cancel-contact">Contact no: 085-817-3390</div>
-				</div>
-				<div className="blood-cancel-logo" aria-hidden="true" />
-			</div>
-
-			{/* Header */}
-			<div className="blood-cancel-header">
-				<p className="blood-cancel-header-title">BLOOD CANCELATION FORM</p>
-			</div>
-
+			<br>
+			</br>
 			{/* Meta block */}
 			<div className="blood-cancel-meta-block">
 				<div className="blood-cancel-meta-row">

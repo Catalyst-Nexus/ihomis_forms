@@ -6,13 +6,7 @@ export default function BTLConsent() {
 			<div className="btl-consent-main">
 				<div className="btl-header-spacer" aria-hidden="true" />
 
-				<div className="btl-form-meta">
-					<div>FORM NO.:___________</div>
-					<div>Revised.:___________</div>
-				</div>
-
-				<h2 className="btl-consent-title">BTL Consent Form</h2>
-
+                  <br></br>
 				<div className="btl-copy-block">
 					<p>
 						Ako si MATILOS , EUGENIA MAMBA, sakto sa edad nga maoy nagpapirma sa ubos, nagahangyo nga

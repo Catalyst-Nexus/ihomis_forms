@@ -6,8 +6,7 @@ export default function CardioPulmonaryClearance() {
       <div className="cardio-clearance-main">
         <div className="cardio-header-spacer" aria-hidden="true" />
 
-        <h2 className="cardio-title">CARDIO-PULMONARY CLEARANCE</h2>
-
+        <br></br>
         <div className="cardio-top-row">
           <span className="cardio-label">Case Number:</span>
           <span>ADM-2026-010617</span>

@@ -3,33 +3,11 @@ import "./DNRForm.css";
 export default function DNRForm() {
 	return (
 		<div className="dnr-page">
-			<div className="dnr-form-meta">
-				<div>FORM NO.: __________________</div>
-				<div>Revised: ________________</div>
-			</div>
+			
 
-			<div className="dnr-header-row">
-				<div className="dnr-logo" aria-hidden="true" />
-				<div className="dnr-header-center">
-					<div className="dnr-country">Republic of the Philippines</div>
-					<div className="dnr-province">Provincial Health Office</div>
-					<div className="dnr-hospital">AGUSAN DEL NORTE PROVINCIAL HOSPITAL</div>
-					<div className="dnr-address">
-						VILLAGE II, BRGY. LIBERTAD, BUTUAN CITY (Capital) AGUSAN DEL NORTE CARAGA
-					</div>
-					<div className="dnr-contact">Contact no: 085-817-3390</div>
-				</div>
-				<div className="dnr-logo" aria-hidden="true" />
-			</div>
 
-			{/* Header */}
-			<div className="dnr-header">
-				<p className="dnr-header-title">
-					ADVANCE DIRECTIVE<br />
-					DO NOT RESUSCITATE (DNR) / DO NOT INTUBATE FORM
-				</p>
-			</div>
 
+        <br></br>
 			{/* Intro */}
 			<p className="dnr-intro">
 				I understand that effective today, emergency care for patient MATILOS , EUGENIA MAMBA will be limited

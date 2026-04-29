@@ -7,9 +7,7 @@ export default function BloodTransfusionReactionRegistry() {
       {/* ═══════════════ PAGE 1 ═══════════════ */}
       <div className="btrr-page">
         <div className="btrr-header-spacer" />
-        <div className="btrr-header">
-          <p className="btrr-title-main">Blood Transfusion Reaction Registry</p>
-        </div>
+       <br></br>
 
         {/* META TOP */}
         <div className="btrr-meta-section">
