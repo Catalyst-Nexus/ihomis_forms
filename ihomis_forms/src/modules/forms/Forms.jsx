@@ -71,14 +71,52 @@ import DoctorsOrderPedia from "./DoctorsOrderPedia";
 import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
 import AldreteScore from "./AldreteScore";
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle
+        cx="12"
+        cy="12"
+        r="4.25"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+      />
+      <path
+        d="M12 2.5v2.25M12 19.25V21.5M4.5 12H2.25M21.75 12H19.5M6.05 6.05 4.45 4.45M19.55 19.55l-1.6-1.6M17.95 6.05l1.6-1.6M4.45 19.55l1.6-1.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M15.8 17.3A7.8 7.8 0 0 1 6.7 8.2a8.2 8.2 0 1 0 9.1 9.1Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
+    type="button"
     className="theme-toggle"
     onClick={onToggle}
     aria-label="Toggle dark mode"
+    aria-pressed={isDarkMode}
     title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
   >
-    {isDarkMode ? "☀️" : "🌙"}
+    {isDarkMode ? <SunIcon /> : <MoonIcon />}
   </button>
 );
 
@@ -619,7 +657,7 @@ export default function Forms({
   );
 
   return (
-    <div className="forms-container">
+    <div className="forms-container" data-theme={isDarkMode ? "dark" : "light"}>
       <div className="forms-header">
         <div className="header-top">
           <div className="patient-info">
@@ -628,7 +666,7 @@ export default function Forms({
           </div>
           <ThemeToggle
             isDarkMode={isDarkMode}
-            onToggle={() => setIsDarkMode(!isDarkMode)}
+            onToggle={() => setIsDarkMode((current) => !current)}
           />
         </div>
       </div>

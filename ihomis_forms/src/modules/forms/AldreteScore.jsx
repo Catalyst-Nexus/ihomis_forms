@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./AldreteScore.css";
 
 export default function AldreteScore({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
+  const name = patientName;
 
   const { dateTimeStr, generatedOn } = useMemo(() => {
     const now = new Date();
