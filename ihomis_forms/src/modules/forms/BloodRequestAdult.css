@@ -1,8 +1,8 @@
 /* ─── WRAPPER ─────────────────────────────────────────────── */
-.brf-wrap {
+.brf-document {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 20px;
 }
 
 /* ─── PAGE ────────────────────────────────────────────────── */
@@ -14,174 +14,192 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.98rem;
   line-height: 1.35;
-  color: var(--text-primary, #1a1a1a);
-  border: 1px solid var(--border-color, #ddd);
+  color: #1a1a1a;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: var(--bg-primary, #fff);
-  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.5rem;
 }
 
-/* ─── HEADER ──────────────────────────────────────────────── */
+/* ─── HEADER SPACER ───────────────────────────────────────── */
 .brf-header-spacer {
   height: 1rem;
+  flex-shrink: 0;
 }
 
-.brf-header {
-  text-align: center;
-  margin-bottom: 1rem;
+/* ─── PATIENT INFO BLOCK ──────────────────────────────────── */
+.brf-patient-info {
+  border: 1px solid #000;
+  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.4rem;
+  flex-shrink: 0;
 }
 
-.brf-title-main {
-  font-size: 1.12rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.3px;
-}
-
-.brf-title-sub {
-  font-size: 1.04rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-/* ─── META ────────────────────────────────────────────────── */
-.brf-meta-section {
-  margin-bottom: 0.15rem;
-}
-
-.brf-meta-row {
+.brf-info-row {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
-.brf-meta-cell {
+.brf-info-cell {
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
-  margin-right: 1rem;
+  gap: 3px;
 }
 
-.brf-meta-cell--wide {
-  min-width: 260px;
+.brf-cell-wide  { width: 100%; }
+.brf-cell-flex2 { flex: 2; }
+.brf-cell-flex3 { flex: 3; }
+.brf-cell-fixed { flex: 0 0 auto; min-width: 80px; }
+
+.brf-impression-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.brf-meta-cell--rest {
-  flex: 1;
-}
-
+/* ─── LABELS & VALUES ─────────────────────────────────────── */
 .brf-label {
   font-weight: 700;
   white-space: nowrap;
   font-size: 0.98rem;
 }
 
-/* ─── INLINE ROWS ─────────────────────────────────────────── */
-.brf-inline-row {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-  margin-bottom: 1px;
-}
-
-.brf-ml4  { margin-left: 0.25rem; }
-.brf-ml8  { margin-left: 0.6rem; }
-
-.brf-indent-where {
-  padding-left: 11.8rem;
-}
-
-/* ─── UNDERLINES ──────────────────────────────────────────── */
-.brf-line {
-  display: inline-block;
-  border-bottom: 1px solid #000;
-  vertical-align: bottom;
-  flex-shrink: 0;
-}
-
-.brf-line--sm   { width: 70px; }
-.brf-line--md   { width: 130px; }
-.brf-line--fill { flex: 1; min-width: 60px; }
-.brf-line--sig  { width: 190px; display: block; }
-.brf-line--full { flex: 1; display: inline-block; }
-
-/* ─── GAPS ────────────────────────────────────────────────── */
-.brf-gap     { height: 0.6rem; }
-.brf-gap-sm  { height: 0.3rem; }
-.brf-gap--tall { height: 1.8rem; }
-
-/* ─── SECTION HEADING ─────────────────────────────────────── */
-.brf-section-heading {
-  font-weight: 700;
-  font-size: 1rem;
-  margin: 0 0 0.15rem 0;
-  text-decoration: underline;
-}
-
-/* ─── COMPONENT ROWS ──────────────────────────────────────── */
-.brf-comp-row {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 0.08rem;
-  flex-wrap: wrap;
+.brf-value {
   font-size: 0.98rem;
 }
 
-.brf-chk {
-  white-space: nowrap;
+.brf-underline-value {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  min-width: 40px;
+}
+
+/* ─── UNDERLINE BLANKS ────────────────────────────────────── */
+.brf-underline-blank {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+}
+
+.brf-blank-sm   { width: 60px; }
+.brf-blank-md   { width: 120px; }
+.brf-blank-lg   { width: 200px; }
+.brf-blank-full { flex: 1; min-width: 80px; }
+
+/* ─── HISTORY / TYPE ROW ──────────────────────────────────── */
+.brf-history-row,
+.brf-type-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0.2rem;
   flex-shrink: 0;
 }
 
-/* ─── ITEM ROWS (sub-items) ───────────────────────────────── */
-.brf-item-row {
+/* ─── SECTION HEADER ──────────────────────────────────────── */
+.brf-section-header {
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: underline;
+  margin-bottom: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* ─── CHECKBOX ────────────────────────────────────────────── */
+.brf-checkbox {
+  white-space: nowrap;
+  margin-right: 0.3rem;
+}
+
+/* ─── COMPONENT BLOCKS ────────────────────────────────────── */
+.brf-component-block {
+  margin-bottom: 0.35rem;
+  flex-shrink: 0;
+}
+
+.brf-component-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px;
+  font-size: 0.98rem;
+  margin-bottom: 0.1rem;
+}
+
+/* ─── INDICATIONS ─────────────────────────────────────────── */
+.brf-indications {
+  padding-left: 0.8rem;
+}
+
+.brf-indication-item {
   display: flex;
   align-items: flex-start;
   gap: 0;
-  margin-bottom: 0;
-  padding-left: 0.5rem;
-  font-size: 0.96rem;
+  margin-bottom: 0.05rem;
+  font-size: 0.93rem;
 }
 
-.brf-code {
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 5.8rem;
-  display: inline-block;
-  font-size: 0.96rem;
+.brf-ind-text {
+  flex: 1;
+  font-size: 0.93rem;
+  line-height: 1.3;
 }
 
 /* ─── NOTE BLOCKS ─────────────────────────────────────────── */
 .brf-note-block {
-  margin: 0.3rem 0 0.2rem 0;
-  font-size: 0.96rem;
+  margin: 0.25rem 0 0.3rem 0;
+  font-size: 0.93rem;
+  flex-shrink: 0;
 }
 
 .brf-note-title {
   font-weight: 700;
-  margin: 0;
-  font-size: 0.98rem;
+  font-size: 0.95rem;
 }
 
-.brf-note-item {
-  margin: 0;
+.brf-note-content {
   padding-left: 0.5rem;
-  font-size: 0.96rem;
+  font-size: 0.93rem;
+  line-height: 1.4;
 }
 
-/* ─── SIGNATURE ───────────────────────────────────────────── */
-.brf-plain-label {
-  margin: 0 0 0.3rem 0;
+/* ─── GENERATED TIMESTAMP ─────────────────────────────────── */
+.brf-generated {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #000;
+  flex-shrink: 0;
+}
+
+/* ─── PAGE 2 SPACER ───────────────────────────────────────── */
+.brf-page2-spacer {
+  flex: 1;
+}
+
+/* ─── REQUESTED / RECEIVED SECTIONS ──────────────────────── */
+.brf-requested-section,
+.brf-received-section {
+  margin: 0.4rem 0 0.2rem 0;
+  flex-shrink: 0;
+}
+
+.brf-req-label {
   font-size: 0.98rem;
+  margin-bottom: 0.3rem;
 }
 
-.brf-sig-row {
+.brf-signature-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -193,24 +211,32 @@
   text-align: center;
 }
 
-.brf-sig-line-with-md {
+.brf-sig-line {
+  display: block;
+  border-bottom: 1px solid #000;
+  width: 100%;
+  margin-bottom: 2px;
+  height: 1.4rem;
+}
+
+.brf-sig-line-wrap {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.brf-sig-md {
+.brf-sig-suffix {
   white-space: nowrap;
   font-size: 0.98rem;
 }
 
 .brf-sig-label {
-  margin: 2px 0 0 0;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   border-top: 1px solid #000;
   padding-top: 2px;
   text-align: center;
+  margin-top: 2px;
 }
 
 /* ─── REMARKS ─────────────────────────────────────────────── */
@@ -218,24 +244,81 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
+  flex-shrink: 0;
+  margin: 0.3rem 0;
 }
 
-/* ─── FOOTER ──────────────────────────────────────────────── */
-.brf-footer {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.82rem;
-  font-style: italic;
-  color: #000;
-}
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 
-/* ─── PAGE 2 specific ─────────────────────────────────────── */
-.brf-page--p2 {
-  min-height: 297mm;
-}
+  /* Hide everything on the page except the document */
+  body > * {
+    display: none !important;
+  }
 
+  /* Show only the modal/container holding this form */
+  /* Adjust this selector to match your actual modal wrapper */
+  .your-modal-class {
+    display: block !important;
+  }
+
+  .brf-document {
+    gap: 0;
+    display: block;
+  }
+
+  .brf-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: unset;
+    max-height: 297mm;
+    margin: 0;
+    padding: 12mm 14mm 10mm;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .brf-page:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .brf-header-spacer {
+    height: 38mm;
+    flex-shrink: 0;
+  }
+
+  .brf-patient-info {
+    padding: 0.2rem 0.4rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .brf-component-block {
+    margin-bottom: 0.18rem;
+  }
+
+  .brf-note-block {
+    margin: 0.12rem 0 0.15rem 0;
+  }
+
+  .brf-indication-item,
+  .brf-ind-text,
+  .brf-note-content {
+    font-size: 0.85rem;
+    line-height: 1.25;
+  }
+}
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 760px) {
   .brf-page {
@@ -246,15 +329,7 @@
     box-shadow: none;
   }
 
-  .brf-meta-cell--wide {
-    min-width: auto;
-  }
-
-  .brf-footer {
-    font-size: 0.78rem;
-  }
-
-  .brf-line--sig {
+  .brf-sig-line {
     width: 140px;
   }
 }
