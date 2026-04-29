@@ -7,21 +7,7 @@ export default function BallardScore() {
 		<div className="ballard-page-wrap">
 			<div className="ballard-page">
 				<div className="ballard-content">
-				<header className="ballard-header">
-					<div className="ballard-logo" aria-label="Left logo placeholder" />
-					<div className="ballard-header-text">
-						<div className="ballard-line">Republic of the Philippines</div>
-						<div className="ballard-line">Provincial Health Office</div>
-						<div className="ballard-hospital">AGUSAN DEL NORTE PROVINCIAL HOSPITAL</div>
-						<div className="ballard-line ballard-subline">
-							VILLAGE II, BRGY. LIBERTAD, BUTUAN CITY (CAPITAL) AGUSAN DEL NORTE CARAGA
-						</div>
-						<div className="ballard-line ballard-subline">Contact No: 085-813-8309</div>
-					</div>
-					<div className="ballard-logo" aria-label="Right logo placeholder" />
-				</header>
-
-				<div className="ballard-title">BALLARD SCORING</div>
+				
                         <div className="ballard-info-section">
                         <div className="ballard-case-number">
                             <span className="ballard-label">Case Number:</span>
