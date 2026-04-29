@@ -28,11 +28,8 @@ export default function CertificatePatientWardPreference({ patientName, patientD
 
   return (
     <div className="cpwp-page">
-
-
-      <br></br>
-      
-      {/* ── THIS IS TO CERTIFY THAT ___ voluntarily agrees ── */}
+      <br />
+      <br />
       <div className="cpwp-certify-row">
         <span>THIS IS TO CERTIFY THAT</span>
         <span className="cpwp-inline-line" />

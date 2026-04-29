@@ -27,12 +27,12 @@ export default function WardPreference({ patientName, patientData }) {
 
   return (
     <div className="wp-page">
-
-      {/* ── Top row ── */}
+      <br />
       <div className="wp-top-row">
         <div className="wp-to-whom">TO WHOM IT MAY CONCERN:</div>
         <div className="wp-date">DATE:{dateStr}</div>
       </div>
+      <br />
 
       {/* ── THIS IS TO CERTIFY THAT __ voluntarily submit ── */}
       <div className="wp-certify-row">

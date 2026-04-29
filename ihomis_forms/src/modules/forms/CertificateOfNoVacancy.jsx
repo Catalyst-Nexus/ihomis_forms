@@ -53,10 +53,9 @@ export default function CertificateOfNoVacancy({ patientName, patientData }) {
 
 	return (
 		<div className="cnv-page">
-
-			<br>
-			</br>
-
+			<br />
+			<br />
+			<br />
 			{/* ── Paragraph 1 ── */}
 			<p className="cnv-para cnv-center">
 				THIS IS TO CERTIFY THAT {name} is admitted to the

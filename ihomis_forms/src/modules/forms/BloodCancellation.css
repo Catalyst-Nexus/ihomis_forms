@@ -1,6 +1,6 @@
 .blood-cancel-page {
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 4.1mm;
+	font-size: 4.4mm;
 	line-height: 1.25;
 	width: 210mm;
 	height: 297mm;
@@ -23,7 +23,7 @@
 .blood-cancel-form-meta {
 	display: flex;
 	justify-content: space-between;
-	font-size: 3mm;
+	font-size: 3.3mm;
 	margin-bottom: 2mm;
 }
 
@@ -65,18 +65,18 @@
 
 .blood-cancel-country,
 .blood-cancel-province {
-	font-size: 3mm;
+	font-size: 3.3mm;
 }
 
 .blood-cancel-hospital {
-	font-size: 4.2mm;
+	font-size: 4.5mm;
 	font-weight: bold;
 	letter-spacing: 0.02em;
 }
 
 .blood-cancel-address,
 .blood-cancel-contact {
-	font-size: 2.9mm;
+	font-size: 3.1mm;
 }
 
 /* Header */
@@ -86,7 +86,7 @@
 }
 
 .blood-cancel-header-title {
-	font-size: 4.6mm;
+	font-size: 4.9mm;
 	font-weight: bold;
 	letter-spacing: 0.03em;
 	margin: 0;
@@ -113,12 +113,12 @@
 .blood-cancel-label {
 	font-weight: bold;
 	white-space: nowrap;
-	font-size: 3.8mm;
+	font-size: 4.1mm;
 }
 
 .blood-cancel-value {
 	white-space: nowrap;
-	font-size: 3.8mm;
+	font-size: 4.1mm;
 }
 
 .blood-cancel-underline {
@@ -138,7 +138,7 @@
 
 /* Reasons section */
 .blood-cancel-reasons-title {
-	font-size: 3.9mm;
+	font-size: 4.2mm;
 	font-weight: bold;
 	margin-bottom: 2mm;
 }
@@ -188,7 +188,7 @@
 }
 
 .blood-cancel-prepared-label {
-	font-size: 3.8mm;
+	font-size: 4.1mm;
 	margin-bottom: 0;
 }
 
@@ -201,7 +201,7 @@
 }
 
 .blood-cancel-prepared-sig-label {
-	font-size: 3mm;
+	font-size: 3.3mm;
 	text-align: center;
 	margin-top: 1mm;
 }
@@ -216,7 +216,7 @@
 	padding-top: 1.5mm;
 	padding-right: 14mm;
 	text-align: right;
-	font-size: 0.82rem;
+	font-size: 0.9rem;
     font-style: italic;
 	color: #000;
 }
@@ -239,7 +239,7 @@
 
 .blood-cancel-print-btn {
 	padding: 8px 32px;
-	font-size: 13px;
+		font-size: 14px;
 	font-family: Arial, Helvetica, sans-serif;
 	background: #1a5276;
 	color: #fff;
