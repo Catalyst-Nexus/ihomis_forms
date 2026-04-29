@@ -1,3 +1,6 @@
+/* ── TPRSheet.css ──────────────────────────────────────────────────────────── */
+
+/* ══ PAGE ══ */
 .tpr-page {
   width: 210mm;
   min-height: 297mm;
@@ -11,21 +14,7 @@
   position: relative;
 }
 
-@media print {
-  .tpr-page {
-    margin: 0;
-    box-shadow: none;
-    width: 210mm;
-    min-height: 297mm;
-  }
-}
-
-/* ── Reserved space for header (add header here later) ── */
-.tpr-header-space {
-  height: 30mm;
-}
-
-/* ── Chart image ── */
+/* ══ CHART IMAGE ══ */
 .tpr-chart-wrap {
   width: 100%;
   margin-bottom: 3mm;
@@ -33,11 +22,13 @@
 
 .tpr-chart {
   width: 100%;
-  height: auto;
+  max-height: 220mm;
+  object-fit: contain;
+  object-position: top;
   display: block;
 }
 
-/* ── Patient info block ── */
+/* ══ PATIENT INFO BLOCK ══ */
 .tpr-info-block {
   font-size: 8pt;
   line-height: 1.7;
@@ -48,7 +39,7 @@
   font-weight: bold;
 }
 
-/* ── Footer ── */
+/* ══ FOOTER ══ */
 .tpr-footer {
   position: absolute;
   bottom: 6mm;
@@ -66,4 +57,21 @@
   font-weight: bold;
   font-style: italic;
   text-align: right;
+}
+
+/* ══ PRINT ══ */
+@media print {
+  .tpr-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 8mm 8mm 16mm 8mm;
+  }
+
+  .tpr-chart {
+    max-height: 220mm;
+    object-fit: contain;
+    object-position: top;
+  }
 }

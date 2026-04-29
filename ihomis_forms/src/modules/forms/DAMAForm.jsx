@@ -11,7 +11,7 @@ const SigBlock = ({ label, dateStr }) => (
 );
 
 export default function DAMAForm({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name = patientName;
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();
@@ -33,8 +33,7 @@ export default function DAMAForm({ patientName, patientData }) {
 
   return (
     <div className="dama-page">
-
-      {/* ── Opening paragraph ── */}
+      <br />
       <p className="dama-opening">
         I <UL width="160px" /> hereby certify that I am leaving/that I am causing the discharge of{" "}
         {name} going home againts medical advice. I have been informed of the danger involved and I release

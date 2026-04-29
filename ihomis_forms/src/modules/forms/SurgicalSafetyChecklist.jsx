@@ -26,11 +26,10 @@ export default function SurgicalSafetyChecklist({ patientName, patientData }) {
 
   return (
     <div className="ssc-page">
-
       {/* ── Reserved space for header ── */}
       <div className="ssc-header-space" />
-
       {/* ── Top Patient Info Table ── */}
+      <br />
       <table className="ssc-info-table">
         <tbody>
           <tr>

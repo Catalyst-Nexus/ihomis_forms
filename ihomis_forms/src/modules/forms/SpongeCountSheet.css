@@ -20,11 +20,6 @@
   }
 }
 
-/* ── Reserved space for header ── */
-.scs-header-space {
-  height: 30mm;
-}
-
 /* ── Case Number ── */
 .scs-case-row {
   font-size: 8pt;

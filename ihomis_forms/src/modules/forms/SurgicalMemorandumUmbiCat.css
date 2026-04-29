@@ -1,3 +1,6 @@
+/* ── SurgicalMemorandumUmbiCat.css ─────────────────────────────────────────── */
+
+/* ══ PAGE ══ */
 .smuc-page {
   width: 210mm;
   min-height: 297mm;
@@ -17,54 +20,67 @@
     box-shadow: none;
     width: 210mm;
     min-height: 297mm;
+    padding: 10mm 12mm 16mm 12mm;
   }
 }
 
-/* ── Patient info block ── */
+/* ══ PATIENT INFO BLOCK — 2-column layout ══ */
 .smuc-info-block {
+  display: flex;
+  gap: 8mm;
   margin-bottom: 3mm;
   font-size: 8pt;
 }
 
+.smuc-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 .smuc-info-row {
   display: flex;
-  gap: 4mm;
-  line-height: 1.6;
+  gap: 2mm;
+  line-height: 1.55;
 }
 
 .smuc-info-label {
   font-weight: bold;
-  min-width: 28mm;
+  min-width: 26mm;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* ── Main table ── */
+.smuc-info-value {
+  font-weight: normal;
+}
+
+/* ══ MAIN TABLE ══ */
 .smuc-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  margin-bottom: 4mm;
+  margin-bottom: 3mm;
 }
 
 .smuc-table td {
   border: 1px solid #000;
   font-size: 8pt;
   vertical-align: middle;
-  padding: 1mm 1.5mm;
+  padding: 0.8mm 1.5mm;
 }
 
-/* ── Vitals row label cells ── */
+/* ══ VITALS ROW ══ */
 .smuc-vl {
   font-weight: bold;
   white-space: normal;
   word-break: break-word;
   text-align: center;
-  padding: 1mm !important;
+  padding: 0.8mm !important;
   font-size: 7.5pt;
   line-height: 1.3;
 }
-
-.smuc-vv { /* blank value cell */ }
 
 .smuc-date-lbl {
   text-align: center;
@@ -72,40 +88,45 @@
   line-height: 1.3;
 }
 
-/* ── Centered content ── */
+/* ══ GENERIC LABEL CELL ══ */
+.smuc-lbl {
+  font-weight: bold;
+}
+
+/* ══ CENTER ══ */
 .smuc-center {
   text-align: center;
 }
 
-/* ── Tall two-line label cells ── */
+/* ══ TALL TWO-LINE CELLS ══ */
 .smuc-tall {
   vertical-align: middle;
   line-height: 1.4;
 }
 
-/* ── Sub-header cells (Pre-Op Med / Fluids / Blood) ── */
+/* ══ SUB-HEADER CELLS (Pre-Op Med / Fluids / Blood) ══ */
 .smuc-sub-hdr {
   font-weight: bold;
   text-align: center;
   vertical-align: middle;
-  padding: 1mm 2mm !important;
+  padding: 0.8mm 2mm !important;
 }
 
-/* ── Pre-filled value cells ── */
+/* ══ PRE-FILLED VALUE CELLS ══ */
 .smuc-prefilled {
   font-weight: bold;
   vertical-align: middle;
-  padding: 1mm 2mm !important;
+  padding: 0.8mm 2mm !important;
 }
 
-/* ── Technique text cells ── */
+/* ══ TECHNIQUE TEXT CELLS ══ */
 .smuc-technique-cell {
   font-weight: normal !important;
   white-space: normal;
   word-break: break-word;
   line-height: 1.5;
   vertical-align: top !important;
-  padding: 1.5mm 2mm !important;
+  padding: 1mm 2mm !important;
 }
 
 .smuc-technique-cont {
@@ -114,27 +135,27 @@
   word-break: break-word;
   line-height: 1.5;
   vertical-align: top;
-  padding: 1.5mm 2mm !important;
+  padding: 1mm 2mm !important;
 }
 
-/* ── Generic data rows ── */
+/* ══ GENERIC DATA ROWS ══ */
 .smuc-data-row td {
-  height: 7mm;
+  height: 6mm;
 }
 
-/* ── For Deliveries banner ── */
+/* ══ FOR DELIVERIES BANNER ══ */
 .smuc-banner {
   font-weight: bold;
   text-align: center;
-  padding: 1.5mm 2mm !important;
+  padding: 1mm 2mm !important;
   background: #fff;
 }
 
-/* ── Signature row ── */
+/* ══ SIGNATURE ROW ══ */
 .smuc-sig-row {
   display: flex;
   justify-content: space-around;
-  margin-top: 6mm;
+  margin-top: 4mm;
   margin-bottom: 2mm;
 }
 
@@ -152,7 +173,7 @@
   font-size: 8pt;
 }
 
-/* ── Footer ── */
+/* ══ FOOTER — matches AldreteScore style ══ */
 .smuc-footer {
   position: absolute;
   bottom: 6mm;

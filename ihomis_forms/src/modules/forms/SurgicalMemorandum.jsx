@@ -2,14 +2,14 @@ import { useMemo } from "react";
 import "./SurgicalMemorandum.css";
 
 export default function SurgicalMemorandum({ patientName, patientData }) {
-  const caseNumber  = patientData?.caseNumber;
-  const name        = patientName;
-  const address     = patientData?.address;
-  const contact     = patientData?.contact;
-  const sex         = patientData?.sex;
-  const civilStatus = patientData?.civilStatus;
-  const age         = patientData?.age;
-  const birthDate   = patientData?.birthDate;
+  const caseNumber  = patientData?.caseNumber  || "";
+  const name        = patientName              || "";
+  const address     = patientData?.address     || "";
+  const contact     = patientData?.contact     || "";
+  const sex         = patientData?.sex         || "";
+  const civilStatus = patientData?.civilStatus || "";
+  const age         = patientData?.age         || "";
+  const birthDate   = patientData?.birthDate   || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();
@@ -25,10 +25,7 @@ export default function SurgicalMemorandum({ patientName, patientData }) {
   return (
     <div className="sm-page">
 
-      {/* ── Space reserved for header ── */}
-      <div className="sm-header-space" />
-
-      {/* ── Patient Info Block — 4 rows x 2 columns ── */}
+      {/* ── Patient Info Block — 2-column grid ── */}
       <div className="sm-info-block">
         <div className="sm-info-grid">
           <div className="sm-info-row"><span className="sm-info-label">Case Number:</span><span>{caseNumber}</span></div>
@@ -120,7 +117,7 @@ export default function SurgicalMemorandum({ patientName, patientData }) {
             <td colSpan={11} className="sm-val"></td>
           </tr>
 
-          {/* ── Pre-Op Medication | Fluids | Blood Replacements headers ── */}
+          {/* ── Pre-Op Medication | Fluids | Blood Replacements ── */}
           <tr>
             <td colSpan={4} className="sm-sub-hdr">Pre-Operative Medication</td>
             <td colSpan={5} className="sm-sub-hdr">Fluids</td>
@@ -210,11 +207,11 @@ export default function SurgicalMemorandum({ patientName, patientData }) {
             <td colSpan={1} className="sm-lbl">L</td>
             <td colSpan={4} className="sm-val"></td>
           </tr>
+
         </tbody>
       </table>
 
       {/* ── Signatures ── */}
-      <br />
       <div className="sm-sig-row">
         <div className="sm-sig-block">
           <div className="sm-sig-line" />

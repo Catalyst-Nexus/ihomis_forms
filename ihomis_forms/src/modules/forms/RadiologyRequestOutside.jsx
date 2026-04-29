@@ -28,12 +28,10 @@ export default function RadiologyRequestOutside({ patientName, patientData }) {
 
   return (
     <div className="rro-page">
-
-      {/* ── Date ordered ── */}
+      <br />
       <div className="rro-date-row">
-        Date ordered: {dateStr}
+        <strong>Date ordered:</strong> {dateStr}
       </div>
-
       {/* ── Patient details ── */}
       <div className="rro-patient-grid">
         <div className="rro-patient-row">

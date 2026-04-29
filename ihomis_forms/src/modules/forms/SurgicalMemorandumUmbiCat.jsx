@@ -2,14 +2,14 @@ import { useMemo } from "react";
 import "./SurgicalMemorandumUmbiCat.css";
 
 export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) {
-  const caseNumber  = patientData?.caseNumber;
-  const name        = patientName;
-  const address     = patientData?.address;
-  const contact     = patientData?.contact;
-  const sex         = patientData?.sex;
-  const civilStatus = patientData?.civilStatus;
-  const age         = patientData?.age;
-  const birthDate   = patientData?.birthDate;
+  const caseNumber  = patientData?.caseNumber  || "";
+  const name        = patientName              || "";
+  const address     = patientData?.address     || "";
+  const contact     = patientData?.contact     || "";
+  const sex         = patientData?.sex         || "";
+  const civilStatus = patientData?.civilStatus || "";
+  const age         = patientData?.age         || "";
+  const birthDate   = patientData?.birthDate   || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();
@@ -24,17 +24,47 @@ export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) 
 
   return (
     <div className="smuc-page">
-
-      {/* ── Patient Info Block ── */}
       <div className="smuc-info-block">
-        <div className="smuc-info-row"><span className="smuc-info-label">Case Number:</span><span>{caseNumber}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Name</span><span>{name}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Address:</span><span>{address}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Contact:</span><span>{contact}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Sex:</span><span>{sex}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Civil Status:</span><span>{civilStatus}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Age:</span><span>{age}</span></div>
-        <div className="smuc-info-row"><span className="smuc-info-label">Birth Date:</span><span>{birthDate}</span></div>
+        {/* Left column */}
+        <div className="smuc-info-col">
+          <br />
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Case Number:</span>
+            <span className="smuc-info-value">{caseNumber}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Name:</span>
+            <span className="smuc-info-value">{name}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Address:</span>
+            <span className="smuc-info-value">{address}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Contact:</span>
+            <span className="smuc-info-value">{contact}</span>
+          </div>
+        </div>
+        {/* Right column */}
+        <div className="smuc-info-col">
+          <br />
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Sex:</span>
+            <span className="smuc-info-value">{sex}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Civil Status:</span>
+            <span className="smuc-info-value">{civilStatus}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Age:</span>
+            <span className="smuc-info-value">{age}</span>
+          </div>
+          <div className="smuc-info-row">
+            <span className="smuc-info-label">Birth Date:</span>
+            <span className="smuc-info-value">{birthDate}</span>
+          </div>
+        </div>
       </div>
 
       {/* ── Main Table ── */}
@@ -137,7 +167,7 @@ export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) 
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
 
-          {/* ── Operation Performed — pre-filled ── */}
+          {/* ── Operation Performed ── */}
           <tr>
             <td colSpan={4} className="smuc-lbl">Operation Performed</td>
             <td colSpan={10} className="smuc-prefilled smuc-center">UMBILICAL CATETHERIZATION</td>
@@ -146,7 +176,7 @@ export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) 
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
 
-          {/* ── Operation Started | Ended | RVS Code — pre-filled ── */}
+          {/* ── Operation Started | Ended | RVS Code ── */}
           <tr>
             <td colSpan={2} className="smuc-lbl smuc-tall smuc-center">Operation<br />Started</td>
             <td colSpan={3}></td>
@@ -165,14 +195,13 @@ export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) 
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
           <tr className="smuc-data-row"><td colSpan={14}></td></tr>
 
-          {/* ── Operation Technique — pre-filled ── */}
+          {/* ── Operation Technique ── */}
           <tr>
             <td colSpan={4} className="smuc-lbl">Operation Technique</td>
             <td colSpan={10} className="smuc-prefilled smuc-technique-cell">
               The umbilical cord stump and the surrounding abdomen are sterilized with An anti bactericidal solution. Sterile drapes are placed.
             </td>
           </tr>
-          {/* Continuation row for technique */}
           <tr>
             <td colSpan={14} className="smuc-prefilled smuc-technique-cont">
               A purse-string suture or umbilical tape is tied around the base of the stump to provide hemostatsis and to anchor the line after the procedure.

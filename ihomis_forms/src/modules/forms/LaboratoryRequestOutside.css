@@ -20,11 +20,11 @@
   }
 }
 
-/* ── Date/Time top-right ── */
 .lro-datetime {
-  text-align: right;
-  font-size: 9.5pt;
-  margin-bottom: 3mm;
+  font-size: 9pt;
+  margin-top: 3mm;     
+  margin-bottom: 2mm;
+  font-weight: normal;
 }
 
 /* ── Patient info grid ── */

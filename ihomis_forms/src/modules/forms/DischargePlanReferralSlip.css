@@ -1,45 +1,51 @@
 .dp-page {
   width: 210mm;
-  min-height: 297mm;
-  padding: 10mm 14mm 16mm 14mm;
+  height: 297mm;
+  padding: 8mm 12mm 14mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9.5pt;
+  font-size: 9pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
 @media print {
+  @page { size: 210mm 297mm; margin: 0; }
   .dp-page {
     margin: 0;
     box-shadow: none;
     width: 210mm;
-    min-height: 297mm;
+    height: 297mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    page-break-before: avoid;
   }
 }
 
 /* ── Title ── */
 .dp-title {
-  font-size: 11pt;
+  font-size: 10.5pt;
   font-weight: bold;
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 /* ── Top details grid ── */
 .dp-details-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.5mm;
-  margin-bottom: 3mm;
+  gap: 0.5mm;
+  margin-bottom: 1.5mm;
 }
 
 .dp-detail-row {
   display: flex;
-  font-size: 9.5pt;
+  font-size: 9pt;
   align-items: flex-start;
-  gap: 8mm;
+  gap: 6mm;
 }
 
 .dp-detail-row .dp-detail-cell {
@@ -64,23 +70,23 @@
 /* ── Section label ── */
 .dp-section {
   font-weight: bold;
-  font-size: 9.5pt;
-  margin-bottom: 1mm;
+  font-size: 9pt;
+  margin-bottom: 0.5mm;
 }
 
 /* ── Divider ── */
 .dp-divider {
   border: none;
   border-top: 1px solid #000;
-  margin: 2mm 0;
+  margin: 1mm 0;
 }
 
 /* ── Vital signs row ── */
 .dp-vitals-row {
   display: flex;
-  gap: 6mm;
-  font-size: 9.5pt;
-  margin: 1mm 0 3mm 4mm;
+  gap: 5mm;
+  font-size: 9pt;
+  margin: 0.5mm 0 2mm 3mm;
   align-items: baseline;
 }
 
@@ -91,7 +97,7 @@
 .dp-vital-line {
   display: inline-block;
   border-bottom: 1px solid #000;
-  width: 14mm;
+  width: 12mm;
   margin-left: 1mm;
   vertical-align: bottom;
 }
@@ -100,29 +106,29 @@
 .dp-disposition-row {
   display: flex;
   align-items: flex-start;
-  gap: 4mm;
-  margin-bottom: 2mm;
+  gap: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 .dp-disposition-label {
-  font-size: 9.5pt;
+  font-size: 9pt;
   font-weight: bold;
   white-space: nowrap;
   padding-top: 1mm;
 }
 
 .dp-disposition-sub {
-  font-size: 9pt;
+  font-size: 8.5pt;
   font-weight: normal;
 }
 
 .dp-mgh-box {
   border: 1px solid #000;
-  padding: 2mm 4mm;
-  font-size: 9.5pt;
+  padding: 1.5mm 3mm;
+  font-size: 9pt;
   font-weight: bold;
-  line-height: 1.8;
-  min-width: 55mm;
+  line-height: 1.7;
+  min-width: 50mm;
 }
 
 .dp-mgh-box .dp-mgh-title {
@@ -131,7 +137,7 @@
 
 .dp-mgh-box .dp-mgh-item {
   font-weight: bold;
-  padding-left: 4mm;
+  padding-left: 3mm;
 }
 
 .dp-home-item {
@@ -140,16 +146,16 @@
 
 /* ── Diet ── */
 .dp-diet-row {
-  font-size: 9.5pt;
+  font-size: 9pt;
   font-weight: bold;
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 /* ── Medications + OTHER box layout ── */
 .dp-med-other-row {
   display: flex;
-  gap: 4mm;
-  margin-bottom: 3mm;
+  gap: 3mm;
+  margin-bottom: 2mm;
   align-items: flex-start;
 }
 
@@ -159,37 +165,37 @@
 
 .dp-med-title {
   font-weight: bold;
-  font-size: 9.5pt;
-  margin-bottom: 1mm;
+  font-size: 9pt;
+  margin-bottom: 0.5mm;
 }
 
 .dp-med-item {
-  font-size: 9.5pt;
-  line-height: 1.7;
+  font-size: 9pt;
+  line-height: 1.6;
 }
 
 .dp-other-box {
   border: 1px solid #000;
-  padding: 2mm 3mm;
-  min-width: 55mm;
-  font-size: 9.5pt;
+  padding: 1.5mm 2.5mm;
+  min-width: 50mm;
+  font-size: 9pt;
 }
 
 .dp-other-title {
   font-weight: bold;
-  margin-bottom: 1mm;
+  margin-bottom: 0.5mm;
 }
 
 .dp-other-item {
   display: flex;
   align-items: flex-end;
   gap: 1mm;
-  margin-bottom: 1.5mm;
+  margin-bottom: 1mm;
 }
 
 .dp-other-bracket {
   white-space: nowrap;
-  font-size: 9pt;
+  font-size: 8.5pt;
 }
 
 .dp-other-line {
@@ -201,59 +207,59 @@
 
 /* ── Treatment to continue ── */
 .dp-treatment-section {
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 .dp-treatment-box {
   border: 1px solid #000;
-  height: 20mm;
-  margin-top: 1mm;
-  margin-bottom: 2mm;
+  height: 14mm;
+  margin-top: 0.5mm;
+  margin-bottom: 1.5mm;
 }
 
 /* ── Healthy teachings ── */
 .dp-teachings-section {
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 .dp-teaching-item {
   display: flex;
   align-items: flex-start;
-  gap: 2mm;
-  font-size: 9.5pt;
-  line-height: 1.6;
+  gap: 1.5mm;
+  font-size: 9pt;
+  line-height: 1.5;
 }
 
 .dp-check {
-  font-size: 10pt;
-  margin-top: 0.5mm;
+  font-size: 9pt;
+  margin-top: 0.3mm;
 }
 
 /* ── Follow-up / Physician / Nurse rows ── */
 .dp-bottom-section {
-  margin-bottom: 2mm;
+  margin-bottom: 1.5mm;
 }
 
 .dp-bottom-label {
   font-weight: bold;
-  font-size: 9.5pt;
-  margin-bottom: 1mm;
+  font-size: 9pt;
+  margin-bottom: 0.5mm;
 }
 
 .dp-bottom-line {
   border-top: 1px solid #000;
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
 }
 
 /* ── Footer ── */
 .dp-footer {
   position: absolute;
-  bottom: 6mm;
-  left: 14mm;
-  right: 14mm;
+  bottom: 5mm;
+  left: 12mm;
+  right: 12mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
-  font-size: 8pt;
+  font-size: 7.5pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

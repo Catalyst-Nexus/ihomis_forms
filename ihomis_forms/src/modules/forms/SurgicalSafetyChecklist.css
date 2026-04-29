@@ -20,12 +20,6 @@
   }
 }
 
-/* ── Reserved space for header (add header here later) ── */
-.ssc-header-space {
-  height: 30mm;
-}
-
-/* ── Top patient info table ── */
 .ssc-info-table {
   width: 100%;
   border-collapse: collapse;

@@ -27,8 +27,7 @@ export default function NewbornDailyWeightAbdominalGirth({
 
   return (
     <div className="dwag-page">
-
-      {/* ── Header ── */}
+      <br />
       <div className="dwag-header">
         <div className="dwag-header-left">
           <div className="dwag-header-row">

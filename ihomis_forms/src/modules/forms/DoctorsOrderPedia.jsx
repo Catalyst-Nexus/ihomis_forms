@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import "./DoctorsOrderPedia.css";
 
 export default function DoctorsOrderPedia({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
+  const name       = patientName             || "SALUCANA , NELLY JEAN LOFRANCO";
+  const hospitalNo = patientData?.hospitalNo || "000000000021386";
+  const caseNo     = patientData?.caseNo     || "ADM-2026-010707";
+  const sex        = patientData?.sex        || "F";
+  const age        = patientData?.age        || "32";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();
@@ -28,7 +32,7 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
 
   return (
     <div className="dop-page">
-
+      <br />
       <table className="dop-table">
         <thead>
           <tr>
@@ -37,20 +41,14 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
           </tr>
         </thead>
         <tbody>
-
-          {/* Date row */}
           <tr>
             <td className="dop-cell">Date:</td>
             <td className="dop-cell">-Dry thoroughly and cover with warm linen</td>
           </tr>
-
-          {/* Time of Delivery */}
           <tr>
             <td className="dop-cell">Time of Delivery:</td>
             <td className="dop-cell">-Skin to skin contact with mother</td>
           </tr>
-
-          {/* CS / NSVD / Breech rows */}
           <tr>
             <td className="dop-cell dop-indent">o CS 2° to <U w="28mm" /></td>
             <td className="dop-cell">-Initiate breastfeeding as tolerated</td>
@@ -63,8 +61,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell dop-indent">o Breech <U w="22mm" /></td>
             <td className="dop-cell"></td>
           </tr>
-
-          {/* APGAR Score */}
           <tr>
             <td className="dop-cell"><span className="dop-bold">APGAR Score:</span></td>
             <td className="dop-cell">-Pls. admit patient</td>
@@ -77,8 +73,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell"></td>
             <td className="dop-cell dop-indent">o Bed in with mother</td>
           </tr>
-
-          {/* BIRTH WEIGHT */}
           <tr>
             <td className="dop-cell"><span className="dop-bold">BIRTH WEIGHT:<U w="10mm" />kg.</span></td>
             <td className="dop-cell">-Vital signs every 4 hours</td>
@@ -91,8 +85,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell"></td>
             <td className="dop-cell">-Diagnostics</td>
           </tr>
-
-          {/* BALLARD SCORE */}
           <tr>
             <td className="dop-cell"><span className="dop-bold">BALLARD SCORE:<U w="10mm" />weeks</span></td>
             <td className="dop-cell dop-indent">o NBS post 24 hours of life</td>
@@ -105,8 +97,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell"></td>
             <td className="dop-cell dop-indent">o Others:</td>
           </tr>
-
-          {/* Male / Female */}
           <tr>
             <td className="dop-cell"><span className="dop-bold">o Male &nbsp;&nbsp;&nbsp;o Female</span></td>
             <td className="dop-cell dop-indent">o Hearing test</td>
@@ -115,8 +105,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell"></td>
             <td className="dop-cell">-Routine Newborn Care</td>
           </tr>
-
-          {/* Meconium / Cord / LMP */}
           <tr>
             <td className="dop-cell">o Meconium-stained AF<U w="18mm" /></td>
             <td className="dop-cell dop-indent">o CREDE's Prophylaxis OU</td>
@@ -137,8 +125,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <td className="dop-cell"></td>
             <td className="dop-cell">-Daily Cord Care</td>
           </tr>
-
-          {/* Maternal co-morbidities */}
           <tr>
             <td className="dop-cell"><span className="dop-bold">Maternal co-morbidities:</span></td>
             <td className="dop-cell">-Keep thermoregulated bet. 36.5°C-37.5°C at all times</td>
@@ -170,10 +156,10 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
       <div className="dop-patient-info-grid">
         <div className="dop-patient-info-row">
           <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Hospital No.:</span>&nbsp;000000000021386
+            <span className="dop-info-label">Hospital No.:</span>&nbsp;{hospitalNo}
           </div>
           <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Case Number:</span>&nbsp;ADM-2026-010707
+            <span className="dop-info-label">Case Number:</span>&nbsp;{caseNo}
           </div>
         </div>
         <div className="dop-patient-info-row">
@@ -181,8 +167,8 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
             <span className="dop-info-label">Patient Name:</span>&nbsp;{name}
           </div>
           <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Sex:</span>&nbsp;F&nbsp;&nbsp;&nbsp;
-            <span className="dop-info-label">Age:</span>&nbsp;32
+            <span className="dop-info-label">Sex:</span>&nbsp;{sex}&nbsp;&nbsp;&nbsp;
+            <span className="dop-info-label">Age:</span>&nbsp;{age}
           </div>
         </div>
       </div>

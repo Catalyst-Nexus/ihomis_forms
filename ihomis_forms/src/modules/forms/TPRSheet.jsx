@@ -25,10 +25,7 @@ export default function TPRSheet({ patientName, patientData }) {
   return (
     <div className="tpr-page">
 
-      {/* ── Reserved space for header ── */}
-      <div className="tpr-header-space" />
-
-      {/* ── Chart Image ── */}
+      {/* ── Chart Image (at top) ── */}
       <div className="tpr-chart-wrap">
         <img
           className="tpr-chart"

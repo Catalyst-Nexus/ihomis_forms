@@ -24,11 +24,8 @@ export default function ECGTracing({ patientName, patientData }) {
 
 	return (
 		<div className="ecg-page">
-
-			{/* ── Patient info header ── */}
+			<br />
 			<div className="ecg-header">
-
-				{/* Row 1: Case Number (bold label) */}
 				<div className="ecg-row">
 					<span className="ecg-lbl">Case Number:</span>
 					<span className="ecg-val">&nbsp;&nbsp;{caseNum}</span>

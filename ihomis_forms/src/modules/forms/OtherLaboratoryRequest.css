@@ -1,7 +1,3 @@
-/* ── OtherLaboratoryRequest.css ─────────────────────────────────────────────
-   A4: 210mm × 297mm  |  Arial  |  matches image bold/normal exactly
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .olr-page {
   width: 210mm;
   min-height: 297mm;
@@ -15,20 +11,12 @@
   position: relative;
 }
 
-/* ── Top-right date/time — normal weight ── */
-.olr-date-ordered {
-  text-align: right;
-  font-size: 11pt;
-  font-weight: normal;
-  margin-bottom: 10px;
-}
-
-/* ── Header block — no border ── */
+/* ── Header block ── */
 .olr-header-block {
   margin-bottom: 2px;
 }
 
-/* Patient details grid */
+/* ── Details grid: 3 rows, each row = left cell + right cell ── */
 .olr-details-grid {
   display: flex;
   flex-direction: column;
@@ -36,12 +24,14 @@
   margin-bottom: 1.5mm;
 }
 
+/* Each row is a flex row: left group + right group */
 .olr-details-row {
   display: flex;
   align-items: baseline;
   gap: 8mm;
 }
 
+/* Each cell holds label + value */
 .olr-details-cell {
   flex: 1 1 0;
   display: flex;
@@ -50,6 +40,26 @@
   white-space: nowrap;
 }
 
+/* ── Date/Time row: sits on the SAME line as Case Number ──
+   achieved by making row 1 a 3-column flex:
+   [Case Number cell] [Age cell] [Date/Time — right aligned]      */
+.olr-details-row-with-date {
+  display: flex;
+  align-items: baseline;
+  gap: 8mm;
+}
+
+.olr-date-cell {
+  margin-left: auto;           /* push to far right */
+  white-space: nowrap;
+  font-size: 11pt;
+  font-weight: normal;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+/* ── Category row ── */
 .olr-category-row {
   display: flex;
   align-items: baseline;
@@ -58,7 +68,7 @@
   font-size: 11.5pt;
 }
 
-/* Base row */
+/* ── Generic row ── */
 .olr-row {
   display: flex;
   align-items: baseline;
@@ -68,47 +78,20 @@
   line-height: 1.5;
 }
 
-/* Multi-group row */
-.olr-row-flex {
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  flex-wrap: nowrap;
-}
-
-.olr-group {
-  display: flex;
-  align-items: baseline;
-  white-space: nowrap;
-}
-
-/* Name group — wider so it doesn't crush Age/Sex */
-.olr-group-name {
-  flex: 0 0 auto;
-  min-width: 180px;
-}
-
-/* Ward group — allow wrap for two-line text */
-.olr-group-ward {
-  flex: 0 0 200px;
-  white-space: normal;
-  align-items: flex-start;
-}
-
-/* ── Bold label (e.g. "Case Number:", "Name of Patient:", etc.) ── */
+/* ── Bold label ── */
 .olr-lbl {
   font-weight: bold;
   white-space: nowrap;
   font-size: 11.5pt;
 }
 
-/* ── Normal-weight value ── */
+/* ── Normal value ── */
 .olr-val {
   font-weight: normal;
   font-size: 11.5pt;
 }
 
-/* Diagnosis value is ALSO bold, matching the image */
+/* Diagnosis value bold */
 .olr-val-bold {
   font-weight: bold;
 }
@@ -128,7 +111,6 @@
   margin-bottom: 20px;
 }
 
-/* "HEMATOLOGY" — bold, uppercase */
 .olr-section-title {
   font-weight: bold;
   font-size: 11.5pt;
@@ -136,7 +118,6 @@
   text-transform: uppercase;
 }
 
-/* Checkbox items — normal weight */
 .olr-checkbox-item {
   font-size: 11.5pt;
   font-weight: normal;
@@ -157,7 +138,7 @@
   vertical-align: bottom;
 }
 
-/* ── Signature block — right-aligned ── */
+/* ── Signature block ── */
 .olr-sig-wrap {
   margin-top: 36px;
   display: flex;
@@ -182,7 +163,6 @@
   height: 18px;
 }
 
-/* ",MD" sits right after the line end — normal weight */
 .olr-md {
   font-size: 11.5pt;
   font-weight: normal;
@@ -191,7 +171,6 @@
   padding-bottom: 1px;
 }
 
-/* "Requesting Physician" — normal weight, centered under line */
 .olr-sig-label {
   font-size: 11.5pt;
   font-weight: normal;
@@ -213,7 +192,6 @@
   text-align: right;
 }
 
-/* ── Print ── */
 @media print {
   .olr-page {
     margin: 0;

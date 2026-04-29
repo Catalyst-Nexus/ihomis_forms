@@ -13,12 +13,6 @@
   flex-direction: column;
 }
 
-/* ── Header space ── */
-.rbc-header-space {
-  height: 40mm;
-  flex-shrink: 0;
-}
-
 @media print {
   .rbc-page {
     margin: 0;

@@ -37,11 +37,8 @@ export default function SpecialEndorsement({ patientName, patientData }) {
 
   return (
     <div className="se-page">
-
-      {/* ── Header: 2 rows, each with left and right content ── */}
       <div className="se-header">
-
-        {/* Row 1: Hospital No. (left) | Case Number (right) */}
+        <br />
         <div className="se-header-row">
           <div className="se-header-left">
             <strong>Hospital No.:</strong>&nbsp;{hospitalNumber}
@@ -63,7 +60,7 @@ export default function SpecialEndorsement({ patientName, patientData }) {
 
       </div>
 
-      {/* ── Table ── */}
+      {/* ── Main Table ── */}
       <table className="se-table">
         <thead>
           <tr>

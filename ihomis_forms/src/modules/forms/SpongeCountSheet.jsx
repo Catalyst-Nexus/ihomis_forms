@@ -2,16 +2,16 @@ import { useMemo } from "react";
 import "./SpongeCountSheet.css";
 
 export default function SpongeCountSheet({ patientName, patientData }) {
-  const caseNumber  = patientData?.caseNumber  || "ADM-2026-010651";
-  const name        = patientName              || "BAYSA , BABY BOY";
-  const department  = patientData?.department  || "";
-  const date        = patientData?.date        || "";
-  const age         = patientData?.age         || "1 hour(s)";
-  const sex         = patientData?.sex         || "M";
-  const anesthesia  = patientData?.anesthesia  || "";
-  const surgeon     = patientData?.surgeon     || "";
+  const caseNumber       = patientData?.caseNumber       || "ADM-2026-010651";
+  const name             = patientName                   || "BAYSA , BABY BOY";
+  const department       = patientData?.department       || "";
+  const date             = patientData?.date             || "";
+  const age              = patientData?.age              || "1 hour(s)";
+  const sex              = patientData?.sex              || "M";
+  const anesthesia       = patientData?.anesthesia       || "";
+  const surgeon          = patientData?.surgeon          || "";
   const anesthesiologist = patientData?.anesthesiologist || "";
-  const operation   = patientData?.operation   || "";
+  const operation        = patientData?.operation        || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();
@@ -70,11 +70,7 @@ export default function SpongeCountSheet({ patientName, patientData }) {
 
   return (
     <div className="scs-page">
-
-      {/* ── Reserved space for header ── */}
-      <div className="scs-header-space" />
-
-      {/* ── Case Number ── */}
+      <br />
       <div className="scs-case-row">
         <strong>Case Number:</strong>&nbsp;&nbsp;{caseNumber}
       </div>
@@ -125,28 +121,34 @@ export default function SpongeCountSheet({ patientName, patientData }) {
         </thead>
         <tbody>
 
-          {/* Sponges */}
+          {/* ── Sponges ── */}
           {SPONGES.map((s, i) => <EmptyRow key={`s-${i}`} label={s} />)}
 
-          {/* INSTRUMENTS header row */}
+          {/* ── INSTRUMENTS header ── */}
           <tr>
-            <td className="scs-section-hdr" colSpan={6}><em><strong>INSTRUMENTS</strong></em></td>
+            <td className="scs-section-hdr" colSpan={6}>
+              <em><strong>INSTRUMENTS</strong></em>
+            </td>
           </tr>
 
-          {/* Instruments */}
+          {/* ── Instruments ── */}
           {INSTRUMENTS.map((inst, i) => <EmptyRow key={`i-${i}`} label={inst} />)}
 
-          {/* Additional header */}
+          {/* ── Additional header + rows ── */}
           <tr>
-            <td className="scs-kind scs-bold-label" colSpan={6}><strong>Additional</strong></td>
+            <td className="scs-kind scs-bold-label" colSpan={6}>
+              <strong>Additional</strong>
+            </td>
           </tr>
           {Array.from({ length: ADDITIONAL_COUNT }, (_, i) => (
             <EmptyRow key={`a-${i}`} label={`${i + 1}.`} />
           ))}
 
-          {/* RETRACTORS header row */}
+          {/* ── RETRACTORS header + rows ── */}
           <tr>
-            <td className="scs-section-hdr" colSpan={6}><em><strong>RETRACTORS:</strong></em></td>
+            <td className="scs-section-hdr" colSpan={6}>
+              <em><strong>RETRACTORS:</strong></em>
+            </td>
           </tr>
           {Array.from({ length: RETRACTORS_COUNT }, (_, i) => (
             <EmptyRow key={`r-${i}`} label={`${i + 1}.`} />
@@ -156,7 +158,6 @@ export default function SpongeCountSheet({ patientName, patientData }) {
       </table>
 
       {/* ── Verification Block ── */}
-      <br />
       <div className="scs-verify-block">
         <div className="scs-verify-left">
           <div>Verified and Actually Counter by:</div>
@@ -173,7 +174,6 @@ export default function SpongeCountSheet({ patientName, patientData }) {
       </div>
 
       {/* ── Signature Lines ── */}
-      <br />
       <div className="scs-sig-row">
         <div className="scs-sig-block">
           <div className="scs-sig-line" />

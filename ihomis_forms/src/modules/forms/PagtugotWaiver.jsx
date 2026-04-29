@@ -27,8 +27,7 @@ export default function PagtugotWaiver({ patientName, patientData }) {
 
   return (
     <div className="ptw-page">
-
-      {/* ── Patient info ── */}
+      <br />
       <div className="ptw-patient-info">
         <div className="ptw-info-row">
           <span className="ptw-info-label">Case No.</span>

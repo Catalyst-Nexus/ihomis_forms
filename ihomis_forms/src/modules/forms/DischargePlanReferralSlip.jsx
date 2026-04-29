@@ -39,11 +39,8 @@ export default function DischargePlanReferralSlip({ patientName, patientData }) 
 
   return (
     <div className="dp-page">
-
-      {/* ── Title ── */}
+      <br />
       <div className="dp-title">TO: TAKE HOME MEDICATION</div>
-
-      {/* ── Address / Department ── */}
       <div className="dp-details-grid">
         <div className="dp-detail-row">
           <div className="dp-detail-cell">

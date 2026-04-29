@@ -26,11 +26,7 @@ export default function NursesNotes({ patientName, patientData }) {
 
   return (
     <div className="nn-page">
-
-      {/* ── Title ── */}
-      <div className="nn-title">NURSE'S NOTES</div>
-
-      {/* ── Main Table ── */}
+      <br />
       <table className="nn-table">
         <thead>
           <tr>

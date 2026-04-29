@@ -21,10 +21,7 @@ const Lubchenco = () => {
     <div className="neuro-vital-signs-container">
       <div className="neuro-vital-signs">
         <div className="header-reserved-space" aria-hidden="true" />
-
         <section className="form-intro lubchenco-header" aria-label="Form title and patient details">
-          <div className="lubchenco-title">LUBCHENCO CHART</div>
-
           <div className="lubchenco-case-number">
             <span className="lubchenco-case-label">Case Number:</span>
             <span className="lubchenco-case-value">ADM-2026-010651</span>

@@ -15,7 +15,7 @@ export default function IVFSheet({ patientName, patientData }) {
     return { generatedOn };
   }, []);
 
-  const ROWS = 25;
+  const ROWS = 23;
 
   const headers = [
     { label: "Date",              cls: "ivf-col-date"    },
@@ -30,8 +30,7 @@ export default function IVFSheet({ patientName, patientData }) {
 
   return (
     <div className="ivf-page">
-
-      {/* ── Table ── */}
+      <br />
       <table className="ivf-table">
         <colgroup>
           {headers.map((h, i) => (

@@ -1,9 +1,9 @@
 .csa-page {
   width: 210mm;
   min-height: 297mm;
-  padding: 14mm 18mm 16mm 18mm;
+  padding: 12mm 16mm 14mm 16mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 11pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -22,9 +22,9 @@
 
 /* ── Numbered paragraphs ── */
 .csa-para {
-  font-size: 10pt;
-  line-height: 1.7;
-  margin-bottom: 4mm;
+  font-size: 11pt;
+  line-height: 1.6;
+  margin-bottom: 3mm;
   display: flex;
   gap: 2mm;
   align-items: flex-start;
@@ -39,7 +39,6 @@
   flex: 1;
 }
 
-/* inline blanks inside paragraph text */
 .csa-blank {
   display: inline-block;
   border-bottom: 1px solid #000;
@@ -67,12 +66,12 @@
   vertical-align: bottom;
 }
 
-/* ── First signature pair (Witness left, Patient right) ── */
+/* ── First signature pair ── */
 .csa-sig-pair {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;   /* align both columns to the same bottom baseline */
-  margin-top: 8mm;
+  align-items: flex-end;
+  margin-top: 6mm;
   margin-bottom: 2mm;
 }
 
@@ -87,7 +86,7 @@
 }
 
 .csa-sig-name {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   font-weight: normal;
   margin-bottom: 2mm;
   text-align: center;
@@ -100,27 +99,27 @@
 }
 
 .csa-sig-label {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
 }
 
 .csa-sig-date {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
   margin-top: 4mm;
   margin-bottom: 1mm;
 }
 
 .csa-sig-date-label {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
 }
 
 /* ── Authorization note block ── */
 .csa-auth-note {
-  font-size: 10pt;
+  font-size: 11pt;
   line-height: 1.6;
-  margin-top: 6mm;
+  margin-top: 4mm;
   margin-bottom: 2mm;
 }
 
@@ -138,7 +137,6 @@
   vertical-align: bottom;
 }
 
-/* ── I, ___ hereby row blanks (sized to fit one line) ── */
 .csa-blank-hereby-name {
   display: inline-block;
   border-bottom: 1px solid #000;
@@ -166,16 +164,15 @@
   vertical-align: bottom;
 }
 
-/* ── I, ___ hereby authorized row ── */
 .csa-hereby-row {
-  font-size: 10pt;
-  line-height: 1.8;
+  font-size: 11pt;
+  line-height: 1.7;
   margin-bottom: 2mm;
 }
 
 .csa-hereby-cont {
-  font-size: 10pt;
-  line-height: 1.8;
+  font-size: 11pt;
+  line-height: 1.7;
   margin-bottom: 1mm;
   display: flex;
   align-items: flex-end;
@@ -183,16 +180,16 @@
 }
 
 .csa-hereby-indent {
-  font-size: 10pt;
+  font-size: 11pt;
   padding-left: 4mm;
-  margin-bottom: 6mm;
+  margin-bottom: 4mm;
 }
 
 /* ── Second sig pair ── */
 .csa-sig-pair2 {
   display: flex;
   justify-content: space-between;
-  margin-top: 6mm;
+  margin-top: 4mm;
   margin-bottom: 0;
 }
 
@@ -213,7 +210,7 @@
 }
 
 .csa-sig2-label {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
 }
 
@@ -222,11 +219,10 @@
   width: 75mm;
 }
 
-/* Date rows for second pair */
 .csa-date-pair {
   display: flex;
   justify-content: space-between;
-  margin-top: 6mm;
+  margin-top: 4mm;
 }
 
 .csa-date-block {
@@ -235,13 +231,13 @@
 }
 
 .csa-date-val {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
   margin-bottom: 1mm;
 }
 
 .csa-date-label {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   text-align: center;
 }
 
@@ -249,8 +245,8 @@
 .csa-footer {
   position: absolute;
   bottom: 6mm;
-  left: 18mm;
-  right: 18mm;
+  left: 16mm;
+  right: 16mm;
   border-top: 1px solid #000;
   padding-top: 1.5px;
   font-size: 8pt;

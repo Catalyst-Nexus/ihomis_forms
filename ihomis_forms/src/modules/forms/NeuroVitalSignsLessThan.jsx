@@ -27,11 +27,7 @@ const NeuroVitalSignsLessThan = () => {
     <div className="neuro-vital-signs-container">
       <div className="neuro-vital-signs">
         <div className="header-reserved-space" aria-hidden="true" />
-
         <section className="form-intro" aria-label="Form title and patient details">
-          <div className="form-title">NEURO VITAL SIGNS STATUS</div>
-          <div className="form-subtitle">GLASGOW COMA SCALE LESS THAN 2 YEARS OLD</div>
-
           <div className="patient-meta patient-meta-grid">
             <div className="meta-row meta-row-left">
               <span className="meta-label">{patientFields[0].label}</span>

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./MedicationSheet.css";
 
 export default function MedicationSheet({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
+  const name = patientName;
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();
@@ -16,20 +16,19 @@ export default function MedicationSheet({ patientName, patientData }) {
   }, []);
 
   const DATA_ROWS = 18;
-  const DATE_COLS = 7; // number of date columns
+  const DATE_COLS = 7;
 
   return (
     <div className="ms-page">
-
+      <br />
       <table className="ms-table">
         <thead>
-          {/* Row 1: empty | DATE spanning date cols */}
           <tr>
             <td className="ms-th-med" style={{ border: "1px solid #000" }}></td>
             <td style={{ border: "1px solid #000" }}></td>
             <td colSpan={DATE_COLS} className="ms-th-date" style={{ border: "1px solid #000" }}>DATE</td>
           </tr>
-          {/* Row 2: MEDICATION ORDER | TIME | date col headers (empty) */}
+          {/* Row 2: MEDICATION ORDER | TIME | date col headers */}
           <tr>
             <th className="ms-th-med">MEDICATION ORDER</th>
             <th className="ms-th-time">TIME</th>

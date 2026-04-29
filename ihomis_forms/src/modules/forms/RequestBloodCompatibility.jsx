@@ -28,14 +28,8 @@ export default function RequestBloodCompatibility({ patientName, patientData }) 
 
   return (
     <div className="rbc-page">
-
-      {/* ── Space for header ── */}
-      <div className="rbc-header-space" />
-
-      {/* ── Header ── */}
       <div className="rbc-header">
-
-        {/* 2-col 3-row grid */}
+        <br />
         <div className="rbc-info-grid">
           <div className="rbc-info-cell">
             <span className="rbc-lbl">Hospital No.:</span>

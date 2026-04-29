@@ -30,14 +30,10 @@ export default function LaboratoryRequestOutside({ patientName, patientData }) {
     return { dateTimeStr, generatedOn };
   }, []);
 
-  return (
-    <div className="lro-page">
-
-      {/* ── Date/Time ── */}
-      <div className="lro-datetime">Date and Time ordered: {dateTimeStr}</div>
-
-      {/* ── Patient details ── */}
-      <div className="lro-details-grid">
+return (
+  <div className="lro-page">
+    <div className="lro-datetime"><strong>Date and Time ordered:</strong> {dateTimeStr}</div>
+    <div className="lro-details-grid">
         <div className="lro-detail-row">
           <div className="lro-field">
             <span className="lro-label">Case Number:</span>

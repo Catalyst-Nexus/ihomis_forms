@@ -21,8 +21,7 @@ export default function NewbornPhysicalExamination({ patientName, patientData })
 
   return (
     <div className="npe-page">
-
-      {/* ── Case Number ── */}
+      <br />
       <div className="npe-case-row">
         <strong>Case Number:</strong>&nbsp;&nbsp;ADM-2026-010651
       </div>

@@ -33,11 +33,9 @@ export default function HistopathologyCytology({ patientName, patientData }) {
 
   return (
     <div className="hcr-page">
-
-      {/* ── Patient Info Table ── */}
+      <br />
       <table className="hcr-info-table">
         <tbody>
-          {/* Row 1: Case Number — no border */}
           <tr>
             <td colSpan={6} style={{ border: "none", padding: "1.5mm 2mm", fontWeight: "bold" }}>
               Case Number:&nbsp;&nbsp;{caseNo}

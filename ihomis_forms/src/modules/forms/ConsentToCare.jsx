@@ -26,8 +26,7 @@ export default function ConsentToCare({ patientName, patientData }) {
 
 	return (
 		<div className="ctc-page">
-
-			{/* ── Patient Info block ── */}
+			<br />
 			<table className="ctc-info-table">
 				<tbody>
 					<tr>

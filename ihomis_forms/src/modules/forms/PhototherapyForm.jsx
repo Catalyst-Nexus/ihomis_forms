@@ -19,7 +19,9 @@ export default function PhototherapyForm({ patientName, patientData }) {
     };
   }, []);
 
-  const ROW_COUNT = 25;
+  // 20 rows × 6mm = 120mm + ~6mm header row = 126mm total table height
+  // fits comfortably inside A4 with header + footer
+  const ROW_COUNT = 20;
   const tableRows = Array.from({ length: ROW_COUNT }, (_, i) => rows[i] || {});
 
   const TableBlock = () => (
@@ -34,9 +36,9 @@ export default function PhototherapyForm({ patientName, patientData }) {
       <tbody>
         {tableRows.map((row, i) => (
           <tr key={i}>
-            <td>{row.date    || ""}</td>
-            <td>{row.hours   || ""}</td>
-            <td>{row.nod     || ""}</td>
+            <td>{row.date  || ""}</td>
+            <td>{row.hours || ""}</td>
+            <td>{row.nod   || ""}</td>
           </tr>
         ))}
       </tbody>
@@ -45,8 +47,7 @@ export default function PhototherapyForm({ patientName, patientData }) {
 
   return (
     <div className="pt-page">
-
-      {/* ── Header ── */}
+      <br />
       <div className="pt-header">
         <div className="pt-header-left">
           <div className="pt-header-row">

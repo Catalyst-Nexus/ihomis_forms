@@ -71,8 +71,7 @@ export default function IntakeOutputSheet({ patientName, patientData }) {
 
 	return (
 		<div className="ios-page">
-
-			{/* ── Patient info — TOP ── */}
+			<br />
 			<div className="ios-patient-strip">
 				<div className="ios-strip-row">
 					<span className="ios-lbl">Case Number:</span>

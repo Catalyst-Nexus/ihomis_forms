@@ -31,18 +31,10 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 
 	return (
 		<div className="olr-page">
-
-			{/* ── Top-right: Date and Time ordered — normal weight ── */}
-			<div className="olr-date-ordered">
-				Date and Time ordered: {dateTimeOrdered}
-			</div>
-
-			{/* ══════════════════════════════════
-			    PATIENT HEADER — no border box
-			    ══════════════════════════════════ */}
+		<br />
 			<div className="olr-header-block">
 				<div className="olr-details-grid">
-					<div className="olr-details-row">
+					<div className="olr-details-row-with-date">
 						<div className="olr-details-cell">
 							<span className="olr-lbl">Case Number:</span>
 							<span className="olr-val">&nbsp;{caseNum}</span>
@@ -51,7 +43,14 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 							<span className="olr-lbl">Age:</span>
 							<span className="olr-val">&nbsp;{age}</span>
 						</div>
+						{/* Date pushed to the far right — same vertical line as Case Number */}
+						<div className="olr-date-cell">
+							<span className="olr-lbl">Date and Time ordered:</span>
+							<span className="olr-val">&nbsp;{dateTimeOrdered}</span>
+						</div>
 					</div>
+
+					{/* ── Row 2: Name of Patient | Sex ── */}
 					<div className="olr-details-row">
 						<div className="olr-details-cell">
 							<span className="olr-lbl">Name of Patient:</span>
@@ -62,6 +61,8 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 							<span className="olr-val">&nbsp;{sex}</span>
 						</div>
 					</div>
+
+					{/* ── Row 3: Ward/OR# | Birthdate ── */}
 					<div className="olr-details-row">
 						<div className="olr-details-cell">
 							<span className="olr-lbl">Ward/OR#:</span>
@@ -72,21 +73,22 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 							<span className="olr-val">&nbsp;{birthdate}</span>
 						</div>
 					</div>
+
 				</div>
 
+				{/* Category */}
 				<div className="olr-category-row">
 					<span className="olr-lbl">Category:</span>
 					<span className="olr-val">&nbsp;{category}</span>
 				</div>
 
-				{/* Row 4 — Address */}
+				{/* Address */}
 				<div className="olr-row">
 					<span className="olr-lbl">Address:</span>
 					<span className="olr-val">&nbsp;{address}</span>
 				</div>
 
-				{/* Row 5 — Diagnosis/Chief Complaint:
-				    label is bold, value is bold too (as shown in image) */}
+				{/* Diagnosis */}
 				<div className="olr-row">
 					<span className="olr-lbl">Diagnosis/Chief Complaint:</span>
 					<span className="olr-val olr-val-bold">&nbsp;{diagnosis}</span>
@@ -94,12 +96,11 @@ export default function OtherLaboratoryRequest({ patientName, patientData }) {
 
 			</div>
 
-			{/* ── Title — bold, centered, all-caps ── */}
+			{/* ── Title ── */}
 			<h2 className="olr-title">OTHER LABORATORY REQUEST</h2>
 
 			{/* ── HEMATOLOGY section ── */}
 			<div className="olr-section">
-				{/* "HEMATOLOGY" is bold */}
 				<p className="olr-section-title">HEMATOLOGY</p>
 				<div className="olr-checkbox-item">[ &nbsp;]U/A</div>
 				<div className="olr-checkbox-item">[ &nbsp;]S/E</div>
