@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import "./AldreteScore.css";
 
 export default function AldreteScore({ patientName, patientData }) {
-  const name = patientName;
+  const name = patientName || patientData?.patientName || patientData?.fullName || "";
+  const caseNum = patientData?.caseNum || patientData?.caseNo || "";
+  const age = patientData?.age || "";
+  const sex = patientData?.sex || "";
+  const room = patientData?.room || patientData?.ward || "";
 
   const { dateTimeStr, generatedOn } = useMemo(() => {
     const now = new Date();
@@ -70,19 +74,19 @@ export default function AldreteScore({ patientName, patientData }) {
       <div className="ald-header">
         <div className="ald-header-grid">
           <div className="ald-header-cell">
-            <span className="ald-bold">Case Number:</span>&nbsp;ADM-2026-010707
+            <span className="ald-bold">Case Number:</span>&nbsp;{caseNum}
           </div>
           <div className="ald-header-cell">
-            <span className="ald-bold">Age:</span>&nbsp;32 year(s)
+            <span className="ald-bold">Age:</span>&nbsp;{age}
           </div>
           <div className="ald-header-cell">
             <span className="ald-bold">Name of Patient:</span>&nbsp;{name}
           </div>
           <div className="ald-header-cell">
-            <span className="ald-bold">Sex:</span>&nbsp;F
+            <span className="ald-bold">Sex:</span>&nbsp;{sex}
           </div>
           <div className="ald-header-cell ald-header-cell--full">
-            <span className="ald-bold">ROOM:</span>&nbsp;OB GYNE - POST-OP OB - BED 07
+            <span className="ald-bold">ROOM:</span>&nbsp;{room}
           </div>
         </div>
       </div>
