@@ -50,6 +50,7 @@ export default function KardexSheet({ patientName, patientData }) {
 
   return (
     <div className="kardex-page">
+      <br />
       <div className="kardex-header">
         <div className="kardex-row-caseno">
           <span className="kardex-lbl">Case Number:</span>

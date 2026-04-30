@@ -99,6 +99,7 @@ export default function RadiologyRequestOutside({ patientName, patientData }) {
       <div className="rro-blank-line" />
       <div className="rro-blank-line" />
       <div className="rro-blank-line" />
+      <br />
 
       {/* ── Signature row ── */}
       <div className="rro-sig-row">
@@ -114,6 +115,7 @@ export default function RadiologyRequestOutside({ patientName, patientData }) {
         <div className="rro-sig-label-left">Requesting Physician</div>
         <div className="rro-sig-label-right">Rad. Tech on duty</div>
       </div>
+      <br />
 
       {/* ── Footer ── */}
       <div className="rro-footer">

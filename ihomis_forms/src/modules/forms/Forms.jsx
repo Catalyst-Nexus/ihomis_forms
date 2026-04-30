@@ -451,7 +451,7 @@ ThemeToggle.propTypes = {
 const FORMS_LIST = [
   "ABTC Form",
   "ABTC Treatment Record",
-  "Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form",
+  "Advance Directive Do Not Resuscitate (DNR) / Do not Intubate Form",
   "Aldrete Score (Post Anesthesia Recovery Score) Form",
   "Anesthesia Record",
   "APGAR Score Form",
@@ -569,7 +569,7 @@ export default function Forms({
 
   const renderFormBody = (formName) => {
     const formRendererMap = {
-      "Advance Directive Do Not Resuscitate (DNR) / Don not Intubate Form":
+      "Advance Directive Do Not Resuscitate (DNR) / Do not Intubate Form":
         () => <DNRForm patientName={patientName} patientData={patientData} />,
     };
 
@@ -1005,7 +1005,11 @@ export default function Forms({
   );
 
   return (
-    <div className="forms-container">
+    // ✅ ONLY CHANGE: added data-theme attribute so CSS dark vars activate
+    <div
+      className="forms-container"
+      data-theme={isDarkMode ? "dark" : undefined}
+    >
       <div className="forms-header">
         <div className="header-top">
           <div className="patient-info">

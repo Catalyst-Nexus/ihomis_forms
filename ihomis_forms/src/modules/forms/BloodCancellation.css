@@ -204,27 +204,22 @@
 	font-size: 3.3mm;
 	text-align: center;
 	margin-top: 1mm;
+	margin-bottom: 110mm;
 }
 
 /* Footer — screen */
 .blood-cancel-footer {
-	position: absolute;
-	bottom: 6mm;
-	left: 0;
-	right: 0;
-	border-top: 0.3mm solid #000;
-	padding-top: 1.5mm;
-	padding-right: 14mm;
-	text-align: right;
-	font-size: 0.9rem;
-    font-style: italic;
-	color: #000;
+  position: absolute;
+  bottom: 6mm;
+  left: 15mm;
+  right: 15mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
 }
-
-
-/* ============================================================
-   SCREEN-ONLY: print-root wrapper & print button
-   ============================================================ */
 
 .blood-cancel-print-root {
 	display: contents;

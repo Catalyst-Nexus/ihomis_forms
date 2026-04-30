@@ -48,6 +48,7 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 			<p className="rtt-release">
 				I release the Agusan del Norte Provincial Hospital, attending physicians, and hospital staff for any damages or any untoward effects in any way arising out, or connected with my refusal to treatment/procedure.
 			</p>
+			<br />
 
 			{/* ── Signature row 1 ── */}
 			<div className="rtt-sig-row">
@@ -60,6 +61,7 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 					<p className="rtt-sig-label">Signature over printed name of physician/nurse on duty</p>
 				</div>
 			</div>
+			<br />
 
 			{/* ── Signature row 2 ── */}
 			<div className="rtt-sig-row">

@@ -22,10 +22,7 @@ const Partograph = () => {
     <div className="neuro-vital-signs-container">
       <div className="neuro-vital-signs">
         <div className="header-reserved-space" aria-hidden="true" />
-
         <section className="form-intro partograph-header" aria-label="Form title and patient details">
-          <div className="partograph-title">PARTOGRAPH</div>
-
           <div className="patient-header partograph-meta">
             <div className="partograph-meta-row partograph-meta-row--top">
               <div className="partograph-meta-item partograph-meta-item--left">

@@ -655,6 +655,8 @@ body {
 	body {
 		margin: 0 !important;
 		padding: 0 !important;
+		height: 297mm !important;
+		overflow: hidden !important;
 		background: #fff !important;
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
@@ -677,6 +679,20 @@ body {
 		margin: 0 !important;
 		padding: 10.5mm 12mm 8mm !important;
 		box-shadow: none !important;
+	}
+
+	/* Fix for PostAnesthesiaSheet blank second page */
+	.neuro-vital-signs-container {
+		height: 297mm !important;
+		overflow: hidden !important;
+	}
+
+	.neuro-vital-signs {
+		height: 297mm !important;
+		max-height: 297mm !important;
+		overflow: hidden !important;
+		page-break-after: avoid !important;
+		break-after: avoid !important;
 	}
 }
 

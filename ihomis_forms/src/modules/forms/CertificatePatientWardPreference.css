@@ -20,7 +20,6 @@
   }
 }
 
-/* ── THIS IS TO CERTIFY THAT ___ voluntarily agrees ── */
 .cpwp-certify-row {
   display: flex;
   align-items: flex-end;
@@ -36,7 +35,6 @@
   margin-bottom: 1px;
 }
 
-/* ── (Name of requesting person) — italic, centered under the line ── */
 .cpwp-req-label {
   text-align: center;
   font-size: 10.5pt;

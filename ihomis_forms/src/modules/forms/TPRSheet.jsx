@@ -24,6 +24,7 @@ export default function TPRSheet({ patientName, patientData }) {
 
   return (
     <div className="tpr-page">
+      <br />
 
       {/* ── Chart Image (at top) ── */}
       <div className="tpr-chart-wrap">

@@ -128,6 +128,7 @@ export default function RandomBloodSugar({ patientName, patientData }) {
         <div className="rbs-sig-block">
           <br />
           <br />
+          <br />
           <div className="rbs-sig-line" />
           <div className="rbs-sig-label">Pathologist</div>
           <div className="rbs-license-row">

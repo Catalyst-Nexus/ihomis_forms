@@ -1,7 +1,3 @@
-/* ── IntakeOutputSheet.css ───────────────────────────────────────────────────
-   A4: 210mm × 297mm  |  Arial  |  4 repeated IO table blocks
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .ios-page {
   width: 210mm;
   min-height: 297mm;
@@ -15,8 +11,6 @@
   position: relative;
 }
 
-
-/* ── Patient info strip — below tables ── */
 .ios-patient-strip {
   margin-bottom: 8px;
   font-size: 9.5pt;

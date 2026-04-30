@@ -4,7 +4,7 @@
   max-height: 297mm;
   padding: 5mm 10mm 10mm 10mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -23,7 +23,7 @@
 }
 
 .npis-case-row {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   margin-bottom: 1.5mm;
 }
 .npis-case-row strong { font-weight: bold; }
@@ -38,7 +38,7 @@
 .npis-table th {
   border: 1px solid #000;
   padding: 0.5mm 1.5mm;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   vertical-align: middle;
   line-height: 1.1;
 }
@@ -62,26 +62,26 @@
 .npis-del-table td {
   border: 1px solid #000;
   padding: 0.5mm 1.5mm;
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   vertical-align: middle;
   line-height: 1.1;
 }
 
 .npis-section-title {
-  font-size: 10pt;
+  font-size: 11pt;
   font-weight: bold;
   margin-bottom: 0.3mm;
   margin-top: 1.5mm;
 }
 
 .npis-item {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   line-height: 1.4;
   padding-left: 3mm;
 }
 
 .npis-numbered {
-  font-size: 9.5pt;
+  font-size: 10.5pt;
   line-height: 1.4;
   padding-left: 5mm;
 }

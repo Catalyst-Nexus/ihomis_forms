@@ -33,7 +33,7 @@ export default function LaboratoryResults({ patientName, patientData }) {
       <br />
       <table className="lr-lines-table">
         <tbody>
-          {Array.from({ length: 20 }).map((_, i) => (
+          {Array.from({ length: 21 }).map((_, i) => (
             <tr key={i}><td /></tr>
           ))}
         </tbody>

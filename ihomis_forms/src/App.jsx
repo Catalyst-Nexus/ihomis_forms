@@ -149,6 +149,7 @@ function App() {
   const [landingPage, setLandingPage] = useState(
     LANDING_PAGE.PATIENT_SELECTION,
   );
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const initialContextParams = useMemo(
     () => getContextParamsFromLocation(),
@@ -237,7 +238,10 @@ function App() {
   const ActiveComponent = activeModule.Component;
 
   return (
-    <div className="app-module-host">
+    <div
+      className="app-module-host"
+      data-theme={isDarkMode ? "dark" : undefined}
+    >
       <header className="app-module-header">
         <button
           type="button"
@@ -258,6 +262,8 @@ function App() {
         selectedPatient={patientPicker.selectedPatient}
         selectedContextParams={patientPicker.activeContextParams}
         onRequestPatientChange={handleRequestPatientChange}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
       />
     </div>
   );

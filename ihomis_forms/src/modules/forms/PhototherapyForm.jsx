@@ -19,9 +19,7 @@ export default function PhototherapyForm({ patientName, patientData }) {
     };
   }, []);
 
-  // 20 rows × 6mm = 120mm + ~6mm header row = 126mm total table height
-  // fits comfortably inside A4 with header + footer
-  const ROW_COUNT = 20;
+  const ROW_COUNT = 21;
   const tableRows = Array.from({ length: ROW_COUNT }, (_, i) => rows[i] || {});
 
   const TableBlock = () => (

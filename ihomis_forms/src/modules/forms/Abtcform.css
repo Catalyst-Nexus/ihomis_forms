@@ -4,6 +4,7 @@
 .abtc-page {
   width: 210mm;
   min-height: 297mm;
+  height: 297mm;
   margin: 0 auto;
   padding: 10mm 15mm 20mm 15mm;
   font-family: Arial, Helvetica, sans-serif;
@@ -54,9 +55,7 @@
   font-size: 9pt;
 }
 
-/* ══ INNER TABLE WRAPPER TD ══
-   Used for row 2 (citizen/hospital) and row 4 (address/tel/sex/civil)
-   — removes its own padding so the inner table sits flush           */
+/* ══ INNER TABLE WRAPPER TD ══ */
 .abtc-td-inner {
   padding: 0 !important;
   vertical-align: top;
@@ -122,8 +121,7 @@
   display: block;
 }
 
-/* ══ DEMOGRAPHICS TABLE ══
-   Overlaps the 1.5px bottom border of the header table              */
+/* ══ DEMOGRAPHICS TABLE ══ */
 .abtc-demo-table {
   margin-top: -1.5px;
 }
@@ -187,16 +185,17 @@
   font-size: 11pt;
   font-weight: bold;
   margin: 9mm 0 0 0;
+  margin-bottom: 100mm;
 }
 
-/* ══ FOOTER ══ */
 .abtc-footer {
   position: absolute;
-  bottom: 8mm;
+  bottom: 6mm;
   left: 15mm;
   right: 15mm;
+  border-top: 1.5px solid #000;
   padding-top: 2px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;
@@ -210,5 +209,6 @@
     box-shadow: none;
     width: 210mm;
     min-height: 297mm;
+    height: 297mm;
   }
 }

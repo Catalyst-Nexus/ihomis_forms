@@ -19,8 +19,7 @@ export default function BloodCancellation({ patientName, patientData = {} }) {
 
 	return (
 		<div className="blood-cancel-page">
-			
-
+			<br />
 			<br>
 			</br>
 			{/* Meta block */}

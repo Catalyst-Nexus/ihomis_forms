@@ -153,7 +153,6 @@ export default function SpongeCountSheet({ patientName, patientData }) {
           {Array.from({ length: RETRACTORS_COUNT }, (_, i) => (
             <EmptyRow key={`r-${i}`} label={`${i + 1}.`} />
           ))}
-
         </tbody>
       </table>
 
@@ -172,6 +171,7 @@ export default function SpongeCountSheet({ patientName, patientData }) {
           </div>
         </div>
       </div>
+      <br />  
 
       {/* ── Signature Lines ── */}
       <div className="scs-sig-row">

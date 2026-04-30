@@ -15,7 +15,7 @@ export default function MonitoringSheet({ patientName, patientData }) {
     return { generatedOn };
   }, []);
 
-  const ROWS = 24;
+  const ROWS = 26;
   const columns = [
     { label: "Date",      cls: "mon-col-date" },
     { label: "Time",      cls: "mon-col-time" },

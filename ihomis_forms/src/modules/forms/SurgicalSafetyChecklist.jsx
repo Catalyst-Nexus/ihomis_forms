@@ -162,6 +162,7 @@ export default function SurgicalSafetyChecklist({ patientName, patientData }) {
           </tr>
         </tbody>
       </table>
+      <br />
 
       {/* ── Footer ── */}
       <div className="ssc-footer">
