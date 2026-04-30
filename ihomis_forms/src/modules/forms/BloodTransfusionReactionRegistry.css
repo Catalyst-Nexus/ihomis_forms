@@ -8,9 +8,9 @@
 /* ─── PAGE ────────────────────────────────────────────────── */
 .btrr-page {
   width: 210mm;
-  min-height: 297mm;
+  height: auto;
   margin: 0 auto;
-  padding: 1.25rem 1.4rem 1.2rem;
+  padding: 0.75rem 1rem 0.75rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 0.88rem;
@@ -48,6 +48,7 @@
 /* ─── META ────────────────────────────────────────────────── */
 .btrr-meta-section {
   margin-bottom: 0.1rem;
+  flex-shrink: 0;
 }
 
 .btrr-meta-row {
@@ -56,6 +57,7 @@
   flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 .btrr-meta-row--4col {
@@ -106,13 +108,13 @@
 
 .btrr-line--sm   { width: 70px; }
 .btrr-line--md   { width: 110px; }
-.btrr-line--lg   { width: 150px; }
-.btrr-line--xl   { flex: 1; min-width: 80px; }
+.btrr-line--lg   { width: 120px; }
+.btrr-line--xl   { flex: 1; min-width: 200px; }
 .btrr-line--fill { flex: 1; min-width: 60px; }
 
 /* ─── GAPS ────────────────────────────────────────────────── */
-.btrr-gap     { height: 0.55rem; }
-.btrr-gap-sm  { height: 0.28rem; }
+.btrr-gap     { height: 0.55rem; flex-shrink: 0; }
+.btrr-gap-sm  { height: 0.28rem; flex-shrink: 0; }
 .btrr-spacer  { flex: 1; }
 
 /* ─── FIELD ROWS ──────────────────────────────────────────── */
@@ -122,24 +124,33 @@
   gap: 4px;
   margin-bottom: 2px;
   flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .btrr-field-row--mt {
   margin-top: 0.25rem;
 }
 
+/* Bilirubin Test field row - add top margin */
+.btrr-page:nth-child(2) .btrr-field-row:first-of-type {
+  margin-top: 2rem;
+}
+
 /* ─── SECTION LABELS ──────────────────────────────────────── */
 .btrr-section-label {
   margin: 0 0 0.2rem 0;
+  flex-shrink: 0;
 }
 
 .btrr-section-bold {
   font-weight: 700;
   margin: 0 0 0.25rem 0;
+  flex-shrink: 0;
 }
 
 .btrr-plain {
   margin: 0 0 0.1rem 0;
+  flex-shrink: 0;
 }
 
 .btrr-italic-note {
@@ -150,11 +161,13 @@
 .btrr-divider {
   border-top: 1px solid #000;
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* ─── SYMPTOMS GRID ───────────────────────────────────────── */
 .btrr-symptoms-section {
   margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 .btrr-symptoms-grid {
@@ -162,6 +175,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 2px 0;
   padding-left: 0.4rem;
+  flex-shrink: 0;
 }
 
 .btrr-others-row {
@@ -176,6 +190,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.1rem;
+  flex-shrink: 0;
 }
 
 /* ─── MEDTECH ROW ─────────────────────────────────────────── */
@@ -184,6 +199,7 @@
   align-items: baseline;
   gap: 4px;
   margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 .btrr-medtech-label {
@@ -197,6 +213,7 @@
   align-items: center;
   gap: 2px;
   margin: 0.2rem 0;
+  flex-shrink: 0;
 }
 
 .btrr-centered-fields--narrow {
@@ -207,6 +224,11 @@
 .btrr-centered-fields--right {
   align-items: center;
   margin-bottom: 0.3rem;
+}
+
+/* Page 3 Technologist/Date - add top margin */
+.btrr-page--p3 .btrr-centered-fields--right {
+  margin-top: 2rem;
 }
 
 .btrr-centered-field {
@@ -221,6 +243,7 @@
   align-items: flex-start;
   gap: 2rem;
   margin-bottom: 0.3rem;
+  flex-shrink: 0;
 }
 
 .btrr-reviewed-right {
@@ -242,6 +265,7 @@
 .btrr-important {
   font-weight: 700;
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* ─── TABLES ──────────────────────────────────────────────── */
@@ -250,6 +274,7 @@
   border-collapse: collapse;
   font-size: 0.82rem;
   margin-bottom: 0.1rem;
+  flex-shrink: 0;
 }
 
 .btrr-table th,
@@ -350,53 +375,100 @@
   font-size: 0.72rem;
   font-style: italic;
   color: #000;
-}
-
-@media print {
-  #print-container .form-document .btrr-page {
-    width: 100% !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0.6rem 1.4rem 1.1rem !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
-    page-break-after: always !important;
-    break-after: page !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  #print-container .form-document .btrr-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-
-  #print-container .form-document .btrr-page--p3 {
-    padding-top: 1.2rem !important;
-  }
-
-  #print-container .form-document .btrr-page--p2 {
-    padding-top: 1.1rem !important;
-    font-size: 0.84rem !important;
-  }
-
-  #print-container .form-document .btrr-header-spacer {
-    display: none !important;
-    height: 0 !important;
-  }
-
-  #print-container .form-document .btrr-footer {
-    margin-top: 0.5rem !important;
-  }
+  flex-shrink: 0;
 }
 
 /* ─── PAGE 3 specific ─────────────────────────────────────── */
 .btrr-page--p3 {
-  min-height: 297mm;
+  height: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* ───────────────── PRINT MEDIA QUERY ───────────────────── */
+/* ═══════════════════════════════════════════════════════════ */
+@media print {
+  /* Remove margins between pages */
+  .btrr-wrap {
+    gap: 0 !important;
+  }
+
+  /* Reset page properties for print */
+  .btrr-page {
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0.5rem 0.7rem 0.5rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block !important;
+    margin-bottom: 0 !important;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Force page breaks between pages */
+  .btrr-page:nth-child(1) {
+    page-break-after: always !important;
+  }
+
+  .btrr-page:nth-child(2) {
+    page-break-after: always !important;
+    margin-top: 4.2rem !important;
+  }
+
+  /* Last page no break */
+  .btrr-page:nth-child(3) {
+    page-break-after: auto !important;
+    margin-top: 4.2rem !important;
+  }
+
+  /* Hide header spacer in print */
+  .btrr-header-spacer {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Prevent tables from breaking internally */
+  .btrr-table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: visible !important;
+  }
+
+  .btrr-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Prevent orphaned text */
+  .btrr-plain,
+  .btrr-section-bold,
+  .btrr-section-label {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Reduce gaps slightly to fit content */
+  .btrr-gap {
+    height: 0.35rem !important;
+  }
+
+  .btrr-gap-sm {
+    height: 0.15rem !important;
+  }
+
+  /* Ensure footer stays with content */
+  .btrr-footer {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
 
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
