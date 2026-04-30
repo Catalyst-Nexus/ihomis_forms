@@ -224,11 +224,8 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
 				{/* Platelets */}
 				<div className="brf-component-block">
-
 					<div className="brf-component-title">
 						<span className="brf-checkbox">[ ]</span>
-						<div className="brf-header-spacer" aria-hidden="true" />
-						
 						<strong> Platelets</strong>(approximate volume 50ml): Blood Type <span className="brf-underline-blank brf-blank-sm" /> Number of units needed <span className="brf-underline-blank brf-blank-sm" />.
 					</div>
 					<div className="brf-indications">
@@ -352,37 +349,42 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 					<div className="brf-req-label">Requested by:</div>
 					<div className="brf-signature-row">
 						<div className="brf-sig-block">
-							<div className="brf-sig-line-wrap">
-								<span className="brf-sig-suffix" style={{ marginLeft: "300px" }}> M. D.</span>
+							<div className="brf-sig-line-wrap brf-sig-line-wrap--suffix">
+								<span className="brf-sig-line" />
+								<span className="brf-sig-suffix">M. D.</span>
 							</div>
 							<div className="brf-sig-label">Signature over Printed Name of Physician</div>
 						</div>
 						<div className="brf-sig-block">
-							<div className="brf-sig-label">Signature over Printed Name of Nurse on Duty</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">Signature over Printed Name of Nurse on Duty</div>
+							</div>
 						</div>
 					</div>
 				</div>
 
 				{/* Remarks */}
-				<br></br>
 				<div className="brf-remarks-row">
 					<span className="brf-label">Remarks: </span>
 					<span className="brf-underline-blank brf-blank-full" />
 				</div>
 
-				<br></br>
-
 				{/* Received By */}
 				<div className="brf-received-section">
 					<div className="brf-req-label">Received by:</div>
-					<br></br>
-					<br></br>
-					<div className="brf-signature-row">
+					<div className="brf-signature-row brf-signature-row--offset">
 						<div className="brf-sig-block">
-							<div className="brf-sig-label">(Blood Bank Staff)</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">(Blood Bank Staff)</div>
+							</div>
 						</div>
 						<div className="brf-sig-block">
-							<div className="brf-sig-label">Date/Time</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">Date/Time</div>
+							</div>
 						</div>
 					</div>
 				</div>
