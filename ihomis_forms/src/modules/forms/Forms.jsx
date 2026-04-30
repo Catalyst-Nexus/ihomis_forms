@@ -559,13 +559,21 @@ export default function Forms({
     }
   };
 
-  const getHeaderConfig = (formName) => ({
-    formNo: "",
-    revised: "",
-    title: (formName || "").toUpperCase(),
-    leftLogoSrc: "",
-    rightLogoSrc: "",
-  });
+  const getHeaderConfig = (formName) => {
+    const normalizedName = formName || "";
+    const headerTitle =
+      normalizedName === "Blood Request Form (Pedia)"
+        ? "BLOOD REQUEST FORM (PEDIATRIC)"
+        : normalizedName.toUpperCase();
+
+    return {
+      formNo: "",
+      revised: "",
+      title: headerTitle,
+      leftLogoSrc: "",
+      rightLogoSrc: "",
+    };
+  };
 
   const renderFormBody = (formName) => {
     const formRendererMap = {

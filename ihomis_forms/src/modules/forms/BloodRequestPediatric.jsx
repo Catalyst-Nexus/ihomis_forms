@@ -43,64 +43,71 @@ export default function BloodRequestPediatric({ babyName, babyData = {} }) {
 
       {/* ═══════════════ PAGE 1 ═══════════════ */}
       <div className="brp-page">
-        <div className="brp-header-spacer" />
-        <div className="brp-header">
-          <p className="brp-title-main">BLOOD REQUEST FORM</p>
-          <p className="brp-title-sub">(PEDIATRIC)</p>
-        </div>
 
         {/* META */}
         <div className="brp-meta-section">
-          <div className="brp-meta-row">
-            <span className="brp-label">Hospital No.:</span>
-            <span>{hospitalNo}</span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Patient Name:</span>
-              <span>{name}</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "50px" }}>Sex:</span>
-              <span>{sex}</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "200px" }}>Age:</span>
-              <span>{age}</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Case No.:</span>
-              <span>{caseNum}</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "68px" }}>BirthDate:</span>
-              <span>{birthDate}</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "60px" }}>Date:</span>
-              <span>{requestDate}</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Department:</span>
-              <span>{department}</span>
-            </span>
-            <span className="brp-meta-cell brp-meta-cell--rest">
-              <span className="brp-label">Room No.:</span>
-              <span>{roomNo}</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-label">Address:</span>
-            <span>{address}</span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-label">Admitting Impression/Clinical Diagnosis:</span>
-            <span>{impression}</span>
-          </div>
+          <table className="brp-meta-table">
+            <tbody>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">Hospital No.:</span>
+                  <span className="brp-meta-value">{hospitalNo}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Patient Name:</span>
+                  <span className="brp-meta-value">{name}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Sex:</span>
+                  <span className="brp-meta-value">{sex}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Age:</span>
+                  <span className="brp-meta-value">{age}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Case No.:</span>
+                  <span className="brp-meta-value">{caseNum}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">BirthDate:</span>
+                  <span className="brp-meta-value">{birthDate}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Date:</span>
+                  <span className="brp-meta-value">{requestDate}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Department:</span>
+                  <span className="brp-meta-value">{department}</span>
+                </td>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Room No.:</span>
+                  <span className="brp-meta-value">{roomNo}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">Address:</span>
+                  <span className="brp-meta-value">{address}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">
+                    Admitting Impression/Clinical Diagnosis:
+                  </span>
+                  <span className="brp-meta-value">{impression}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* HISTORY */}
@@ -286,7 +293,8 @@ export default function BloodRequestPediatric({ babyName, babyData = {} }) {
       </div>
 
       {/* ═══════════════ PAGE 2 ═══════════════ */}
-      <div className="brp-page brp-page--p2">
+        <div className="brp-page brp-page--p2">
+          <div className="brp-requested-block">
 
         {/* REQUESTED BY */}
         <div className="brp-plain-label">Requested by:</div>
@@ -295,7 +303,7 @@ export default function BloodRequestPediatric({ babyName, babyData = {} }) {
         <div className="brp-sig-row">
           <div className="brp-sig-block">
             <div className="brp-sig-line-with-md">
-              <span className="brp-sig-md" style={{ marginLeft: "300px" }}>M. D.</span>
+              <span className="brp-sig-md">M. D.</span>
             </div>
             <p className="brp-sig-label">Signature over Printed Name of Physician</p>
           </div>
@@ -327,8 +335,9 @@ export default function BloodRequestPediatric({ babyName, babyData = {} }) {
           </div>
         </div>
 
-        <div className="brp-footer">
-          Generated by: TCP T. TCP on {generatedOn}
+          <div className="brp-footer">
+            Generated by: TCP T. TCP on {generatedOn}
+          </div>
         </div>
       </div>
 

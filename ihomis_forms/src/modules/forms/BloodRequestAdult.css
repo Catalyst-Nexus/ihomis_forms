@@ -27,6 +27,11 @@
   flex-shrink: 0;
 }
 
+/* ─── PAGE 2 HEADER SPACER ────────────────────────────────── */
+.brf-page-2 .brf-header-spacer {
+  height: 0.5rem;
+}
+
 /* ─── PATIENT INFO BLOCK ──────────────────────────────────── */
 .brf-patient-info {
   border: 1px solid #000;
@@ -116,6 +121,11 @@
   flex-shrink: 0;
 }
 
+/* First component block on page 2 gets extra top spacing */
+.brf-page-2 .brf-component-block:first-of-type {
+  margin-top: 1.2rem;
+}
+
 .brf-component-title {
   display: flex;
   align-items: baseline;
@@ -185,12 +195,15 @@
 .brf-signature-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2rem;
 }
 
 .brf-sig-block {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   text-align: center;
 }
 
@@ -198,6 +211,7 @@
   display: block;
   border-bottom: 1px solid #000;
   width: 100%;
+  min-width: 0;
   margin-bottom: 2px;
   height: 1.4rem;
 }
@@ -207,6 +221,22 @@
   align-items: flex-end;
   justify-content: center;
   gap: 4px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.brf-sig-line-wrap .brf-sig-line {
+  flex: 1 1 auto;
+}
+
+.brf-sig-line-wrap--suffix {
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.brf-sig-line-wrap--suffix .brf-sig-line {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .brf-sig-suffix {
@@ -219,6 +249,24 @@
   padding-top: 2px;
   text-align: center;
   margin-top: 2px;
+  white-space: nowrap;
+}
+
+.brf-sig-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+}
+
+.brf-sig-stack .brf-sig-line {
+  width: 100%;
+}
+
+
+.brf-signature-row--offset {
+  margin-top: 1.1rem;
 }
 
 /* ─── REMARKS ─────────────────────────────────────────────── */

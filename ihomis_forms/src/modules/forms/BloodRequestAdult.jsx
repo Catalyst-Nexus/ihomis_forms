@@ -26,7 +26,7 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
 
 	return (
-		<div className="brf-document">
+		<div className="brf-document brf-adult-document">
 			<div className="brf-page">
 				{/* Header reserved space for hospital letterhead */}
 				<div className="brf-header-spacer" aria-hidden="true" />
@@ -221,7 +221,6 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
 			{/* ── PAGE 2 ── */}
 			<div className="brf-page brf-page-2">
-				<div className="brf-header-spacer" aria-hidden="true" />
 
 				{/* Platelets */}
 				<div className="brf-component-block">
@@ -350,15 +349,17 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 					<div className="brf-req-label">Requested by:</div>
 					<div className="brf-signature-row">
 						<div className="brf-sig-block">
-							<div className="brf-sig-line-wrap">
+							<div className="brf-sig-line-wrap brf-sig-line-wrap--suffix">
 								<span className="brf-sig-line" />
-								<span className="brf-sig-suffix"> M. D.</span>
+								<span className="brf-sig-suffix">M. D.</span>
 							</div>
 							<div className="brf-sig-label">Signature over Printed Name of Physician</div>
 						</div>
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
-							<div className="brf-sig-label">Signature over Printed Name of Nurse on Duty</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">Signature over Printed Name of Nurse on Duty</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -372,14 +373,18 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 				{/* Received By */}
 				<div className="brf-received-section">
 					<div className="brf-req-label">Received by:</div>
-					<div className="brf-signature-row">
+					<div className="brf-signature-row brf-signature-row--offset">
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
-							<div className="brf-sig-label">(Blood Bank Staff)</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">(Blood Bank Staff)</div>
+							</div>
 						</div>
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
-							<div className="brf-sig-label">Date/Time</div>
+							<div className="brf-sig-stack">
+								<div className="brf-sig-line" />
+								<div className="brf-sig-label">Date/Time</div>
+							</div>
 						</div>
 					</div>
 				</div>
