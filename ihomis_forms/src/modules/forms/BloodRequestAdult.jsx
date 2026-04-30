@@ -26,7 +26,7 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
 
 	return (
-		<div className="brf-document">
+		<div className="brf-document brf-adult-document">
 			<div className="brf-page">
 				{/* Header reserved space for hospital letterhead */}
 				<div className="brf-header-spacer" aria-hidden="true" />
@@ -221,12 +221,14 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
 			{/* ── PAGE 2 ── */}
 			<div className="brf-page brf-page-2">
-				<div className="brf-header-spacer" aria-hidden="true" />
 
 				{/* Platelets */}
 				<div className="brf-component-block">
+
 					<div className="brf-component-title">
 						<span className="brf-checkbox">[ ]</span>
+						<div className="brf-header-spacer" aria-hidden="true" />
+						
 						<strong> Platelets</strong>(approximate volume 50ml): Blood Type <span className="brf-underline-blank brf-blank-sm" /> Number of units needed <span className="brf-underline-blank brf-blank-sm" />.
 					</div>
 					<div className="brf-indications">
@@ -351,34 +353,35 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 					<div className="brf-signature-row">
 						<div className="brf-sig-block">
 							<div className="brf-sig-line-wrap">
-								<span className="brf-sig-line" />
-								<span className="brf-sig-suffix"> M. D.</span>
+								<span className="brf-sig-suffix" style={{ marginLeft: "300px" }}> M. D.</span>
 							</div>
 							<div className="brf-sig-label">Signature over Printed Name of Physician</div>
 						</div>
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
 							<div className="brf-sig-label">Signature over Printed Name of Nurse on Duty</div>
 						</div>
 					</div>
 				</div>
 
 				{/* Remarks */}
+				<br></br>
 				<div className="brf-remarks-row">
 					<span className="brf-label">Remarks: </span>
 					<span className="brf-underline-blank brf-blank-full" />
 				</div>
 
+				<br></br>
+
 				{/* Received By */}
 				<div className="brf-received-section">
 					<div className="brf-req-label">Received by:</div>
+					<br></br>
+					<br></br>
 					<div className="brf-signature-row">
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
 							<div className="brf-sig-label">(Blood Bank Staff)</div>
 						</div>
 						<div className="brf-sig-block">
-							<span className="brf-sig-line" />
 							<div className="brf-sig-label">Date/Time</div>
 						</div>
 					</div>
