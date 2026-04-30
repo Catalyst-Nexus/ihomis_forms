@@ -24,10 +24,20 @@
   flex-direction: column;
 }
 
+/* ─── PAGE 2 SPECIFIC ──────────────────────────────────────── */
+.brf-page-2 {
+  padding-top: 1.25rem;
+}
+
 /* ─── HEADER SPACER ───────────────────────────────────────── */
 .brf-header-spacer {
   height: 1rem;
   flex-shrink: 0;
+}
+
+/* ─── PAGE 2 HEADER SPACER ────────────────────────────────── */
+.brf-page-2 .brf-header-spacer {
+  height: 0.5rem;
 }
 
 /* ─── PATIENT INFO BLOCK ──────────────────────────────────── */
@@ -122,6 +132,11 @@
 .brf-component-block {
   margin-bottom: 0.35rem;
   flex-shrink: 0;
+}
+
+/* First component block on page 2 gets extra top spacing */
+.brf-page-2 .brf-component-block:first-of-type {
+  margin-top: 4.2rem;
 }
 
 .brf-component-title {
@@ -248,75 +263,47 @@
   margin: 0.3rem 0;
 }
 
-/* ─── PRINT ───────────────────────────────────────────────── */
+/* ─── PRINT (adult form only) ──────────────────────────────── */
 @media print {
-  * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Hide everything on the page except the document */
-  body > * {
-    display: none !important;
-  }
-
-  /* Show only the modal/container holding this form */
-  /* Adjust this selector to match your actual modal wrapper */
-  .your-modal-class {
+  #print-container .form-document .form-document__body .brf-adult-document {
     display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .brf-document {
-    gap: 0;
-    display: block;
+  /* Override generic .brf-page print sizing to prevent 3-4 page split */
+  #print-container .form-document .form-document__body .brf-adult-document .brf-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    display: block !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
-  .brf-page {
-    width: 210mm;
-    height: 297mm;
-    min-height: unset;
-    max-height: 297mm;
-    margin: 0;
-    padding: 12mm 14mm 10mm;
-    box-shadow: none;
-    border: none;
-    border-radius: 0;
-    overflow: hidden;
-    page-break-after: always;
-    break-after: page;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
+  #print-container .form-document .form-document__body .brf-adult-document .brf-page:first-child {
+    page-break-after: always !important;
+    break-after: page !important;
   }
 
-  .brf-page:last-child {
-    page-break-after: avoid;
-    break-after: avoid;
+  #print-container .form-document .form-document__body .brf-adult-document .brf-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
-  .brf-header-spacer {
-    height: 38mm;
-    flex-shrink: 0;
-  }
-
-  .brf-patient-info {
-    padding: 0.2rem 0.4rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .brf-component-block {
-    margin-bottom: 0.18rem;
-  }
-
-  .brf-note-block {
-    margin: 0.12rem 0 0.15rem 0;
-  }
-
-  .brf-indication-item,
-  .brf-ind-text,
-  .brf-note-content {
-    font-size: 0.85rem;
-    line-height: 1.25;
+  /* Keep print start aligned with modal body content */
+  #print-container .form-document .form-document__body .brf-adult-document .brf-header-spacer {
+    display: none !important;
+    height: 0 !important;
   }
 }
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
