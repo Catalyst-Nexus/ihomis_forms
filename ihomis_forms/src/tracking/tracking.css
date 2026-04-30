@@ -1,0 +1,134 @@
+.tracking-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.tracking-shell {
+  width: min(1360px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.tracking-title-box {
+  background: #edf5fb;
+  border: 1px solid #d8e7f4;
+  border-radius: 6px;
+  text-align: center;
+  padding: 1rem 0.8rem;
+}
+
+.tracking-title-box h1 {
+  margin: 0;
+  color: #3ca7d7;
+  font-size: clamp(1.4rem, 2.5vw, 2.8rem);
+  font-weight: 500;
+}
+
+.tracking-title-box p {
+  margin: 0.15rem 0 0;
+  color: #4285d8;
+  font-size: clamp(1rem, 1.8vw, 2rem);
+}
+
+.tracking-title-box small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #4a6376;
+  font-size: 0.82rem;
+}
+
+.tracking-filters {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.tracking-filter-row {
+  display: grid;
+  grid-template-columns: 260px 1fr auto;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.tracking-filter-row label {
+  color: #4b5e70;
+  font-size: 0.8rem;
+}
+
+.tracking-filter-row select,
+.tracking-filter-row input {
+  border: 1px solid #d5dde6;
+  border-radius: 2px;
+  padding: 0.38rem 0.5rem;
+  font-size: 0.82rem;
+  min-height: 30px;
+}
+
+.tracking-filter-row button,
+.tracking-actions button,
+.tracking-update-admin {
+  border: 1px solid #1d7bf3;
+  background: #1d7bf3;
+  color: #ffffff;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.tracking-filter-row button {
+  padding: 0.37rem 0.75rem;
+}
+
+.tracking-update-admin {
+  width: min(680px, 100%);
+  justify-self: center;
+  margin-top: 0.45rem;
+  padding: 0.47rem 0.85rem;
+}
+
+.tracking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tracking-actions button {
+  padding: 0.42rem 0.8rem;
+}
+
+.tracking-table-wrap {
+  border: 1px solid #d8dfe8;
+  overflow: auto;
+}
+
+.tracking-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1180px;
+}
+
+.tracking-table th,
+.tracking-table td {
+  border: 1px solid #e2e8ef;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.76rem;
+  color: #4a5a69;
+  white-space: nowrap;
+}
+
+.tracking-table th {
+  background: #f6f8fb;
+  font-weight: 700;
+  color: #4f5e6d;
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .tracking-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-actions {
+    flex-direction: column;
+  }
+}

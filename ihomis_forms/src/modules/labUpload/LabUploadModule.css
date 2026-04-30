@@ -390,6 +390,14 @@
   max-width: 64ch;
 }
 
+.pk-header-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .pk-header-selection {
   display: inline-flex;
   align-items: center;
@@ -903,10 +911,13 @@
 }
 
 .pk-confirm-btn--header {
-  margin-left: auto;
   padding: 0.62rem 1rem;
   font-size: 0.85rem;
   border-radius: 10px;
+}
+
+.pk-confirm-btn--secondary {
+  background: #0f6fdd;
 }
 
 .pk-confirm-btn:hover:not(:disabled) {

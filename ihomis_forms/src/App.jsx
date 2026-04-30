@@ -8,6 +8,7 @@ import {
   LAB_UPLOAD_CONTEXT_URL,
   LAB_UPLOAD_PATIENT_SEARCH_URL,
 } from "./modules/labUpload/labUploadConfig.js";
+import Tracking from "./tracking/tracking.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
 import "./modules/labUpload/LabUploadModule.css";
@@ -33,9 +34,14 @@ const modules = [
 const LANDING_PAGE = {
   PATIENT_SELECTION: "patient-selection",
   MODULE_NAVIGATOR: "module-navigator",
+  TRACKING: "tracking",
 };
 
-function PatientSelectionPage({ patientPicker, onConfirmSelection }) {
+function PatientSelectionPage({
+  patientPicker,
+  onConfirmSelection,
+  onOpenTracking,
+}) {
   return (
     <div className="app-landing-page">
       <div
@@ -75,6 +81,8 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection }) {
             title="Select Patient Before Continuing"
             subtitle="Choose the patient record first, then continue to Module Navigator."
             confirmLabel="Continue to Module Navigator"
+            secondaryActionLabel="Tracking System"
+            onSecondaryAction={onOpenTracking}
           />
         </section>
       </main>
@@ -166,8 +174,35 @@ function App() {
     patientPicker.selectionConfirmed && patientPicker.selectedPatient,
   );
 
+  const trackingRows = useMemo(
+    () =>
+      patientPicker.patients.map((patient) => ({
+        id: patient.id,
+        hospitalNo:
+          patient.contextParams?.enccode ||
+          patient.contextParams?.enc ||
+          patient.id,
+        admittedDate: "2025-04-14 08:25:40",
+        dischargedDate: "2025-04-15 10:48:54",
+        patientName: patient.displayName,
+        phic: "No PHIC",
+        recordsReceived: "No Remarks",
+        verify: "Not yet Verified",
+        scan: "Not yet Scanned",
+        send: "Not yet Sent",
+        recordsFiled: "Not yet Filed",
+        claimMap: "Not yet Submitted to PhilHealth",
+        acpm: "No cheque yet",
+      })),
+    [patientPicker.patients],
+  );
+
   useEffect(() => {
-    if (!hasConfirmedPatient && landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
+    if (
+      !hasConfirmedPatient &&
+      (landingPage === LANDING_PAGE.MODULE_NAVIGATOR ||
+        landingPage === LANDING_PAGE.TRACKING)
+    ) {
       setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
     }
   }, [hasConfirmedPatient, landingPage]);
@@ -191,6 +226,14 @@ function App() {
 
     if (patientPicker.selectedPatientId) {
       setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
+    }
+  }
+
+  function handleOpenTrackingFromSelection() {
+    patientPicker.confirmSelection();
+
+    if (patientPicker.selectedPatientId) {
+      setLandingPage(LANDING_PAGE.TRACKING);
     }
   }
 
@@ -220,6 +263,20 @@ function App() {
         <PatientSelectionPage
           patientPicker={patientPicker}
           onConfirmSelection={handleConfirmPatientSelection}
+          onOpenTracking={handleOpenTrackingFromSelection}
+        />
+      );
+    }
+
+    if (landingPage === LANDING_PAGE.TRACKING) {
+      return (
+        <Tracking
+          selectedPatient={patientPicker.selectedPatient}
+          trackingRows={trackingRows}
+          onBackToModuleNavigator={() =>
+            setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)
+          }
+          onChangePatient={handleChangeLandingPatient}
         />
       );
     }

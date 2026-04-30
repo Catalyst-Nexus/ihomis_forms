@@ -212,6 +212,8 @@ function LabPatientPickerPanel({
   title,
   subtitle,
   confirmLabel,
+  onSecondaryAction,
+  secondaryActionLabel,
 }) {
   const hasSelection = Boolean(selectedPatientId);
 
@@ -241,26 +243,37 @@ function LabPatientPickerPanel({
           <p className="pk-header-sub">{subtitle}</p>
         </div>
         {hasSelection && (
-          <button
-            type="button"
-            className="pk-confirm-btn pk-confirm-btn--header"
-            onClick={onConfirmSelection}
-          >
-            <svg
-              viewBox="0 0 20 20"
-              width="15"
-              height="15"
-              fill="currentColor"
-              aria-hidden="true"
+          <div className="pk-header-actions">
+            <button
+              type="button"
+              className="pk-confirm-btn pk-confirm-btn--header"
+              onClick={onConfirmSelection}
             >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10 9.414l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0 0-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {confirmLabel}
-          </button>
+              <svg
+                viewBox="0 0 20 20"
+                width="15"
+                height="15"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10 9.414l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0 0-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {confirmLabel}
+            </button>
+            {onSecondaryAction && secondaryActionLabel ? (
+              <button
+                type="button"
+                className="pk-confirm-btn pk-confirm-btn--header pk-confirm-btn--secondary"
+                onClick={onSecondaryAction}
+              >
+                {secondaryActionLabel}
+              </button>
+            ) : null}
+          </div>
         )}
       </div>
 
@@ -446,12 +459,16 @@ LabPatientPickerPanel.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   confirmLabel: PropTypes.string,
+  onSecondaryAction: PropTypes.func,
+  secondaryActionLabel: PropTypes.string,
 };
 
 LabPatientPickerPanel.defaultProps = {
   title: "Select Patient Before Upload",
   subtitle: "Choose whose laboratory result you are uploading.",
   confirmLabel: "Continue to Lab Upload",
+  onSecondaryAction: null,
+  secondaryActionLabel: "",
 };
 
 export default LabPatientPickerPanel;
