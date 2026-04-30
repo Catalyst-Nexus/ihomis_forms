@@ -9,6 +9,7 @@ import {
   LAB_UPLOAD_PATIENT_SEARCH_URL,
 } from "./modules/labUpload/labUploadConfig.js";
 import Tracking from "./tracking/tracking.jsx";
+import Tagging from "./tracking/Tagging.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
 import "./modules/labUpload/LabUploadModule.css";
@@ -35,6 +36,7 @@ const LANDING_PAGE = {
   PATIENT_SELECTION: "patient-selection",
   MODULE_NAVIGATOR: "module-navigator",
   TRACKING: "tracking",
+  TAGGING: "tagging",
 };
 
 function PatientSelectionPage({
@@ -201,7 +203,8 @@ function App() {
     if (
       !hasConfirmedPatient &&
       (landingPage === LANDING_PAGE.MODULE_NAVIGATOR ||
-        landingPage === LANDING_PAGE.TRACKING)
+        landingPage === LANDING_PAGE.TRACKING ||
+        landingPage === LANDING_PAGE.TAGGING)
     ) {
       setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
     }
@@ -235,6 +238,14 @@ function App() {
     if (patientPicker.selectedPatientId) {
       setLandingPage(LANDING_PAGE.TRACKING);
     }
+  }
+
+  function handleOpenTaggingFromTracking() {
+    setLandingPage(LANDING_PAGE.TAGGING);
+  }
+
+  function handleBackToTracking() {
+    setLandingPage(LANDING_PAGE.TRACKING);
   }
 
   function handleChangeLandingPatient() {
@@ -276,6 +287,18 @@ function App() {
           onBackToModuleNavigator={() =>
             setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)
           }
+          onChangePatient={handleChangeLandingPatient}
+          onOpenTagging={handleOpenTaggingFromTracking}
+        />
+      );
+    }
+
+    if (landingPage === LANDING_PAGE.TAGGING) {
+      return (
+        <Tagging
+          selectedPatient={patientPicker.selectedPatient}
+          trackingRows={trackingRows}
+          onBackToTracking={handleBackToTracking}
           onChangePatient={handleChangeLandingPatient}
         />
       );

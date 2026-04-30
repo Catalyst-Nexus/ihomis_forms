@@ -2,9 +2,10 @@ import "./tracking.css";
 
 function Tracking({
   selectedPatient,
-  trackingRows,
+  trackingRows = [],
   onBackToModuleNavigator,
   onChangePatient,
+  onOpenTagging,
 }) {
   return (
     <div className="tracking-page">
@@ -52,6 +53,9 @@ function Tracking({
           </button>
           <button type="button" onClick={onChangePatient}>
             Change Patient
+          </button>
+          <button type="button" onClick={() => onOpenTagging?.()}>
+            Open Tagging
           </button>
         </section>
 

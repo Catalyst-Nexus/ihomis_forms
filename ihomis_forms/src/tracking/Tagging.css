@@ -1,0 +1,250 @@
+.tagging-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.tagging-shell {
+  width: min(1360px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.tagging-title-box {
+  background: #edf5fb;
+  border: 1px solid #d8e7f4;
+  border-radius: 6px;
+  text-align: center;
+  padding: 1rem 0.8rem;
+}
+
+.tagging-title-box h1 {
+  margin: 0;
+  color: #3ca7d7;
+  font-size: clamp(1.4rem, 2.5vw, 2.8rem);
+  font-weight: 500;
+}
+
+.tagging-title-box p {
+  margin: 0.15rem 0 0;
+  color: #4285d8;
+  font-size: clamp(1rem, 1.8vw, 2rem);
+}
+
+.tagging-title-box small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #4a6376;
+  font-size: 0.82rem;
+}
+
+.tagging-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tagging-actions button {
+  border: 1px solid #1d7bf3;
+  background: #1d7bf3;
+  color: #ffffff;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  padding: 0.42rem 0.8rem;
+  cursor: pointer;
+}
+
+.tagging-panel {
+  border: 1px solid #d8e7f4;
+  background: #f5f9fd;
+  border-radius: 6px;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tagging-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tagging-panel-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2f3f50;
+}
+
+.tagging-panel-header p {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: #5c6e80;
+}
+
+.tagging-panel-summary {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #4a5a69;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tagging-panel-error {
+  color: #b03b3b;
+}
+
+.tagging-panel-summary button {
+  justify-self: end;
+  border: 1px solid #1d7bf3;
+  background: #1d7bf3;
+  color: #ffffff;
+  border-radius: 2px;
+  font-size: 0.72rem;
+  padding: 0.34rem 0.7rem;
+  cursor: pointer;
+}
+
+.tagging-panel-summary button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tagging-panel-controls {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tagging-panel-controls label {
+  color: #4b5e70;
+  font-size: 0.8rem;
+}
+
+.tagging-panel-controls select {
+  border: 1px solid #d5dde6;
+  border-radius: 2px;
+  padding: 0.38rem 0.5rem;
+  font-size: 0.82rem;
+  min-height: 30px;
+}
+
+.tagging-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+
+.tagging-card {
+  background: #ffffff;
+  border: 1px solid #d8dfe8;
+  border-radius: 6px;
+  padding: 0.65rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.tagging-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tagging-card-head h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #2f3f50;
+}
+
+.tagging-step {
+  font-size: 0.7rem;
+  color: #6f8191;
+  background: #edf3f9;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.tagging-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tagging-field label {
+  font-size: 0.75rem;
+  color: #4b5e70;
+}
+
+.tagging-field select {
+  border: 1px solid #d5dde6;
+  border-radius: 2px;
+  padding: 0.34rem 0.5rem;
+  font-size: 0.78rem;
+  min-height: 30px;
+}
+
+.tagging-field select:disabled {
+  background: #f2f4f7;
+}
+
+.tagging-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f6f8fb;
+  border-radius: 4px;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.72rem;
+  color: #4a5a69;
+}
+
+.tagging-status strong {
+  font-weight: 600;
+  color: #2f3f50;
+}
+
+.tagging-actions-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.tagging-actions-row button {
+  border: 1px solid #1d7bf3;
+  background: #1d7bf3;
+  color: #ffffff;
+  border-radius: 2px;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.tagging-actions-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tagging-clear {
+  border-color: #c6d0dc;
+  background: #eef2f6;
+  color: #415161;
+}
+
+@media (max-width: 720px) {
+  .tagging-actions {
+    flex-direction: column;
+  }
+
+  .tagging-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tagging-panel-summary {
+    text-align: left;
+  }
+
+  .tagging-panel-controls {
+    grid-template-columns: 1fr;
+  }
+}
