@@ -916,8 +916,8 @@
   border-radius: 10px;
 }
 
-.pk-confirm-btn--secondary {
-  background: #0f6fdd;
+.pk-confirm-btn {
+  background: #1b7f79;
 }
 
 .pk-confirm-btn:hover:not(:disabled) {

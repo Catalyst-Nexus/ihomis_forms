@@ -1,6 +1,17 @@
 .tracking-page {
   min-height: 100vh;
-  background: #ffffff;
+  background:
+    radial-gradient(
+      circle at 6% 18%,
+      rgba(86, 204, 189, 0.35),
+      rgba(86, 204, 189, 0) 36%
+    ),
+    radial-gradient(
+      circle at 94% 86%,
+      rgba(242, 195, 126, 0.35),
+      rgba(242, 195, 126, 0) 34%
+    ),
+    #eaf2ef;
   padding: 1rem;
 }
 
@@ -12,30 +23,31 @@
 }
 
 .tracking-title-box {
-  background: #edf5fb;
-  border: 1px solid #d8e7f4;
-  border-radius: 6px;
+  background: linear-gradient(165deg, #ffffff 0%, #f3fcfa 100%);
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(16, 54, 63, 0.08);
   text-align: center;
   padding: 1rem 0.8rem;
 }
 
 .tracking-title-box h1 {
   margin: 0;
-  color: #3ca7d7;
+  color: #10363f;
   font-size: clamp(1.4rem, 2.5vw, 2.8rem);
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .tracking-title-box p {
   margin: 0.15rem 0 0;
-  color: #4285d8;
+  color: #365961;
   font-size: clamp(1rem, 1.8vw, 2rem);
 }
 
 .tracking-title-box small {
   display: block;
   margin-top: 0.5rem;
-  color: #4a6376;
+  color: #365961;
   font-size: 0.82rem;
 }
 
@@ -51,37 +63,50 @@
   align-items: center;
 }
 
+.tracking-filters > .tracking-filter-row:nth-child(2),
+.tracking-filters > .tracking-filter-row:nth-child(3) {
+  grid-template-columns: minmax(260px, 420px) auto;
+}
+
 .tracking-filter-row label {
-  color: #4b5e70;
+  color: #365961;
   font-size: 0.8rem;
 }
 
 .tracking-filter-row select,
 .tracking-filter-row input {
-  border: 1px solid #d5dde6;
-  border-radius: 2px;
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 10px;
   padding: 0.38rem 0.5rem;
   font-size: 0.82rem;
   min-height: 30px;
+  background: #ffffff;
+  color: #10363f;
 }
 
 .tracking-filter-row button,
 .tracking-actions button,
 .tracking-update-admin {
-  border: 1px solid #1d7bf3;
-  background: #1d7bf3;
+  border: none;
+  background: linear-gradient(120deg, #1b7f79, #1f9d95);
   color: #ffffff;
-  border-radius: 2px;
+  border-radius: 12px;
   font-size: 0.75rem;
+  font-weight: 700;
   cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .tracking-filter-row button {
   padding: 0.37rem 0.75rem;
+  min-width: 130px;
+  min-height: 36px;
 }
 
 .tracking-update-admin {
-  width: min(680px, 100%);
+  width: min(520px, 100%);
   justify-self: center;
   margin-top: 0.45rem;
   padding: 0.47rem 0.85rem;
@@ -96,9 +121,18 @@
   padding: 0.42rem 0.8rem;
 }
 
+.tracking-filter-row button:hover,
+.tracking-actions button:hover,
+.tracking-update-admin:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(27, 127, 121, 0.24);
+}
+
 .tracking-table-wrap {
-  border: 1px solid #d8dfe8;
+  border: 1px solid rgba(16, 54, 63, 0.16);
+  border-radius: 14px;
   overflow: auto;
+  background: #ffffff;
 }
 
 .tracking-table {
@@ -109,22 +143,27 @@
 
 .tracking-table th,
 .tracking-table td {
-  border: 1px solid #e2e8ef;
+  border: 1px solid rgba(16, 54, 63, 0.12);
   padding: 0.4rem 0.5rem;
   font-size: 0.76rem;
-  color: #4a5a69;
+  color: #365961;
   white-space: nowrap;
 }
 
 .tracking-table th {
-  background: #f6f8fb;
+  background: #f3fcfa;
   font-weight: 700;
-  color: #4f5e6d;
+  color: #10363f;
   text-align: left;
 }
 
 @media (max-width: 720px) {
   .tracking-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-filters > .tracking-filter-row:nth-child(2),
+  .tracking-filters > .tracking-filter-row:nth-child(3) {
     grid-template-columns: 1fr;
   }
 

@@ -42,9 +42,6 @@ function Tracking({
             <button type="button">Search</button>
           </div>
 
-          <button type="button" className="tracking-update-admin">
-            Update Admin
-          </button>
         </div>
 
         <section className="tracking-actions">
