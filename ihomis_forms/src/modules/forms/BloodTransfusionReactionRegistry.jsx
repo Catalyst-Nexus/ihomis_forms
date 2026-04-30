@@ -25,9 +25,8 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
     <div className="btrr-wrap">
 
       {/* ═══════════════ PAGE 1 ═══════════════ */}
-      <div className="btrr-page">
-        <div className="btrr-header-spacer" />
-       <br></br>
+      <div className="btrr-page btrr-page--p2">
+
 
         {/* META TOP */}
         <div className="btrr-meta-section">
@@ -244,7 +243,7 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
 
       {/* ═══════════════ PAGE 2 ═══════════════ */}
       <div className="btrr-page">
-        <div className="btrr-header-spacer" />
+
 
         {/* BILIRUBIN TEST */}
         <div className="btrr-field-row">

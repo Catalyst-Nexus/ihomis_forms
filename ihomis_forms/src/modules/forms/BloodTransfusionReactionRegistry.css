@@ -352,6 +352,48 @@
   color: #000;
 }
 
+@media print {
+  #print-container .form-document .btrr-page {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0.6rem 1.4rem 1.1rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #print-container .form-document .btrr-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  #print-container .form-document .btrr-page--p3 {
+    padding-top: 1.2rem !important;
+  }
+
+  #print-container .form-document .btrr-page--p2 {
+    padding-top: 1.1rem !important;
+    font-size: 0.84rem !important;
+  }
+
+  #print-container .form-document .btrr-header-spacer {
+    display: none !important;
+    height: 0 !important;
+  }
+
+  #print-container .form-document .btrr-footer {
+    margin-top: 0.5rem !important;
+  }
+}
+
 /* ─── PAGE 3 specific ─────────────────────────────────────── */
 .btrr-page--p3 {
   min-height: 297mm;
