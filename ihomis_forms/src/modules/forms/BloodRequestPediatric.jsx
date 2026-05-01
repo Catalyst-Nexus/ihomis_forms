@@ -1,69 +1,113 @@
 import "./BloodRequestPediatric.css";
 
-export default function BloodRequestPediatric() {
+const formatDateOnly = (date = new Date()) =>
+  date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+const formatGeneratedOn = (date = new Date()) => {
+  const pad = (value) => String(value).padStart(2, "0");
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  const hour12 = String(hours % 12 || 12).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${hour12}:${pad(minutes)} ${ampm}`;
+};
+
+export default function BloodRequestPediatric({ babyName, babyData = {} }) {
+  const hospitalNo =
+    babyData.hospitalNo || babyData.hospNo || babyData.hospitalNumber || "";
+  const name = babyName || babyData.patientName || babyData.fullName || "";
+  const sex = babyData.sex || "";
+  const age = babyData.age || "";
+  const caseNum = babyData.caseNum || babyData.caseNo || "";
+  const birthDate =
+    babyData.birthDate || babyData.birthdate || babyData.dob || "";
+  const requestDate =
+    babyData.requestDate || babyData.date || formatDateOnly();
+  const department = babyData.department || babyData.service || "";
+  const roomNo = babyData.room || babyData.ward || "";
+  const address = babyData.address || babyData.completeAddress || "";
+  const impression =
+    babyData.impression ||
+    babyData.diagnosis ||
+    babyData.clinicalDiagnosis ||
+    "";
+  const generatedOn = babyData.generatedOn || formatGeneratedOn();
+
   return (
     <div className="brp-wrap">
 
       {/* ═══════════════ PAGE 1 ═══════════════ */}
       <div className="brp-page">
-        <div className="brp-header-spacer" />
-        <div className="brp-header">
-          <p className="brp-title-main">BLOOD REQUEST FORM</p>
-          <p className="brp-title-sub">(PEDIATRIC)</p>
-        </div>
 
         {/* META */}
         <div className="brp-meta-section">
-          <div className="brp-meta-row">
-            <span className="brp-label">Hospital No.:</span>
-            <span>00000000020971</span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Patient Name:</span>
-              <span>MATILOS , EUGENIA MAMBA</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "50px" }}>Sex:</span>
-              <span>F</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "200px" }}>Age:</span>
-              <span>67 year(s)</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Case No.:</span>
-              <span>ADM-2026-010617</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "68px" }}>BirthDate:</span>
-              <span>January 11, 1959</span>
-            </span>
-            <span className="brp-meta-cell">
-              <span className="brp-label" style={{ marginLeft: "60px" }}>Date:</span>
-              <span>April 21, 2026</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-meta-cell brp-meta-cell--wide">
-              <span className="brp-label">Department:</span>
-              <span>MEDICAL</span>
-            </span>
-            <span className="brp-meta-cell brp-meta-cell--rest">
-              <span className="brp-label">Room No.:</span>
-              <span>ISOLATION - 6SAIS - BED 03</span>
-            </span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-label">Address:</span>
-            <span>P-1, ALIBUJID, BUENAVISTA, AGUSAN DEL NORTE</span>
-          </div>
-          <div className="brp-meta-row">
-            <span className="brp-label">Admitting Impression/Clinical Diagnosis:</span>
-            <span>CAP-MR CHF, T/C ACS HPN STAGE 2</span>
-          </div>
+          <table className="brp-meta-table">
+            <tbody>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">Hospital No.:</span>
+                  <span className="brp-meta-value">{hospitalNo}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Patient Name:</span>
+                  <span className="brp-meta-value">{name}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Sex:</span>
+                  <span className="brp-meta-value">{sex}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Age:</span>
+                  <span className="brp-meta-value">{age}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Case No.:</span>
+                  <span className="brp-meta-value">{caseNum}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">BirthDate:</span>
+                  <span className="brp-meta-value">{birthDate}</span>
+                </td>
+                <td>
+                  <span className="brp-meta-label">Date:</span>
+                  <span className="brp-meta-value">{requestDate}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Department:</span>
+                  <span className="brp-meta-value">{department}</span>
+                </td>
+                <td colSpan={2}>
+                  <span className="brp-meta-label">Room No.:</span>
+                  <span className="brp-meta-value">{roomNo}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">Address:</span>
+                  <span className="brp-meta-value">{address}</span>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4}>
+                  <span className="brp-meta-label">
+                    Admitting Impression/Clinical Diagnosis:
+                  </span>
+                  <span className="brp-meta-value">{impression}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* HISTORY */}
@@ -244,12 +288,13 @@ export default function BloodRequestPediatric() {
         </div>
 
         <div className="brp-footer">
-          Generated by: TCP T. TCP on 2026-04-21 01:07 pm
+          Generated by: TCP T. TCP on {generatedOn}
         </div>
       </div>
 
       {/* ═══════════════ PAGE 2 ═══════════════ */}
-      <div className="brp-page brp-page--p2">
+        <div className="brp-page brp-page--p2">
+          <div className="brp-requested-block">
 
         {/* REQUESTED BY */}
         <div className="brp-plain-label">Requested by:</div>
@@ -258,7 +303,7 @@ export default function BloodRequestPediatric() {
         <div className="brp-sig-row">
           <div className="brp-sig-block">
             <div className="brp-sig-line-with-md">
-              <span className="brp-sig-md" style={{ marginLeft: "300px" }}>M. D.</span>
+              <span className="brp-sig-md">M. D.</span>
             </div>
             <p className="brp-sig-label">Signature over Printed Name of Physician</p>
           </div>
@@ -290,8 +335,9 @@ export default function BloodRequestPediatric() {
           </div>
         </div>
 
-        <div className="brp-footer">
-          Generated by: TCP T. TCP on 2026-04-21 01:07 pm
+          <div className="brp-footer">
+            Generated by: TCP T. TCP on {generatedOn}
+          </div>
         </div>
       </div>
 

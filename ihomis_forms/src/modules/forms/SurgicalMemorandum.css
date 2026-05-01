@@ -1,166 +1,118 @@
-/* ══════════════════════════════════════════════
-   SurgicalMemorandum.css
-   ══════════════════════════════════════════════ */
-
 .sm-page {
   width: 210mm;
-  min-height: 297mm;
-  padding: 10mm 12mm 16mm 12mm;
+  height: 297mm;
+  padding: 10mm 12mm 20mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   color: #000;
   background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
   box-sizing: border-box;
   position: relative;
 }
 
-@media print {
-  .sm-page {
-    margin: 0;
-    box-shadow: none;
-    width: 210mm;
-    min-height: 297mm;
-  }
-}
-
-/* ── Patient info block ── */
-.sm-info-block {
-  margin-bottom: 3mm;
-  font-size: 8pt;
+/* INFO */
+.sm-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8mm;
 }
 
 .sm-info-row {
   display: flex;
-  gap: 4mm;
-  line-height: 1.6;
+  gap: 2mm;
+  line-height: 1.5;
 }
 
 .sm-info-label {
   font-weight: bold;
-  min-width: 28mm;
-  white-space: nowrap;
+  min-width: 24mm;
 }
 
-/* ── Main table ── */
+/* TABLE */
 .sm-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 4mm;
   table-layout: fixed;
 }
 
 .sm-table td {
   border: 1px solid #000;
+  padding: 1.5mm 1mm;
   font-size: 8pt;
-  vertical-align: middle;
-  padding: 1mm 1.5mm;
 }
 
-/* ── Vitals row cells ── */
+/* VITALS */
 .sm-vl {
-  font-weight: bold;
-  white-space: normal;
-  word-break: break-word;
   text-align: center;
-  padding: 1mm !important;
-  font-size: 7.5pt;
-  line-height: 1.3;
+  font-size: 7.3pt;
+  padding: 1.2mm !important;
 }
 
-.sm-vv {
-  /* value cell — blank, just needs border */
-}
-
-.sm-date-lbl {
-  text-align: center;
-  font-size: 7.5pt;
-  line-height: 1.3;
-}
-
-.sm-date-val {
-  /* value cell */
-}
-
-/* ── Label cells (left-side labels) ── */
+/* LABEL */
 .sm-lbl {
-  font-weight: normal;
-  white-space: nowrap;
-  padding: 1mm 2mm !important;
-  vertical-align: middle;
+  padding: 0.6mm 1.5mm !important;
 }
 
-/* ── Value / blank cells ── */
-.sm-val {
-  vertical-align: middle;
-}
-
-/* ── Tall cells (two-line labels) ── */
-.sm-tall {
-  vertical-align: middle;
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* ── Sub-header cells (Pre-Op Med / Fluids / Blood) ── */
+/* SUB HEADER */
 .sm-sub-hdr {
-  font-weight: bold;
   text-align: center;
-  vertical-align: middle;
-  padding: 1mm 2mm !important;
+  font-weight: bold;
+  padding: 0.8mm !important;
 }
 
-/* ── Med/Fluids/Blood data rows ── */
+/* ROW HEIGHTS */
 .sm-mfb-row td {
-  height: 7mm;
+  height: 5.5mm;
 }
 
-/* ── Extra blank rows ── */
 .sm-extra-row td {
-  height: 6mm;
-  border: 1px solid #000;
+  height: 4.5mm;
 }
 
-/* ── For Deliveries banner ── */
-.sm-banner {
-  font-weight: bold;
-  text-align: center;
-  padding: 1.5mm 2mm !important;
-  background: #fff;
-}
-
-/* ── Signature row ── */
+/* SIGNATURE */
 .sm-sig-row {
   display: flex;
   justify-content: space-around;
-  margin-top: 6mm;
-  margin-bottom: 2mm;
+  margin-top: 4mm;
 }
 
 .sm-sig-block {
-  text-align: center;
   width: 70mm;
+  text-align: center;
 }
 
 .sm-sig-line {
   border-top: 1px solid #000;
-  margin-bottom: 2px;
 }
 
 .sm-sig-label {
   font-size: 8pt;
 }
 
-/* ── Footer ── */
+/* FOOTER */
 .sm-footer {
   position: absolute;
   bottom: 6mm;
   left: 12mm;
   right: 12mm;
   border-top: 1px solid #000;
-  padding-top: 1.5px;
+  padding-top: 2px;
   font-size: 7pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;
+}
+
+/* PRINT */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  .sm-page {
+    margin: 0;
+    box-shadow: none;
+  }
 }

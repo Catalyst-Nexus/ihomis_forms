@@ -1,18 +1,19 @@
-/* ══════════════════════════════════════════════
-   SpecialEndorsement.css
-   ══════════════════════════════════════════════ */
+/* ── SpecialEndorsement.css ─────────────────────────────────────────────────
+   A4 single page, mirrors Forms2.css pattern.
+   ─────────────────────────────────────────────────────────────────────────── */
 
 .se-page {
   width: 210mm;
   min-height: 297mm;
+  margin: 0 auto;
   padding: 10mm 12mm 16mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   color: #000;
   background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
   position: relative;
+  /* removed: display flex + justify-content flex-end — was pushing content to bottom */
 }
 
 @media print {
@@ -27,31 +28,33 @@
 /* ── Header ── */
 .se-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1mm;
   margin-bottom: 3mm;
   font-size: 8pt;
 }
 
-.se-header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 1mm;
-}
-
-.se-header-right {
-  text-align: right;
-  white-space: nowrap;
-}
-
 .se-header-row {
   display: flex;
+  justify-content: space-between;
   align-items: baseline;
-  flex-wrap: wrap;
 }
 
 .se-header-row strong {
   font-weight: bold;
+  white-space: nowrap;
+}
+
+.se-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+}
+
+.se-header-right {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
   white-space: nowrap;
 }
 
@@ -77,12 +80,10 @@
   line-height: 1.4;
 }
 
-/* Diagnostics column — wider */
 .se-col-diag    { width: 30%; }
 .se-col-date    { width: 25%; }
-.se-col-remarks { width: 37%; }
+.se-col-remarks { width: 45%; }
 
-/* Each data row: taller with item label centered */
 .se-table tbody tr {
   height: 14mm;
 }
@@ -98,9 +99,10 @@
   font-size: 8pt;
   font-weight: bold;
   margin-top: 2mm;
+  margin-bottom: 4mm;
 }
 
-/* ── Footer ── */
+/* ── Footer — identical to Forms2 ── */
 .se-footer {
   position: absolute;
   bottom: 6mm;

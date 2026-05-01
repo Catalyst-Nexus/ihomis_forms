@@ -1,0 +1,209 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ─────────────────────────────────────────
+   SCREEN: gray background, page centered
+───────────────────────────────────────── */
+@media screen {
+  body {
+    background: #eef1f4;
+    min-height: 100vh;
+  }
+
+  .lubchenco-root {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 0 40px;
+    width: 100%;
+  }
+
+  .lubchenco-page {
+    box-shadow: none; /* no paper shadow */
+  }
+}
+
+/* ─────────────────────────────────────────
+   PRINT: force exactly 1 A4 page
+───────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .lubchenco-root {
+    display: block;
+    padding: 0;
+  }
+
+  .lubchenco-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+}
+
+/* ─────────────────────────────────────────
+   PAGE — shared (screen + print)
+   Strict A4 flex column so chart section
+   gets exactly the remaining vertical space
+───────────────────────────────────────── */
+.lubchenco-page {
+  width: 210mm;
+  height: 297mm;           /* hard A4 — nothing can overflow */
+  overflow: hidden;
+  background: #fff;
+
+  /* page padding: matches the hospital letterhead wrapper above */
+  padding: 6mm 12mm 5mm 12mm;
+
+  display: flex;
+  flex-direction: column;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.9mm;
+  color: #000;
+  line-height: 1.15;
+}
+
+/* ─────────────────────────────────────────
+   PATIENT DETAILS HEADER  (fixed height)
+───────────────────────────────────────── */
+.lubchenco-header {
+  flex-shrink: 0;
+  margin-bottom: 1mm;
+}
+
+.lubchenco-title {
+  margin: 0 0 2mm;
+  text-align: center;
+  font-size: 6.2mm;
+  line-height: 0.96;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.lubchenco-case-number {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  font-size: 2.9mm;
+  margin-bottom: 1.5mm;
+}
+
+.lubchenco-case-label { font-weight: 700; white-space: nowrap; }
+.lubchenco-case-value { font-weight: 400; white-space: nowrap; }
+
+.lubchenco-table {
+  border: 0.35mm solid #000;
+  background: #fff;
+  margin-bottom: 1mm;
+}
+
+.lubchenco-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 0.35mm solid #000;
+}
+.lubchenco-table-row:last-child { border-bottom: 0; }
+
+.lubchenco-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  min-height: 7.5mm;
+  padding: 0.7mm 1.2mm;
+  font-size: 2.9mm;
+  border-right: 0.35mm solid #000;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.lubchenco-table-cell:last-child { border-right: 0; }
+
+.lubchenco-label { font-weight: 700; white-space: nowrap; }
+.lubchenco-value { font-weight: 400; white-space: nowrap; }
+
+.lubchenco-subtitle {
+  text-align: center;
+  font-size: 2.75mm;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1mm;
+}
+
+/* ─────────────────────────────────────────
+   CHART SECTION — fills all leftover space
+───────────────────────────────────────── */
+.lubchenco-chart-section {
+  flex: 1 1 auto;     /* expand to fill exactly what's left */
+  min-height: 0;      /* allows flex shrink to work */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.lubchenco-chart-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* ─────────────────────────────────────────
+   SIGNATURE
+───────────────────────────────────────── */
+.lubchenco-signature {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;   /* right-aligned like the sample */
+  gap: 1mm;
+  margin-top: 2mm;
+  margin-bottom: 1mm;
+  font-size: 2.9mm;
+}
+
+.lubchenco-signature-line {
+  width: 55mm;
+  height: 0;
+  border-bottom: 0.35mm solid #000;
+}
+
+.lubchenco-signature-label {
+  font-weight: 700;
+  font-size: 2.9mm;
+  text-align: center;
+  width: 55mm;
+}
+
+.lubchenco-footer {
+  bottom: 6mm;
+  left: 15mm;
+  right: 15mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

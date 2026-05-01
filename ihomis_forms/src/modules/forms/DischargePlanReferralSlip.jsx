@@ -39,34 +39,41 @@ export default function DischargePlanReferralSlip({ patientName, patientData }) 
 
   return (
     <div className="dp-page">
-
-      {/* ── Title ── */}
+      <br />
       <div className="dp-title">TO: TAKE HOME MEDICATION</div>
-
-      {/* ── Address / Department ── */}
-      <div className="dp-address-row">
-        <div className="dp-address">
-          ADDRESS: P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE
+      <div className="dp-details-grid">
+        <div className="dp-detail-row">
+          <div className="dp-detail-cell">
+            <strong>Hospital Number:</strong> 000000000021041
+          </div>
+          <div className="dp-detail-cell">
+            <strong>Department:</strong> NEWBORN
+          </div>
         </div>
-        <div className="dp-department">DEPARTMENT: NEWBORN</div>
-      </div>
-
-      {/* ── Hospital No ── */}
-      <div className="dp-hosp-row">
-        <strong>Hospital No.:</strong> 000000000021041
-      </div>
-
-      {/* ── Patient info ── */}
-      <div className="dp-patient-row">
-        <span className="dp-patient-name"><strong>Patient Name:</strong> {name}</span>
-        <span className="dp-sex"><strong>Sex:</strong> M</span>
-        <span className="dp-age"><strong>Age:</strong> 1 hour(s)</span>
-      </div>
-
-      {/* ── Dates ── */}
-      <div className="dp-date-row">
-        <span className="dp-date-item"><strong>DATE/TIME OF ADMISSION:</strong> {admissionDate}</span>
-        <span className="dp-date-item"><strong>DATE/TIME OF DISCHARGE:</strong></span>
+        <div className="dp-detail-row">
+          <div className="dp-detail-cell">
+            <strong>Patient Name:</strong> {name}
+          </div>
+          <div className="dp-detail-cell">
+            <strong>Sex:</strong> M
+          </div>
+        </div>
+        <div className="dp-detail-row">
+          <div className="dp-detail-cell">
+            <strong>Address:</strong> P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE
+          </div>
+          <div className="dp-detail-cell">
+            <strong>Age:</strong> 1 hour(s)
+          </div>
+        </div>
+        <div className="dp-detail-row dp-detail-row--full">
+          <div className="dp-detail-cell">
+            <strong>DATE/TIME OF ADMISSION:</strong> {admissionDate}
+          </div>
+          <div className="dp-detail-cell">
+            <strong>DATE/TIME OF DISCHARGE:</strong>
+          </div>
+        </div>
       </div>
 
       {/* ── Diagnosis ── */}

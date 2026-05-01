@@ -28,8 +28,7 @@ export default function RandomBloodSugar({ patientName, patientData }) {
 
   return (
     <div className="rbs-page">
-
-      {/* ── Case Number | Date ── */}
+      <div className="rbs-header-space" />
       <div className="rbs-top-row">
         <div className="rbs-case">
           <span className="rbs-lbl">Case Number:</span>
@@ -127,6 +126,9 @@ export default function RandomBloodSugar({ patientName, patientData }) {
       {/* ── Signature block ── */}
       <div className="rbs-sig-wrap">
         <div className="rbs-sig-block">
+          <br />
+          <br />
+          <br />
           <div className="rbs-sig-line" />
           <div className="rbs-sig-label">Pathologist</div>
           <div className="rbs-license-row">

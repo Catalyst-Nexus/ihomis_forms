@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { formatFileSize, getFileKey } from "../utils/labUploadUtils.js";
 
 function LabUploadFormPanel({
+  selectedPatient = null,
   displayContext,
   onSubmit,
   isDragActive,
@@ -19,8 +20,6 @@ function LabUploadFormPanel({
   submitting,
   retryingFileKey,
   onRetryFailedUpload,
-  remarks,
-  onRemarksChange,
   canSubmit,
   uploadProgressMessage,
   status,
@@ -38,20 +37,37 @@ function LabUploadFormPanel({
 
       <section className="lab-patient-card" aria-label="Patient information">
         <h3>Patient Information</h3>
-        <dl className="lab-patient-grid">
-          <div>
-            <dt>First Name</dt>
-            <dd>{displayContext.patient.firstName}</dd>
-          </div>
-          <div>
-            <dt>Middle Name</dt>
-            <dd>{displayContext.patient.middleName}</dd>
-          </div>
-          <div>
-            <dt>Last Name</dt>
-            <dd>{displayContext.patient.lastName}</dd>
-          </div>
-        </dl>
+        {selectedPatient ? (
+          <dl className="lab-patient-grid">
+            <div>
+              <dt>Patient ID</dt>
+              <dd>{selectedPatient.id || "Not provided"}</dd>
+            </div>
+            <div>
+              <dt>Name</dt>
+              <dd>{selectedPatient.displayName || "Not provided"}</dd>
+            </div>
+            <div>
+              <dt>Facility</dt>
+              <dd>{selectedPatient.description || "Not provided"}</dd>
+            </div>
+          </dl>
+        ) : (
+          <dl className="lab-patient-grid">
+            <div>
+              <dt>First Name</dt>
+              <dd>{displayContext.patient.firstName}</dd>
+            </div>
+            <div>
+              <dt>Middle Name</dt>
+              <dd>{displayContext.patient.middleName}</dd>
+            </div>
+            <div>
+              <dt>Last Name</dt>
+              <dd>{displayContext.patient.lastName}</dd>
+            </div>
+          </dl>
+        )}
       </section>
 
       <div
@@ -173,18 +189,6 @@ function LabUploadFormPanel({
         </section>
       ) : null}
 
-      <label htmlFor="remarks" className="lab-field lab-textarea">
-        Clinical Notes
-        <textarea
-          id="remarks"
-          name="remarks"
-          rows="4"
-          value={remarks}
-          onChange={(event) => onRemarksChange(event.target.value)}
-          placeholder="Optional lab comments and critical details"
-        />
-      </label>
-
       <button type="submit" disabled={!canSubmit}>
         {submitting ? "Uploading PDF Files..." : "Upload PDF Files"}
       </button>
@@ -203,6 +207,19 @@ function LabUploadFormPanel({
 }
 
 LabUploadFormPanel.propTypes = {
+  selectedPatient: PropTypes.shape({
+    id: PropTypes.string,
+    displayName: PropTypes.string,
+    description: PropTypes.string,
+    contextParams: PropTypes.shape({
+      enc: PropTypes.string,
+      enccode: PropTypes.string,
+      fhud: PropTypes.string,
+      docointkey: PropTypes.string,
+      user: PropTypes.string,
+      hpercode: PropTypes.string,
+    }),
+  }),
   displayContext: PropTypes.shape({
     panelName: PropTypes.string.isRequired,
     requestedAt: PropTypes.string.isRequired,
@@ -228,8 +245,6 @@ LabUploadFormPanel.propTypes = {
   submitting: PropTypes.bool.isRequired,
   retryingFileKey: PropTypes.string.isRequired,
   onRetryFailedUpload: PropTypes.func.isRequired,
-  remarks: PropTypes.string.isRequired,
-  onRemarksChange: PropTypes.func.isRequired,
   canSubmit: PropTypes.bool.isRequired,
   uploadProgressMessage: PropTypes.string.isRequired,
   status: PropTypes.shape({

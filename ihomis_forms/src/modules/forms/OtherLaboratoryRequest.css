@@ -1,13 +1,9 @@
-/* ── OtherLaboratoryRequest.css ─────────────────────────────────────────────
-   A4: 210mm × 297mm  |  Arial  |  matches image bold/normal exactly
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .olr-page {
   width: 210mm;
   min-height: 297mm;
   padding: 8mm 14mm 20mm 14mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -15,70 +11,87 @@
   position: relative;
 }
 
-/* ── Top-right date/time — normal weight ── */
-.olr-date-ordered {
-  text-align: right;
-  font-size: 10pt;
-  font-weight: normal;
-  margin-bottom: 10px;
-}
-
-/* ── Header block — no border ── */
+/* ── Header block ── */
 .olr-header-block {
   margin-bottom: 2px;
 }
 
-/* Base row */
+/* ── Details grid: 3 rows, each row = left cell + right cell ── */
+.olr-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  margin-bottom: 1.5mm;
+}
+
+/* Each row is a flex row: left group + right group */
+.olr-details-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8mm;
+}
+
+/* Each cell holds label + value */
+.olr-details-cell {
+  flex: 1 1 0;
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  white-space: nowrap;
+}
+
+/* ── Date/Time row: sits on the SAME line as Case Number ──
+   achieved by making row 1 a 3-column flex:
+   [Case Number cell] [Age cell] [Date/Time — right aligned]      */
+.olr-details-row-with-date {
+  display: flex;
+  align-items: baseline;
+  gap: 8mm;
+}
+
+.olr-date-cell {
+  margin-left: auto;           /* push to far right */
+  white-space: nowrap;
+  font-size: 11pt;
+  font-weight: normal;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+/* ── Category row ── */
+.olr-category-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  margin: 1mm 0 2mm 0;
+  font-size: 11.5pt;
+}
+
+/* ── Generic row ── */
 .olr-row {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   margin-bottom: 5px;
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   line-height: 1.5;
 }
 
-/* Multi-group row */
-.olr-row-flex {
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  flex-wrap: nowrap;
-}
-
-.olr-group {
-  display: flex;
-  align-items: baseline;
-  white-space: nowrap;
-}
-
-/* Name group — wider so it doesn't crush Age/Sex */
-.olr-group-name {
-  flex: 0 0 auto;
-  min-width: 180px;
-}
-
-/* Ward group — allow wrap for two-line text */
-.olr-group-ward {
-  flex: 0 0 200px;
-  white-space: normal;
-  align-items: flex-start;
-}
-
-/* ── Bold label (e.g. "Case Number:", "Name of Patient:", etc.) ── */
+/* ── Bold label ── */
 .olr-lbl {
   font-weight: bold;
   white-space: nowrap;
-  font-size: 10.5pt;
+  font-size: 11.5pt;
 }
 
-/* ── Normal-weight value ── */
+/* ── Normal value ── */
 .olr-val {
   font-weight: normal;
-  font-size: 10.5pt;
+  font-size: 11.5pt;
 }
 
-/* Diagnosis value is ALSO bold, matching the image */
+/* Diagnosis value bold */
 .olr-val-bold {
   font-weight: bold;
 }
@@ -86,7 +99,7 @@
 /* ── Title ── */
 .olr-title {
   text-align: center;
-  font-size: 15pt;
+  font-size: 16pt;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -98,17 +111,15 @@
   margin-bottom: 20px;
 }
 
-/* "HEMATOLOGY" — bold, uppercase */
 .olr-section-title {
   font-weight: bold;
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   margin: 0 0 10px 0;
   text-transform: uppercase;
 }
 
-/* Checkbox items — normal weight */
 .olr-checkbox-item {
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   font-weight: normal;
   margin: 4px 0;
   line-height: 1.8;
@@ -127,7 +138,7 @@
   vertical-align: bottom;
 }
 
-/* ── Signature block — right-aligned ── */
+/* ── Signature block ── */
 .olr-sig-wrap {
   margin-top: 36px;
   display: flex;
@@ -152,18 +163,16 @@
   height: 18px;
 }
 
-/* ",MD" sits right after the line end — normal weight */
 .olr-md {
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   font-weight: normal;
   white-space: nowrap;
   line-height: 1;
   padding-bottom: 1px;
 }
 
-/* "Requesting Physician" — normal weight, centered under line */
 .olr-sig-label {
-  font-size: 10.5pt;
+  font-size: 11.5pt;
   font-weight: normal;
   margin: 5px 0 0 0;
   text-align: center;
@@ -177,13 +186,12 @@
   right: 14mm;
   border-top: 1.5px solid #000;
   padding-top: 2px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;
 }
 
-/* ── Print ── */
 @media print {
   .olr-page {
     margin: 0;

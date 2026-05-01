@@ -21,16 +21,12 @@ export default function NursesNotes({ patientName, patientData }) {
     };
   }, []);
 
-  const ROW_COUNT = 25;
+  const ROW_COUNT = 27;
   const tableRows = Array.from({ length: ROW_COUNT }, (_, i) => rows[i] || {});
 
   return (
     <div className="nn-page">
-
-      {/* ── Title ── */}
-      <div className="nn-title">NURSE'S NOTES</div>
-
-      {/* ── Main Table ── */}
+      <br />
       <table className="nn-table">
         <thead>
           <tr>

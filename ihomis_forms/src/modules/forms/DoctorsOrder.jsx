@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./DoctorsOrder.css";
 
 export default function DoctorsOrder({ patientName, patientData }) {
-	const name     = patientName          || "PELISCO , BABY GIRL";
-	const sex      = patientData?.sex     || "F";
-	const age      = patientData?.age     || "0";
-	const caseNum  = patientData?.caseNum || "ADM-2026-010623";
+	const name       = patientName             || "PELISCO , BABY GIRL";
+	const sex        = patientData?.sex        || "F";
+	const age        = patientData?.age        || "0";
+	const caseNum    = patientData?.caseNum    || "ADM-2026-010623";
 	const hospitalNo = patientData?.hospitalNo || "000000000020997";
 
 	const { generatedOn } = useMemo(() => {
@@ -20,11 +20,11 @@ export default function DoctorsOrder({ patientName, patientData }) {
 		return { generatedOn };
 	}, []);
 
-	const ROW_COUNT = 30;
+	const ROW_COUNT = 25;
 
 	return (
 		<div className="do-page">
-			{/* ── Table ── */}
+			<br />
 			<table className="do-table">
 				<thead>
 					<tr>
@@ -46,13 +46,14 @@ export default function DoctorsOrder({ patientName, patientData }) {
 
 			{/* ── Patient Info Block ── */}
 			<div className="do-patient-info">
-				<p><span className="do-info-label">Hospital No.:</span> {hospitalNo}</p>
-				<p><span className="do-info-label">Patient Name:</span> {name}</p>
-				<p><span className="do-info-label">Sex:</span> {sex}</p>
-				<p><span className="do-info-label">Age:</span> {age}</p>
 				<p>
-					<span className="do-info-label">Case Number:</span>
-					<span className="do-info-case">&nbsp;{caseNum}</span>
+					<span className="do-info-label">Hospital No.:</span> {hospitalNo}&nbsp;&nbsp;&nbsp;
+					<span className="do-info-label">Case Number:</span> {caseNum}
+				</p>
+				<p>
+					<span className="do-info-label">Patient Name:</span> {name}&nbsp;&nbsp;&nbsp;
+					<span className="do-info-label">Sex:</span> {sex}&nbsp;&nbsp;&nbsp;
+					<span className="do-info-label">Age:</span> {age}
 				</p>
 			</div>
 

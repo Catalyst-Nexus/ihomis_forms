@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import LabReviewPanel from "./components/LabReviewPanel.jsx";
 import LabUploadFormPanel from "./components/LabUploadFormPanel.jsx";
+import SelectedPatientIndicator from "./components/SelectedPatientIndicator.jsx";
 import {
   LAB_UPLOAD_API_TOKEN,
   LAB_UPLOAD_API_URL,
@@ -12,12 +13,15 @@ import useUploadBatch from "./hooks/useUploadBatch.js";
 import {
   buildDisplayContext,
   buildUploadSummary,
-  getContextParamsFromLocation,
 } from "./utils/labUploadUtils.js";
 import "./LabUploadModule.css";
 
-function LabUploadModule() {
-  const contextParams = useMemo(() => getContextParamsFromLocation(), []);
+function LabUploadModule({
+  selectedPatient = null,
+  selectedContextParams = {},
+  onRequestPatientChange,
+}) {
+  const contextParams = selectedContextParams;
   const hasApiUrl = Boolean(LAB_UPLOAD_API_URL);
 
   const { requestContext, contextLoading, applyContextFromApi } =
@@ -28,8 +32,6 @@ function LabUploadModule() {
     });
 
   const {
-    remarks,
-    setRemarks,
     uploadedFiles,
     failedUploads,
     submitting,
@@ -116,32 +118,79 @@ function LabUploadModule() {
     handleSubmit(event, resultFiles);
   }
 
+  function handleChangeSelection() {
+    clearPdfSelection();
+    if (typeof onRequestPatientChange === "function") {
+      onRequestPatientChange();
+    }
+  }
+
   return (
     <div className="lab-page">
       <div className="lab-ambient lab-ambient-a" aria-hidden="true" />
       <div className="lab-ambient lab-ambient-b" aria-hidden="true" />
 
       <main className="lab-layout">
-        <section className="lab-panel lab-hero lab-reveal">
-          <p className="lab-kicker">Hospital Information System</p>
-          <h1>Upload Result for {displayContext.panelName}</h1>
-          <p>Requested on {displayContext.requestedAt}</p>
+        <section className="lab-hero-wrap lab-reveal">
+          <div className="lab-hero">
+            <div className="lab-hero-left">
+              <div className="lab-hero-eyebrow">
+                <span className="lab-hero-system">
+                  Hospital Information System
+                </span>
+                <span
+                  className={`lab-hero-status ${
+                    contextLoading
+                      ? "lab-hero-status--loading"
+                      : requestContext.hasAnyContext
+                        ? "lab-hero-status--ready"
+                        : "lab-hero-status--pending"
+                  }`}
+                >
+                  <span className="lab-hero-status-dot" aria-hidden="true" />
+                  {contextLoading
+                    ? "Loading"
+                    : requestContext.hasAnyContext
+                      ? "Context Ready"
+                      : "Awaiting Context"}
+                </span>
+              </div>
 
-          <span
-            className={`lab-api-state ${
-              requestContext.hasAnyContext ? "lab-api-ready" : "lab-api-missing"
-            }`}
-          >
-            {contextLoading
-              ? "Loading request context from API..."
-              : requestContext.hasAnyContext
-                ? "Request context loaded from API"
-                : "Waiting for request context from API response"}
-          </span>
+              <h1 className="lab-hero-title">
+                Upload Result
+                <span className="lab-hero-panel-name">
+                  {displayContext.panelName}
+                </span>
+              </h1>
+
+              {displayContext.requestedAt && (
+                <p className="lab-hero-meta">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="13"
+                    height="13"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 8.5a.5.5 0 0 1 .5.5v2.5h1a.5.5 0 0 1 0 1h-3.5v-1h1.5v-.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1h.5a.5.5 0 0 1 0 1h-1v.5a.5.5 0 0 1-1 0v-2.5h-1a.5.5 0 0 1 0-1h3.5v1h-1.5v.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1H8.5a.5.5 0 0 1-.5-.5v-.5H7a.5.5 0 0 1 0-1h2.5v.5a.5.5 0 0 1-.5.5h-2z" />
+                  </svg>
+                  Requested {displayContext.requestedAt}
+                </p>
+              )}
+            </div>
+
+            <div className="lab-hero-right">
+              <SelectedPatientIndicator
+                selectedPatient={selectedPatient}
+                onChangeSelection={handleChangeSelection}
+              />
+            </div>
+          </div>
         </section>
 
         <section className="lab-grid lab-reveal">
           <LabUploadFormPanel
+            selectedPatient={selectedPatient}
             displayContext={displayContext}
             onSubmit={handleFormSubmit}
             isDragActive={isDragActive}
@@ -159,8 +208,6 @@ function LabUploadModule() {
             submitting={submitting}
             retryingFileKey={retryingFileKey}
             onRetryFailedUpload={retryFailedUpload}
-            remarks={remarks}
-            onRemarksChange={setRemarks}
             canSubmit={canSubmit}
             uploadProgressMessage={uploadProgressMessage}
             status={status}

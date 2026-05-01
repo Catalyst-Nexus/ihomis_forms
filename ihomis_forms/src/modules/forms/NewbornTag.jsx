@@ -20,10 +20,8 @@ export default function NewbornTag({ patientName, patientData }) {
 
   return (
     <div className="nbt-page">
-
-      {/* ── Tag block ── */}
+      <br />
       <div className="nbt-tag-block">
-        {/* Left: hospital no, name, DOB */}
         <div className="nbt-tag-left">
           <span className="nbt-hospital-no">{hospitalNo}</span>
           <span className="nbt-patient-name">{name}</span>

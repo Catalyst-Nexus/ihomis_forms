@@ -1,0 +1,336 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.neuro-vital-signs-container {
+  width: 210mm;
+  height: 297mm;
+  margin: auto;
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.neuro-vital-signs {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 10.5mm 12mm 4mm;
+  color: #222;
+  font-size: 9.5pt;
+  line-height: 1.05;
+  max-height: 297mm;
+  overflow: hidden;
+}
+
+.header-reserved-space {
+  height: 27mm;
+  flex: 0 0 27mm; 
+}
+
+.form-intro {
+  flex: 0 0 auto;
+}
+
+.form-title {
+  text-align: center;
+  font-size: 19pt;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 1mm;
+}
+
+.form-subtitle {
+  text-align: center;
+  font-size: 19pt;
+  font-weight: 700;
+  margin-bottom: 4mm;
+}
+
+.patient-meta {
+  width: 100%;
+}
+
+.patient-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: min-content;
+  column-gap: 14mm;
+  row-gap: 0.8mm;
+  margin-bottom: 1mm;
+}
+
+.meta-row {
+  display: flex;
+  align-items: flex-end;
+  min-height: 3.5mm;
+}
+
+.meta-row-left {
+  grid-column: 1 / 2;
+}
+
+.meta-label {
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 9.5pt;
+}
+
+.meta-value-inline {
+  margin-left: 2.2mm;
+  font-size: 9.5pt;
+}
+
+.meta-value {
+  min-width: 0;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 9.5pt;
+}
+
+.meta-value-name {
+  margin-left: 2mm;
+}
+
+.meta-row-split {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8mm;
+  align-items: flex-end;
+}
+
+.meta-left-block,
+.meta-right-block {
+  display: flex;
+  align-items: flex-end;
+  white-space: nowrap;
+}
+
+.meta-left-block {
+  flex: 1 1 auto;
+}
+
+.meta-right-block {
+  flex: 0 0 auto;
+}
+
+.meta-right-physician {
+  min-width: 74mm;
+}
+
+.meta-right-date {
+  min-width: 64mm;
+  justify-content: flex-end;
+}
+
+.meta-line-fill {
+  display: inline-block;
+  width: 58mm;
+  border-bottom: 0.25mm solid #222;
+  margin-left: 1.5mm;
+  transform: translateY(-0.3mm);
+}
+
+.chart-section {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+.chart-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;  
+  border: 0;
+}
+
+.pupil-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 4mm;
+  margin-top: 1mm;
+}
+
+.pupil-legend {
+  width: 18mm;
+  flex: 0 0 18mm;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4mm;
+}
+
+.pupil-circles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.pupil-marker {
+  display: flex;
+  align-items: center;
+  gap: 1.8mm;
+}
+
+.pupil-number {
+  width: 4mm;
+  text-align: left;
+  font-size: 7pt;
+}
+
+.pupil-circle {
+  border-radius: 50%;
+  background: #595959;
+  border: 0.25mm solid #1f1f1f;
+  flex: 0 0 auto;
+}
+
+.pupil-circle.small {
+  width: 1.9mm;
+  height: 1.9mm;
+}
+
+.pupil-circle.medium {
+  width: 3mm;
+  height: 3mm;
+}
+
+.pupil-circle.large {
+  width: 4.1mm;
+  height: 4.1mm;
+}
+
+.pupil-letters {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 18.5mm;
+  padding-top: 0.2mm;
+  font-size: 7.5pt;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pupil-tables {
+  flex: 1;
+  display: flex;
+  gap: 2mm;
+}
+
+.pupil-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 0.25mm solid #8a8a8a;
+  width: 100%;
+  font-size: 7pt;
+}
+
+.pupil-table-size {
+  flex: 1.05;
+}
+
+.pupil-table-reaction {
+  flex: 1.35;
+}
+
+.pupil-table td {
+  border: 0.25mm solid #8a8a8a;
+  height: 3.9mm;
+  padding: 0.3mm 1mm;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-heading {
+  background: #d9d9d9;
+  font-weight: 700;
+  font-size: 7.5pt;
+}
+
+.reaction-label {
+  width: 29mm;
+  text-align: left !important;
+  background: #f3f3f3;
+  font-weight: 700;
+  font-size: 7pt;
+}
+
+.lr-label {
+  width: 7mm;
+  background: #f3f3f3;
+  font-weight: 700;
+}
+
+.form-footer {
+  flex: 0 0 auto;
+  margin-top: 0;
+  padding-top: 0.8mm;
+  border-top: 0.25mm solid #111;
+  text-align: right;
+  font-size: 7.5pt;
+  font-style: italic;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html {
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+  }
+
+  body {
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body > *:not(.neuro-vital-signs-container) {
+    display: none !important;
+  }
+
+  .neuro-vital-signs-container {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+
+  .neuro-vital-signs {
+    padding: 10.5mm 12mm 6mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+  }
+}
+
+@media screen {
+  .neuro-vital-signs-container {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+    margin: 16px auto;
+  }
+}

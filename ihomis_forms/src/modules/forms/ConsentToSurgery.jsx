@@ -24,8 +24,8 @@ export default function ConsentToSurgery({ patientName, patientData }) {
 
   return (
     <div className="csa-page">
-
-      {/* ── Paragraph 1 ── */}
+      <br />
+      <br />
       <div className="csa-para">
         <span className="csa-para-num">1.</span>
         <span className="csa-para-body">

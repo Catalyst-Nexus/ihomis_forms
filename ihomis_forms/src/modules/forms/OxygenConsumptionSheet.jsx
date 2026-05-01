@@ -19,12 +19,11 @@ export default function OxygenConsumptionSheet({ patientName, patientData }) {
 		return { generatedOn };
 	}, []);
 
-	const ROW_COUNT = 30;
+	const ROW_COUNT = 28;
 
 	return (
 		<div className="ocs-page">
-
-			{/* ── Header info ── */}
+			<br />
 			<div className="ocs-header">
 				<div className="ocs-header-row">
 					<div className="ocs-header-left">

@@ -27,8 +27,7 @@ export default function ClaimOfCadaver({ patientName, patientData }) {
 
   return (
     <div className="coc-page">
-
-      {/* ── Date / Time ── */}
+      <br />
       <div className="coc-top-row">
         <span>Date: {dateStr}</span>
         <span>Time: {timeStr}</span>

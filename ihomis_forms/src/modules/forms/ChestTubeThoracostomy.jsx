@@ -34,7 +34,7 @@ export default function ChestTubeThoracostomy({ patientName, patientData }) {
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: 25 }).map((_, i) => (
+          {Array.from({ length: 22 }).map((_, i) => (
             <tr key={i}>
               {columns.map((_, j) => (
                 <td key={j} />

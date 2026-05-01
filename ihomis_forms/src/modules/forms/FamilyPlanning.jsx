@@ -35,7 +35,7 @@ export default function FamilyPlanning({ patientName, patientData }) {
 		<div className="fp-page">
 
 			{/* ── DATE ── */}
-			<div className="fp-date-line">DATE: {dateStr}</div>
+			<div className="fp-date-line"><strong>DATE:</strong> {dateStr}</div>
 
 			{/* ── Instruction ── */}
 			<div className="fp-instruction">Please check the appropriate box:</div>
@@ -92,12 +92,12 @@ export default function FamilyPlanning({ patientName, patientData }) {
 			{/* ── Reason for Referral ── */}
 			<div className="fp-reason-title">Reason for Referral:</div>
 			<div className="fp-reason-grid">
-				<div className="fp-checkbox-item"><span>[  ]</span><span>Family Planning Counseling and ARH Services</span></div>
-				<div className="fp-checkbox-item"><span>[  ]</span><span>Delivery</span></div>
-				<div className="fp-checkbox-item"><span>[  ]</span><span>Prenatal Check-up</span></div>
-				<div className="fp-checkbox-item"><span>[  ]</span><span>Postnatal Check-up</span></div>
-				<div className="fp-checkbox-item"><span>[  ]</span><span>General Check-up</span></div>
-				<div className="fp-checkbox-item"><span>[  ]</span><span>Others:________</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>Family Planning Counseling and ARH Services</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>Delivery</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>Prenatal Check-up</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>Postnatal Check-up</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>General Check-up</span></div>
+				<div className="fp-checkbox-item"><span>[ ]</span><span>Others:________</span></div>
 			</div>
 
 			{/* ── Referred By ── */}

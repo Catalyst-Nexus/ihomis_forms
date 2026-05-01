@@ -11,7 +11,6 @@ export default function CommitmentToBreastfeeding({ patientName, patientData }) 
     const m = now.getMinutes();
     const hh = String(h % 12 || 12).padStart(2, "0");
     const ampm = h < 12 ? "am" : "pm";
-
     const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     const generatedOn = `${dateStr} ${hh}:${pad(m)} ${ampm}`;
     return { dateStr, generatedOn };
@@ -19,10 +18,9 @@ export default function CommitmentToBreastfeeding({ patientName, patientData }) 
 
   return (
     <div className="ctb-page">
-
-      {/* ── Date top-right ── */}
+      <br />
       <div className="ctb-date-row">
-        Date: {dateStr}
+        <strong>Date:</strong> {dateStr}
       </div>
 
       {/* ── TO WHOM IT MAY CONCERN ── */}
@@ -37,7 +35,6 @@ export default function CommitmentToBreastfeeding({ patientName, patientData }) 
         until 4-6 months thereafter.
       </div>
 
-      {/* ── Husband & Patient signature pair ── */}
       <br />
       <div className="ctb-sig-pair">
         <div className="ctb-sig-block">
@@ -50,9 +47,7 @@ export default function CommitmentToBreastfeeding({ patientName, patientData }) 
         </div>
       </div>
 
-      {/* ── Witness centered ── */}
-      <br />
-      <br />
+      <br /><br />
       <div className="ctb-witness-center">
         <div className="ctb-witness-block">
           <div className="ctb-sig-line" />

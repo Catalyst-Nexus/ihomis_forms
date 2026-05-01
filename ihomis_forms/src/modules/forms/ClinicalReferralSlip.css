@@ -20,7 +20,7 @@
   min-height: 297mm;
   padding: 10mm 15mm 20mm 15mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9pt;
+  font-size: 10pt;
    color: var(--text-primary, #1a1a1a);
   border: 1px solid var(--border-color, #ddd);
   border-radius: 4px;
@@ -38,7 +38,7 @@
 
 /* ── instruction line ── */
 .crs-instruction {
-  font-size: 8pt;
+  font-size: 9pt;
   margin: 0 0 5px 0;
 }
 
@@ -48,7 +48,7 @@
   justify-content: space-between;
   align-items: baseline;
   margin: 0 0 5px 0;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .crs-datetime-row > span {
@@ -63,13 +63,13 @@
   align-items: baseline;
   margin: 4px 0;
   gap: 4px;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .crs-field-label {
   font-weight: bold;
   white-space: nowrap;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 /* stretching underline */
@@ -92,14 +92,14 @@
 
 /* plain text value */
 .crs-value {
-  font-size: 9pt;
+  font-size: 10pt;
   font-weight: normal;
 }
 
 /* ── plain text rows (Name, Address) ── */
 .crs-plain-row {
   margin: 3px 0;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 /* ── multi-field inline row (Occupation / Age / Sex) ── */
@@ -108,7 +108,7 @@
   align-items: baseline;
   gap: 16px;
   margin: 4px 0;
-  font-size: 9pt;
+  font-size: 10pt;
   flex-wrap: wrap;
 }
 
@@ -124,7 +124,7 @@
   align-items: baseline;
   gap: 8px;
   margin: 3px 0;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .crs-vital-pair {
@@ -150,7 +150,7 @@
 /* ── OB HISTORY note ── */
 .crs-ob-note {
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 10pt;
   margin: 6px 0 3px 0;
 }
 
@@ -160,7 +160,7 @@
   align-items: baseline;
   gap: 24px;
   margin: 4px 0;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .crs-lmp-pair {
@@ -182,7 +182,7 @@
   align-items: baseline;
   margin: 5px 0;
   gap: 4px;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 /* ── half-and-half row ── */
@@ -192,7 +192,7 @@
   align-items: baseline;
   margin: 5px 0;
   gap: 16px;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .crs-half-pair {
@@ -237,13 +237,13 @@
 
 .crs-sig-name {
   font-weight: bold;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin: 0;
   text-transform: uppercase;
 }
 
 .crs-sig-sub {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin: 1px 0 0 0;
   font-style: italic;
 }
@@ -254,7 +254,7 @@
   align-items: baseline;
   gap: 4px;
   margin-top: 3px;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 /* ── footer (absolute inside each .crs-page) ── */
@@ -265,7 +265,7 @@
   right: 15mm;
   border-top: 1.5px solid #000;
   padding-top: 2px;
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

@@ -39,10 +39,7 @@ export default function MedicalAbstractDischargeSummary({ patientName, patientDa
 
 	return (
 		<div className="mads-page">
-
-			{/* ══════════════════════════════════════
-			    PATIENT INFO — two-column header
-			    ══════════════════════════════════════ */}
+			<br />
 			<div className="mads-header">
 				<div className="mads-header-col mads-col-left">
 					<div className="mads-info-row">

@@ -1,0 +1,104 @@
+.dop-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 6mm 10mm 14mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media print {
+  @page { size: 210mm 297mm; margin: 0; }
+  .dop-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: 297mm;
+    padding: 6mm 10mm 14mm 10mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    page-break-before: avoid;
+  }
+}
+
+/* ── Main two-column table ── */
+.dop-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+
+.dop-table th,
+.dop-table td {
+  border: 1px solid #000;
+  padding: 0.8mm 1.5mm;
+  font-size: 9pt;
+  vertical-align: top;
+}
+
+.dop-table th {
+  font-weight: bold;
+  text-align: center;
+  font-size: 9pt;
+  background: #fff;
+  padding: 1.2mm;
+}
+
+.dop-col-left  { width: 50%; }
+.dop-col-right { width: 50%; }
+
+/* ── Cell content styles ── */
+.dop-cell {
+  font-size: 9pt;
+  line-height: 1.55;
+}
+
+.dop-bold { font-weight: bold; }
+.dop-indent { padding-left: 3mm !important; }
+
+/* ── Patient info block ── */
+.dop-patient-info-grid {
+  margin-top: 2mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+  font-size: 9pt;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.dop-patient-info-row {
+  display: flex;
+  gap: 6mm;
+}
+
+.dop-patient-info-cell {
+  flex: 1 1 0;
+}
+
+.dop-info-label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* ── Footer ── */
+.dop-footer {
+  position: absolute;
+  bottom: 5mm;
+  left: 10mm;
+  right: 10mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 7pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

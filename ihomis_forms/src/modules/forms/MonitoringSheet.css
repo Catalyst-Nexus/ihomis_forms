@@ -1,0 +1,137 @@
+.mon-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 12mm 12mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .mon-page {
+    box-shadow: none;
+    width: 210mm;
+    height: 297mm;
+    min-height: unset;
+    max-height: 297mm;
+    padding: 10mm 12mm 12mm 12mm;
+    overflow: hidden;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mon-table {
+    flex: 1;
+    page-break-inside: avoid;
+  }
+
+  .mon-footer {
+    flex-shrink: 0;
+  }
+}
+
+/* ── Patient header ── */
+.mon-header {
+  margin-bottom: 3mm;
+  font-size: 9.5pt;
+  flex-shrink: 0;
+}
+
+.mon-header-row1 {
+  display: flex;
+  margin-bottom: 1mm;
+}
+
+.mon-header-row2 {
+  display: flex;
+  align-items: center;
+}
+
+.mon-label { font-weight: bold; white-space: nowrap; }
+.mon-value  { font-weight: normal; }
+
+.mon-right-info {
+  display: flex;
+  gap: 6mm;
+  margin-left: 10mm;
+  align-items: center;
+}
+
+/* ── Table ── */
+.mon-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+  table-layout: fixed;
+}
+
+.mon-table th,
+.mon-table td {
+  border: 1px solid #000;
+  padding: 0;
+  font-size: 9.5pt;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.mon-table thead tr {
+  height: 7mm;
+}
+
+.mon-table th {
+  font-weight: bold;
+  background: #fff;
+}
+
+.mon-table tbody tr {
+  height: 8mm;
+}
+
+/* ── Column widths ── */
+.mon-col-date { width: 11%; }
+.mon-col-time { width: 10%; }
+.mon-col-temp { width: 10%; }
+.mon-col-bp   { width: 11%; }
+.mon-col-pr   { width: 9%;  }
+.mon-col-rr   { width: 9%;  }
+.mon-col-o2   { width: 10%; }
+.mon-col-fht  { width: 10%; }
+.mon-col-sig  { width: 20%; }
+
+/* ── Footer ── */
+.mon-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  margin-top: 3mm;
+  font-size: 8.5pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}

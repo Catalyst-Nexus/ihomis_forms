@@ -40,8 +40,8 @@ export default function IsolationRecommendation({ patientName, patientData }) {
 
 	return (
 		<div className="ir-page">
-
-			{/* ── Opening line ── */}
+			<br />
+			<br />
 			<p className="ir-opening">
 				This is to certify that Dr.&nbsp;<UL width="180px" />&nbsp;a licensed physician at{" "}
 				<strong>AGUSAN DEL NORTE PROVINCIAL HOSPITAL,</strong> recommends that:
@@ -87,6 +87,7 @@ export default function IsolationRecommendation({ patientName, patientData }) {
 				<span className="ir-sig-lbl"><strong>Physician:</strong></span>
 				<UL width="150px" />
 			</div>
+			<br />
 
 			<div className="ir-sig-field">
 				<span className="ir-sig-lbl"><strong>License No:</strong></span>

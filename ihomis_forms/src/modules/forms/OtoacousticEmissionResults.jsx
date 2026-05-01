@@ -27,6 +27,7 @@ export default function OtoacousticEmissionResults({ patientName, patientData })
 
 	return (
 		<div className="oer-page">
+			<br />
 			<div className="oer-info-block">
 				<div className="oer-two-col">
 					<div className="oer-col">

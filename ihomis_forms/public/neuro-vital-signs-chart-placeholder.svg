@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="940" viewBox="0 0 1800 940" role="img" aria-label="Neuro vital signs chart placeholder">
+  <rect x="0" y="0" width="1800" height="940" fill="#fafafa" />
+  <rect x="10" y="10" width="1780" height="920" fill="none" stroke="#c7c7c7" stroke-width="3" />
+  <line x1="40" y1="60" x2="1760" y2="60" stroke="#ededed" stroke-width="2" />
+  <line x1="40" y1="880" x2="1760" y2="880" stroke="#ededed" stroke-width="2" />
+  <text x="900" y="470" text-anchor="middle" fill="#a0a0a0" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">CHART IMAGE PLACEHOLDER</text>
+  <text x="900" y="528" text-anchor="middle" fill="#b0b0b0" font-family="Arial, Helvetica, sans-serif" font-size="26">Insert the scanned Neuro Vital Signs chart image here</text>
+</svg>
