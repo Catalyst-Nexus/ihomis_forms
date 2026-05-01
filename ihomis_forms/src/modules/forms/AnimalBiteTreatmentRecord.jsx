@@ -52,10 +52,7 @@ export default function AnimalBiteTreatmentRecord({ patientName, patientData }) 
 
 	return (
 		<div className="abtr-page">
-
-			{/* ══════════════════════════════
-			    ROW 1: Title + Case No
-			    ══════════════════════════════ */}
+			<br />
 			<div className="abtr-outer-box">
 
 				{/* Title row */}

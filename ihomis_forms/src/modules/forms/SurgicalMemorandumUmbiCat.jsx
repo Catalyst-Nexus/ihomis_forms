@@ -244,6 +244,7 @@ export default function SurgicalMemorandumUmbiCat({ patientName, patientData }) 
 
         </tbody>
       </table>
+      <br />
 
       {/* ── Signatures ── */}
       <div className="smuc-sig-row">

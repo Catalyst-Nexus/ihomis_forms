@@ -1,34 +1,35 @@
 .ballard-page-wrap {
   width: 100%;
-  min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: #f4f4f4;
-  padding: 10mm 0;
   box-sizing: border-box;
 }
 
 .ballard-page {
   width: 210mm;
-  height: 297mm;
-  padding: 8mm 9mm 8mm 9mm;
+  height: 297mm;           /* strict A4 height — never taller */
+  min-height: 297mm;
+  max-height: 297mm;
+  overflow: hidden;
+  padding: 8mm 9mm 10mm 9mm;  /* bottom 14mm reserves space for footer */
   box-sizing: border-box;
   background: #ffffff;
   color: #000000;
-  font-family: "Arial", "Helvetica", sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 3.6mm;
-  box-shadow: 0 2mm 6mm rgba(0, 0, 0, 0.12);
+  position: relative;      /* needed for absolute footer */
 }
 
 .ballard-content {
-  width: 192mm;
-  height: 281mm;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
+/* ── Header ── */
 .ballard-header {
   display: grid;
   grid-template-columns: 24mm 1fr 24mm;
@@ -40,7 +41,7 @@
 .ballard-logo {
   width: 22mm;
   height: 22mm;
-  border: 0.3mm solid #000000;
+  border: 0.3mm solid #000;
   border-radius: 50%;
 }
 
@@ -49,20 +50,11 @@
   line-height: 1.15;
 }
 
-.ballard-line {
-  font-size: 3.4mm;
-}
+.ballard-line     { font-size: 3.4mm; }
+.ballard-hospital { font-size: 4.3mm; font-weight: 700; letter-spacing: 0.2mm; }
+.ballard-subline  { font-size: 3mm; }
 
-.ballard-hospital {
-  font-size: 4.3mm;
-  font-weight: 700;
-  letter-spacing: 0.2mm;
-}
-
-.ballard-subline {
-  font-size: 3mm;
-}
-
+/* ── Title ── */
 .ballard-title {
   text-align: center;
   font-size: 4.8mm;
@@ -70,6 +62,7 @@
   margin-bottom: 2.5mm;
 }
 
+/* ── Case Number ── */
 .ballard-case-number {
   display: flex;
   align-items: center;
@@ -77,183 +70,79 @@
   margin-bottom: 2mm;
   font-size: 3.6mm;
 }
+.ballard-case-number .ballard-label { font-weight: 700; white-space: nowrap; }
+.ballard-case-number .ballard-value { font-weight: 400; }
 
-.ballard-case-number .ballard-label {
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.ballard-case-number .ballard-value {
-  font-weight: 400;
-}
-
+/* ── Info table ── */
 .ballard-info-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 3mm;
 }
-
-.ballard-info-table tr {
-  border: 0.3mm solid #000000;
-}
-
-.ballard-info-table tr + tr {
-  border-top: 0.3mm solid #000000;
-}
+.ballard-info-table tr { border: 0.3mm solid #000; }
+.ballard-info-table tr + tr { border-top: 0.3mm solid #000; }
 
 .ballard-cell-label {
   font-weight: 700;
   font-size: 3.6mm;
   padding: 1.2mm 1.5mm;
-  border-right: 0.3mm solid #000000;
+  border-right: 0.3mm solid #000;
   width: 10%;
   text-align: left;
-  background-color: #ffffff;
+  background-color: #fff;
+  white-space: nowrap;
 }
-
-.ballard-cell-label:last-of-type {
-  border-right: 0.3mm solid #000000;
-}
-
 .ballard-cell-value {
   font-weight: 400;
   font-size: 3.6mm;
   padding: 1.2mm 1.5mm;
-  border-right: 0.3mm solid #000000;
+  border-right: 0.3mm solid #000;
   width: 20%;
   text-align: left;
 }
+.ballard-cell-value:last-child { border-right: none; }
+.ballard-info-table td { vertical-align: middle; }
 
-.ballard-cell-value:last-child {
-  border-right: none;
-}
+.ballard-label { font-weight: 700; white-space: nowrap; }
+.ballard-value { font-weight: 400; white-space: nowrap; }
 
-.ballard-info-table td {
-  min-height: 8mm;
-  vertical-align: middle;
-}
-.ballard-info-wide {
-  padding-left: 2mm;
-}
-
-.ballard-label {
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.ballard-value {
-  font-weight: 400;
-  white-space: nowrap;
-}
-
+/* ── Main area: chart ── */
 .ballard-main {
-  display: block; /* Remove grid */
-  margin-bottom: 4mm;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-bottom: 3mm;
 }
 
 .ballard-chart-wrap {
-  width: 100%;
-  height: auto;
-  margin-bottom: 6mm;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
 }
 
 .ballard-chart {
   width: 100%;
-  height: 200mm;
-  max-width: 192mm;
+  height: 100%;
+  max-height: 180mm;     
+  object-fit: fill;       
+  display: block;
 }
 
-.ballard-right {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr; /* Side by side */
-  gap: 3.5mm;
-}
-
-
-.ballard-score-label {
-  font-size: 3.4mm;
-}
-
-.ballard-score-line {
-  border-bottom: 0.3mm solid #000000;
-  height: 0;
-}
-
-.ballard-maturity-table {
-  width: 56mm;
-  border-collapse: collapse;
-  font-size: 3.2mm;
-}
-
-.ballard-maturity-table th,
-.ballard-maturity-table td {
-  border: 0.3mm solid #000000;
-  padding: 0.8mm 1mm;
-  text-align: center;
-}
-
-.ballard-maturity-table th {
-  font-weight: 700;
-  font-size: 3mm;
-}
-
-.ballard-gestational {
-  border: 0.3mm solid #000000;
-  padding: 2mm 2.5mm;
-}
-
-.ballard-gestational-title {
-  font-weight: 700;
-  font-size: 3.2mm;
-  margin-bottom: 2mm;
-  text-align: center;
-}
-
-.ballard-gestational-row {
-  display: grid;
-  grid-template-columns: 22mm 1fr;
-  align-items: center;
-  gap: 2mm;
-  margin-bottom: 2mm;
-  font-size: 3.2mm;
-}
-
-.ballard-gestational-row:last-child {
-  margin-bottom: 0;
-}
-
-.ballard-gestational-line {
-  border-bottom: 0.3mm solid #000000;
-  height: 0;
-}
-
-.ballard-footer {
+.ballard-signature-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1.5mm;
-  margin-top: auto;
-  font-style: italic;
-  font-weight: bold;
+  justify-content: center;
+  margin-bottom: 3mm;
 }
-
-.ballard-default-footer{
-  font-size: 0.7rem;
-  text-align: right;
-  margin-top: 0.3rem;
-  padding-top: 0.2rem;
-}
-
 
 .ballard-signature {
-  width: 60mm;
   text-align: center;
+  width: 60mm;
 }
 
 .ballard-sign-line {
-  border-bottom: 0.3mm solid #000000;
-  height: 0;
+  border-top: 0.3mm solid #000;
   margin-bottom: 1mm;
 }
 
@@ -262,27 +151,32 @@
   font-size: 3.4mm;
 }
 
-.ballard-generated {
-  font-size: 2.8mm;
+/* ── Footer — IDENTICAL pattern to .abtr-footer ── */
+.ballard-footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 9mm;
+  right: 9mm;
+  border-top: 1.5px solid #000;
+  padding-top: 2px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
 }
 
+/* ── Print ── */
 @media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
+  @page { size: A4; margin: 0; }
 
-  body {
-    margin: 0;
-    background: #ffffff;
-  }
+  body { margin: 0; background: #fff; }
 
-  .ballard-page-wrap {
-    padding: 0;
-    background: #ffffff;
-  }
+  .ballard-page-wrap { padding: 0; background: #fff; }
 
   .ballard-page {
     box-shadow: none;
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
   }
 }

@@ -31,6 +31,7 @@ export default function AbtcForm({ patientName, patientData }) {
 
 	return (
 		<div className="abtc-page">
+			<br />
 			<table className="abtc-table">
 				<colgroup>
 					<col style={{ width: "79%" }} />

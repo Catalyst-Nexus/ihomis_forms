@@ -21,7 +21,7 @@ export default function NursesNotes({ patientName, patientData }) {
     };
   }, []);
 
-  const ROW_COUNT = 25;
+  const ROW_COUNT = 27;
   const tableRows = Array.from({ length: ROW_COUNT }, (_, i) => rows[i] || {});
 
   return (

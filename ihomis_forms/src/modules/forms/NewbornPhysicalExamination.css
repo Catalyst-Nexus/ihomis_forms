@@ -1,12 +1,3 @@
-/* ── NewbornPhysicalExamination.css ─────────────────────────────────────────
-   A4 single page — all content fits one sheet.
-   Space budget:
-     padding top+bot  : 8mm + 14mm = 22mm
-     case row         :  4mm
-     main table       : ~240mm  → compressed via font/padding
-     sig + footer     : ~14mm
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .npe-page {
   width: 210mm;
   min-height: 297mm;
@@ -15,7 +6,7 @@
   margin: 0 auto;
   padding: 8mm 12mm 14mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
+  font-size: 9pt;
   color: #000;
   background: #fff;
   box-sizing: border-box;
@@ -38,14 +29,12 @@
   }
 }
 
-/* ── Case Number ── */
 .npe-case-row {
-  font-size: 8pt;
+  font-size: 9pt;
   margin-bottom: 1.5mm;
 }
 .npe-case-row strong { font-weight: bold; }
 
-/* ── Main outer table ── */
 .npe-main-table {
   width: 100%;
   border-collapse: collapse;
@@ -57,28 +46,25 @@
   border: 1px solid #000;
   padding: 0.8mm 1.5mm;
   vertical-align: top;
-  font-size: 7.8pt;
+  font-size: 8.8pt;
 }
 
-/* ── Baby info header row ── */
 .npe-baby-header td {
-  font-size: 8pt;
+  font-size: 9pt;
   vertical-align: middle;
   padding: 0.8mm 1.5mm;
 }
 .npe-baby-label { font-weight: bold; white-space: nowrap; }
-.npe-baby-name  { font-weight: bold; text-align: center; font-size: 8.5pt; }
+.npe-baby-name  { font-weight: bold; text-align: center; font-size: 9.5pt; }
 
-/* ── Section headers (VITAL SIGNS / ANTHROPOMETRIC DATA) ── */
 .npe-section-header {
   font-weight: bold;
   text-align: center;
   background: #fff;
-  font-size: 8pt;
+  font-size: 9pt;
   padding: 1mm 2mm !important;
 }
 
-/* ── Vital signs nested table ── */
 .npe-vs-table {
   width: 100%;
   border-collapse: collapse;
@@ -86,13 +72,12 @@
 .npe-vs-table td {
   border: 1px solid #000;
   padding: 0.5mm 1.5mm;
-  font-size: 7.8pt;
+  font-size: 8.8pt;
   line-height: 1.3;
 }
 .npe-vs-label { font-weight: bold; width: 55%; }
 .npe-vs-value { width: 45%; }
 
-/* ── Anthropometric nested table ── */
 .npe-ant-table {
   width: 100%;
   border-collapse: collapse;
@@ -100,27 +85,25 @@
 .npe-ant-table td {
   border: 1px solid #000;
   padding: 0.5mm 1.5mm;
-  font-size: 7.8pt;
+  font-size: 8.8pt;
   line-height: 1.3;
 }
 .npe-ant-label { font-weight: bold; }
 .npe-ant-value { text-align: right; }
 
-/* ── Exam section cells ── */
 .npe-exam-cell {
   vertical-align: top;
   padding: 1mm 1.5mm !important;
-  font-size: 7.8pt;
+  font-size: 8.8pt;
   line-height: 1.45;
 }
 
 .npe-exam-title {
   font-weight: bold;
   margin-bottom: 0.3mm;
-  font-size: 8pt;
+  font-size: 9pt;
 }
 
-/* ── Underlines ── */
 .npe-underline {
   display: inline-block;
   border-bottom: 1px solid #000;
@@ -148,7 +131,6 @@
   margin: 0 0.3mm;
 }
 
-/* ── Pediatrician signature ── */
 .npe-sig-section {
   text-align: center;
   margin-top: 3mm;
@@ -166,7 +148,6 @@
   text-align: center;
 }
 
-/* ── Footer ── */
 .npe-footer {
   position: absolute;
   bottom: 5mm;

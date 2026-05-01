@@ -3,7 +3,7 @@
   min-height: auto;
   padding: 10mm 12mm 10mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
+  font-size: 9pt;
   color: #000;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -29,7 +29,7 @@
 .ssc-info-table td {
   border: 1px solid #000;
   padding: 1mm 2mm;
-  font-size: 8pt;
+  font-size: 9pt;
   vertical-align: middle;
 }
 
@@ -55,7 +55,7 @@
 /* ── Title ── */
 .ssc-title {
   text-align: center;
-  font-size: 11pt;
+  font-size: 12pt;
   font-weight: bold;
   margin-top: 3mm;
   margin-bottom: 0;
@@ -65,7 +65,7 @@
 
 .ssc-subtitle {
   text-align: center;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   margin-bottom: 3mm;
 }
 
@@ -81,7 +81,7 @@
 .ssc-main-table td {
   border: 1px solid #000;
   vertical-align: top;
-  font-size: 8pt;
+  font-size: 9pt;
   padding: 1.5mm 2mm;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .ssc-footer-text {
-  font-size: 7pt;
+  font-size: 8pt;
   font-weight: bold;
   font-style: italic;
   text-align: right;

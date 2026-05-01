@@ -82,6 +82,7 @@ export default function SpecialEndorsement({ patientName, patientData }) {
 
       {/* ── Others ── */}
       <div className="se-others"><strong>OTHERS:</strong></div>
+      <br />
 
       {/* ── Footer ── */}
       <div className="se-footer">

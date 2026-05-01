@@ -1,21 +1,8 @@
-/* ── PhototherapyForm.css ───────────────────────────────────────────────────
-   A4 SINGLE PAGE — all content must fit within 297mm.
-   Budget breakdown (portrait A4 = 297mm):
-     top padding        :  10mm
-     bottom padding     :  12mm
-     header block       :   8mm
-     header margin-bot  :   4mm
-     table header row   :   6mm
-     25 data rows × 9mm : 225mm  ← TOO MUCH
-   Fix: reduce to 20 rows × 6mm = 120mm + header 6mm = 126mm total table
-   Remaining: 297 - 10 - 12 - 8 - 4 - 126 = 137mm spare → plenty of room
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .pt-page {
   width: 210mm;
   min-height: 297mm;
-  max-height: 297mm;       /* hard cap — never grow beyond one page */
-  overflow: hidden;        /* clip anything that sneaks over */
+  max-height: 297mm;       
+  overflow: hidden;        
   margin: 0 auto;
   padding: 10mm 12mm 12mm 12mm;
   font-family: Arial, Helvetica, sans-serif;
@@ -37,14 +24,12 @@
     page-break-inside: avoid;
   }
 
-  /* force single page */
   @page {
     size: A4 portrait;
     margin: 0;
   }
 }
 
-/* ── Header ── */
 .pt-header {
   display: flex;
   justify-content: space-between;
@@ -72,7 +57,6 @@
   white-space: nowrap;
 }
 
-/* ── Two-column layout ── */
 .pt-columns {
   display: flex;
   align-items: flex-start;
@@ -87,7 +71,6 @@
   flex-shrink: 0;
 }
 
-/* ── Phototherapy table ── */
 .pt-table {
   width: 100%;
   border-collapse: collapse;
@@ -111,15 +94,13 @@
   text-align: center;
   vertical-align: middle;
   padding: 0;
-  height: 6mm;   /* tightened from 9mm → 6mm so 20 rows + header fits */
+  height: 10mm;   
 }
 
-/* Column widths */
 .pt-col-date  { width: 35%; }
 .pt-col-hours { width: 30%; }
 .pt-col-nod   { width: 35%; }
 
-/* ── Footer — identical to Forms2 ── */
 .pt-footer {
   position: absolute;
   bottom: 6mm;

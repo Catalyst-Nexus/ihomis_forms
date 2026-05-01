@@ -153,6 +153,9 @@ export default function ApgarScoring({ babyName, babyData = {} }) {
           ))}
         </tbody>
       </table>
+      <br />
+      <br />
+      <br />
 
       {/* Signature Footer */}
       <div className="footer-sig">

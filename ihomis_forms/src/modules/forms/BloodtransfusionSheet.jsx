@@ -1,106 +1,120 @@
 import "./BloodTransfusionSheet.css";
 
 const formatGeneratedOn = (date = new Date()) => {
-	const pad = (value) => String(value).padStart(2, "0");
-	const hours = date.getHours();
-	const minutes = date.getMinutes();
-	const ampm = hours >= 12 ? "pm" : "am";
-	const hour12 = String(hours % 12 || 12).padStart(2, "0");
+  const pad = (v) => String(v).padStart(2, "0");
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const ampm = h >= 12 ? "pm" : "am";
+  const h12 = String(h % 12 || 12).padStart(2, "0");
 
-	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${hour12}:${pad(minutes)} ${ampm}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )} ${h12}:${pad(m)} ${ampm}`;
 };
 
-export default function BloodTransfusionSheet({ patientName, patientData = {} }) {
-	const caseNum = patientData.caseNum || patientData.caseNo || "";
-	const hospitalNo =
-		patientData.hospitalNo || patientData.hospNo || patientData.hospitalNumber || "";
-	const name = patientName || patientData.patientName || patientData.fullName || "";
-	const ward = patientData.ward || patientData.room || "";
-	const age = patientData.age || "";
-	const sex = patientData.sex || "";
-	const hrn = patientData.hrn || "";
-	const generatedOn = patientData.generatedOn || formatGeneratedOn();
+export default function BloodTransfusionSheet({
+  patientName,
+  patientData = {},
+}) {
+  const caseNum = patientData.caseNum || "";
+  const hospitalNo = patientData.hospitalNo || "";
+  const name = patientName || patientData.patientName || "";
+  const ward = patientData.ward || "";
+  const age = patientData.age || "";
+  const sex = patientData.sex || "";
+  const hrn = patientData.hrn || "";
+  const generatedOn =
+    patientData.generatedOn || formatGeneratedOn();
 
-	return (
-		<div className="bts-page">
-			<div className="bts-header-spacer" aria-hidden="true" />
+  return (
+    <div className="bts-page">
+      <div className="bts-meta-grid">
+        <div className="bts-meta-col">
+          <div className="bts-meta-item bts-case-line">
+            <span className="bts-label">Case Number:</span>
+            {caseNum ? (
+              <span className="bts-value">{caseNum}</span>
+            ) : (
+              <span className="bts-line" />
+            )}
+          </div>
 
-			<div className="bts-title">Blood Transfusion Sheet</div>
+          <div className="bts-meta-item">
+            <span className="bts-label">Hospital No.:</span>
+            <span>{hospitalNo}</span>
+          </div>
 
-			<div className="bts-meta-grid">
-				<div className="bts-meta-col">
-					<div className="bts-meta-item">
-						<span className="bts-label">Case Number:</span>
-						<span>{caseNum}</span>
-					</div>
-					<div className="bts-meta-item">
-						<span className="bts-label">Hospital No.:</span>
-						<span>{hospitalNo}</span>
-					</div>
-					<div className="bts-meta-item">
-						<span className="bts-label">Patient Name:</span>
-						<span>{name}</span>
-					</div>
-				</div>
+          <div className="bts-meta-item">
+            <span className="bts-label">Patient Name:</span>
+            <span>{name}</span>
+          </div>
+        </div>
 
-				<div className="bts-meta-col">
-					<div className="bts-meta-item">
-						<span className="bts-label">Ward:</span>
-						<span>{ward}</span>
-					</div>
-					<div className="bts-meta-item">
-						<span className="bts-label">Age:</span>
-						<span>{age}</span>
-					</div>
-					<div className="bts-meta-item">
-						<span className="bts-label">Sex:</span>
-						<span>{sex}</span>
-					</div>
-					<div className="bts-meta-item">
-						<span className="bts-label">HRN:</span>
-						{hrn ? <span>{hrn}</span> : <span className="bts-hrn-line" aria-label="HRN field" />}
-					</div>
-				</div>
-			</div>
+        <div className="bts-meta-col">
+          <div className="bts-meta-item">
+            <span className="bts-label">Ward:</span>
+            <span>{ward}</span>
+          </div>
 
-			<table className="bts-table" aria-label="Blood transfusion tracking table">
-				<thead>
-					<tr>
-						<th className="bts-col-bag">BAG NO.</th>
-						<th className="bts-col-date">DATE & TIME STARTED</th>
-						<th className="bts-col-blood">BLOOD COMPONENT</th>
-						<th className="bts-col-type">BLD TYPE</th>
-						<th className="bts-col-serial">SERIAL NO.</th>
-						<th className="bts-col-expiry">EXPIRATION DATE</th>
-						<th className="bts-col-date-time">DATE & TIME CONSUMED</th>
-						<th className="bts-col-nurse">NURSE'S NAME AND SIGNATURE</th>
-						<th className="bts-col-remarks">REMARKS</th>
-					</tr>
-				</thead>
-				<tbody>
-					{Array.from({ length: 18 }).map((_, index) => (
-						<tr key={index}>
-							<td className="bts-col-bag">&nbsp;</td>
-							<td className="bts-col-date">&nbsp;</td>
-							<td className="bts-col-blood">&nbsp;</td>
-							<td className="bts-col-type">&nbsp;</td>
-							<td className="bts-col-serial">&nbsp;</td>
-							<td className="bts-col-expiry">&nbsp;</td>
-							<td className="bts-col-date-time">&nbsp;</td>
-							<td className="bts-col-nurse">&nbsp;</td>
-							<td className="bts-col-remarks">&nbsp;</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
+          <div className="bts-meta-item">
+            <span className="bts-label">Age:</span>
+            <span>{age}</span>
+          </div>
 
-			<div className="bts-footer">
-				<div className="bts-footer-line" aria-hidden="true" />
+          <div className="bts-meta-item">
+            <span className="bts-label">Sex:</span>
+            <span>{sex}</span>
+          </div>
 
-				<div className="bts-default-footer">
-					Generated by: TCP T. TCP on {generatedOn}
-				</div>
-			</div>
-		</div>
-	);
+          <div className="bts-meta-item">
+            <span className="bts-label">HRN:</span>
+            {hrn ? (
+              <span>{hrn}</span>
+            ) : (
+              <span className="bts-line" />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* TABLE */}
+      <table className="bts-table">
+        <thead>
+          <tr>
+            <th className="bts-col-bag">BAG NO.</th>
+            <th className="bts-col-date">DATE & TIME STARTED</th>
+            <th className="bts-col-blood">BLOOD COMPONENT</th>
+            <th className="bts-col-type">BLD TYPE</th>
+            <th className="bts-col-serial">SERIAL NO.</th>
+            <th className="bts-col-expiry">EXPIRATION DATE</th>
+            <th className="bts-col-date-time">DATE & TIME CONSUMED</th>
+            <th className="bts-col-nurse">
+              NURSE'S NAME AND SIGNATURE
+            </th>
+            <th className="bts-col-remarks">REMARKS</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {Array.from({ length: 23 }).map((_, i) => (
+            <tr key={i}>
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="bts-footer">
+        Generated by: TCP T. TCP on {generatedOn}
+      </div>
+    </div>
+  );
 }

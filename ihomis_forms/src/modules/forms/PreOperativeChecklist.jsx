@@ -197,6 +197,7 @@ export default function PreOperativeChecklist({ patientName, patientData }) {
 					<UL width="70px" />
 					<span className="poc-lbl-normal">&nbsp;)</span>
 				</div>
+				<br />
 
 				{/* Received By */}
 				<div className="poc-received-row">
@@ -212,8 +213,8 @@ export default function PreOperativeChecklist({ patientName, patientData }) {
 						<UL width="80px" />
 					</div>
 				</div>
-
 			</div>
+			<br />
 
 			{/* ── Footer ── */}
 			<div className="poc-footer">

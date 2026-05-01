@@ -68,12 +68,12 @@
 }
 
 .ocs-tr {
-  height: 20px;
+  height: 28px;
 }
 
 .ocs-td {
   border: 1px solid #000;
-  padding: 0;
+   padding: 4px 3px;
   height: 20px;
 }
 

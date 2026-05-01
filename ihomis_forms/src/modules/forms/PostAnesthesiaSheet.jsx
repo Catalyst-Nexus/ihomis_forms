@@ -10,7 +10,7 @@ const chartSectionStyle = {
 
 const chartImageStyle = {
   width: '190mm',
-  height: '190mm',
+  height: '180mm',
   display: 'block',
   objectFit: 'fill',
 };
@@ -19,11 +19,7 @@ const PostAnesthesiaSheet = () => {
   return (
     <div className="neuro-vital-signs-container">
       <div className="neuro-vital-signs">
-        <div className="header-reserved-space" aria-hidden="true" />
-
         <section className="form-intro pacu-header" aria-label="Form title and patient details">
-          <div className="pacu-title">POST ANESTHESIA CARE UNIT MONITORING SHEET</div>
-
           <div className="pacu-panel">
             <div className="pacu-row pacu-row--top">
               <div className="pacu-cell">

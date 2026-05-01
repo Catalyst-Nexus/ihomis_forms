@@ -1,37 +1,29 @@
-/* ─── WRAPPER ─────────────────────────────────────────────── */
 .brf-document {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ─── PAGE ────────────────────────────────────────────────── */
 .brf-page {
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 1.25rem 1.4rem 1.2rem;
+  padding: 10mm 8mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.98rem;
-  line-height: 1.35;
+  font-size: 9pt;
+  line-height: 1.3;
   color: #1a1a1a;
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
-/* ─── PAGE 2 SPECIFIC ──────────────────────────────────────── */
-.brf-page-2 {
-  padding-top: 1.25rem;
-}
-
-/* ─── HEADER SPACER ───────────────────────────────────────── */
 .brf-header-spacer {
-  height: 1rem;
+  height: 60px;
   flex-shrink: 0;
 }
 
@@ -77,11 +69,6 @@
 .brf-label {
   font-weight: 700;
   white-space: nowrap;
-  font-size: 0.98rem;
-}
-
-.brf-value {
-  font-size: 0.98rem;
 }
 
 .brf-underline-value {
@@ -116,7 +103,7 @@
 /* ─── SECTION HEADER ──────────────────────────────────────── */
 .brf-section-header {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 9.5pt;
   text-decoration: underline;
   margin-bottom: 0.2rem;
   flex-shrink: 0;
@@ -130,13 +117,13 @@
 
 /* ─── COMPONENT BLOCKS ────────────────────────────────────── */
 .brf-component-block {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
   flex-shrink: 0;
 }
 
 /* First component block on page 2 gets extra top spacing */
 .brf-page-2 .brf-component-block:first-of-type {
-  margin-top: 4.2rem;
+  margin-top: 1.2rem;
 }
 
 .brf-component-title {
@@ -144,7 +131,6 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 3px;
-  font-size: 0.98rem;
   margin-bottom: 0.1rem;
 }
 
@@ -156,44 +142,37 @@
 .brf-indication-item {
   display: flex;
   align-items: flex-start;
-  gap: 0;
   margin-bottom: 0.05rem;
-  font-size: 0.93rem;
 }
 
 .brf-ind-text {
   flex: 1;
-  font-size: 0.93rem;
   line-height: 1.3;
 }
 
 /* ─── NOTE BLOCKS ─────────────────────────────────────────── */
 .brf-note-block {
-  margin: 0.25rem 0 0.3rem 0;
-  font-size: 0.93rem;
+  margin: 0.2rem 0 0.25rem 0;
   flex-shrink: 0;
 }
 
 .brf-note-title {
   font-weight: 700;
-  font-size: 0.95rem;
 }
 
 .brf-note-content {
   padding-left: 0.5rem;
-  font-size: 0.93rem;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 /* ─── GENERATED TIMESTAMP ─────────────────────────────────── */
 .brf-generated {
   margin-top: auto;
-  padding-top: 0.35rem;
+  padding-top: 0.3rem;
   border-top: 1px solid #000;
   text-align: right;
-  font-size: 0.82rem;
+  font-size: 8pt;
   font-style: italic;
-  color: #000;
   flex-shrink: 0;
 }
 
@@ -210,19 +189,21 @@
 }
 
 .brf-req-label {
-  font-size: 0.98rem;
   margin-bottom: 0.3rem;
 }
 
 .brf-signature-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2rem;
 }
 
 .brf-sig-block {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   text-align: center;
 }
 
@@ -230,6 +211,7 @@
   display: block;
   border-bottom: 1px solid #000;
   width: 100%;
+  min-width: 0;
   margin-bottom: 2px;
   height: 1.4rem;
 }
@@ -239,19 +221,52 @@
   align-items: flex-end;
   justify-content: center;
   gap: 4px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.brf-sig-line-wrap .brf-sig-line {
+  flex: 1 1 auto;
+}
+
+.brf-sig-line-wrap--suffix {
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.brf-sig-line-wrap--suffix .brf-sig-line {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .brf-sig-suffix {
   white-space: nowrap;
-  font-size: 0.98rem;
 }
 
 .brf-sig-label {
-  font-size: 0.88rem;
+  font-size: 8pt;
   border-top: 1px solid #000;
   padding-top: 2px;
   text-align: center;
   margin-top: 2px;
+  white-space: nowrap;
+}
+
+.brf-sig-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+}
+
+.brf-sig-stack .brf-sig-line {
+  width: 100%;
+}
+
+
+.brf-signature-row--offset {
+  margin-top: 1.1rem;
 }
 
 /* ─── REMARKS ─────────────────────────────────────────────── */
@@ -263,60 +278,144 @@
   margin: 0.3rem 0;
 }
 
-/* ─── PRINT (adult form only) ──────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   PRINT — matches MIS.css pattern exactly
+   ════════════════════════════════════════════════════════════ */
 @media print {
-  #print-container .form-document .form-document__body .brf-adult-document {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 210mm;
   }
 
-  /* Override generic .brf-page print sizing to prevent 3-4 page split */
-  #print-container .form-document .form-document__body .brf-adult-document .brf-page {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: auto !important;
-    height: auto !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    overflow: visible !important;
-    display: block !important;
-    page-break-inside: auto !important;
-    break-inside: auto !important;
+  .brf-document {
+    gap: 0;
+    margin: 0;
+    padding: 0;
   }
 
-  #print-container .form-document .form-document__body .brf-adult-document .brf-page:first-child {
-    page-break-after: always !important;
-    break-after: page !important;
+  /* Each .brf-page is its own printed sheet — same as .mis-page */
+  .brf-page {
+    margin: 0;
+    padding: 10mm 8mm;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    width: 210mm;
+    height: 297mm;
+    min-height: unset;
+    overflow: hidden;
+    break-after: page;
+    page-break-after: always;
+    font-size: 8pt;
+    line-height: 1.25;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
   }
 
-  #print-container .form-document .form-document__body .brf-adult-document .brf-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
+  .brf-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
   }
 
-  /* Keep print start aligned with modal body content */
-  #print-container .form-document .form-document__body .brf-adult-document .brf-header-spacer {
-    display: none !important;
-    height: 0 !important;
+  /* Header spacer — matches mis-header-reserved-space */
+  .brf-header-spacer {
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  /* Tighten patient info */
+  .brf-patient-info {
+    padding: 0.2rem 0.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .brf-info-row {
+    margin-bottom: 1px;
+    font-size: 8pt;
+  }
+
+  /* Tighten all text */
+  .brf-label,
+  .brf-value,
+  .brf-component-title,
+  .brf-checkbox,
+  .brf-ind-text,
+  .brf-note-content,
+  .brf-note-title,
+  .brf-history-row,
+  .brf-type-row,
+  .brf-req-label,
+  .brf-sig-suffix,
+  .brf-remarks-row {
+    font-size: 8pt;
+    line-height: 1.2;
+  }
+
+  .brf-section-header {
+    font-size: 8.5pt;
+    margin-bottom: 0.1rem;
+  }
+
+  /* Tighten component blocks */
+  .brf-component-block {
+    margin-bottom: 0.12rem;
+  }
+
+  .brf-component-title {
+    margin-bottom: 0.04rem;
+  }
+
+  .brf-indications {
+    padding-left: 0.5rem;
+  }
+
+  .brf-indication-item {
+    margin-bottom: 0.02rem;
+  }
+
+  /* Tighten note blocks */
+  .brf-note-block {
+    margin: 0.08rem 0 0.1rem 0;
+  }
+
+  /* Tighten history/type rows */
+  .brf-history-row,
+  .brf-type-row {
+    margin-bottom: 0.1rem;
+  }
+
+  /* Signature */
+  .brf-requested-section,
+  .brf-received-section {
+    margin: 0.2rem 0 0.1rem 0;
+  }
+
+  .brf-sig-line {
+    height: 1rem;
+  }
+
+  .brf-sig-label {
+    font-size: 7.5pt;
+  }
+
+  .brf-remarks-row {
+    margin: 0.1rem 0;
+  }
+
+  /* Footer timestamp */
+  .brf-generated {
+    padding-top: 0.15rem;
+    font-size: 7.5pt;
   }
 }
-/* ─── RESPONSIVE ──────────────────────────────────────────── */
+
 @media (max-width: 760px) {
   .brf-page {
     width: 100%;
     min-height: auto;
-    font-size: 0.92rem;
     padding: 0.75rem;
     box-shadow: none;
-  }
-
-  .brf-sig-line {
-    width: 140px;
   }
 }

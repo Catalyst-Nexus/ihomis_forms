@@ -69,6 +69,7 @@ export default function AldreteScore({ patientName, patientData }) {
 
   return (
     <div className="ald-page">
+      <br />
 
       {/* ── Header ── */}
       <div className="ald-header">
@@ -125,9 +126,9 @@ export default function AldreteScore({ patientName, patientData }) {
           </tr>
         </tbody>
       </table>
+      <br />
 
       {/* ── Signature ── */}
-      <br />
       <div className="ald-sig-section">
         <div className="ald-sig-block">
           <div className="ald-sig-line" />
