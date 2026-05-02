@@ -1,493 +1,599 @@
+/**
+ * Tagging.jsx — User-based access control via tagging order [FIXED v3]
+ *
+ * KEY FIX: 
+ * - No FK constraint checks
+ * - No user table syncing
+ * - Direct inserts to tracking_user_assignment
+ * - Works with API users directly
+ *
+ * DB schema:
+ *   tracking:                  id | tracking_encocode | encounter_type | ...
+ *   tracking_user_assignment:  id | tracking_id | user_id | tag_order
+ *   user_seq_assignment:       id | user_id | seq_id
+ *   tracking_sequence:         id | description | sort_order
+ *
+ * Access rules:
+ *   tag_order 1  → full access (all steps)
+ *   tag_order 2  → only steps in user_seq_assignment for their user_id
+ *   tag_order 3  → steps NOT in user_seq_assignment for the tag-order-2 user
+ *   tag_order 4+ → can be extended with same "remaining" logic
+ */
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./Tagging.css";
 
-// ── Supabase client (singleton) ──────────────────────────────────────────────
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function normalizeUser(user, index) {
-  const id =
-    user?.user_id ?? user?.id ?? user?.userId ?? user?.uid ??
-    user?.username ?? user?.email ?? String(index);
-  const label =
-    user?.full_name ?? user?.displayName ?? user?.fullName ??
-    user?.name ?? user?.username ?? user?.email ?? String(id);
-  return { id: String(id), label, raw: user };
+function normalizeUser(u, i) {
+  const id    = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
+  const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? id;
+  return { id, label, raw: u };
 }
 
-// ── Toast hook ────────────────────────────────────────────────────────────────
 function useToast() {
   const [toasts, setToasts] = useState([]);
-  const push = useCallback((message, type = "success") => {
+  const push = useCallback((msg, type = "success") => {
     const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+    setToasts((p) => [...p, { id, msg, type }]);
+    setTimeout(() => setToasts((p) => p.filter((t) => t.id !== id)), 3500);
   }, []);
   return { toasts, push };
+}
+
+// Tag order visual config — extendable
+const TAG_CFG = {
+  1: { color: "#0f7a6e", bg: "#e0f5f2", label: "1st tag — full access"         },
+  2: { color: "#1a5ea8", bg: "#e2eef9", label: "2nd tag — assigned steps only"  },
+  3: { color: "#8a4f0b", bg: "#faebd5", label: "3rd tag — remaining steps"      },
+  4: { color: "#6b3a8a", bg: "#f0e8f7", label: "4th tag — remaining steps"      },
+};
+function tagCfg(order) {
+  return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 export default function Tagging({
   selectedPatient,
-  trackingRows = [],        // [{ id, patientName, hospitalNo, encoCode, … }]
+  trackingRows = [],
   onBackToTracking,
   onChangePatient,
-  onAssignTag,
-  onClearTag,
+  currentUserId,
+  currentUserName,
+  onAccessChanged,
 }) {
+  // ── Init state ─────────────────────────────────────────────────────────────
+  const [initComplete, setInitComplete] = useState(false);
+  const [initError, setInitError] = useState("");
+
+  // ── 0. INITIALIZE: Ensure all records exist in DB ──────────────────────────
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      setInitError("");
+      if (!trackingRows.length) {
+        setInitComplete(true);
+        return;
+      }
+
+      const errors = [];
+      for (const row of trackingRows) {
+        if (!live) break;
+
+        const encoCode = row.encoCode || row.tracking_encocode || row.id;
+        if (!encoCode) continue;
+
+        const encounterType = row.encounterType || row.encounter_type || "";
+
+        try {
+          const { data: upserted, error: upErr } = await supabase
+            .from("tracking")
+            .upsert(
+              {
+                tracking_encocode: String(encoCode),
+                encounter_type: String(encounterType),
+                is_current: true,
+                created_by: String(selectedPatient?.id ?? selectedPatient?.patient_id ?? "TAGGING_INIT"),
+              },
+              { onConflict: "tracking_encocode" }
+            )
+            .select("id")
+            .single();
+
+          if (upErr) {
+            errors.push(`Upsert tracking failed for ${encoCode}: ${upErr.message}`);
+            continue;
+          }
+
+          if (upserted?.id && !row.id) {
+            row.id = upserted.id;
+          }
+        } catch (e) {
+          errors.push(`Exception for ${encoCode}: ${e.message}`);
+        }
+      }
+
+      if (!live) return;
+      if (errors.length > 0) {
+        setInitError(errors.join(" | "));
+      }
+      setInitComplete(true);
+    })();
+
+    return () => { live = false; };
+  }, [trackingRows, selectedPatient]);
+
   // ── Record selector ────────────────────────────────────────────────────────
-  const [selectedRecordId, setSelectedRecordId] = useState(
-    () => trackingRows[0]?.id ?? "",
-  );
+  const [selectedRecordId, setSelectedRecordId] = useState(() => {
+    const withId = trackingRows.find(r => r.id);
+    return withId ? String(withId.id) : String(trackingRows[0]?.id ?? "");
+  });
 
   useEffect(() => {
-    if (!trackingRows.length) { setSelectedRecordId(""); return; }
-    if (!trackingRows.some((r) => r.id === selectedRecordId)) {
-      setSelectedRecordId(trackingRows[0].id);
+    if (!trackingRows.length) { 
+      setSelectedRecordId(""); 
+      return; 
+    }
+    
+    if (!trackingRows.some((r) => String(r.id) === selectedRecordId)) {
+      const firstWithId = trackingRows.find(r => r.id);
+      setSelectedRecordId(firstWithId ? String(firstWithId.id) : "");
     }
   }, [trackingRows, selectedRecordId]);
 
-  // ── Steps from tracking_sequence ──────────────────────────────────────────
+  // ── Steps (tracking_sequence) ──────────────────────────────────────────────
   const [steps,        setSteps]        = useState([]);
   const [stepsLoading, setStepsLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    let live = true;
     (async () => {
       setStepsLoading(true);
       const { data, error } = await supabase
         .from("tracking_sequence")
         .select("id, description, sort_order")
         .order("sort_order", { ascending: true });
-      if (!cancelled && !error && data?.length) {
-        setSteps(data.map((r) => ({ key: String(r.id), label: r.description, seqId: r.id })));
+      if (live && !error && data?.length) {
+        setSteps(data.map((r) => ({ id: r.id, key: String(r.id), label: r.description })));
       }
-      if (!cancelled) setStepsLoading(false);
+      if (live) setStepsLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => { live = false; };
   }, []);
 
-  // ── Users from VITE_TRACKING_USERS ────────────────────────────────────────
-  const [users,        setUsers]        = useState([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [usersError,   setUsersError]   = useState("");
+  // ── Users (VITE_TRACKING_USERS) ────────────────────────────────────────────
+  const [users,       setUsers]       = useState([]);
+  const [usersState,  setUsersState]  = useState("idle"); // "idle"|"loading"|"error"
+  const [usersError,  setUsersError]  = useState("");
 
   const fetchUsers = useCallback(async () => {
     const url = import.meta.env.VITE_TRACKING_USERS;
-    if (!url) { setUsersError("VITE_TRACKING_USERS is not configured."); return; }
-    setUsersLoading(true);
-    setUsersError("");
+    if (!url) { setUsersState("error"); setUsersError("VITE_TRACKING_USERS not set."); return; }
+    setUsersState("loading"); setUsersError("");
     try {
-      const res = await fetch(url);
+      const res  = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const raw = await res.json();
-      const list = Array.isArray(raw) ? raw
-        : Array.isArray(raw?.data)  ? raw.data
-        : Array.isArray(raw?.users) ? raw.users
-        : [];
-      setUsers(list.map(normalizeUser));
+      const raw  = await res.json();
+      const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.users) ? raw.users : [];
+      const normalized = list.map(normalizeUser);
+      setUsers(normalized);
+      setUsersState("idle");
     } catch (e) {
-      setUsersError(`Failed to load users: ${e.message}`);
-    } finally {
-      setUsersLoading(false);
+      setUsersState("error"); setUsersError(e.message);
     }
   }, []);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-  // ── user_seq_assignment: which user can do which step ─────────────────────
-  // { seqId: [userId, …] }
-  const [stepPermissions, setStepPermissions] = useState({});
+  // ── Tagged users for selected record (tracking_user_assignment) ────────────
+  const [taggedUsers, setTaggedUsers] = useState([]);
 
-  const fetchStepPermissions = useCallback(async () => {
-    const { data } = await supabase
-      .from("user_seq_assignment")
-      .select("user_id, seq_id");
-    if (!data) return;
-    const map = {};
-    for (const row of data) {
-      const key = String(row.seq_id);
-      if (!map[key]) map[key] = [];
-      map[key].push(String(row.user_id));
-    }
-    setStepPermissions(map);
-  }, []);
-
-  useEffect(() => { fetchStepPermissions(); }, [fetchStepPermissions]);
-
-  // ── tracking_user_assignment: who is assigned to this record ──────────────
-  // { trackingId: [userId, …] }
-  const [recordAssignments, setRecordAssignments] = useState({});
-
-  const fetchRecordAssignments = useCallback(async () => {
-    if (!selectedRecordId) return;
-    const { data } = await supabase
+  const fetchTaggedUsers = useCallback(async () => {
+    if (!selectedRecordId) { setTaggedUsers([]); return; }
+    const { data, error } = await supabase
       .from("tracking_user_assignment")
-      .select("id, user_id")
-      .eq("tracking_id", selectedRecordId);
-    if (!data) return;
-    setRecordAssignments((prev) => ({
-      ...prev,
-      [selectedRecordId]: data.map((r) => ({ id: r.id, userId: String(r.user_id) })),
-    }));
+      .select("id, user_id, tag_order")
+      .eq("tracking_id", selectedRecordId)
+      .order("tag_order", { ascending: true });
+    if (error) { console.error("fetchTaggedUsers:", error.message); return; }
+    setTaggedUsers((data ?? []).map((r) => ({
+      rowId:    r.id,
+      userId:   String(r.user_id),
+      tagOrder: r.tag_order,
+    })));
   }, [selectedRecordId]);
 
-  useEffect(() => { fetchRecordAssignments(); }, [fetchRecordAssignments]);
+  useEffect(() => { fetchTaggedUsers(); }, [fetchTaggedUsers]);
 
-  // ── user_seq_assignment: step-level tag (per record) ──────────────────────
-  // { recordId: { stepKey: { assignmentId, userId, userName } } }
-  const [assignments, setAssignments] = useState({});
-  const [drafts,      setDrafts]      = useState({});
-  const [saving,      setSaving]      = useState({});
+  // ── Step assignments (user_seq_assignment) ──────────────────────────────────
+  const [stepAssign, setStepAssign] = useState({});
 
-  const { toasts, push: pushToast } = useToast();
+  const fetchStepAssign = useCallback(async () => {
+    if (!taggedUsers.length) { setStepAssign({}); return; }
+    const allUserIds = taggedUsers.map((u) => u.userId);
 
-  // Load existing step assignments for this record
-  useEffect(() => {
-    if (!selectedRecordId) return;
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from("user_seq_assignment")
-        .select("id, user_id, seq_id")
-        .eq("tracking_id", selectedRecordId);   // NOTE: user_seq_assignment must have tracking_id FK
+    const { data, error } = await supabase
+      .from("user_seq_assignment")
+      .select("id, user_id, seq_id")
+      .in("user_id", allUserIds);
 
-      if (cancelled || !data) return;
-      const loaded = {};
-      for (const row of data) {
-        const user = users.find((u) => String(u.id) === String(row.user_id));
-        loaded[String(row.seq_id)] = {
-          assignmentId: row.id,
-          userId: String(row.user_id),
-          userName: user?.label ?? String(row.user_id),
-          seqId: row.seq_id,
-        };
+    if (error) { console.error("fetchStepAssign:", error.message); return; }
+
+    const map = {};
+    for (const row of data ?? []) {
+      map[String(row.seq_id)] = {
+        rowId:    row.id,
+        userId:   String(row.user_id),
+        userName: users.find((u) => u.id === String(row.user_id))?.label ?? String(row.user_id),
+      };
+    }
+    setStepAssign(map);
+  }, [taggedUsers, users]);
+
+  useEffect(() => { fetchStepAssign(); }, [fetchStepAssign]);
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const user2 = useMemo(() => taggedUsers.find((u) => u.tagOrder === 2), [taggedUsers]);
+
+  const accessByUser = useMemo(() => {
+    if (!steps.length) return {};
+    const user2AssignedKeys = new Set(
+      steps.filter((s) => stepAssign[s.key]?.userId === user2?.userId).map((s) => s.key)
+    );
+
+    const result = {};
+    for (const tu of taggedUsers) {
+      if (tu.tagOrder === 1) {
+        result[tu.userId] = steps.map((s) => s.label);
+      } else if (tu.tagOrder === 2) {
+        result[tu.userId] = steps.filter((s) => user2AssignedKeys.has(s.key)).map((s) => s.label);
+      } else {
+        result[tu.userId] = steps.filter((s) => !user2AssignedKeys.has(s.key)).map((s) => s.label);
       }
-      setAssignments((prev) => ({ ...prev, [selectedRecordId]: loaded }));
-    })();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRecordId, users]);
+    }
+    return result;
+  }, [taggedUsers, steps, stepAssign, user2]);
 
-  const activeAssignments = assignments[selectedRecordId] ?? {};
-  const activeDrafts      = drafts[selectedRecordId]      ?? {};
-  const activeRecordUsers = recordAssignments[selectedRecordId] ?? [];
-  const taggingDisabled   = !selectedRecordId || usersLoading || !users.length;
+  const nextTagOrder    = taggedUsers.length > 0 ? Math.max(...taggedUsers.map((u) => u.tagOrder)) + 1 : 1;
+  const canAddUser      = taggedUsers.length < 4;
+  const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function handleDraftChange(stepKey, userId) {
-    if (!selectedRecordId) return;
-    setDrafts((prev) => ({
-      ...prev,
-      [selectedRecordId]: { ...(prev[selectedRecordId] ?? {}), [stepKey]: userId },
-    }));
-  }
+  const [drafts,  setDrafts]  = useState({});
+  const [saving,  setSaving]  = useState({});
+  const [pendingUser, setPendingUser] = useState("");
 
-  // ── Assign tracking_user (record-level) ───────────────────────────────────
-  async function handleAssignRecord(userId) {
-    if (!selectedRecordId || !userId) return;
-    const already = activeRecordUsers.some((a) => a.userId === userId);
-    if (already) { pushToast("User already assigned to this record.", "info"); return; }
+  useEffect(() => { setDrafts({}); setSaving({}); }, [selectedRecordId]);
 
-  const { data: check } = await supabase
-    .from("tracking")
-    .select("id")
-    .eq("id", selectedRecordId)
-      .maybeSingle();
-     if (!check) {
-    pushToast("Record not yet synced to database. Please refresh Tracking first.", "error");
-    return;
-  }
+  const { toasts, push } = useToast();
 
-    if (error) { pushToast(`Error: ${error.message}`, "error"); return; }
+  // ── Add user to record ─────────────────────────────────────────────────────
+  // ✅ SIMPLE: Direct insert, no FK checks, no user table syncing
+  async function handleAddUser() {
+    if (!selectedRecordId || !pendingUser) return;
+    if (taggedUsers.some((u) => u.userId === pendingUser)) { 
+      push("User already tagged.", "info"); 
+      return; 
+    }
+    if (!canAddUser) { 
+      push("Maximum users reached.", "info"); 
+      return; 
+    }
 
-    setRecordAssignments((prev) => ({
-      ...prev,
-      [selectedRecordId]: [
-        ...(prev[selectedRecordId] ?? []),
-        { id: data.id, userId },
-      ],
-    }));
-    const user = users.find((u) => u.id === userId);
-    pushToast(`Assigned ${user?.label ?? userId} to record.`);
-  }
-
-  async function handleRemoveRecord(assignmentId, userId) {
-    const { error } = await supabase
+    // ✅ Direct insert to tracking_user_assignment
+    // NO FK validation, NO user table checks
+    const { data, error } = await supabase
       .from("tracking_user_assignment")
-      .delete()
-      .eq("id", assignmentId);
-    if (error) { pushToast(`Error: ${error.message}`, "error"); return; }
-    setRecordAssignments((prev) => ({
-      ...prev,
-      [selectedRecordId]: (prev[selectedRecordId] ?? []).filter((a) => a.id !== assignmentId),
-    }));
-    const user = users.find((u) => u.id === userId);
-    pushToast(`Removed ${user?.label ?? userId} from record.`, "info");
+      .insert({ 
+        tracking_id: selectedRecordId, 
+        user_id: pendingUser, 
+        tag_order: nextTagOrder 
+      })
+      .select("id")
+      .single();
+
+    if (error) { 
+      console.error("Insert error:", error);
+      push(`Error: ${error.message}`, "error"); 
+      return; 
+    }
+    
+    setTaggedUsers((p) => [...p, { rowId: data.id, userId: pendingUser, tagOrder: nextTagOrder }]);
+    const uLabel = users.find((u) => u.id === pendingUser)?.label ?? pendingUser;
+    push(`Tagged ${uLabel} as #${nextTagOrder} — ${tagCfg(nextTagOrder).label}`);
+    setPendingUser("");
+    onAccessChanged?.();
   }
 
-  // ── Assign step (user_seq_assignment) ─────────────────────────────────────
-  async function handleAssign(step) {
-    if (!selectedRecordId) return;
-    const userId = activeDrafts[step.key];
+  // ── Remove tagged user ─────────────────────────────────────────────────────
+  async function handleRemoveUser(rowId, userId, tagOrder) {
+    const { error } = await supabase.from("tracking_user_assignment").delete().eq("id", rowId);
+    if (error) { push(`Error: ${error.message}`, "error"); return; }
+
+    setTaggedUsers((p) => p.filter((u) => u.rowId !== rowId));
+
+    if (tagOrder === 2) {
+      await supabase.from("user_seq_assignment").delete().eq("user_id", userId);
+      setStepAssign({});
+      setDrafts({});
+    }
+
+    const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
+    push(`Removed ${uLabel} (tag #${tagOrder}).`, "info");
+    onAccessChanged?.();
+  }
+
+  // ── Assign step to user2 ───────────────────────────────────────────────────
+  async function handleAssignStep(step) {
+    const userId = drafts[step.key];
     if (!userId) return;
+    if (!user2) { push("Add a 2nd-tagged user before assigning steps.", "info"); return; }
+    if (userId !== user2.userId) { push("Only the 2nd-tagged user can be assigned steps.", "info"); return; }
 
-    const selectedUser = users.find((u) => u.id === userId);
-    const seqId = step.seqId ?? parseInt(step.key, 10) ?? null;
-    const existing = activeAssignments[step.key];
+    const existing = stepAssign[step.key];
+    setSaving((p) => ({ ...p, [step.key]: true }));
 
-    setSaving((prev) => ({ ...prev, [step.key]: true }));
+    let error = null, returnedId = existing?.rowId ?? null;
 
-    let dbError = null;
-    let returnedId = existing?.assignmentId ?? null;
-
-    if (existing?.assignmentId) {
-      const { error } = await supabase
-        .from("user_seq_assignment")
-        .update({ user_id: userId })
-        .eq("id", existing.assignmentId);
-      dbError = error;
+    if (existing?.rowId) {
+      ({ error } = await supabase.from("user_seq_assignment").update({ user_id: userId }).eq("id", existing.rowId));
     } else {
-      const { data, error } = await supabase
+      const { data, error: e } = await supabase
         .from("user_seq_assignment")
-        .insert({ user_id: userId, seq_id: seqId, tracking_id: selectedRecordId })
-        .select("id")
-        .single();
-      dbError = error;
-      returnedId = data?.id ?? null;
+        .insert({ user_id: userId, seq_id: step.id })
+        .select("id").single();
+      error = e; returnedId = data?.id ?? null;
     }
 
-    setSaving((prev) => ({ ...prev, [step.key]: false }));
-    if (dbError) { pushToast(`Error: ${dbError.message}`, "error"); return; }
+    setSaving((p) => ({ ...p, [step.key]: false }));
+    if (error) { push(`Error: ${error.message}`, "error"); return; }
 
-    const assignment = {
-      assignmentId: returnedId,
-      userId,
-      userName: selectedUser?.label ?? userId,
-      seqId,
-    };
-
-    setAssignments((prev) => ({
-      ...prev,
-      [selectedRecordId]: { ...(prev[selectedRecordId] ?? {}), [step.key]: assignment },
-    }));
-
-    pushToast(`Tagged ${step.label} → ${assignment.userName}`);
-    onAssignTag?.({ recordId: selectedRecordId, stepKey: step.key, userId, user: selectedUser?.raw ?? null });
+    const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
+    setStepAssign((p) => ({ ...p, [step.key]: { rowId: returnedId, userId, userName: uLabel } }));
+    setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
+    push(`Assigned ${step.label} → ${uLabel}`);
+    onAccessChanged?.();
   }
 
-  // ── Clear step assignment ─────────────────────────────────────────────────
-  async function handleClear(step) {
-    if (!selectedRecordId) return;
-    const existing = activeAssignments[step.key];
-    if (existing?.assignmentId) {
-      setSaving((prev) => ({ ...prev, [step.key]: true }));
-      const { error } = await supabase
-        .from("user_seq_assignment")
-        .delete()
-        .eq("id", existing.assignmentId);
-      setSaving((prev) => ({ ...prev, [step.key]: false }));
-      if (error) { pushToast(`Error: ${error.message}`, "error"); return; }
-    }
-    setAssignments((prev) => {
-      const updated = { ...(prev[selectedRecordId] ?? {}) };
-      delete updated[step.key];
-      return { ...prev, [selectedRecordId]: updated };
-    });
-    setDrafts((prev) => {
-      const updated = { ...(prev[selectedRecordId] ?? {}) };
-      delete updated[step.key];
-      return { ...prev, [selectedRecordId]: updated };
-    });
-    pushToast(`Cleared ${step.label}`, "info");
-    onClearTag?.({ recordId: selectedRecordId, stepKey: step.key });
+  // ── Clear step assignment ──────────────────────────────────────────────────
+  async function handleClearStep(step) {
+    const existing = stepAssign[step.key];
+    if (!existing?.rowId) return;
+    setSaving((p) => ({ ...p, [step.key]: true }));
+    const { error } = await supabase.from("user_seq_assignment").delete().eq("id", existing.rowId);
+    setSaving((p) => ({ ...p, [step.key]: false }));
+    if (error) { push(`Error: ${error.message}`, "error"); return; }
+    setStepAssign((p) => { const n = { ...p }; delete n[step.key]; return n; });
+    setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
+    push(`Cleared ${step.label}`, "info");
+    onAccessChanged?.();
   }
 
-  // ── Users eligible for a step (filtered by user_seq_assignment) ───────────
-  function eligibleUsers(stepKey) {
-    const allowed = stepPermissions[stepKey];
-    if (!allowed?.length) return users; // no restriction → all users
-    return users.filter((u) => allowed.includes(u.id));
-  }
+  const selectedRecord = trackingRows.find((r) => String(r.id) === selectedRecordId);
+  const unusedUsers    = users.filter((u) => !taggedUsers.some((t) => t.userId === u.id));
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-  const selectedRecord = trackingRows.find((r) => r.id === selectedRecordId);
-
+  // ════════════════════════════════════════════════════════════════════════════
   return (
-    <div className="tagging-page">
-      <div className="tagging-toast-stack" aria-live="polite">
+    <div className="tg-page">
+      <div className="tg-toasts" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`tagging-toast tagging-toast--${t.type}`}>{t.message}</div>
+          <div key={t.id} className={`tg-toast tg-toast--${t.type}`}>{t.msg}</div>
         ))}
       </div>
 
-      <main className="tagging-shell">
-        {/* Header */}
-        <header className="tagging-title-box">
-          <h1>Agusan del Norte Provincial Health Office</h1>
-          <p>CHART Tagging System</p>
-          {selectedPatient && <small>Selected Patient: {selectedPatient.displayName}</small>}
+      <main className="tg-shell">
+        <header className="tg-header">
+          <div className="tg-header-text">
+            <h1>Agusan del Norte Provincial Health Office</h1>
+            <p>CHART Tagging System</p>
+          </div>
+          {currentUserName && (
+            <div className="tg-session-pill">
+              <span className="tg-session-dot" />
+              {currentUserName}
+            </div>
+          )}
         </header>
 
-        {/* Nav */}
-        <section className="tagging-actions">
-          <button type="button" onClick={onBackToTracking}>← Back to Tracking</button>
-          <button type="button" onClick={onChangePatient}>Change Patient</button>
-        </section>
+        <nav className="tg-nav">
+          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>← Back to Tracking</button>
+        </nav>
 
-        {/* Panel */}
-        <section className="tagging-panel" aria-label="Tagging panel">
-          <div className="tagging-panel-header">
+        <div className="tg-panel">
+          <div className="tg-panel-topbar">
             <div>
-              <h2>Tagging Panel</h2>
-              <p>Assign users to records and workflow steps.</p>
+              <h2 className="tg-panel-title">Tagging Panel</h2>
+              <p className="tg-panel-sub">Assign users to records and workflow steps.</p>
             </div>
-            <div className="tagging-panel-summary">
-              {usersLoading ? <span>Loading users…</span>
-                : usersError ? <span className="tagging-panel-error">{usersError}</span>
-                : <span>{users.length} users loaded</span>}
-              <button type="button" onClick={fetchUsers}>↺ Refresh</button>
+            <div className="tg-users-status">
+              {usersState === "loading" && <span className="tg-spinner" />}
+              {usersState === "error"   && <span className="tg-err-text">{usersError}</span>}
+              {usersState === "idle"    && <span className="tg-count">{users.length} users loaded</span>}
+              <button className="tg-btn tg-btn--sm" onClick={fetchUsers}>↺ Refresh</button>
             </div>
           </div>
 
-          {/* Record selector */}
-          <div className="tagging-panel-controls">
-            <label htmlFor="tagging-record">Select Record</label>
-            <select
-              id="tagging-record"
-              value={selectedRecordId}
-              onChange={(e) => setSelectedRecordId(e.target.value)}
-              disabled={!trackingRows.length}
-            >
-              {!trackingRows.length
-                ? <option value="">No records available</option>
-                : trackingRows.map((row) => (
-                  <option key={row.id} value={row.id}>
-                    {row.patientName} ({row.hospitalNo})
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          {/* Record-level user assignment (tracking_user_assignment) */}
-          {selectedRecord && (
-            <div className="tagging-record-assign">
-              <h3>Record Ownership</h3>
-              <p className="tagging-hint">
-                Assigned users can <strong>only see this record</strong>. Enforced by Supabase RLS.
-              </p>
-              <div className="tagging-record-assign-row">
-                <select
-                  id="record-user-select"
-                  defaultValue=""
-                  onChange={(e) => { if (e.target.value) handleAssignRecord(e.target.value); e.target.value = ""; }}
-                  disabled={taggingDisabled}
-                >
-                  <option value="">+ Add user to record…</option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id}>{u.label}</option>
-                  ))}
-                </select>
-              </div>
-              {activeRecordUsers.length > 0 && (
-                <ul className="tagging-record-users">
-                  {activeRecordUsers.map((a) => {
-                    const user = users.find((u) => u.id === a.userId);
-                    return (
-                      <li key={a.id}>
-                        <span>{user?.label ?? a.userId}</span>
-                        <button
-                          type="button"
-                          className="tagging-remove-user"
-                          onClick={() => handleRemoveRecord(a.id, a.userId)}
-                        >
-                          ×
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+          {!initComplete && (
+            <div className="tg-notice" style={{ background: "#f0f9f8", borderColor: "rgba(31,157,149,.3)", color: "#0f7a6e" }}>
+              ⏳ Initializing records…
+            </div>
+          )}
+          {initError && (
+            <div className="tg-notice tg-notice--error" style={{ background: "#fdf0f0", borderColor: "#e8c0c0", color: "#b03b3b" }}>
+              Init warning: {initError}
             </div>
           )}
 
-          {/* Step cards (user_seq_assignment) */}
-          {stepsLoading ? (
-            <p className="tagging-loading-steps">Loading steps…</p>
-          ) : (
+          {selectedRecord && initComplete && (
             <>
-              <h3 className="tagging-steps-heading">Step Assignments</h3>
-              <div className="tagging-board">
-                {steps.map((step, index) => {
-                  const assigned = activeAssignments[step.key];
-                  const draft    = activeDrafts[step.key] ?? "";
-                  const isSaving = saving[step.key] ?? false;
-                  const eligible = eligibleUsers(step.key);
+              <div className="tg-section">
+                <p className="tg-section-cap">USER TAGGING ORDER</p>
+                <p className="tg-section-desc">Tag users below. The order determines their access scope.</p>
 
-                  return (
-                    <article key={step.key} className="tagging-card">
-                      <div className="tagging-card-head">
-                        <h3>{step.label}</h3>
-                        <span className="tagging-step">Step {index + 1}</span>
-                      </div>
-
-                      <div className="tagging-field">
-                        <label htmlFor={`tag-${step.key}`}>Assign user</label>
-                        <select
-                          id={`tag-${step.key}`}
-                          value={draft}
-                          onChange={(e) => handleDraftChange(step.key, e.target.value)}
-                          disabled={taggingDisabled || isSaving}
-                        >
-                          <option value="">
-                            {eligible.length ? "Select user…" : "No eligible users"}
-                          </option>
-                          {eligible.map((u) => (
-                            <option key={u.id} value={u.id}>{u.label}</option>
-                          ))}
-                        </select>
-                        {stepPermissions[step.key]?.length > 0 && (
-                          <span className="tagging-permission-note">
-                            🔒 Restricted to {stepPermissions[step.key].length} user(s)
+                {taggedUsers.length > 0 && (
+                  <div className="tg-user-list">
+                    {taggedUsers.map((tu) => {
+                      const cfg   = tagCfg(tu.tagOrder);
+                      const uName = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                      return (
+                        <div key={tu.rowId} className="tg-user-row">
+                          <span className="tg-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
+                            #{tu.tagOrder}
                           </span>
-                        )}
-                      </div>
+                          <span className="tg-user-name">{uName}</span>
+                          <span className="tg-user-role">{cfg.label}</span>
+                          <button
+                            className="tg-remove-btn"
+                            onClick={() => handleRemoveUser(tu.rowId, tu.userId, tu.tagOrder)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-                      <div className="tagging-status">
-                        <span>Current:</span>
-                        <strong>
-                          {isSaving ? "Saving…" : assigned ? assigned.userName : "Unassigned"}
-                        </strong>
-                      </div>
+                {canAddUser && (
+                  <div className="tg-add-row">
+                    <select
+                      className="tg-select tg-select--flex"
+                      value={pendingUser}
+                      onChange={(e) => setPendingUser(e.target.value)}
+                      disabled={taggingDisabled}
+                    >
+                      <option value="">+ Add user…</option>
+                      {unusedUsers.map((u) => (
+                        <option key={u.id} value={u.id}>{u.label}</option>
+                      ))}
+                    </select>
+                    <button
+                      className="tg-btn tg-btn--primary"
+                      onClick={handleAddUser}
+                      disabled={!pendingUser || taggingDisabled}
+                    >
+                      Add
+                    </button>
+                  </div>
+                )}
 
-                      <div className="tagging-actions-row">
-                        <button
-                          type="button"
-                          onClick={() => handleAssign(step)}
-                          disabled={taggingDisabled || !draft || isSaving}
-                        >
-                          {isSaving ? "…" : "Tag"}
-                        </button>
-                        <button
-                          type="button"
-                          className="tagging-clear"
-                          onClick={() => handleClear(step)}
-                          disabled={!assigned || isSaving}
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
+                {!canAddUser && (
+                  <p className="tg-notice tg-notice--success">✓ Maximum users tagged for this record.</p>
+                )}
               </div>
+
+              <div className="tg-section">
+                <p className="tg-section-cap">STEP ASSIGNMENTS</p>
+                <p className="tg-section-desc">
+                  Assign steps to the 2nd-tagged user. User 3 automatically receives all unassigned steps.
+                  {!user2 && <span className="tg-notice-inline"> — add a 2nd user above first</span>}
+                </p>
+
+                {stepsLoading ? (
+                  <p className="tg-loading">Loading steps…</p>
+                ) : (
+                  <div className="tg-step-grid">
+                    {steps.map((step, idx) => {
+                      const assigned  = stepAssign[step.key];
+                      const isSaving  = saving[step.key] ?? false;
+                      const draftVal  = drafts[step.key] ?? assigned?.userId ?? "";
+                      const isUser2   = !!assigned;
+
+                      return (
+                        <div key={step.key} className={`tg-step-card ${isUser2 ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}>
+                          <div className="tg-step-head">
+                            <span className="tg-step-name">{step.label}</span>
+                            <span className="tg-step-num">Step {idx + 1}</span>
+                          </div>
+
+                          <div className="tg-step-badge-wrap">
+                            {assigned ? (
+                              <span className="tg-step-badge tg-step-badge--user2">
+                                {assigned.userName}
+                              </span>
+                            ) : (
+                              <span className="tg-step-badge tg-step-badge--none">Unassigned</span>
+                            )}
+                          </div>
+
+                          <select
+                            className="tg-step-dropdown"
+                            value={draftVal}
+                            disabled={isSaving || !user2}
+                            onChange={(e) => setDrafts((p) => ({ ...p, [step.key]: e.target.value }))}
+                          >
+                            <option value="">Unassigned</option>
+                            {user2 && (() => {
+                              const u2 = users.find((u) => u.id === user2.userId);
+                              return u2 ? <option key={u2.id} value={u2.id}>{u2.label}</option> : null;
+                            })()}
+                          </select>
+
+                          <div className="tg-step-owner">
+                            {isUser2
+                              ? <span className="tg-chip tg-chip--blue">2nd user</span>
+                              : <span className="tg-chip tg-chip--amber">3rd user (remaining)</span>}
+                          </div>
+
+                          <div className="tg-step-actions">
+                            <button
+                              className="tg-btn tg-btn--assign"
+                              disabled={!drafts[step.key] || isSaving || !user2}
+                              onClick={() => handleAssignStep(step)}
+                            >
+                              {isSaving ? "…" : "Assign"}
+                            </button>
+                            <button
+                              className="tg-btn tg-btn--clear"
+                              disabled={!assigned || isSaving}
+                              onClick={() => handleClearStep(step)}
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {taggedUsers.length > 0 && !stepsLoading && (
+                <div className="tg-section">
+                  <p className="tg-section-cap">ACCESS SUMMARY</p>
+                  <div className="tg-summary">
+                    {taggedUsers.map((tu) => {
+                      const cfg    = tagCfg(tu.tagOrder);
+                      const uName  = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                      const steps_ = accessByUser[tu.userId] ?? [];
+                      return (
+                        <div key={tu.rowId} className="tg-summary-row" style={{ "--row-accent": cfg.color, "--row-bg": cfg.bg }}>
+                          <div className="tg-summary-meta">
+                            <strong className="tg-summary-name">{uName}</strong>
+                            <span className="tg-summary-role" style={{ color: cfg.color }}>
+                              {cfg.label}
+                            </span>
+                          </div>
+                          <div className="tg-summary-chips">
+                            {steps_.length > 0
+                              ? steps_.map((l) => (
+                                  <span key={l} className="tg-chip tg-chip--step">{l}</span>
+                                ))
+                              : <span className="tg-chip tg-chip--empty">No steps assigned yet</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </>
           )}
-        </section>
+        </div>
       </main>
     </div>
   );

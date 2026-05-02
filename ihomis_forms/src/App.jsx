@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
@@ -10,11 +10,14 @@ import {
 } from "./modules/labUpload/labUploadConfig.js";
 import Tracking from "./tracking/tracking.jsx";
 import Tagging from "./tracking/Tagging.jsx";
+import UserPicker from "./tracking/UserPicker.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
+import { useUserSession } from "./tracking/hooks/useUserSession.js";
 import "./modules/labUpload/LabUploadModule.css";
 import "./App.css";
 
+// ── Module registry ───────────────────────────────────────────────────────────
 const modules = [
   {
     id: "forms",
@@ -32,39 +35,27 @@ const modules = [
   },
 ];
 
+// ── Page keys ─────────────────────────────────────────────────────────────────
 const LANDING_PAGE = {
-  PATIENT_SELECTION: "patient-selection",
-  MODULE_NAVIGATOR: "module-navigator",
-  TRACKING: "tracking",
-  TAGGING: "tagging",
+  USER_PICKER:        "user-picker",        // ← new: identity gate
+  PATIENT_SELECTION:  "patient-selection",
+  MODULE_NAVIGATOR:   "module-navigator",
+  TRACKING:           "tracking",
+  TAGGING:            "tagging",
 };
 
-function PatientSelectionPage({
-  patientPicker,
-  onConfirmSelection,
-  onOpenTracking,
-}) {
+// ── Sub-pages (unchanged from your original) ─────────────────────────────────
+function PatientSelectionPage({ patientPicker, onConfirmSelection, onOpenTracking }) {
   return (
     <div className="app-landing-page">
-      <div
-        className="app-landing-ambient app-landing-ambient-a"
-        aria-hidden="true"
-      />
-      <div
-        className="app-landing-ambient app-landing-ambient-b"
-        aria-hidden="true"
-      />
-
+      <div className="app-landing-ambient app-landing-ambient-a" aria-hidden="true" />
+      <div className="app-landing-ambient app-landing-ambient-b" aria-hidden="true" />
       <main className="app-landing-shell">
         <section className="app-landing-hero">
           <p className="app-landing-kicker">IHOMIS Forms</p>
           <h1>Select Patient</h1>
-          <p>
-            Choose and confirm a patient first. After that, you will proceed to
-            the Module Navigator page.
-          </p>
+          <p>Choose and confirm a patient first. After that, you will proceed to the Module Navigator page.</p>
         </section>
-
         <section className="app-patient-picker" aria-label="Patient picker">
           <LabPatientPickerPanel
             patients={patientPicker.patients}
@@ -92,34 +83,18 @@ function PatientSelectionPage({
   );
 }
 
-function ModuleNavigatorPage({
-  selectedPatient,
-  modulesList,
-  onChangePatient,
-  onOpenModule,
-}) {
+function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule }) {
   return (
     <div className="app-landing-page">
-      <div
-        className="app-landing-ambient app-landing-ambient-a"
-        aria-hidden="true"
-      />
-      <div
-        className="app-landing-ambient app-landing-ambient-b"
-        aria-hidden="true"
-      />
-
+      <div className="app-landing-ambient app-landing-ambient-a" aria-hidden="true" />
+      <div className="app-landing-ambient app-landing-ambient-b" aria-hidden="true" />
       <main className="app-landing-shell">
         <section className="app-landing-hero">
           <p className="app-landing-kicker">IHOMIS Forms</p>
           <h1>Module Navigator</h1>
           <p>Choose which module to open for the selected patient.</p>
         </section>
-
-        <section
-          className="app-selected-patient-panel"
-          aria-label="Selected patient"
-        >
+        <section className="app-selected-patient-panel" aria-label="Selected patient">
           <div className="app-selected-patient-card">
             <SelectedPatientIndicator
               selectedPatient={selectedPatient}
@@ -128,7 +103,6 @@ function ModuleNavigatorPage({
             />
           </div>
         </section>
-
         <section className="app-module-grid" aria-label="Available modules">
           {modulesList.map((moduleItem) => (
             <article key={moduleItem.id} className="app-module-card">
@@ -136,14 +110,8 @@ function ModuleNavigatorPage({
                 <h2>{moduleItem.name}</h2>
                 <span>{moduleItem.status}</span>
               </div>
-
               <p>{moduleItem.description}</p>
-
-              <button
-                type="button"
-                className="app-open-module"
-                onClick={() => onOpenModule(moduleItem.id)}
-              >
+              <button type="button" className="app-open-module" onClick={() => onOpenModule(moduleItem.id)}>
                 Open Module
               </button>
             </article>
@@ -154,22 +122,26 @@ function ModuleNavigatorPage({
   );
 }
 
+// ════════════════════════════════════════════════════════════════════════════
 function App() {
-  const [activeModuleId, setActiveModuleId] = useState(null);
-  const [landingPage, setLandingPage] = useState(
-    LANDING_PAGE.PATIENT_SELECTION,
-  );
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // ── User session (identity, no login system) ──────────────────────────────
+  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
 
-  const initialContextParams = useMemo(
-    () => getContextParamsFromLocation(),
-    [],
-  );
+  // ── App routing ───────────────────────────────────────────────────────────
+  const [activeModuleId,  setActiveModuleId]  = useState(null);
+  const [landingPage,     setLandingPage]     = useState(LANDING_PAGE.USER_PICKER);
+  const [isDarkMode,      setIsDarkMode]      = useState(false);
 
+  // ── Access version: bump after any tag write to re-mount Tracking ─────────
+  const [accessVersion, setAccessVersion] = useState(0);
+  const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
+
+  // ── Patient picker ────────────────────────────────────────────────────────
+  const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
   const patientPicker = useLabPatientPicker({
     patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
-    contextUrl: LAB_UPLOAD_CONTEXT_URL,
-    token: LAB_UPLOAD_API_TOKEN,
+    contextUrl:       LAB_UPLOAD_CONTEXT_URL,
+    token:            LAB_UPLOAD_API_TOKEN,
     initialContextParams,
   });
 
@@ -177,29 +149,35 @@ function App() {
     patientPicker.selectionConfirmed && patientPicker.selectedPatient,
   );
 
+  // ── trackingRows derived from patientPicker ───────────────────────────────
   const trackingRows = useMemo(
     () =>
       patientPicker.patients.map((patient) => ({
-        id: patient.id,
-        hospitalNo:
-          patient.contextParams?.enccode ||
-          patient.contextParams?.enc ||
-          patient.id,
-        admittedDate: "2025-04-14 08:25:40",
+        id:             patient.id,
+        hospitalNo:     patient.contextParams?.enccode || patient.contextParams?.enc || patient.id,
+        admittedDate:   "2025-04-14 08:25:40",
         dischargedDate: "2025-04-15 10:48:54",
-        patientName: patient.displayName,
-        phic: "No PHIC",
-        recordsReceived: "No Remarks",
-        verify: "Not yet Verified",
-        scan: "Not yet Scanned",
-        send: "Not yet Sent",
-        recordsFiled: "Not yet Filed",
-        claimMap: "Not yet Submitted to PhilHealth",
-        acpm: "No cheque yet",
+        patientName:    patient.displayName,
+        phic:           "No PHIC",
+        recordsReceived:"No Remarks",
+        verify:         "Not yet Verified",
+        scan:           "Not yet Scanned",
+        send:           "Not yet Sent",
+        recordsFiled:   "Not yet Filed",
+        claimMap:       "Not yet Submitted to PhilHealth",
+        acpm:           "No cheque yet",
       })),
     [patientPicker.patients],
   );
 
+  // ── Once user session is set, move to patient selection if not yet there ──
+  useEffect(() => {
+    if (currentUserId && landingPage === LANDING_PAGE.USER_PICKER) {
+      setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+    }
+  }, [currentUserId, landingPage]);
+
+  // ── Guard: if patient is deselected, bounce back ──────────────────────────
   useEffect(() => {
     if (
       !hasConfirmedPatient &&
@@ -211,23 +189,19 @@ function App() {
     }
   }, [hasConfirmedPatient, landingPage]);
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const activeModule = useMemo(
-    () =>
-      modules.find((moduleItem) => moduleItem.id === activeModuleId) || null,
+    () => modules.find((m) => m.id === activeModuleId) || null,
     [activeModuleId],
   );
 
   function handleOpenModule(moduleId) {
-    if (!hasConfirmedPatient) {
-      return;
-    }
-
+    if (!hasConfirmedPatient) return;
     setActiveModuleId(moduleId);
   }
 
   function handleConfirmPatientSelection() {
     patientPicker.confirmSelection();
-
     if (patientPicker.selectedPatientId) {
       setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
     }
@@ -235,7 +209,6 @@ function App() {
 
   function handleOpenTrackingFromSelection() {
     patientPicker.confirmSelection();
-
     if (patientPicker.selectedPatientId) {
       setLandingPage(LANDING_PAGE.TRACKING);
     }
@@ -257,9 +230,7 @@ function App() {
   function handleBackToLanding() {
     setActiveModuleId(null);
     setLandingPage(
-      hasConfirmedPatient
-        ? LANDING_PAGE.MODULE_NAVIGATOR
-        : LANDING_PAGE.PATIENT_SELECTION,
+      hasConfirmedPatient ? LANDING_PAGE.MODULE_NAVIGATOR : LANDING_PAGE.PATIENT_SELECTION,
     );
   }
 
@@ -269,42 +240,91 @@ function App() {
     setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
   }
 
-  if (!activeModule) {
-    if (landingPage === LANDING_PAGE.PATIENT_SELECTION) {
-      return (
-        <PatientSelectionPage
-          patientPicker={patientPicker}
-          onConfirmSelection={handleConfirmPatientSelection}
-          onOpenTracking={handleOpenTrackingFromSelection}
-        />
-      );
-    }
+  // ── Switch user: clear session → return to UserPicker ────────────────────
+  function handleSwitchUser() {
+    clearUser();
+    setLandingPage(LANDING_PAGE.USER_PICKER);
+    setActiveModuleId(null);
+    patientPicker.reopenSelection();
+  }
 
-    if (landingPage === LANDING_PAGE.TRACKING) {
-      return (
-        <Tracking
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── Render tree ───────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // 1. No user session yet → UserPicker
+  if (!currentUserId || landingPage === LANDING_PAGE.USER_PICKER) {
+    return (
+      <UserPicker
+        onSelect={(id, name) => {
+          setUser(id, name);
+          // useEffect above will advance landingPage once currentUserId is set
+        }}
+      />
+    );
+  }
+
+  // 2. Active module (Forms / Lab Upload)
+  if (activeModule) {
+    const ActiveComponent = activeModule.Component;
+    return (
+      <div className="app-module-host" data-theme={isDarkMode ? "dark" : undefined}>
+        <header className="app-module-header">
+          <button type="button" className="app-back-button" onClick={handleBackToLanding}>
+            Back to Landing
+          </button>
+          <strong>
+            {activeModule.name}
+            {patientPicker.selectedPatient
+              ? ` | Patient: ${patientPicker.selectedPatient.displayName}`
+              : ""}
+          </strong>
+        </header>
+        <ActiveComponent
           selectedPatient={patientPicker.selectedPatient}
-          trackingRows={trackingRows}
-          onBackToModuleNavigator={() =>
-            setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)
-          }
-          onChangePatient={handleChangeLandingPatient}
-          onOpenTagging={handleOpenTaggingFromTracking}
+          selectedContextParams={patientPicker.activeContextParams}
+          onRequestPatientChange={handleRequestPatientChange}
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
         />
-      );
-    }
+      </div>
+    );
+  }
 
-    if (landingPage === LANDING_PAGE.TAGGING) {
-      return (
-        <Tagging
-          selectedPatient={patientPicker.selectedPatient}
-          trackingRows={trackingRows}
-          onBackToTracking={handleBackToTracking}
-          onChangePatient={handleChangeLandingPatient}
-        />
-      );
-    }
+  // 3. Tagging
+  if (landingPage === LANDING_PAGE.TAGGING) {
+    return (
+      <Tagging
+        selectedPatient={patientPicker.selectedPatient}
+        trackingRows={trackingRows}
+        onBackToTracking={handleBackToTracking}
+        onChangePatient={handleChangeLandingPatient}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        onAccessChanged={handleAccessChanged}
+      />
+    );
+  }
 
+  // 4. Tracking
+  if (landingPage === LANDING_PAGE.TRACKING) {
+    return (
+      <Tracking
+        key={accessVersion}
+        selectedPatient={patientPicker.selectedPatient}
+        trackingRows={trackingRows}
+        onBackToModuleNavigator={() => setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)}
+        onChangePatient={handleChangeLandingPatient}
+        onOpenTagging={handleOpenTaggingFromTracking}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        onSwitchUser={handleSwitchUser}
+      />
+    );
+  }
+
+  // 5. Module Navigator
+  if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
     return (
       <ModuleNavigatorPage
         selectedPatient={patientPicker.selectedPatient}
@@ -315,37 +335,13 @@ function App() {
     );
   }
 
-  const ActiveComponent = activeModule.Component;
-
+  // 6. Patient Selection (default after login)
   return (
-    <div
-      className="app-module-host"
-      data-theme={isDarkMode ? "dark" : undefined}
-    >
-      <header className="app-module-header">
-        <button
-          type="button"
-          className="app-back-button"
-          onClick={handleBackToLanding}
-        >
-          Back to Landing
-        </button>
-        <strong>
-          {activeModule.name}
-          {patientPicker.selectedPatient
-            ? ` | Patient: ${patientPicker.selectedPatient.displayName}`
-            : ""}
-        </strong>
-      </header>
-
-      <ActiveComponent
-        selectedPatient={patientPicker.selectedPatient}
-        selectedContextParams={patientPicker.activeContextParams}
-        onRequestPatientChange={handleRequestPatientChange}
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-      />
-    </div>
+    <PatientSelectionPage
+      patientPicker={patientPicker}
+      onConfirmSelection={handleConfirmPatientSelection}
+      onOpenTracking={handleOpenTrackingFromSelection}
+    />
   );
 }
 
