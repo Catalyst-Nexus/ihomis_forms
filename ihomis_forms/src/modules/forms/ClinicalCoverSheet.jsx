@@ -67,14 +67,28 @@ const buildInitialFormData = (patient = {}, chart = {}, users = [], patientName 
 
   // Ensure dates are clean for both display and calculation
   const admDate = formatDateOnly(patient.admissionDate || patient.admission_date || "");
-  const disDate = formatDateOnly(patient.dischargeDate || chart.discharge_date || "");
+  const disDate = formatDateOnly(
+  patient.discharge_date || patient.dischargeDate || chart.discharge_date || ""
+  );
 
   // Mapping string values for checkboxes
-  const admissionType = patient.admission_type || patient.typeAdmission || "";
-  const disposition = chart.disposition || patient.disposition || "";
-  const condition = chart.condition || patient.condition || "";
+  const mapAdmissionType = (raw) => {
+    const normalized = String(raw || "").toLowerCase().trim();
+    
+    // Use .includes() instead of strict === to handle variations like "New Patient"
+    return {
+      isNew: normalized.includes("new"),
+      isOld: normalized.includes("old"),
+      isFormer: normalized.includes("former") || normalized.includes("opd")
+    };
+  };
+  const { isNew: admissionTypeNew, isOld: admissionTypeOld, isFormer: admissionTypeFormer } = mapAdmissionType(patient.admission_type || patient.type_of_admission || "");
+  const admissionType = admissionTypeNew ? "new" : admissionTypeOld ? "old" : admissionTypeFormer ? "former" : "";
+  const disposition = patient.disposition || "";
+  const condition = patient.condition || "";
   const admittingClerk = getUserByTitle(users, "ADMITTING CLERK");
   const attendingPhysician = getUserByTitle(users, "MOA PHYSICIAN");
+  
 
 
   return {
@@ -104,9 +118,9 @@ const buildInitialFormData = (patient = {}, chart = {}, users = [], patientName 
     indigenous: patient.indigenous || "",
 
     // Type of Admission
-    typeAdmissionNew: checkMatch(admissionType, "new"),
-    typeAdmissionOld: checkMatch(admissionType, "old"),
-    typeAdmissionFormer: admissionType.toLowerCase().includes("former") || admissionType.toLowerCase().includes("opd"),
+    typeAdmissionNew: admissionType === "new",
+    typeAdmissionOld: admissionType === "old",
+    typeAdmissionFormer: admissionType.includes("former") || admissionType.includes("opd"),
     
     // Referred By mapping from requesting_physician
     referredBy: patient.requesting_physician || patient.referredBy || patient.referred_by || "",
@@ -114,19 +128,19 @@ const buildInitialFormData = (patient = {}, chart = {}, users = [], patientName 
     admissionDate: admDate,
     admissionTime: patient.admissionTime || patient.admission_time || "",
     dischargeDate: disDate,
-    dischargeTime: patient.dischargeTime || chart.discharge_time || "",
+    dischargeTime: patient.discharge_time || patient.dischargeTime || chart.discharge_time || "",
     
     // Calculated Total Days
     totalDays: calculateTotalDays(admDate, disDate),
     
-    admittingClerk: admittingClerk?.full_name || "",
+    admittingClerk: patient.admitting_clerk || patient.admittingClerk || admittingClerk?.full_name || "",
     admittingPhysician: patient.admittingPhysician || patient.admitting_dr || "",
     attendingPhysician: attendingPhysician?.full_name || "",
 
-    admissionDiagnosis: patient.admissionDiagnosis || patient.admitting_diagnosis || "",
-    chiefComplaint: patient.chiefComplaint || patient.complaint || "",
-    dischargeDiagnosis: patient.dischargeDiagnosis || chart.discharge_diagnosis || "",
-    icdCode: patient.icdCode || chart.icd_10_code || "",
+    admissionDiagnosis: patient.admission_diagnosis || patient.admitting_diagnosis || "",
+    chiefComplaint: patient.chief_complaint || patient.complaint || "",
+    dischargeDiagnosis: patient.discharge_diagnosis || patient.dischargeDiagnosis || "",
+    icdCode: patient.icd_code || patient.icdCode || "",
     rvu: patient.rvu || chart.rvu_score || "",
 
     // Vitals Mapping (Corrected per requirements)

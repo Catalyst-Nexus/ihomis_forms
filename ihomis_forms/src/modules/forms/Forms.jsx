@@ -595,13 +595,13 @@ export default function Forms({
       );
     }
     if (formName === "APGAR Score Form") {
-      return <ApgarScoring patientName={patientName} patientData={patientData} />;
+      return <ApgarScoring apiResponse={patientData} />;
     }
     if (formName === "BTL Consent Form") {
       return <BTLConsent patientName={patientName} patientData={patientData} />;
     }
     if (formName === "Cardio-Pulmonary Clearance Form") {
-      return <CardioPulmonaryClearance />;
+      return <CardioPulmonaryClearance patientData={patientData} />;
     }
     if (formName === "Blood Cancellation Form") {
       return (
