@@ -1,43 +1,55 @@
+import { useEffect, useState } from "react";
+import { formatGeneratedOn } from "../../utils/dateFormatter";
+import { mapApgarFormData } from "../../utils/apgarMapper";
+
 import "./ApgarScoring.css";
 
-const formatGeneratedOn = (date = new Date()) => {
-  const pad = (value) => String(value).padStart(2, "0");
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  const hour12 = String(hours % 12 || 12).padStart(2, "0");
+export default function ApgarForm({ apiResponse }) {
+  const [formData, setFormData] = useState(null);
 
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${hour12}:${pad(minutes)} ${ampm}`;
-};
+  useEffect(() => {
+    if (!apiResponse) return;
 
-export default function ApgarScoring({ babyName, babyData = {} }) {
-  const caseNum = babyData.caseNum || babyData.caseNo || "";
-  const babyDisplayName = babyName || babyData.patientName || babyData.fullName || "";
-  const babySex = babyData.sex || "";
-  const babyAge = babyData.age || "";
-  const motherName =
-    babyData.motherName ||
-    babyData.mothersName ||
-    babyData.motherFullName ||
-    "";
-  const motherSex = babyData.motherSex || "";
-  const hospitalNo =
-    babyData.hospitalNo || babyData.hospNo || babyData.hospitalNumber || "";
-  const address = babyData.address || babyData.completeAddress || "";
-  const deliveryType = babyData.deliveryType || "";
-  const obstetrician = babyData.obstetrician || "";
-  const anesthesia = babyData.anesthesia || "";
-  const anesthesiologist = babyData.anesthesiologist || "";
-  const generatedOn = babyData.generatedOn || formatGeneratedOn();
+    const mapped = mapApgarFormData(apiResponse);
+    setFormData(mapped);
+  }, [apiResponse]);
+
+  // 🧠 DEBUG (remove later if needed)
+  useEffect(() => {
+    console.log("RAW API RESPONSE:", apiResponse);
+    console.log("MAPPED FORM DATA:", formData);
+  }, [apiResponse, formData]);
+
+  if (!apiResponse) return <div>Waiting for API response...</div>;
+
+  if (!formData || Object.keys(formData).length === 0) {
+    return <div>No valid patient data found</div>;
+  }
+
+  const {
+    caseNum,
+    babyDisplayName,
+    babySex,
+    babyAge,
+    motherName,
+    motherSex,
+    hospitalNo,
+    address,
+    deliveryType,
+    obstetrician,
+    anesthesia,
+    anesthesiologist,
+    generatedOn,
+  } = formData;
 
   return (
     <div className="a4-page">
 
-      {/* Header replaced with spacer */}
+      {/* Header spacer */}
       <div className="header-spacer" />
 
-     
-    <br></br>
+      <br />
+
       {/* Case Number */}
       <div className="case-number-row">
         <strong>Case Number:</strong>&nbsp; {caseNum}
@@ -54,17 +66,16 @@ export default function ApgarScoring({ babyName, babyData = {} }) {
             <td className="lbl">Age:</td>
             <td style={{ width: "12%", textAlign: "center" }}>{babyAge}</td>
           </tr>
+
           <tr>
             <td className="lbl">Mother's Name:</td>
             <td style={{ textAlign: "center" }}>{motherName}</td>
             <td className="lbl">Sex:</td>
-            <td
-              colSpan={3}
-              style={{ fontSize: "8pt", textAlign: "center", lineHeight: 1.4 }}
-            >
-              {motherSex}
+            <td colSpan={3} style={{ textAlign: "center" }}>
+              {motherSex || "N/A"}
             </td>
           </tr>
+
           <tr>
             <td className="lbl">Hospital No.</td>
             <td style={{ textAlign: "center" }}>{hospitalNo}</td>
@@ -73,17 +84,19 @@ export default function ApgarScoring({ babyName, babyData = {} }) {
               {address}
             </td>
           </tr>
+
           <tr>
             <td className="lbl">Type of Delivery:</td>
             <td>{deliveryType}</td>
             <td className="lbl">Obstetrician:</td>
             <td colSpan={3}>{obstetrician}</td>
           </tr>
+
           <tr>
             <td className="lbl">Anesthesia:</td>
-            <td>{anesthesia}</td>
+            <td>{anesthesia || "N/A"}</td>
             <td className="lbl">Anesthesiologist:</td>
-            <td colSpan={3}>{anesthesiologist}</td>
+            <td colSpan={3}>{anesthesiologist || "N/A"}</td>
           </tr>
         </tbody>
       </table>
@@ -115,59 +128,61 @@ export default function ApgarScoring({ babyName, babyData = {} }) {
             <td>Grimace</td>
             <td>No response</td>
             <td>Weak grimace when stimulated</td>
-            <td>Cries or pulls away when stimulated</td>
+            <td>Cries or pulls away</td>
           </tr>
           <tr>
             <td>Activity</td>
             <td>None</td>
-            <td>Some flexion of arms</td>
-            <td>Arms flexed, legs resist extension</td>
+            <td>Some flexion</td>
+            <td>Active movement</td>
           </tr>
           <tr>
             <td>Respiration</td>
             <td>Absent</td>
-            <td>Weak, irregular or gasping</td>
+            <td>Weak / irregular</td>
             <td>Strong cry</td>
           </tr>
         </tbody>
       </table>
 
-      {/* APGAR Scoring Table */}
+      {/* APGAR Table */}
       <table className="score-table">
         <thead>
           <tr>
-            <th style={{ width: "25%" }}>APGAR</th>
-            <th style={{ width: "25%" }}>1 MINUTE</th>
-            <th style={{ width: "25%" }}>5 MINUTES</th>
-            <th style={{ width: "25%" }}>10 MINUTES</th>
+            <th>APGAR</th>
+            <th>1 MIN</th>
+            <th>5 MIN</th>
+            <th>10 MIN</th>
           </tr>
         </thead>
         <tbody>
-          {["Appearance", "Pulse", "Grimace", "Activity", "Respiration"].map((sign) => (
-            <tr key={sign}>
-              <td>{sign}</td>
-              <td className="blank-cell"></td>
-              <td className="blank-cell"></td>
-              <td className="blank-cell"></td>
-            </tr>
-          ))}
+          {["Appearance", "Pulse", "Grimace", "Activity", "Respiration"].map(
+            (sign) => (
+              <tr key={sign}>
+                <td>{sign}</td>
+                <td className="blank-cell"></td>
+                <td className="blank-cell"></td>
+                <td className="blank-cell"></td>
+              </tr>
+            )
+          )}
         </tbody>
       </table>
+
       <br />
       <br />
       <br />
 
-      {/* Signature Footer */}
+      {/* Signature */}
       <div className="footer-sig">
         <div className="sig-line" />
         <div className="sig-label">PEDIATRICIAN</div>
       </div>
 
-      {/* Generated By */}
+      {/* Footer */}
       <div className="generated-by">
-        <em>Generated by: TCP T. TCP on {generatedOn}</em>
+        <em>Generated on {generatedOn}</em>
       </div>
-
     </div>
   );
 }
