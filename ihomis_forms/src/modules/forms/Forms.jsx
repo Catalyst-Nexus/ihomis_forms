@@ -14,6 +14,7 @@ import BloodTransfusionReactionRegistry from "./BloodTransfusionReactionRegistry
 import Abtcform from "./Abtcform";
 import BloodTransfusionSheet from "./BloodTransfusionSheet";
 import ClinicalReferralSlip from "./ClinicalReferralSlip";
+import ClinicalCoverSheet from "./ClinicalCoverSheet";
 import RandomBloodSugar from "./RandomBloodSugar";
 import DoctorsOrder from "./DoctorsOrder";
 import OxygenConsumptionSheet from "./OxygenConsumptionSheet";
@@ -470,6 +471,7 @@ const FORMS_LIST = [
   "Chest Tube Thoracostomy Sheet",
   "Child Immunization Record",
   "Claim of Cadaver",
+  "Clinical Cover Sheet",
   "Clinical Referral Slip",
   "Commitment to Breastfeeding",
   "Consent to Care",
@@ -564,7 +566,9 @@ export default function Forms({
     const headerTitle =
       normalizedName === "Blood Request Form (Pedia)"
         ? "BLOOD REQUEST FORM (PEDIATRIC)"
-        : normalizedName.toUpperCase();
+        : normalizedName === "Clinical Cover Sheet"
+          ? ""
+          : normalizedName.toUpperCase();
 
     return {
       formNo: "",
@@ -591,13 +595,13 @@ export default function Forms({
       );
     }
     if (formName === "APGAR Score Form") {
-      return <ApgarScoring patientName={patientName} patientData={patientData} />;
+      return <ApgarScoring apiResponse={patientData} />;
     }
     if (formName === "BTL Consent Form") {
       return <BTLConsent patientName={patientName} patientData={patientData} />;
     }
     if (formName === "Cardio-Pulmonary Clearance Form") {
-      return <CardioPulmonaryClearance />;
+      return <CardioPulmonaryClearance patientData={patientData} />;
     }
     if (formName === "Blood Cancellation Form") {
       return (
@@ -638,6 +642,14 @@ export default function Forms({
     }
     if (formName === "Clinical Referral Slip") {
       return <ClinicalReferralSlip patientName={patientName} />;
+    }
+    if (formName === "Clinical Cover Sheet") {
+      return (
+        <ClinicalCoverSheet
+          patientName={patientName}
+          patientData={patientData}
+        />
+      );
     }
     if (formName === "Random Blood Sugar") {
       return (

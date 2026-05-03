@@ -1,0 +1,285 @@
+.ccs-page {
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  padding: 8px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.ccs-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid #000;
+  pointer-events: none;
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+.ccs-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ccs-row {
+  display: grid;
+  border-bottom: 1px solid #000;
+}
+
+.ccs-row:last-of-type {
+  border-bottom: 0;
+}
+
+.ccs-cell {
+  padding: 4px 6px;
+  border-right: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.ccs-cell:last-child {
+  border-right: 0;
+}
+
+.ccs-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 8.5pt;
+}
+
+.ccs-sub-label {
+  font-weight: 700;
+  font-size: 8.5pt;
+}
+
+.ccs-title {
+  font-size: 12pt;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.ccs-input,
+.ccs-textarea,
+.ccs-signature-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  padding: 0;
+  min-height: 16px;
+}
+
+.ccs-textarea {
+  resize: none;
+  min-height: 40px;
+}
+
+.ccs-input:focus,
+.ccs-textarea:focus,
+.ccs-signature-input:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.ccs-row-title {
+  grid-template-columns: 2fr 1fr;
+}
+
+.ccs-row-identifiers {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ccs-row-name {
+  grid-template-columns: 130px 1fr 230px;
+}
+
+.ccs-row-address {
+  grid-template-columns: 1fr 260px;
+}
+
+.ccs-row-birth {
+  grid-template-columns: 1.1fr 0.6fr 1.2fr 1fr 1fr 1fr 1fr;
+}
+
+.ccs-row-admission-type {
+  grid-template-columns: 2fr 1fr;
+}
+
+.ccs-row-admission {
+  grid-template-columns: 1fr 1fr 0.8fr;
+}
+
+.ccs-row-physicians {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ccs-row-diagnosis {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ccs-row-discharge {
+  grid-template-columns: 1fr 0.5fr;
+}
+
+.ccs-row-vitals {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.ccs-row-disposition {
+  grid-template-columns: 1fr 1.2fr;
+}
+
+.ccs-row-signatures {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ccs-label-cell {
+  font-weight: 700;
+  text-transform: uppercase;
+  justify-content: center;
+}
+
+.ccs-name-fields {
+  padding: 0;
+}
+
+.ccs-name-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 100%;
+}
+
+.ccs-name-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-right: 1px solid #000;
+  min-height: 42px;
+}
+
+.ccs-name-cell:last-child {
+  border-right: 0;
+}
+
+.ccs-name-label {
+  font-size: 8pt;
+  text-align: center;
+}
+
+.ccs-side-block {
+  padding: 0;
+}
+
+.ccs-side-grid {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  height: 100%;
+}
+
+.ccs-side-cell {
+  padding: 4px 6px;
+  border-bottom: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ccs-side-cell:last-child {
+  border-bottom: 0;
+}
+
+.ccs-side-split {
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.ccs-split-cell {
+  padding: 4px 6px;
+  border-right: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ccs-split-cell:last-child {
+  border-right: 0;
+}
+
+.ccs-checkbox-row,
+.ccs-checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  font-size: 9pt;
+}
+
+.ccs-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.ccs-field-pair {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ccs-signature-line {
+  margin-top: auto;
+  font-size: 8pt;
+  text-align: center;
+  border-top: 1px solid #000;
+  padding-top: 2px;
+}
+
+.ccs-signature-input {
+  border-bottom: 1px solid #000;
+  min-height: 20px;
+}
+
+.ccs-signature-label {
+  font-size: 8pt;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ccs-icd-cell {
+  gap: 6px;
+}
+
+.ccs-cell--green {
+  background: #7fdc8d;
+}
+
+.ccs-cell--blue {
+  background: #8db6e6;
+}
+
+.ccs-footer {
+  padding: 4px 6px;
+  text-align: right;
+  font-size: 8pt;
+  font-style: italic;
+}
+
+@media print {
+  .ccs-page {
+    box-shadow: none;
+  }
+}
