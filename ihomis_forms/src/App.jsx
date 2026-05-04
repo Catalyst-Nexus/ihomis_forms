@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
+import PdfPreviewPage from "./modules/labUpload/pages/PdfPreviewPage.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
 import SelectedPatientIndicator from "./modules/labUpload/components/SelectedPatientIndicator.jsx";
 import {
@@ -12,6 +14,7 @@ import Tracking from "./tracking/tracking.jsx";
 import Tagging from "./tracking/Tagging.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
+import { PdfPreviewProvider, usePdfPreview } from "./lib/PdfPreviewContext.jsx";
 import "./modules/labUpload/LabUploadModule.css";
 import "./App.css";
 
@@ -37,6 +40,7 @@ const LANDING_PAGE = {
   MODULE_NAVIGATOR: "module-navigator",
   TRACKING: "tracking",
   TAGGING: "tagging",
+  PDF_PREVIEW: "pdf-preview",
 };
 
 function PatientSelectionPage({
@@ -91,6 +95,12 @@ function PatientSelectionPage({
     </div>
   );
 }
+
+PatientSelectionPage.propTypes = {
+  patientPicker: PropTypes.object.isRequired,
+  onConfirmSelection: PropTypes.func.isRequired,
+  onOpenTracking: PropTypes.func.isRequired,
+};
 
 function ModuleNavigatorPage({
   selectedPatient,
@@ -153,6 +163,13 @@ function ModuleNavigatorPage({
     </div>
   );
 }
+
+ModuleNavigatorPage.propTypes = {
+  selectedPatient: PropTypes.object,
+  modulesList: PropTypes.array.isRequired,
+  onChangePatient: PropTypes.func.isRequired,
+  onOpenModule: PropTypes.func.isRequired,
+};
 
 function App() {
   const [activeModuleId, setActiveModuleId] = useState(null);
@@ -269,6 +286,8 @@ function App() {
     setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
   }
 
+  const isPreviewOpen = landingPage === LANDING_PAGE.PDF_PREVIEW;
+
   if (!activeModule) {
     if (landingPage === LANDING_PAGE.PATIENT_SELECTION) {
       return (
@@ -318,35 +337,84 @@ function App() {
   const ActiveComponent = activeModule.Component;
 
   return (
-    <div
-      className="app-module-host"
-      data-theme={isDarkMode ? "dark" : undefined}
-    >
-      <header className="app-module-header">
-        <button
-          type="button"
-          className="app-back-button"
-          onClick={handleBackToLanding}
-        >
-          Back to Landing
-        </button>
-        <strong>
-          {activeModule.name}
-          {patientPicker.selectedPatient
-            ? ` | Patient: ${patientPicker.selectedPatient.displayName}`
-            : ""}
-        </strong>
-      </header>
+    <>
+      <div
+        className="app-module-host"
+        data-theme={isDarkMode ? "dark" : undefined}
+      >
+        <header className="app-module-header">
+          <button
+            type="button"
+            className="app-back-button"
+            onClick={handleBackToLanding}
+          >
+            Back to Landing
+          </button>
+          <strong>
+            {activeModule.name}
+            {patientPicker.selectedPatient
+              ? ` | Patient: ${patientPicker.selectedPatient.displayName}`
+              : ""}
+          </strong>
+        </header>
 
-      <ActiveComponent
-        selectedPatient={patientPicker.selectedPatient}
-        selectedContextParams={patientPicker.activeContextParams}
-        onRequestPatientChange={handleRequestPatientChange}
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-      />
-    </div>
+        <ActiveComponent
+          selectedPatient={patientPicker.selectedPatient}
+          selectedContextParams={patientPicker.activeContextParams}
+          onRequestPatientChange={handleRequestPatientChange}
+          onNavigateToPreview={() => setLandingPage(LANDING_PAGE.PDF_PREVIEW)}
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
+        />
+      </div>
+
+      {isPreviewOpen ? (
+        <PdfPreviewPageWrapper
+          onBackToModule={() =>
+            setLandingPage(
+              hasConfirmedPatient
+                ? LANDING_PAGE.MODULE_NAVIGATOR
+                : LANDING_PAGE.PATIENT_SELECTION,
+            )
+          }
+        />
+      ) : null}
+    </>
   );
 }
 
-export default App;
+function PdfPreviewPageWrapper({ onBackToModule }) {
+  const { file, url, token, closePreview } = usePdfPreview();
+
+  function handleBack() {
+    closePreview();
+    onBackToModule();
+  }
+
+  return (
+    <PdfPreviewPage
+      previewFile={file}
+      previewUrl={url}
+      previewToken={token}
+      onBack={handleBack}
+    />
+  );
+}
+
+PdfPreviewPageWrapper.propTypes = {
+  onBackToModule: PropTypes.func.isRequired,
+};
+
+function AppContent() {
+  return <App />;
+}
+
+function AppWithProvider() {
+  return (
+    <PdfPreviewProvider>
+      <AppContent />
+    </PdfPreviewProvider>
+  );
+}
+
+export default AppWithProvider;

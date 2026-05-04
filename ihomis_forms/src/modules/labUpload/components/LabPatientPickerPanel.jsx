@@ -209,11 +209,11 @@ function LabPatientPickerPanel({
   onConfirmSelection,
   onNextPage,
   onPreviousPage,
-  title,
-  subtitle,
-  confirmLabel,
-  onSecondaryAction,
-  secondaryActionLabel,
+  title = "Select Patient Before Upload",
+  subtitle = "Choose whose laboratory result you are uploading.",
+  confirmLabel = "Continue to Lab Upload",
+  onSecondaryAction = null,
+  secondaryActionLabel = "",
 }) {
   const hasSelection = Boolean(selectedPatientId);
 
@@ -461,14 +461,6 @@ LabPatientPickerPanel.propTypes = {
   confirmLabel: PropTypes.string,
   onSecondaryAction: PropTypes.func,
   secondaryActionLabel: PropTypes.string,
-};
-
-LabPatientPickerPanel.defaultProps = {
-  title: "Select Patient Before Upload",
-  subtitle: "Choose whose laboratory result you are uploading.",
-  confirmLabel: "Continue to Lab Upload",
-  onSecondaryAction: null,
-  secondaryActionLabel: "",
 };
 
 export default LabPatientPickerPanel;

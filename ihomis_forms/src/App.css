@@ -5,7 +5,6 @@
 .app-landing-page {
   position: relative;
   min-height: 100vh;
-  overflow: auto;
   padding: clamp(1rem, 2vw, 2rem);
 }
 

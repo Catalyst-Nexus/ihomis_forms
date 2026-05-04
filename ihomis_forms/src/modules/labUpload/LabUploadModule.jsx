@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import LabReviewPanel from "./components/LabReviewPanel.jsx";
 import LabUploadFormPanel from "./components/LabUploadFormPanel.jsx";
 import SelectedPatientIndicator from "./components/SelectedPatientIndicator.jsx";
@@ -10,6 +10,7 @@ import {
 import useLabRequestContext from "./hooks/useLabRequestContext.js";
 import usePdfQueue from "./hooks/usePdfQueue.js";
 import useUploadBatch from "./hooks/useUploadBatch.js";
+import { usePdfPreview } from "../../lib/PdfPreviewContext.jsx";
 import {
   buildDisplayContext,
   buildUploadSummary,
@@ -20,9 +21,11 @@ function LabUploadModule({
   selectedPatient = null,
   selectedContextParams = {},
   onRequestPatientChange,
+  onNavigateToPreview = null,
 }) {
   const contextParams = selectedContextParams;
   const hasApiUrl = Boolean(LAB_UPLOAD_API_URL);
+  const { openPreview } = usePdfPreview();
 
   const { requestContext, contextLoading, applyContextFromApi } =
     useLabRequestContext({
@@ -122,6 +125,19 @@ function LabUploadModule({
     clearPdfSelection();
     if (typeof onRequestPatientChange === "function") {
       onRequestPatientChange();
+    }
+  }
+
+  function handleOpenPreview() {
+    openPreview({
+      file: activePreviewFile,
+      url: activePreviewUrl,
+      token: LAB_UPLOAD_API_TOKEN,
+      source: reviewSource,
+    });
+
+    if (typeof onNavigateToPreview === "function") {
+      onNavigateToPreview();
     }
   }
 
@@ -225,14 +241,12 @@ function LabUploadModule({
             activePreviewFile={activePreviewFile}
             activePreviewUrl={activePreviewUrl}
             token={LAB_UPLOAD_API_TOKEN}
-            onOpenFullscreen={openFullscreen}
-            onCloseFullscreen={closeFullscreen}
+            onOpenFullscreen={handleOpenPreview}
             onClearPdfSelection={clearPdfSelection}
             onShowLocalPreview={showLocalPreview}
             onShowUploadedPreview={showUploadedPreview}
             onPreviewUploadedFile={previewUploadedFile}
             uploadSummary={uploadSummary}
-            isReviewFullscreen={isReviewFullscreen}
           />
         </section>
       </main>

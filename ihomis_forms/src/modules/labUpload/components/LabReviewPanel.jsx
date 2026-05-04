@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 import { formatFileSize } from "../utils/labUploadUtils.js";
@@ -15,37 +14,12 @@ function LabReviewPanel({
   activePreviewUrl,
   token,
   onOpenFullscreen,
-  onCloseFullscreen,
   onClearPdfSelection,
   onShowLocalPreview,
   onShowUploadedPreview,
   onPreviewUploadedFile,
   uploadSummary,
-  isReviewFullscreen,
 }) {
-  const [isFullscreenMounted, setIsFullscreenMounted] = useState(false);
-
-  useEffect(() => {
-    if (isReviewFullscreen) {
-      setIsFullscreenMounted(true);
-      return undefined;
-    }
-
-    if (!isFullscreenMounted) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setIsFullscreenMounted(false);
-    }, 230);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [isReviewFullscreen, isFullscreenMounted]);
-
-  const fullscreenStateClass = isReviewFullscreen ? "is-open" : "is-closing";
-
   return (
     <>
       <section className="lab-panel lab-review">
@@ -160,31 +134,6 @@ function LabReviewPanel({
           ))}
         </ul>
       </section>
-
-      {isFullscreenMounted && hasActivePreview ? (
-        <div
-          className={`lab-fullscreen-overlay ${fullscreenStateClass}`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Full screen PDF preview"
-          onClick={onCloseFullscreen}
-        >
-          <div
-            className="lab-fullscreen-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="lab-fullscreen-body">
-              <PdfCanvasPreview
-                file={activePreviewFile}
-                url={activePreviewUrl}
-                token={token}
-                fullscreen
-                onCloseFullscreen={onCloseFullscreen}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }
@@ -201,13 +150,11 @@ LabReviewPanel.propTypes = {
   activePreviewUrl: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
   onOpenFullscreen: PropTypes.func.isRequired,
-  onCloseFullscreen: PropTypes.func.isRequired,
   onClearPdfSelection: PropTypes.func.isRequired,
   onShowLocalPreview: PropTypes.func.isRequired,
   onShowUploadedPreview: PropTypes.func.isRequired,
   onPreviewUploadedFile: PropTypes.func.isRequired,
   uploadSummary: PropTypes.array.isRequired,
-  isReviewFullscreen: PropTypes.bool.isRequired,
 };
 
 export default LabReviewPanel;
