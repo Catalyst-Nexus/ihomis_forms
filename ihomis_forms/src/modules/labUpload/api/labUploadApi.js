@@ -99,8 +99,10 @@ function stripQueryAndHash(value) {
 }
 
 function resolveLatestEncounterBaseUrl({ apiBaseUrl, patientSearchUrl }) {
-  if (patientSearchUrl) {
-    return stripQueryAndHash(patientSearchUrl);
+  const normalizedSearchUrl = stripQueryAndHash(patientSearchUrl);
+
+  if (normalizedSearchUrl && !normalizedSearchUrl.includes("/api/db/henctr")) {
+    return normalizedSearchUrl;
   }
 
   if (apiBaseUrl) {
