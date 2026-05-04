@@ -9,9 +9,7 @@ const LAB_UPLOAD_CONTEXT_URL = (
 
 const LAB_UPLOAD_PATIENT_SEARCH_URL = (
   import.meta.env.VITE_LAB_PATIENT_SEARCH_URL ||
-  (API_BASE_URL
-    ? `${API_BASE_URL.replace(/\/+$/, "")}/api/db/patients`
-    : "")
+  (API_BASE_URL ? `${API_BASE_URL.replace(/\/+$/, "")}/api/db/patients` : "")
 ).trim();
 
 const LAB_UPLOAD_API_TOKEN = (
