@@ -63,8 +63,7 @@ function isPdfFile(file) {
 function normalizeLabContextParams(contextParams = {}) {
   const normalized = { ...contextParams };
 
-  const encounterCode =
-    normalized.enccode || normalized.enc || normalized.hpercode || "";
+  const encounterCode = normalized.enccode || normalized.enc || "";
   if (encounterCode) {
     normalized.enccode = encounterCode;
     normalized.enc = encounterCode;
@@ -191,47 +190,8 @@ function buildDisplayContext(requestContext) {
   };
 }
 
-function buildUploadSummary({
-  requestContext,
-  contextLoading,
-  displayContext,
-  uploadDestination,
-}) {
-  return [
-    {
-      label: "Context Source",
-      value: requestContext.hasAnyContext
-        ? "Live API response"
-        : contextLoading
-          ? "Loading from API"
-          : "Awaiting context response",
-    },
-    {
-      label: "Upload Endpoint",
-      value: uploadDestination || "Not configured",
-    },
-    {
-      label: "Laboratory Panel",
-      value: displayContext.panelName,
-    },
-    {
-      label: "Requested At",
-      value: displayContext.requestedAt,
-    },
-    {
-      label: "Encounter Code",
-      value: displayContext.identifiers.enccode,
-    },
-    {
-      label: "Document Key",
-      value: displayContext.identifiers.docointkey,
-    },
-  ];
-}
-
 export {
   buildDisplayContext,
-  buildUploadSummary,
   formatFileSize,
   getContextParamsFromLocation,
   getFileKey,

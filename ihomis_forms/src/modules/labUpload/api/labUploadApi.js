@@ -1,3 +1,7 @@
+import {
+  API_BASE_URL,
+  LAB_UPLOAD_PATIENT_SEARCH_URL,
+} from "../labUploadConfig.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 
 function parseResponsePayload(responseText) {
@@ -90,6 +94,41 @@ function buildRequestUrl(baseUrl, queryParams) {
   return url.toString();
 }
 
+function stripQueryAndHash(value) {
+  return String(value || "").split(/[?#]/)[0];
+}
+
+function resolveLatestEncounterBaseUrl({ apiBaseUrl, patientSearchUrl }) {
+  if (patientSearchUrl) {
+    return stripQueryAndHash(patientSearchUrl);
+  }
+
+  if (apiBaseUrl) {
+    return `${apiBaseUrl.replace(/\/+$/, "")}/api/db/patients`;
+  }
+
+  return "";
+}
+
+function buildLatestEncounterUrl({ apiBaseUrl, patientSearchUrl, hpercode }) {
+  const trimmed = String(hpercode || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const baseUrl = resolveLatestEncounterBaseUrl({
+    apiBaseUrl,
+    patientSearchUrl,
+  });
+
+  if (!baseUrl) {
+    return "";
+  }
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  return `${normalizedBase}/${encodeURIComponent(trimmed)}/encounters/latest`;
+}
+
 function resolveUploadedPdfUrl(payload) {
   if (!payload || typeof payload !== "object") {
     return "";
@@ -146,11 +185,13 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     idSource = "enc";
   } else if (source?.hpercode) {
     id = String(source.hpercode).trim();
-    idSource = "enc";
+    idSource = "hpercode";
   } else if (source?.id) {
     id = String(source.id).trim();
 
-    if (identifiers.enccode && id === identifiers.enccode) {
+    if (source?.hpercode && id === String(source.hpercode).trim()) {
+      idSource = "hpercode";
+    } else if (identifiers.enccode && id === identifiers.enccode) {
       idSource = "enc";
     } else if (identifiers.fhud && id === identifiers.fhud) {
       idSource = "fhud";
@@ -417,21 +458,26 @@ export function resolveRequestContext(payload) {
     };
   }
 
+  const contextSource =
+    Array.isArray(payload?.data) && payload.data.length > 0
+      ? payload.data[0]
+      : payload;
+
   const identifiers = {
-    enccode: resolveFirstString(payload, encounterCodeKeys),
-    fhud: resolveFirstString(payload, facilityRefKeys),
-    docointkey: resolveFirstString(payload, docointkeyKeys),
+    enccode: resolveFirstString(contextSource, encounterCodeKeys),
+    fhud: resolveFirstString(contextSource, facilityRefKeys),
+    docointkey: resolveFirstString(contextSource, docointkeyKeys),
   };
 
-  const user = resolveFirstString(payload, userKeys);
+  const user = resolveFirstString(contextSource, userKeys);
 
-  const panelName = resolveFirstString(payload, panelNameKeys);
+  const panelName = resolveFirstString(contextSource, panelNameKeys);
 
-  const requestedAt = resolveFirstString(payload, requestedAtKeys);
+  const requestedAt = resolveFirstString(contextSource, requestedAtKeys);
 
-  let firstName = resolveFirstString(payload, patientFirstNameKeys);
-  let middleName = resolveFirstString(payload, patientMiddleNameKeys);
-  let lastName = resolveFirstString(payload, patientLastNameKeys);
+  let firstName = resolveFirstString(contextSource, patientFirstNameKeys);
+  let middleName = resolveFirstString(contextSource, patientMiddleNameKeys);
+  let lastName = resolveFirstString(contextSource, patientLastNameKeys);
 
   const hasAnyContext = Boolean(
     panelName ||
@@ -456,6 +502,64 @@ export function resolveRequestContext(payload) {
       lastName,
     },
     hasAnyContext,
+  };
+}
+
+export async function fetchLatestEncounterForPatient({
+  hpercode,
+  token,
+  apiBaseUrl = API_BASE_URL,
+  patientSearchUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
+}) {
+  const trimmed = String(hpercode || "").trim();
+
+  if (!trimmed) {
+    return {
+      payload: null,
+      enccode: "",
+    };
+  }
+
+  const endpoint = buildLatestEncounterUrl({
+    apiBaseUrl,
+    patientSearchUrl,
+    hpercode: trimmed,
+  });
+
+  if (!endpoint) {
+    throw new Error(
+      "Latest encounter lookup is not configured. Set VITE_API_URL or VITE_LAB_PATIENT_SEARCH_URL.",
+    );
+  }
+
+  const requestUrl = buildRequestUrl(endpoint);
+  const headers = {};
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(requestUrl, {
+    method: "GET",
+    headers,
+  });
+
+  const responseText = await response.text();
+  const responsePayload = parseResponsePayload(responseText);
+
+  if (!response.ok) {
+    throw new Error(buildErrorMessage(response, responsePayload));
+  }
+
+  const enccode = resolveFirstString(responsePayload, [
+    "data.enccode",
+    "data.0.enccode",
+    "enccode",
+  ]);
+
+  return {
+    payload: responsePayload,
+    enccode,
   };
 }
 

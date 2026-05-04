@@ -76,9 +76,11 @@ async function uploadLabResult({ file, contextParams, patient, remarks }) {
 
   const normalizedContextParams = normalizeLabContextParams(contextParams);
   const patientId =
-    patient?.id ||
+    patient?.rawData?.hpercode ||
+    patient?.contextParams?.hpercode ||
     normalizedContextParams.hpercode ||
     normalizedContextParams.patient_id ||
+    patient?.id ||
     "";
   const encounterCode = normalizedContextParams.enccode || "";
   const docointkey = normalizedContextParams.docointkey || "";

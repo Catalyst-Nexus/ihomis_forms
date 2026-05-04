@@ -18,14 +18,13 @@ function LabReviewPanel({
   onShowLocalPreview,
   onShowUploadedPreview,
   onPreviewUploadedFile,
-  uploadSummary,
 }) {
   return (
     <>
       <section className="lab-panel lab-review">
         <h2>PDF Review</h2>
 
-        <div className="lab-review-actions">
+        <div className="lab-review-toolbar">
           <button
             type="button"
             className="lab-review-action"
@@ -42,30 +41,30 @@ function LabReviewPanel({
           >
             Clear All PDFs
           </button>
-        </div>
 
-        {hasLocalPreview && hasUploadedPreview ? (
-          <div
-            className="lab-review-toggle"
-            role="tablist"
-            aria-label="Review mode"
-          >
-            <button
-              type="button"
-              className={reviewSource === "local" ? "active" : ""}
-              onClick={onShowLocalPreview}
-            >
-              Local Preview
-            </button>
-            <button
-              type="button"
-              className={reviewSource === "uploaded" ? "active" : ""}
-              onClick={onShowUploadedPreview}
-            >
-              Uploaded PDF
-            </button>
-          </div>
-        ) : null}
+          {hasLocalPreview && hasUploadedPreview ? (
+            <>
+              <button
+                type="button"
+                className={`lab-review-action ${
+                  reviewSource === "local" ? "is-active" : ""
+                }`}
+                onClick={onShowLocalPreview}
+              >
+                Local Preview
+              </button>
+              <button
+                type="button"
+                className={`lab-review-action ${
+                  reviewSource === "uploaded" ? "is-active" : ""
+                }`}
+                onClick={onShowUploadedPreview}
+              >
+                Uploaded PDF
+              </button>
+            </>
+          ) : null}
+        </div>
 
         {hasActivePreview ? (
           <div className="lab-pdf-wrap">
@@ -76,10 +75,7 @@ function LabReviewPanel({
             />
           </div>
         ) : (
-          <div className="lab-empty-preview">
-            Select a PDF file to preview it here instantly on desktop, tablet,
-            and mobile without downloading.
-          </div>
+          <div className="lab-empty-preview">Select a PDF file to preview.</div>
         )}
 
         {uploadedFiles.length ? (
@@ -124,15 +120,6 @@ function LabReviewPanel({
             </ul>
           </section>
         ) : null}
-
-        <ul className="lab-summary-list">
-          {uploadSummary.map((item) => (
-            <li key={item.label}>
-              <span>{item.label}</span>
-              <strong>{item.value}</strong>
-            </li>
-          ))}
-        </ul>
       </section>
     </>
   );
@@ -154,7 +141,6 @@ LabReviewPanel.propTypes = {
   onShowLocalPreview: PropTypes.func.isRequired,
   onShowUploadedPreview: PropTypes.func.isRequired,
   onPreviewUploadedFile: PropTypes.func.isRequired,
-  uploadSummary: PropTypes.array.isRequired,
 };
 
 export default LabReviewPanel;

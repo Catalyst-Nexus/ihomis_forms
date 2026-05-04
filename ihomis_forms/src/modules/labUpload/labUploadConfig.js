@@ -1,9 +1,5 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").trim();
 
-const LAB_UPLOAD_API_URL = (
-  import.meta.env.VITE_LAB_UPLOAD_API_URL || ""
-).trim();
-
 const LAB_UPLOAD_CONTEXT_URL = (
   import.meta.env.VITE_LAB_UPLOAD_CONTEXT_URL ||
   (API_BASE_URL
@@ -59,7 +55,6 @@ const defaultRequestContext = {
 export {
   API_BASE_URL,
   LAB_UPLOAD_API_TOKEN,
-  LAB_UPLOAD_API_URL,
   LAB_UPLOAD_CONTEXT_URL,
   LAB_UPLOAD_PATIENT_SEARCH_URL,
   LAB_UPLOAD_SUPABASE_BUCKET,

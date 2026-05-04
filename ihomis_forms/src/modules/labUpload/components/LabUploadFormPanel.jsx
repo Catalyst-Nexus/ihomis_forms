@@ -29,8 +29,8 @@ function LabUploadFormPanel({
     <form className="lab-panel lab-form" onSubmit={onSubmit}>
       <div className="lab-request-header">
         <div>
-          <p className="lab-request-label">Laboratory Panel</p>
-          <h2>{displayContext.panelName}</h2>
+          <p className="lab-request-label">Request Details</p>
+          <h2>Laboratory Request</h2>
         </div>
         <p className="lab-request-time">{displayContext.requestedAt}</p>
       </div>

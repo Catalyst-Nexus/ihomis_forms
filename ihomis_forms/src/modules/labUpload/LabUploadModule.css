@@ -15,6 +15,7 @@
   position: relative;
   min-height: 100vh;
   padding: clamp(1rem, 2vw, 2rem);
+  overflow-x: hidden;
 }
 
 .lab-ambient {
@@ -1569,19 +1570,12 @@
   background: rgba(242, 190, 111, 0.25);
 }
 
-.lab-review-toggle {
+.lab-review-toolbar {
   margin-top: 1rem;
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
-}
-
-.lab-review-actions {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
 }
 
 .lab-review-action {
@@ -1607,19 +1601,7 @@
   color: var(--lab-warning-500);
 }
 
-.lab-review-toggle button {
-  border: 1px solid var(--lab-line-soft);
-  border-radius: 999px;
-  background: var(--lab-surface-200);
-  color: var(--lab-ink-900);
-  font-size: 0.86rem;
-  font-weight: 600;
-  padding: 0.45rem 0.8rem;
-  cursor: pointer;
-  text-align: center;
-}
-
-.lab-review-toggle button.active {
+.lab-review-action.is-active {
   border-color: var(--lab-accent-500);
   background: rgba(31, 157, 149, 0.16);
 }
@@ -2284,36 +2266,6 @@
   .lab-fs-jump-label {
     display: none;
   }
-}
-
-.lab-summary-list {
-  list-style: none;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.55rem;
-}
-
-.lab-summary-list li {
-  border-radius: 11px;
-  border: 1px solid var(--lab-line-soft);
-  background: var(--lab-surface-200);
-  padding: 0.58rem 0.7rem;
-  display: grid;
-  gap: 0.2rem;
-}
-
-.lab-summary-list li span {
-  color: var(--lab-ink-700);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.lab-summary-list li strong {
-  color: var(--lab-ink-900);
-  font-size: 0.96rem;
-  overflow-wrap: anywhere;
 }
 
 .lab-reveal {

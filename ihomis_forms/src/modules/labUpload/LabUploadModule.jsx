@@ -1,10 +1,10 @@
 import { useMemo } from "react";
+import PropTypes from "prop-types";
 import LabReviewPanel from "./components/LabReviewPanel.jsx";
 import LabUploadFormPanel from "./components/LabUploadFormPanel.jsx";
 import SelectedPatientIndicator from "./components/SelectedPatientIndicator.jsx";
 import {
   LAB_UPLOAD_API_TOKEN,
-  LAB_UPLOAD_API_URL,
   LAB_UPLOAD_CONTEXT_URL,
 } from "./labUploadConfig.js";
 import { canUseSupabaseUploads } from "./api/labUploadSupabase.js";
@@ -12,10 +12,7 @@ import useLabRequestContext from "./hooks/useLabRequestContext.js";
 import usePdfQueue from "./hooks/usePdfQueue.js";
 import useUploadBatch from "./hooks/useUploadBatch.js";
 import { usePdfPreview } from "../../lib/PdfPreviewContext.jsx";
-import {
-  buildDisplayContext,
-  buildUploadSummary,
-} from "./utils/labUploadUtils.js";
+import { buildDisplayContext } from "./utils/labUploadUtils.js";
 import "./LabUploadModule.css";
 
 function LabUploadModule({
@@ -25,7 +22,6 @@ function LabUploadModule({
   onNavigateToPreview = null,
 }) {
   const contextParams = selectedContextParams;
-  const hasApiUrl = Boolean(LAB_UPLOAD_API_URL);
   const hasSupabaseUpload = canUseSupabaseUploads();
   const { openPreview } = usePdfPreview();
 
@@ -50,8 +46,6 @@ function LabUploadModule({
     removeFailureForFileKey,
     resetUploadState,
   } = useUploadBatch({
-    uploadUrl: LAB_UPLOAD_API_URL,
-    token: LAB_UPLOAD_API_TOKEN,
     contextParams,
     patient: selectedPatient,
     onContextFromSuccess: applyContextFromApi,
@@ -63,7 +57,6 @@ function LabUploadModule({
     activeLocalFileIndex,
     activeUploadedFileIndex,
     reviewSource,
-    isReviewFullscreen,
     isDragActive,
     hasLocalPreview,
     hasUploadedPreview,
@@ -81,8 +74,6 @@ function LabUploadModule({
     clearPdfSelection,
     showLocalPreview,
     showUploadedPreview,
-    openFullscreen,
-    closeFullscreen,
   } = usePdfQueue({
     uploadedFiles,
     onStatusChange: setStatus,
@@ -91,40 +82,11 @@ function LabUploadModule({
   });
 
   const canSubmit = Boolean(
-    (hasSupabaseUpload || hasApiUrl) && resultFiles.length > 0 && !submitting,
+    hasSupabaseUpload && resultFiles.length > 0 && !submitting,
   );
-  const uploadDestination = hasSupabaseUpload
-    ? "Supabase Storage"
-    : hasApiUrl
-      ? "Upload API"
-      : "Not configured";
   const displayContext = useMemo(
     () => buildDisplayContext(requestContext),
     [requestContext],
-  );
-
-  const uploadSummary = useMemo(
-    () =>
-      buildUploadSummary({
-        requestContext,
-        contextLoading,
-        displayContext,
-        uploadDestination,
-        hasUploadedPreview,
-        resultFileCount: resultFiles.length,
-        reviewSource,
-        uploadedFileCount: uploadedFiles.length,
-      }),
-    [
-      contextLoading,
-      displayContext,
-      hasApiUrl,
-      hasUploadedPreview,
-      requestContext,
-      resultFiles.length,
-      reviewSource,
-      uploadedFiles.length,
-    ],
   );
 
   function handleFormSubmit(event) {
@@ -142,7 +104,7 @@ function LabUploadModule({
     openPreview({
       file: activePreviewFile,
       url: activePreviewUrl,
-      token: LAB_UPLOAD_API_TOKEN,
+      token: "",
       source: reviewSource,
     });
 
@@ -182,12 +144,7 @@ function LabUploadModule({
                 </span>
               </div>
 
-              <h1 className="lab-hero-title">
-                Upload Result
-                <span className="lab-hero-panel-name">
-                  {displayContext.panelName}
-                </span>
-              </h1>
+              <h1 className="lab-hero-title">Upload Result</h1>
 
               {displayContext.requestedAt && (
                 <p className="lab-hero-meta">
@@ -250,18 +207,31 @@ function LabUploadModule({
             hasAnyPdf={hasAnyPdf}
             activePreviewFile={activePreviewFile}
             activePreviewUrl={activePreviewUrl}
-            token={LAB_UPLOAD_API_TOKEN}
+            token=""
             onOpenFullscreen={handleOpenPreview}
             onClearPdfSelection={clearPdfSelection}
             onShowLocalPreview={showLocalPreview}
             onShowUploadedPreview={showUploadedPreview}
             onPreviewUploadedFile={previewUploadedFile}
-            uploadSummary={uploadSummary}
           />
         </section>
       </main>
     </div>
   );
 }
+
+LabUploadModule.propTypes = {
+  selectedPatient: PropTypes.shape({
+    id: PropTypes.string,
+    idSource: PropTypes.string,
+    displayName: PropTypes.string,
+    description: PropTypes.string,
+    contextParams: PropTypes.object,
+    rawData: PropTypes.object,
+  }),
+  selectedContextParams: PropTypes.object,
+  onRequestPatientChange: PropTypes.func,
+  onNavigateToPreview: PropTypes.func,
+};
 
 export default LabUploadModule;
