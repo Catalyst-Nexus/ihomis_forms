@@ -460,10 +460,8 @@ export function resolveRequestContext(payload) {
     };
   }
 
-  const contextSource =
-    Array.isArray(payload?.data) && payload.data.length > 0
-      ? payload.data[0]
-      : payload;
+  const hasDataRows = Array.isArray(payload?.data) && payload.data.length > 0;
+  const contextSource = hasDataRows ? payload.data[0] : payload;
 
   const identifiers = {
     enccode: resolveFirstString(contextSource, encounterCodeKeys),
@@ -481,17 +479,18 @@ export function resolveRequestContext(payload) {
   let middleName = resolveFirstString(contextSource, patientMiddleNameKeys);
   let lastName = resolveFirstString(contextSource, patientLastNameKeys);
 
-  const hasAnyContext = Boolean(
-    panelName ||
-    requestedAt ||
-    firstName ||
-    middleName ||
-    lastName ||
-    user ||
-    identifiers.enccode ||
-    identifiers.fhud ||
-    identifiers.docointkey,
-  );
+  const hasAnyContext =
+    Boolean(
+      panelName ||
+      requestedAt ||
+      firstName ||
+      middleName ||
+      lastName ||
+      user ||
+      identifiers.enccode ||
+      identifiers.fhud ||
+      identifiers.docointkey,
+    ) || hasDataRows;
 
   return {
     panelName,

@@ -25,7 +25,7 @@ function LabUploadModule({
   const hasSupabaseUpload = canUseSupabaseUploads();
   const { openPreview } = usePdfPreview();
 
-  const { requestContext, contextLoading, applyContextFromApi } =
+  const { requestContext, contextLoading, contextError, applyContextFromApi } =
     useLabRequestContext({
       contextUrl: LAB_UPLOAD_CONTEXT_URL,
       token: LAB_UPLOAD_API_TOKEN,
@@ -84,6 +84,30 @@ function LabUploadModule({
   const canSubmit = Boolean(
     hasSupabaseUpload && resultFiles.length > 0 && !submitting,
   );
+  const hasContextApi = Boolean(LAB_UPLOAD_CONTEXT_URL);
+  const contextResolved =
+    requestContext.hasAnyContext ||
+    (hasContextApi && !contextLoading && !contextError);
+
+  const statusLabel = contextLoading
+    ? "Loading"
+    : contextResolved
+      ? "Context Ready"
+      : contextError
+        ? hasSupabaseUpload
+          ? "Supabase Ready"
+          : "Context Unavailable"
+        : hasContextApi
+          ? "Awaiting Context"
+          : "Supabase Ready";
+
+  const heroStatusClassName = `lab-hero-status ${
+    contextLoading
+      ? "lab-hero-status--loading"
+      : contextResolved || (contextError && hasSupabaseUpload)
+        ? "lab-hero-status--ready"
+        : "lab-hero-status--pending"
+  }`;
   const displayContext = useMemo(
     () => buildDisplayContext(requestContext),
     [requestContext],
@@ -126,21 +150,9 @@ function LabUploadModule({
                 <span className="lab-hero-system">
                   Hospital Information System
                 </span>
-                <span
-                  className={`lab-hero-status ${
-                    contextLoading
-                      ? "lab-hero-status--loading"
-                      : requestContext.hasAnyContext
-                        ? "lab-hero-status--ready"
-                        : "lab-hero-status--pending"
-                  }`}
-                >
+                <span className={heroStatusClassName}>
                   <span className="lab-hero-status-dot" aria-hidden="true" />
-                  {contextLoading
-                    ? "Loading"
-                    : requestContext.hasAnyContext
-                      ? "Context Ready"
-                      : "Awaiting Context"}
+                  {statusLabel}
                 </span>
               </div>
 

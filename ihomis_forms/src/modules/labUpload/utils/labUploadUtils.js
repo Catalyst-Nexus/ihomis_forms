@@ -177,7 +177,7 @@ function mapSuccessToUploadedEntry(item) {
 function buildDisplayContext(requestContext) {
   return {
     panelName: requestContext.panelName || "Laboratory Request",
-    requestedAt: requestContext.requestedAt || "Waiting for API context",
+    requestedAt: requestContext.requestedAt || "",
     identifiers: {
       enccode: requestContext.identifiers?.enccode || "Not provided",
       docointkey: requestContext.identifiers?.docointkey || "Not provided",

@@ -6,6 +6,7 @@ import { mergeRequestContext } from "../utils/labUploadUtils.js";
 function useLabRequestContext({ contextUrl, token, contextParams }) {
   const [requestContext, setRequestContext] = useState(defaultRequestContext);
   const [contextLoading, setContextLoading] = useState(Boolean(contextUrl));
+  const [contextError, setContextError] = useState(false);
 
   useEffect(() => {
     let isActive = true;
@@ -13,10 +14,12 @@ function useLabRequestContext({ contextUrl, token, contextParams }) {
     async function loadRequestContext() {
       if (!contextUrl) {
         setContextLoading(false);
+        setContextError(false);
         return;
       }
 
       setContextLoading(true);
+      setContextError(false);
 
       try {
         const response = await fetchLabRequestContext({
@@ -36,6 +39,8 @@ function useLabRequestContext({ contextUrl, token, contextParams }) {
         if (!isActive) {
           return;
         }
+
+        setContextError(true);
       } finally {
         if (isActive) {
           setContextLoading(false);
@@ -54,11 +59,13 @@ function useLabRequestContext({ contextUrl, token, contextParams }) {
     setRequestContext((currentContext) =>
       mergeRequestContext(currentContext, nextContext),
     );
+    setContextError(false);
   }
 
   return {
     requestContext,
     contextLoading,
+    contextError,
     applyContextFromApi,
   };
 }
