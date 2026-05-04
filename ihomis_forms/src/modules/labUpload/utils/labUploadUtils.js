@@ -195,7 +195,7 @@ function buildUploadSummary({
   requestContext,
   contextLoading,
   displayContext,
-  hasApiUrl,
+  uploadDestination,
 }) {
   return [
     {
@@ -208,7 +208,7 @@ function buildUploadSummary({
     },
     {
       label: "Upload Endpoint",
-      value: hasApiUrl ? "Configured" : "Not configured",
+      value: uploadDestination || "Not configured",
     },
     {
       label: "Laboratory Panel",

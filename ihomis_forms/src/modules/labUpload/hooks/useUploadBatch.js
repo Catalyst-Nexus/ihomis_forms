@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
 import { uploadLabResultBatch } from "../api/labUploadApi.js";
+import {
+  canUseSupabaseUploads,
+  uploadLabResultBatchSupabase,
+} from "../api/labUploadSupabase.js";
 import { mapSuccessToUploadedEntry } from "../utils/labUploadUtils.js";
 
 function getStatusClassName(type) {
@@ -18,6 +22,7 @@ function useUploadBatch({
   uploadUrl,
   token,
   contextParams,
+  patient,
   onContextFromSuccess,
 }) {
   const [remarks, setRemarks] = useState("");
@@ -42,6 +47,9 @@ function useUploadBatch({
       ? `Uploading ${uploadProgress.current} of ${uploadProgress.total} PDF files...`
       : "";
 
+  const useSupabaseUploads = canUseSupabaseUploads();
+  const hasApiUpload = Boolean(uploadUrl);
+
   function removeFailureForFileKey(fileKey) {
     setFailedUploads((currentItems) =>
       currentItems.filter((item) => item.fileKey !== fileKey),
@@ -61,11 +69,11 @@ function useUploadBatch({
 
     const resultFiles = Array.isArray(selectedFiles) ? selectedFiles : [];
 
-    if (!uploadUrl) {
+    if (!useSupabaseUploads && !hasApiUpload) {
       setStatus({
         type: "error",
         message:
-          "Missing upload API URL. Set VITE_LAB_UPLOAD_API_URL in your .env file.",
+          "Missing upload destination. Configure Supabase lab uploads or set VITE_LAB_UPLOAD_API_URL.",
       });
       return;
     }
@@ -83,16 +91,26 @@ function useUploadBatch({
     setUploadProgress({ current: 0, total: resultFiles.length });
 
     try {
-      const { successes, failures } = await uploadLabResultBatch({
-        uploadUrl,
-        token,
-        resultFiles,
-        remarks,
-        contextParams,
-        onProgress: ({ current, total }) => {
-          setUploadProgress({ current, total });
-        },
-      });
+      const { successes, failures } = useSupabaseUploads
+        ? await uploadLabResultBatchSupabase({
+            resultFiles,
+            remarks,
+            contextParams,
+            patient,
+            onProgress: ({ current, total }) => {
+              setUploadProgress({ current, total });
+            },
+          })
+        : await uploadLabResultBatch({
+            uploadUrl,
+            token,
+            resultFiles,
+            remarks,
+            contextParams,
+            onProgress: ({ current, total }) => {
+              setUploadProgress({ current, total });
+            },
+          });
 
       if (successes.length > 0) {
         const uploadedEntries = successes.map((item) =>
@@ -170,13 +188,20 @@ function useUploadBatch({
     setStatus({ type: "", message: "" });
 
     try {
-      const { successes, failures } = await uploadLabResultBatch({
-        uploadUrl,
-        token,
-        resultFiles: [failedItem.file],
-        remarks,
-        contextParams,
-      });
+      const { successes, failures } = useSupabaseUploads
+        ? await uploadLabResultBatchSupabase({
+            resultFiles: [failedItem.file],
+            remarks,
+            contextParams,
+            patient,
+          })
+        : await uploadLabResultBatch({
+            uploadUrl,
+            token,
+            resultFiles: [failedItem.file],
+            remarks,
+            contextParams,
+          });
 
       if (successes.length > 0) {
         const uploadedEntries = successes.map((item) =>

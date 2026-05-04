@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import LabReviewPanel from "./components/LabReviewPanel.jsx";
 import LabUploadFormPanel from "./components/LabUploadFormPanel.jsx";
 import SelectedPatientIndicator from "./components/SelectedPatientIndicator.jsx";
@@ -7,6 +7,7 @@ import {
   LAB_UPLOAD_API_URL,
   LAB_UPLOAD_CONTEXT_URL,
 } from "./labUploadConfig.js";
+import { canUseSupabaseUploads } from "./api/labUploadSupabase.js";
 import useLabRequestContext from "./hooks/useLabRequestContext.js";
 import usePdfQueue from "./hooks/usePdfQueue.js";
 import useUploadBatch from "./hooks/useUploadBatch.js";
@@ -25,6 +26,7 @@ function LabUploadModule({
 }) {
   const contextParams = selectedContextParams;
   const hasApiUrl = Boolean(LAB_UPLOAD_API_URL);
+  const hasSupabaseUpload = canUseSupabaseUploads();
   const { openPreview } = usePdfPreview();
 
   const { requestContext, contextLoading, applyContextFromApi } =
@@ -51,6 +53,7 @@ function LabUploadModule({
     uploadUrl: LAB_UPLOAD_API_URL,
     token: LAB_UPLOAD_API_TOKEN,
     contextParams,
+    patient: selectedPatient,
     onContextFromSuccess: applyContextFromApi,
   });
 
@@ -87,7 +90,14 @@ function LabUploadModule({
     onClearAll: resetUploadState,
   });
 
-  const canSubmit = Boolean(hasApiUrl && resultFiles.length > 0 && !submitting);
+  const canSubmit = Boolean(
+    (hasSupabaseUpload || hasApiUrl) && resultFiles.length > 0 && !submitting,
+  );
+  const uploadDestination = hasSupabaseUpload
+    ? "Supabase Storage"
+    : hasApiUrl
+      ? "Upload API"
+      : "Not configured";
   const displayContext = useMemo(
     () => buildDisplayContext(requestContext),
     [requestContext],
@@ -99,7 +109,7 @@ function LabUploadModule({
         requestContext,
         contextLoading,
         displayContext,
-        hasApiUrl,
+        uploadDestination,
         hasUploadedPreview,
         resultFileCount: resultFiles.length,
         reviewSource,
