@@ -21,7 +21,7 @@
   overflow: clip; /* Clips horizontal overflow without creating an inner scrollbar */
   font-family: "DM Sans", "Space Grotesk", sans-serif;
   background: var(--lab-surface-100);
-  padding-bottom: 8rem; 
+  padding-bottom: 8rem;
 }
 
 .lab-ambient {
