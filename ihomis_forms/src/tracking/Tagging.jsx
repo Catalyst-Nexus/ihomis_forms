@@ -20,7 +20,7 @@
  *   tag_order 4+ → can be extended with same "remaining" logic
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./Tagging.css";
 
@@ -29,10 +29,10 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeUser(u, i) {
   const id    = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
-  const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? id;
+  const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name
+             ?? u?.username ?? u?.email ?? id;
   return { id, label, raw: u };
 }
 
@@ -46,15 +46,74 @@ function useToast() {
   return { toasts, push };
 }
 
-// Tag order visual config — extendable
 const TAG_CFG = {
-  1: { color: "#0f7a6e", bg: "#e0f5f2", label: "1st tag — full access"         },
-  2: { color: "#1a5ea8", bg: "#e2eef9", label: "2nd tag — assigned steps only"  },
-  3: { color: "#8a4f0b", bg: "#faebd5", label: "3rd tag — remaining steps"      },
-  4: { color: "#6b3a8a", bg: "#f0e8f7", label: "4th tag — remaining steps"      },
+  1: { color: "#0f7a6e", bg: "#e0f5f2", label: "1st tag — full access"        },
+  2: { color: "#1a5ea8", bg: "#e2eef9", label: "2nd tag — assigned steps only" },
+  3: { color: "#8a4f0b", bg: "#faebd5", label: "3rd tag — remaining steps"     },
+  4: { color: "#6b3a8a", bg: "#f0e8f7", label: "4th tag — remaining steps"     },
 };
 function tagCfg(order) {
   return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
+}
+
+// ── Access Gate Component ─────────────────────────────────────────────────────
+function AccessDenied({ userName, onBack }) {
+  return (
+    <div className="tg-page">
+      <main className="tg-shell">
+        <header className="tg-header">
+          <div className="tg-header-text">
+            <h1>Agusan del Norte Provincial Health Office</h1>
+            <p>CHART Tagging System</p>
+          </div>
+          {userName && (
+            <div className="tg-session-pill">
+              <span className="tg-session-dot" />
+              {userName}
+            </div>
+          )}
+        </header>
+        <nav className="tg-nav">
+          <button className="tg-btn tg-btn--ghost" onClick={onBack}>
+            ← Back to Tracking
+          </button>
+        </nav>
+        <div className="tg-panel" style={{ textAlign: "center", padding: "3rem 2rem" }}>
+          <div style={{
+            display:        "inline-flex",
+            flexDirection:  "column",
+            alignItems:     "center",
+            gap:            "1rem",
+            background:     "#faebd5",
+            border:         "1.5px solid #e8c97e",
+            borderRadius:   "1rem",
+            padding:        "2.5rem 3rem",
+            maxWidth:       "480px",
+          }}>
+            <span style={{ fontSize: "2.5rem" }}>🔒</span>
+            <h2 style={{ margin: 0, color: "#8a4f0b", fontSize: "1.2rem" }}>
+              No Access Yet
+            </h2>
+            <p style={{ margin: 0, color: "#7a5c2e", fontSize: ".95rem", lineHeight: 1.6 }}>
+              You do not have any assigned steps yet.
+              Please wait for an administrator to assign steps to your account
+              before you can access this panel.
+            </p>
+            <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem" }}>
+              Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName}</strong>
+            </p>
+            <button
+              className="tg-btn tg-btn--ghost"
+              onClick={onBack}
+              style={{ marginTop: ".5rem" }}
+            >
+              ← Go Back
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -62,91 +121,86 @@ export default function Tagging({
   selectedPatient,
   trackingRows = [],
   onBackToTracking,
-  onChangePatient,
   currentUserId,
   currentUserName,
   onAccessChanged,
 }) {
-  // ── Init state ─────────────────────────────────────────────────────────────
-  const [initComplete, setInitComplete] = useState(false);
-  const [initError, setInitError] = useState("");
+  const { toasts, push } = useToast();
 
-  // ── 0. INITIALIZE: Ensure all records exist in DB ──────────────────────────
+  // ── Access check state ────────────────────────────────────────────────────
+  const [accessStatus, setAccessStatus] = useState("checking"); // "checking" | "allowed" | "denied"
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  const [initComplete,     setInitComplete]     = useState(false);
+  const [initError,        setInitError]        = useState("");
+  const [selectedRecordId, setSelectedRecordId] = useState("");
+
   useEffect(() => {
     let live = true;
     (async () => {
       setInitError("");
-      if (!trackingRows.length) {
-        setInitComplete(true);
-        return;
-      }
+      setInitComplete(false);
+      setSelectedRecordId("");
+      setAccessStatus("checking");
 
-      const errors = [];
+      if (!trackingRows.length) { setInitComplete(true); setAccessStatus("allowed"); return; }
+
+      const errors  = [];
+      let   firstId = "";
+
       for (const row of trackingRows) {
         if (!live) break;
-
-        const encoCode = row.encoCode || row.tracking_encocode || row.id;
+        const encoCode      = row.encoCode || row.tracking_encocode || row.id;
+        const encounterType = row.encounterType || row.encounter_type || "";
         if (!encoCode) continue;
 
-        const encounterType = row.encounterType || row.encounter_type || "";
-
         try {
-          const { data: upserted, error: upErr } = await supabase
+          const { error: upsertErr } = await supabase
             .from("tracking")
             .upsert(
               {
                 tracking_encocode: String(encoCode),
-                encounter_type: String(encounterType),
-                is_current: true,
-                created_by: String(selectedPatient?.id ?? selectedPatient?.patient_id ?? "TAGGING_INIT"),
+                encounter_type:    String(encounterType),
+                is_current:        true,
+                created_by:        String(
+                  selectedPatient?.id ?? selectedPatient?.patient_id ?? "TAGGING_INIT"
+                ),
               },
-              { onConflict: "tracking_encocode" }
-            )
-            .select("id")
-            .single();
+              { onConflict: "tracking_encocode", ignoreDuplicates: true }
+            );
 
-          if (upErr) {
-            errors.push(`Upsert tracking failed for ${encoCode}: ${upErr.message}`);
+          if (upsertErr) {
+            errors.push(`Upsert failed for ${encoCode}: ${upsertErr.message}`);
             continue;
           }
 
-          if (upserted?.id && !row.id) {
-            row.id = upserted.id;
+          const { data: fetched, error: fetchErr } = await supabase
+            .from("tracking")
+            .select("id")
+            .eq("tracking_encocode", String(encoCode))
+            .single();
+
+          if (fetchErr || !fetched?.id) {
+            errors.push(`Fetch id failed for ${encoCode}: ${fetchErr?.message ?? "no row"}`);
+            continue;
           }
+
+          row.id = fetched.id;
+          if (!firstId) firstId = String(fetched.id);
         } catch (e) {
           errors.push(`Exception for ${encoCode}: ${e.message}`);
         }
       }
 
       if (!live) return;
-      if (errors.length > 0) {
-        setInitError(errors.join(" | "));
-      }
+      if (errors.length) setInitError(errors.join(" | "));
+      if (firstId) setSelectedRecordId(firstId);
       setInitComplete(true);
     })();
-
     return () => { live = false; };
   }, [trackingRows, selectedPatient]);
 
-  // ── Record selector ────────────────────────────────────────────────────────
-  const [selectedRecordId, setSelectedRecordId] = useState(() => {
-    const withId = trackingRows.find(r => r.id);
-    return withId ? String(withId.id) : String(trackingRows[0]?.id ?? "");
-  });
-
-  useEffect(() => {
-    if (!trackingRows.length) { 
-      setSelectedRecordId(""); 
-      return; 
-    }
-    
-    if (!trackingRows.some((r) => String(r.id) === selectedRecordId)) {
-      const firstWithId = trackingRows.find(r => r.id);
-      setSelectedRecordId(firstWithId ? String(firstWithId.id) : "");
-    }
-  }, [trackingRows, selectedRecordId]);
-
-  // ── Steps (tracking_sequence) ──────────────────────────────────────────────
+  // ── Steps ──────────────────────────────────────────────────────────────────
   const [steps,        setSteps]        = useState([]);
   const [stepsLoading, setStepsLoading] = useState(true);
 
@@ -158,18 +212,17 @@ export default function Tagging({
         .from("tracking_sequence")
         .select("id, description, sort_order")
         .order("sort_order", { ascending: true });
-      if (live && !error && data?.length) {
+      if (live && !error && data?.length)
         setSteps(data.map((r) => ({ id: r.id, key: String(r.id), label: r.description })));
-      }
       if (live) setStepsLoading(false);
     })();
     return () => { live = false; };
   }, []);
 
-  // ── Users (VITE_TRACKING_USERS) ────────────────────────────────────────────
-  const [users,       setUsers]       = useState([]);
-  const [usersState,  setUsersState]  = useState("idle"); // "idle"|"loading"|"error"
-  const [usersError,  setUsersError]  = useState("");
+  // ── Users ──────────────────────────────────────────────────────────────────
+  const [users,      setUsers]      = useState([]);
+  const [usersState, setUsersState] = useState("idle");
+  const [usersError, setUsersError] = useState("");
 
   const fetchUsers = useCallback(async () => {
     const url = import.meta.env.VITE_TRACKING_USERS;
@@ -179,9 +232,10 @@ export default function Tagging({
       const res  = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const raw  = await res.json();
-      const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.users) ? raw.users : [];
-      const normalized = list.map(normalizeUser);
-      setUsers(normalized);
+      const list = Array.isArray(raw) ? raw
+        : Array.isArray(raw?.data)  ? raw.data
+        : Array.isArray(raw?.users) ? raw.users : [];
+      setUsers(list.map(normalizeUser));
       setUsersState("idle");
     } catch (e) {
       setUsersState("error"); setUsersError(e.message);
@@ -190,7 +244,7 @@ export default function Tagging({
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-  // ── Tagged users for selected record (tracking_user_assignment) ────────────
+  // ── Tagged users ───────────────────────────────────────────────────────────
   const [taggedUsers, setTaggedUsers] = useState([]);
 
   const fetchTaggedUsers = useCallback(async () => {
@@ -198,32 +252,26 @@ export default function Tagging({
     const { data, error } = await supabase
       .from("tracking_user_assignment")
       .select("id, user_id, tag_order")
-      .eq("tracking_id", selectedRecordId)
+      .eq("tracking_id", parseInt(selectedRecordId, 10))
       .order("tag_order", { ascending: true });
     if (error) { console.error("fetchTaggedUsers:", error.message); return; }
     setTaggedUsers((data ?? []).map((r) => ({
-      rowId:    r.id,
-      userId:   String(r.user_id),
-      tagOrder: r.tag_order,
+      rowId: r.id, userId: String(r.user_id), tagOrder: r.tag_order,
     })));
   }, [selectedRecordId]);
 
   useEffect(() => { fetchTaggedUsers(); }, [fetchTaggedUsers]);
 
-  // ── Step assignments (user_seq_assignment) ──────────────────────────────────
+  // ── Step assignments ───────────────────────────────────────────────────────
   const [stepAssign, setStepAssign] = useState({});
 
   const fetchStepAssign = useCallback(async () => {
     if (!taggedUsers.length) { setStepAssign({}); return; }
-    const allUserIds = taggedUsers.map((u) => u.userId);
-
     const { data, error } = await supabase
       .from("user_seq_assignment")
       .select("id, user_id, seq_id")
-      .in("user_id", allUserIds);
-
+      .in("user_id", taggedUsers.map((u) => u.userId));
     if (error) { console.error("fetchStepAssign:", error.message); return; }
-
     const map = {};
     for (const row of data ?? []) {
       map[String(row.seq_id)] = {
@@ -237,110 +285,167 @@ export default function Tagging({
 
   useEffect(() => { fetchStepAssign(); }, [fetchStepAssign]);
 
+  // ── ACCESS CHECK: runs after taggedUsers + stepAssign are loaded ───────────
+  useEffect(() => {
+    // Still loading — wait
+    if (!initComplete || stepsLoading) return;
+
+    // If currentUserId is not set, allow (admin/no-auth mode)
+    if (!currentUserId) { setAccessStatus("allowed"); return; }
+
+    // Find if current user is tagged on this record
+    const myTag = taggedUsers.find((u) => u.userId === String(currentUserId));
+
+    // Not tagged at all → allowed (they might be the admin adding users)
+    // You can change this to "denied" if you want untagged users blocked too
+    if (!myTag) { setAccessStatus("allowed"); return; }
+
+    // 1st tagged user → full access always
+    if (myTag.tagOrder === 1) { setAccessStatus("allowed"); return; }
+
+    // 2nd/3rd/4th tagged user → only allowed if they have at least 1 assigned step
+    const mySteps = Object.values(stepAssign).filter(
+      (s) => s.userId === String(currentUserId)
+    );
+
+    if (mySteps.length > 0) {
+      setAccessStatus("allowed");
+    } else {
+      setAccessStatus("denied");
+    }
+  }, [initComplete, stepsLoading, taggedUsers, stepAssign, currentUserId]);
+
   // ── Derived ────────────────────────────────────────────────────────────────
-  const user2 = useMemo(() => taggedUsers.find((u) => u.tagOrder === 2), [taggedUsers]);
+  const assignableUsers = useMemo(
+    () => taggedUsers.filter((u) => u.tagOrder >= 2),
+    [taggedUsers]
+  );
+
+  const stepsEnabled = assignableUsers.length > 0;
 
   const accessByUser = useMemo(() => {
     if (!steps.length) return {};
-    const user2AssignedKeys = new Set(
-      steps.filter((s) => stepAssign[s.key]?.userId === user2?.userId).map((s) => s.key)
-    );
-
+    const assignedKeys = new Set(Object.keys(stepAssign));
+    const byUser2 = {};
+    for (const [k, v] of Object.entries(stepAssign)) {
+      if (!byUser2[v.userId]) byUser2[v.userId] = new Set();
+      byUser2[v.userId].add(k);
+    }
     const result = {};
     for (const tu of taggedUsers) {
       if (tu.tagOrder === 1) {
         result[tu.userId] = steps.map((s) => s.label);
-      } else if (tu.tagOrder === 2) {
-        result[tu.userId] = steps.filter((s) => user2AssignedKeys.has(s.key)).map((s) => s.label);
+      } else if (byUser2[tu.userId]?.size) {
+        result[tu.userId] = steps
+          .filter((s) => byUser2[tu.userId].has(s.key))
+          .map((s) => s.label);
       } else {
-        result[tu.userId] = steps.filter((s) => !user2AssignedKeys.has(s.key)).map((s) => s.label);
+        result[tu.userId] = steps
+          .filter((s) => !assignedKeys.has(s.key))
+          .map((s) => s.label);
       }
     }
     return result;
-  }, [taggedUsers, steps, stepAssign, user2]);
+  }, [taggedUsers, steps, stepAssign]);
 
-  const nextTagOrder    = taggedUsers.length > 0 ? Math.max(...taggedUsers.map((u) => u.tagOrder)) + 1 : 1;
+  // ── Drafts ─────────────────────────────────────────────────────────────────
+  const [drafts,      setDrafts]      = useState({});
+  const [saving,      setSaving]      = useState({});
+  const [pendingUser, setPendingUser] = useState("");
+  const prevRecordIdRef = useRef(selectedRecordId);
+
+  useEffect(() => {
+    if (prevRecordIdRef.current !== selectedRecordId) {
+      prevRecordIdRef.current = selectedRecordId;
+      setDrafts({});
+      setSaving({});
+    }
+  }, [selectedRecordId]);
+
   const canAddUser      = taggedUsers.length < 4;
   const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
+  const unusedUsers     = users.filter((u) => !taggedUsers.some((t) => t.userId === u.id));
 
-  const [drafts,  setDrafts]  = useState({});
-  const [saving,  setSaving]  = useState({});
-  const [pendingUser, setPendingUser] = useState("");
-
-  useEffect(() => { setDrafts({}); setSaving({}); }, [selectedRecordId]);
-
-  const { toasts, push } = useToast();
-
-  // ── Add user to record ─────────────────────────────────────────────────────
-  // ✅ SIMPLE: Direct insert, no FK checks, no user table syncing
+  // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleAddUser() {
     if (!selectedRecordId || !pendingUser) return;
-    if (taggedUsers.some((u) => u.userId === pendingUser)) { 
-      push("User already tagged.", "info"); 
-      return; 
+    if (taggedUsers.some((u) => u.userId === pendingUser)) {
+      push("User already tagged.", "info"); return;
     }
-    if (!canAddUser) { 
-      push("Maximum users reached.", "info"); 
-      return; 
+    if (!canAddUser) { push("Maximum users reached.", "info"); return; }
+
+    const trackingIdInt = parseInt(selectedRecordId, 10);
+    if (isNaN(trackingIdInt)) { push("Invalid tracking record. Please refresh.", "error"); return; }
+
+    const { data: exists, error: chkErr } = await supabase
+      .from("tracking").select("id").eq("id", trackingIdInt).maybeSingle();
+    if (chkErr || !exists) {
+      push("Tracking record not found in DB. Try refreshing.", "error"); return;
     }
 
-    // ✅ Direct insert to tracking_user_assignment
-    // NO FK validation, NO user table checks
+    const { data: existing } = await supabase
+      .from("tracking_user_assignment")
+      .select("tag_order")
+      .eq("tracking_id", trackingIdInt)
+      .order("tag_order", { ascending: false })
+      .limit(1);
+    const maxOrder = existing?.[0]?.tag_order ?? 0;
+    const newOrder = maxOrder + 1;
+
     const { data, error } = await supabase
       .from("tracking_user_assignment")
-      .insert({ 
-        tracking_id: selectedRecordId, 
-        user_id: pendingUser, 
-        tag_order: nextTagOrder 
-      })
+      .insert({ tracking_id: trackingIdInt, user_id: pendingUser, tag_order: newOrder })
       .select("id")
       .single();
 
-    if (error) { 
-      console.error("Insert error:", error);
-      push(`Error: ${error.message}`, "error"); 
-      return; 
-    }
-    
-    setTaggedUsers((p) => [...p, { rowId: data.id, userId: pendingUser, tagOrder: nextTagOrder }]);
+    if (error) { push(`Error: ${error.message}`, "error"); return; }
+
+    setTaggedUsers((prev) => [
+      ...prev,
+      { rowId: data.id, userId: pendingUser, tagOrder: newOrder },
+    ]);
+
     const uLabel = users.find((u) => u.id === pendingUser)?.label ?? pendingUser;
-    push(`Tagged ${uLabel} as #${nextTagOrder} — ${tagCfg(nextTagOrder).label}`);
+    push(`Tagged ${uLabel} as #${newOrder} — ${tagCfg(newOrder).label}`);
     setPendingUser("");
     onAccessChanged?.();
   }
 
-  // ── Remove tagged user ─────────────────────────────────────────────────────
   async function handleRemoveUser(rowId, userId, tagOrder) {
-    const { error } = await supabase.from("tracking_user_assignment").delete().eq("id", rowId);
+    const { error } = await supabase
+      .from("tracking_user_assignment").delete().eq("id", rowId);
     if (error) { push(`Error: ${error.message}`, "error"); return; }
 
     setTaggedUsers((p) => p.filter((u) => u.rowId !== rowId));
 
-    if (tagOrder === 2) {
-      await supabase.from("user_seq_assignment").delete().eq("user_id", userId);
-      setStepAssign({});
-      setDrafts({});
-    }
+    await supabase.from("user_seq_assignment").delete().eq("user_id", userId);
+    setStepAssign((p) => {
+      const n = { ...p };
+      for (const k of Object.keys(n)) if (n[k].userId === userId) delete n[k];
+      return n;
+    });
 
     const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
     push(`Removed ${uLabel} (tag #${tagOrder}).`, "info");
     onAccessChanged?.();
   }
 
-  // ── Assign step to user2 ───────────────────────────────────────────────────
-  async function handleAssignStep(step) {
-    const userId = drafts[step.key];
-    if (!userId) return;
-    if (!user2) { push("Add a 2nd-tagged user before assigning steps.", "info"); return; }
-    if (userId !== user2.userId) { push("Only the 2nd-tagged user can be assigned steps.", "info"); return; }
+  async function handleAssignStep(step, userId) {
+    if (!userId) { push("Select a user for this step first.", "info"); return; }
+
+    const tu = taggedUsers.find((u) => u.userId === userId);
+    if (!tu) { push("User not tagged on this record.", "info"); return; }
+    if (tu.tagOrder === 1) { push("1st user already has full access to all steps.", "info"); return; }
 
     const existing = stepAssign[step.key];
     setSaving((p) => ({ ...p, [step.key]: true }));
 
     let error = null, returnedId = existing?.rowId ?? null;
-
     if (existing?.rowId) {
-      ({ error } = await supabase.from("user_seq_assignment").update({ user_id: userId }).eq("id", existing.rowId));
+      ({ error } = await supabase
+        .from("user_seq_assignment")
+        .update({ user_id: userId })
+        .eq("id", existing.rowId));
     } else {
       const { data, error: e } = await supabase
         .from("user_seq_assignment")
@@ -355,28 +460,56 @@ export default function Tagging({
     const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
     setStepAssign((p) => ({ ...p, [step.key]: { rowId: returnedId, userId, userName: uLabel } }));
     setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
-    push(`Assigned ${step.label} → ${uLabel}`);
+    push(`Assigned "${step.label}" → ${uLabel}`);
     onAccessChanged?.();
   }
 
-  // ── Clear step assignment ──────────────────────────────────────────────────
   async function handleClearStep(step) {
     const existing = stepAssign[step.key];
     if (!existing?.rowId) return;
     setSaving((p) => ({ ...p, [step.key]: true }));
-    const { error } = await supabase.from("user_seq_assignment").delete().eq("id", existing.rowId);
+    const { error } = await supabase
+      .from("user_seq_assignment").delete().eq("id", existing.rowId);
     setSaving((p) => ({ ...p, [step.key]: false }));
     if (error) { push(`Error: ${error.message}`, "error"); return; }
     setStepAssign((p) => { const n = { ...p }; delete n[step.key]; return n; });
     setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
-    push(`Cleared ${step.label}`, "info");
+    push(`Cleared "${step.label}"`, "info");
     onAccessChanged?.();
   }
 
   const selectedRecord = trackingRows.find((r) => String(r.id) === selectedRecordId);
-  const unusedUsers    = users.filter((u) => !taggedUsers.some((t) => t.userId === u.id));
 
-  // ════════════════════════════════════════════════════════════════════════════
+  // ── Access gate: show loading while checking ───────────────────────────────
+  if (accessStatus === "checking") {
+    return (
+      <div className="tg-page">
+        <main className="tg-shell">
+          <header className="tg-header">
+            <div className="tg-header-text">
+              <h1>Agusan del Norte Provincial Health Office</h1>
+              <p>CHART Tagging System</p>
+            </div>
+          </header>
+          <div className="tg-panel" style={{ textAlign: "center", padding: "3rem" }}>
+            <span className="tg-spinner" /> Checking access…
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ── Access gate: denied ────────────────────────────────────────────────────
+  if (accessStatus === "denied") {
+    return (
+      <AccessDenied
+        userName={currentUserName}
+        onBack={onBackToTracking}
+      />
+    );
+  }
+
+  // ── Normal render (accessStatus === "allowed") ────────────────────────────
   return (
     <div className="tg-page">
       <div className="tg-toasts" aria-live="polite">
@@ -400,7 +533,9 @@ export default function Tagging({
         </header>
 
         <nav className="tg-nav">
-          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>← Back to Tracking</button>
+          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>
+            ← Back to Tracking
+          </button>
         </nav>
 
         <div className="tg-panel">
@@ -423,22 +558,25 @@ export default function Tagging({
             </div>
           )}
           {initError && (
-            <div className="tg-notice tg-notice--error" style={{ background: "#fdf0f0", borderColor: "#e8c0c0", color: "#b03b3b" }}>
-              Init warning: {initError}
-            </div>
+            <div className="tg-notice tg-notice--error">⚠️ {initError}</div>
           )}
 
           {selectedRecord && initComplete && (
             <>
+              {/* ── USER TAGGING ORDER ─────────────────────────────────── */}
               <div className="tg-section">
                 <p className="tg-section-cap">USER TAGGING ORDER</p>
-                <p className="tg-section-desc">Tag users below. The order determines their access scope.</p>
+                <p className="tg-section-desc">
+                  The 1st tagged user gets full access to all steps.
+                  Tag more users to restrict their access to specific steps.
+                </p>
 
                 {taggedUsers.length > 0 && (
                   <div className="tg-user-list">
                     {taggedUsers.map((tu) => {
-                      const cfg   = tagCfg(tu.tagOrder);
-                      const uName = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                      const cfg       = tagCfg(tu.tagOrder);
+                      const uName     = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                      const stepCount = Object.values(stepAssign).filter((s) => s.userId === tu.userId).length;
                       return (
                         <div key={tu.rowId} className="tg-user-row">
                           <span className="tg-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
@@ -446,6 +584,10 @@ export default function Tagging({
                           </span>
                           <span className="tg-user-name">{uName}</span>
                           <span className="tg-user-role">{cfg.label}</span>
+                          {tu.tagOrder === 1
+                            ? <span className="tg-step-count-pill tg-step-count-pill--full">All {steps.length} steps</span>
+                            : <span className="tg-step-count-pill">{stepCount} step{stepCount !== 1 ? "s" : ""} assigned</span>
+                          }
                           <button
                             className="tg-remove-btn"
                             onClick={() => handleRemoveUser(tu.rowId, tu.userId, tu.tagOrder)}
@@ -486,12 +628,22 @@ export default function Tagging({
                 )}
               </div>
 
+              {/* ── STEP ASSIGNMENTS ───────────────────────────────────── */}
               <div className="tg-section">
                 <p className="tg-section-cap">STEP ASSIGNMENTS</p>
                 <p className="tg-section-desc">
-                  Assign steps to the 2nd-tagged user. User 3 automatically receives all unassigned steps.
-                  {!user2 && <span className="tg-notice-inline"> — add a 2nd user above first</span>}
+                  {stepsEnabled
+                    ? "Select a user in each step's dropdown, then click Assign."
+                    : taggedUsers.length === 0
+                      ? "Tag at least one user above to begin."
+                      : "Add a 2nd user above — the 1st user already has full access to all steps."}
                 </p>
+
+                {!stepsEnabled && taggedUsers.length > 0 && (
+                  <div className="tg-notice tg-notice--hint">
+                    💡 Tag a 2nd user above to start assigning specific steps to them.
+                  </div>
+                )}
 
                 {stepsLoading ? (
                   <p className="tg-loading">Loading steps…</p>
@@ -501,10 +653,24 @@ export default function Tagging({
                       const assigned  = stepAssign[step.key];
                       const isSaving  = saving[step.key] ?? false;
                       const draftVal  = drafts[step.key] ?? assigned?.userId ?? "";
-                      const isUser2   = !!assigned;
+                      const assignedTu  = assigned
+                        ? taggedUsers.find((u) => u.userId === assigned.userId)
+                        : null;
+                      const assignedCfg = assignedTu ? tagCfg(assignedTu.tagOrder) : null;
+                      const canAssign = stepsEnabled
+                        && !isSaving
+                        && !!draftVal
+                        && draftVal !== (assigned?.userId ?? "");
 
                       return (
-                        <div key={step.key} className={`tg-step-card ${isUser2 ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}>
+                        <div
+                          key={step.key}
+                          className={`tg-step-card ${assigned ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}
+                          style={assigned && assignedCfg ? {
+                            borderColor: assignedCfg.color + "44",
+                            background:  `linear-gradient(160deg, #fff 55%, ${assignedCfg.bg} 100%)`,
+                          } : {}}
+                        >
                           <div className="tg-step-head">
                             <span className="tg-step-name">{step.label}</span>
                             <span className="tg-step-num">Step {idx + 1}</span>
@@ -512,7 +678,7 @@ export default function Tagging({
 
                           <div className="tg-step-badge-wrap">
                             {assigned ? (
-                              <span className="tg-step-badge tg-step-badge--user2">
+                              <span className="tg-step-badge" style={{ background: assignedCfg?.bg, color: assignedCfg?.color }}>
                                 {assigned.userName}
                               </span>
                             ) : (
@@ -523,29 +689,39 @@ export default function Tagging({
                           <select
                             className="tg-step-dropdown"
                             value={draftVal}
-                            disabled={isSaving || !user2}
-                            onChange={(e) => setDrafts((p) => ({ ...p, [step.key]: e.target.value }))}
+                            disabled={isSaving || !stepsEnabled}
+                            onChange={(e) =>
+                              setDrafts((p) => ({ ...p, [step.key]: e.target.value }))
+                            }
                           >
-                            <option value="">Unassigned</option>
-                            {user2 && (() => {
-                              const u2 = users.find((u) => u.id === user2.userId);
-                              return u2 ? <option key={u2.id} value={u2.id}>{u2.label}</option> : null;
-                            })()}
+                            <option value="">— Select user —</option>
+                            {assignableUsers.map((tu) => {
+                              const uLabel = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                              return (
+                                <option key={tu.userId} value={tu.userId}>
+                                  #{tu.tagOrder} {uLabel}
+                                </option>
+                              );
+                            })}
                           </select>
 
                           <div className="tg-step-owner">
-                            {isUser2
-                              ? <span className="tg-chip tg-chip--blue">2nd user</span>
-                              : <span className="tg-chip tg-chip--amber">3rd user (remaining)</span>}
+                            {assignedTu ? (
+                              <span className="tg-chip" style={{ background: assignedCfg?.bg, color: assignedCfg?.color }}>
+                                #{assignedTu.tagOrder} — {assignedTu.tagOrder === 2 ? "assigned" : "remaining"}
+                              </span>
+                            ) : (
+                              <span className="tg-chip tg-chip--amber">Unassigned (remaining)</span>
+                            )}
                           </div>
 
                           <div className="tg-step-actions">
                             <button
                               className="tg-btn tg-btn--assign"
-                              disabled={!drafts[step.key] || isSaving || !user2}
-                              onClick={() => handleAssignStep(step)}
+                              disabled={!canAssign}
+                              onClick={() => handleAssignStep(step, draftVal)}
                             >
-                              {isSaving ? "…" : "Assign"}
+                              {isSaving ? "Saving…" : "Assign"}
                             </button>
                             <button
                               className="tg-btn tg-btn--clear"
@@ -562,26 +738,46 @@ export default function Tagging({
                 )}
               </div>
 
+              {/* ── ACCESS SUMMARY ─────────────────────────────────────── */}
               {taggedUsers.length > 0 && !stepsLoading && (
                 <div className="tg-section">
                   <p className="tg-section-cap">ACCESS SUMMARY</p>
+                  <p className="tg-section-desc">Overview of what each tagged user can access.</p>
                   <div className="tg-summary">
                     {taggedUsers.map((tu) => {
-                      const cfg    = tagCfg(tu.tagOrder);
-                      const uName  = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
-                      const steps_ = accessByUser[tu.userId] ?? [];
+                      const cfg     = tagCfg(tu.tagOrder);
+                      const uName   = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                      const mySteps = accessByUser[tu.userId] ?? [];
                       return (
-                        <div key={tu.rowId} className="tg-summary-row" style={{ "--row-accent": cfg.color, "--row-bg": cfg.bg }}>
+                        <div
+                          key={tu.rowId}
+                          className="tg-summary-row"
+                          style={{ "--row-accent": cfg.color, "--row-bg": cfg.bg }}
+                        >
                           <div className="tg-summary-meta">
-                            <strong className="tg-summary-name">{uName}</strong>
+                            <div style={{ display: "flex", alignItems: "center", gap: ".45rem" }}>
+                              <span
+                                className="tg-order-badge"
+                                style={{ color: cfg.color, background: cfg.bg, fontSize: ".65rem" }}
+                              >
+                                #{tu.tagOrder}
+                              </span>
+                              <strong className="tg-summary-name">{uName}</strong>
+                            </div>
                             <span className="tg-summary-role" style={{ color: cfg.color }}>
                               {cfg.label}
                             </span>
                           </div>
                           <div className="tg-summary-chips">
-                            {steps_.length > 0
-                              ? steps_.map((l) => (
-                                  <span key={l} className="tg-chip tg-chip--step">{l}</span>
+                            {mySteps.length > 0
+                              ? mySteps.map((l) => (
+                                  <span
+                                    key={l}
+                                    className="tg-chip"
+                                    style={{ background: cfg.bg, color: cfg.color, opacity: .85 }}
+                                  >
+                                    {l}
+                                  </span>
                                 ))
                               : <span className="tg-chip tg-chip--empty">No steps assigned yet</span>}
                           </div>
@@ -592,6 +788,12 @@ export default function Tagging({
                 </div>
               )}
             </>
+          )}
+
+          {!selectedRecord && initComplete && trackingRows.length > 0 && (
+            <div className="tg-notice" style={{ color: "#8a4f0b", background: "#faebd5" }}>
+              ⚠️ Could not match a tracking record. Try refreshing the page.
+            </div>
           )}
         </div>
       </main>
