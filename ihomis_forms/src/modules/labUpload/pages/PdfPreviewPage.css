@@ -1,0 +1,41 @@
+.pdf-preview-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.pdf-preview-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafb;
+}
+
+.pdf-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #365961;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .pdf-preview-page {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .pdf-preview-body {
+  background: #0f0f0f;
+}
+
+[data-theme="dark"] .pdf-preview-empty {
+  color: #b0c4ce;
+}

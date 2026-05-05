@@ -45,31 +45,6 @@ PatientAvatar.propTypes = {
 
 function PatientCard({ patient, isSelected, onSelect }) {
   const { displayName, id, description } = patient;
-  const contextParams = patient.contextParams || {};
-
-  let idType = "ID";
-  if ((patient.idSource || "").toLowerCase() === "enc") {
-    idType = "ENC";
-  } else if ((patient.idSource || "").toLowerCase() === "fhud") {
-    idType = "FHUD";
-  } else if ((patient.idSource || "").toLowerCase() === "user") {
-    idType = "USER";
-  } else if (contextParams.enccode && id === contextParams.enccode) {
-    idType = "ENC";
-  } else if (contextParams.fhud && id === contextParams.fhud) {
-    idType = "FHUD";
-  } else if (contextParams.user && id === contextParams.user) {
-    idType = "USER";
-  }
-
-  const idTypeClassName =
-    idType === "ENC"
-      ? "pk-id-source pk-id-source--enc"
-      : idType === "FHUD"
-        ? "pk-id-source pk-id-source--fhud"
-        : idType === "USER"
-          ? "pk-id-source pk-id-source--user"
-          : "pk-id-source";
 
   return (
     <button
@@ -97,12 +72,7 @@ function PatientCard({ patient, isSelected, onSelect }) {
             </span>
           )}
         </div>
-
-        <div className="pk-card-meta">
-          <code className="pk-card-id">{id}</code>
-          <span className={idTypeClassName}>{idType}</span>
-          {description && <span className="pk-card-desc">{description}</span>}
-        </div>
+        {description && <p className="pk-card-desc">{description}</p>}
       </div>
     </button>
   );
@@ -114,10 +84,12 @@ PatientCard.propTypes = {
     idSource: PropTypes.string,
     displayName: PropTypes.string.isRequired,
     description: PropTypes.string,
+    rawData: PropTypes.object,
     contextParams: PropTypes.shape({
       enc: PropTypes.string,
       enccode: PropTypes.string,
       fhud: PropTypes.string,
+      hpercode: PropTypes.string,
       docointkey: PropTypes.string,
       user: PropTypes.string,
     }),
@@ -209,11 +181,11 @@ function LabPatientPickerPanel({
   onConfirmSelection,
   onNextPage,
   onPreviousPage,
-  title,
-  subtitle,
-  confirmLabel,
-  onSecondaryAction,
-  secondaryActionLabel,
+  title = "Select Patient Before Upload",
+  subtitle = "Choose whose laboratory result you are uploading.",
+  confirmLabel = "Continue to Lab Upload",
+  onSecondaryAction = null,
+  secondaryActionLabel = "",
 }) {
   const hasSelection = Boolean(selectedPatientId);
 
@@ -435,10 +407,12 @@ LabPatientPickerPanel.propTypes = {
       idSource: PropTypes.string,
       displayName: PropTypes.string.isRequired,
       description: PropTypes.string,
+      rawData: PropTypes.object,
       contextParams: PropTypes.shape({
         enc: PropTypes.string,
         enccode: PropTypes.string,
         fhud: PropTypes.string,
+        hpercode: PropTypes.string,
         docointkey: PropTypes.string,
         user: PropTypes.string,
       }),
@@ -461,14 +435,6 @@ LabPatientPickerPanel.propTypes = {
   confirmLabel: PropTypes.string,
   onSecondaryAction: PropTypes.func,
   secondaryActionLabel: PropTypes.string,
-};
-
-LabPatientPickerPanel.defaultProps = {
-  title: "Select Patient Before Upload",
-  subtitle: "Choose whose laboratory result you are uploading.",
-  confirmLabel: "Continue to Lab Upload",
-  onSecondaryAction: null,
-  secondaryActionLabel: "",
 };
 
 export default LabPatientPickerPanel;

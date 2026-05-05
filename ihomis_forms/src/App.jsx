@@ -1,6 +1,8 @@
+import PropTypes from "prop-types";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
+import PdfPreviewPage from "./modules/labUpload/pages/PdfPreviewPage.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
 import SelectedPatientIndicator from "./modules/labUpload/components/SelectedPatientIndicator.jsx";
 import {
@@ -13,6 +15,7 @@ import Tagging from "./tracking/Tagging.jsx";
 import UserPicker from "./tracking/UserPicker.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
+import { PdfPreviewProvider, usePdfPreview } from "./lib/PdfPreviewContext.jsx";
 import { useUserSession } from "./tracking/hooks/useUserSession.js";
 import "./modules/labUpload/LabUploadModule.css";
 import "./App.css";
@@ -37,24 +40,37 @@ const modules = [
 
 // ── Page keys ─────────────────────────────────────────────────────────────────
 const LANDING_PAGE = {
-  USER_PICKER:        "user-picker",        // ← new: identity gate
-  PATIENT_SELECTION:  "patient-selection",
-  MODULE_NAVIGATOR:   "module-navigator",
-  TRACKING:           "tracking",
-  TAGGING:            "tagging",
+  USER_PICKER: "user-picker",
+  PATIENT_SELECTION: "patient-selection",
+  MODULE_NAVIGATOR: "module-navigator",
+  TRACKING: "tracking",
+  TAGGING: "tagging",
 };
 
-// ── Sub-pages (unchanged from your original) ─────────────────────────────────
-function PatientSelectionPage({ patientPicker, onConfirmSelection, onOpenTracking }) {
+// ── Sub-pages ─────────────────────────────────────────────────────────────────
+function PatientSelectionPage({
+  patientPicker,
+  onConfirmSelection,
+  onOpenTracking,
+}) {
   return (
     <div className="app-landing-page">
-      <div className="app-landing-ambient app-landing-ambient-a" aria-hidden="true" />
-      <div className="app-landing-ambient app-landing-ambient-b" aria-hidden="true" />
+      <div
+        className="app-landing-ambient app-landing-ambient-a"
+        aria-hidden="true"
+      />
+      <div
+        className="app-landing-ambient app-landing-ambient-b"
+        aria-hidden="true"
+      />
       <main className="app-landing-shell">
         <section className="app-landing-hero">
           <p className="app-landing-kicker">IHOMIS Forms</p>
           <h1>Select Patient</h1>
-          <p>Choose and confirm a patient first. After that, you will proceed to the Module Navigator page.</p>
+          <p>
+            Choose and confirm a patient first. After that, you will proceed to
+            the Module Navigator page.
+          </p>
         </section>
         <section className="app-patient-picker" aria-label="Patient picker">
           <LabPatientPickerPanel
@@ -83,18 +99,51 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onOpenTrackin
   );
 }
 
-function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule }) {
+PatientSelectionPage.propTypes = {
+  patientPicker: PropTypes.shape({
+    patients: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired,
+    errorMessage: PropTypes.string,
+    selectedPatientId: PropTypes.string,
+    searchTerm: PropTypes.string.isRequired,
+    pageIndex: PropTypes.number.isRequired,
+    hasNextPage: PropTypes.bool.isRequired,
+    hasPreviousPage: PropTypes.bool.isRequired,
+    setSearchTerm: PropTypes.func.isRequired,
+    selectPatient: PropTypes.func.isRequired,
+    goToNextPage: PropTypes.func.isRequired,
+    goToPreviousPage: PropTypes.func.isRequired,
+  }).isRequired,
+  onConfirmSelection: PropTypes.func.isRequired,
+  onOpenTracking: PropTypes.func.isRequired,
+};
+
+function ModuleNavigatorPage({
+  selectedPatient,
+  modulesList,
+  onChangePatient,
+  onOpenModule,
+}) {
   return (
     <div className="app-landing-page">
-      <div className="app-landing-ambient app-landing-ambient-a" aria-hidden="true" />
-      <div className="app-landing-ambient app-landing-ambient-b" aria-hidden="true" />
+      <div
+        className="app-landing-ambient app-landing-ambient-a"
+        aria-hidden="true"
+      />
+      <div
+        className="app-landing-ambient app-landing-ambient-b"
+        aria-hidden="true"
+      />
       <main className="app-landing-shell">
         <section className="app-landing-hero">
           <p className="app-landing-kicker">IHOMIS Forms</p>
           <h1>Module Navigator</h1>
           <p>Choose which module to open for the selected patient.</p>
         </section>
-        <section className="app-selected-patient-panel" aria-label="Selected patient">
+        <section
+          className="app-selected-patient-panel"
+          aria-label="Selected patient"
+        >
           <div className="app-selected-patient-card">
             <SelectedPatientIndicator
               selectedPatient={selectedPatient}
@@ -111,7 +160,11 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
                 <span>{moduleItem.status}</span>
               </div>
               <p>{moduleItem.description}</p>
-              <button type="button" className="app-open-module" onClick={() => onOpenModule(moduleItem.id)}>
+              <button
+                type="button"
+                className="app-open-module"
+                onClick={() => onOpenModule(moduleItem.id)}
+              >
                 Open Module
               </button>
             </article>
@@ -122,26 +175,48 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
   );
 }
 
+ModuleNavigatorPage.propTypes = {
+  selectedPatient: PropTypes.object,
+  modulesList: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      Component: PropTypes.elementType.isRequired,
+    }),
+  ).isRequired,
+  onChangePatient: PropTypes.func.isRequired,
+  onOpenModule: PropTypes.func.isRequired,
+};
+
 // ════════════════════════════════════════════════════════════════════════════
 function App() {
   // ── User session (identity, no login system) ──────────────────────────────
-  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
+  const { currentUserId, currentUserName, setUser, clearUser } =
+    useUserSession();
 
   // ── App routing ───────────────────────────────────────────────────────────
-  const [activeModuleId,  setActiveModuleId]  = useState(null);
-  const [landingPage,     setLandingPage]     = useState(LANDING_PAGE.USER_PICKER);
-  const [isDarkMode,      setIsDarkMode]      = useState(false);
+  const [activeModuleId, setActiveModuleId] = useState(null);
+  const [landingPage, setLandingPage] = useState(LANDING_PAGE.USER_PICKER);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // ── Access version: bump after any tag write to re-mount Tracking ─────────
   const [accessVersion, setAccessVersion] = useState(0);
-  const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
+  const handleAccessChanged = useCallback(
+    () => setAccessVersion((v) => v + 1),
+    [],
+  );
 
   // ── Patient picker ────────────────────────────────────────────────────────
-  const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
+  const initialContextParams = useMemo(
+    () => getContextParamsFromLocation(),
+    [],
+  );
   const patientPicker = useLabPatientPicker({
     patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
-    contextUrl:       LAB_UPLOAD_CONTEXT_URL,
-    token:            LAB_UPLOAD_API_TOKEN,
+    contextUrl: LAB_UPLOAD_CONTEXT_URL,
+    token: LAB_UPLOAD_API_TOKEN,
     initialContextParams,
   });
 
@@ -153,19 +228,22 @@ function App() {
   const trackingRows = useMemo(
     () =>
       patientPicker.patients.map((patient) => ({
-        id:             patient.id,
-        hospitalNo:     patient.contextParams?.enccode || patient.contextParams?.enc || patient.id,
-        admittedDate:   "2025-04-14 08:25:40",
+        id: patient.id,
+        hospitalNo:
+          patient.contextParams?.enccode ||
+          patient.contextParams?.enc ||
+          patient.id,
+        admittedDate: "2025-04-14 08:25:40",
         dischargedDate: "2025-04-15 10:48:54",
-        patientName:    patient.displayName,
-        phic:           "No PHIC",
-        recordsReceived:"No Remarks",
-        verify:         "Not yet Verified",
-        scan:           "Not yet Scanned",
-        send:           "Not yet Sent",
-        recordsFiled:   "Not yet Filed",
-        claimMap:       "Not yet Submitted to PhilHealth",
-        acpm:           "No cheque yet",
+        patientName: patient.displayName,
+        phic: "No PHIC",
+        recordsReceived: "No Remarks",
+        verify: "Not yet Verified",
+        scan: "Not yet Scanned",
+        send: "Not yet Sent",
+        recordsFiled: "Not yet Filed",
+        claimMap: "Not yet Submitted to PhilHealth",
+        acpm: "No cheque yet",
       })),
     [patientPicker.patients],
   );
@@ -230,7 +308,9 @@ function App() {
   function handleBackToLanding() {
     setActiveModuleId(null);
     setLandingPage(
-      hasConfirmedPatient ? LANDING_PAGE.MODULE_NAVIGATOR : LANDING_PAGE.PATIENT_SELECTION,
+      hasConfirmedPatient
+        ? LANDING_PAGE.MODULE_NAVIGATOR
+        : LANDING_PAGE.PATIENT_SELECTION,
     );
   }
 
@@ -240,7 +320,6 @@ function App() {
     setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
   }
 
-  // ── Switch user: clear session → return to UserPicker ────────────────────
   function handleSwitchUser() {
     clearUser();
     setLandingPage(LANDING_PAGE.USER_PICKER);
@@ -258,7 +337,6 @@ function App() {
       <UserPicker
         onSelect={(id, name) => {
           setUser(id, name);
-          // useEffect above will advance landingPage once currentUserId is set
         }}
       />
     );
@@ -268,9 +346,16 @@ function App() {
   if (activeModule) {
     const ActiveComponent = activeModule.Component;
     return (
-      <div className="app-module-host" data-theme={isDarkMode ? "dark" : undefined}>
+      <div
+        className="app-module-host"
+        data-theme={isDarkMode ? "dark" : undefined}
+      >
         <header className="app-module-header">
-          <button type="button" className="app-back-button" onClick={handleBackToLanding}>
+          <button
+            type="button"
+            className="app-back-button"
+            onClick={handleBackToLanding}
+          >
             Back to Landing
           </button>
           <strong>
@@ -313,7 +398,9 @@ function App() {
         key={accessVersion}
         selectedPatient={patientPicker.selectedPatient}
         trackingRows={trackingRows}
-        onBackToModuleNavigator={() => setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)}
+        onBackToModuleNavigator={() =>
+          setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)
+        }
         onChangePatient={handleChangeLandingPatient}
         onOpenTagging={handleOpenTaggingFromTracking}
         currentUserId={currentUserId}
@@ -345,4 +432,46 @@ function App() {
   );
 }
 
-export default App;
+function PdfPreviewPageWrapper({ onBackToModule }) {
+  const { file, url, token, closePreview } = usePdfPreview();
+
+  function handleBack() {
+    closePreview();
+    if (onBackToModule) onBackToModule();
+  }
+
+  return (
+    <PdfPreviewPage
+      previewFile={file}
+      previewUrl={url}
+      previewToken={token}
+      onBack={handleBack}
+    />
+  );
+}
+
+PdfPreviewPageWrapper.propTypes = {
+  onBackToModule: PropTypes.func.isRequired,
+};
+
+function AppContent() {
+  const { file, url } = usePdfPreview();
+
+  return (
+    <>
+      <App />
+
+      {(file || url) && <PdfPreviewPageWrapper />}
+    </>
+  );
+}
+
+function AppWithProvider() {
+  return (
+    <PdfPreviewProvider>
+      <AppContent />
+    </PdfPreviewProvider>
+  );
+}
+
+export default AppWithProvider;

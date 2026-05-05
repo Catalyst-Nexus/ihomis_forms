@@ -1,3 +1,7 @@
+import {
+  API_BASE_URL,
+  LAB_UPLOAD_PATIENT_SEARCH_URL,
+} from "../labUploadConfig.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 
 function parseResponsePayload(responseText) {
@@ -90,6 +94,43 @@ function buildRequestUrl(baseUrl, queryParams) {
   return url.toString();
 }
 
+function stripQueryAndHash(value) {
+  return String(value || "").split(/[?#]/)[0];
+}
+
+function resolveLatestEncounterBaseUrl({ apiBaseUrl, patientSearchUrl }) {
+  const normalizedSearchUrl = stripQueryAndHash(patientSearchUrl);
+
+  if (normalizedSearchUrl && !normalizedSearchUrl.includes("/api/db/henctr")) {
+    return normalizedSearchUrl;
+  }
+
+  if (apiBaseUrl) {
+    return `${apiBaseUrl.replace(/\/+$/, "")}/api/db/patients`;
+  }
+
+  return "";
+}
+
+function buildLatestEncounterUrl({ apiBaseUrl, patientSearchUrl, hpercode }) {
+  const trimmed = String(hpercode || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const baseUrl = resolveLatestEncounterBaseUrl({
+    apiBaseUrl,
+    patientSearchUrl,
+  });
+
+  if (!baseUrl) {
+    return "";
+  }
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  return `${normalizedBase}/${encodeURIComponent(trimmed)}/encounters/latest`;
+}
+
 function resolveUploadedPdfUrl(payload) {
   if (!payload || typeof payload !== "object") {
     return "";
@@ -141,16 +182,23 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   let id = "";
   let idSource = "";
 
-  if (identifiers.enccode) {
-    id = identifiers.enccode;
-    idSource = "enc";
-  } else if (source?.hpercode) {
+  if (source?.hpercode) {
     id = String(source.hpercode).trim();
+    idSource = "hpercode";
+  } else if (identifiers.docointkey) {
+    id = identifiers.docointkey;
+    idSource = "docointkey";
+  } else if (identifiers.enccode) {
+    id = identifiers.enccode;
     idSource = "enc";
   } else if (source?.id) {
     id = String(source.id).trim();
 
-    if (identifiers.enccode && id === identifiers.enccode) {
+    if (source?.hpercode && id === String(source.hpercode).trim()) {
+      idSource = "hpercode";
+    } else if (identifiers.docointkey && id === identifiers.docointkey) {
+      idSource = "docointkey";
+    } else if (identifiers.enccode && id === identifiers.enccode) {
       idSource = "enc";
     } else if (identifiers.fhud && id === identifiers.fhud) {
       idSource = "fhud";
@@ -189,13 +237,14 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   const displayName =
     fullName || source?.hpercode || identifiers.enccode || "Unlabeled Patient";
 
-  const facilityLabel =
-    source?.facility_name ||
-    (identifiers.fhud ? `Facility ${identifiers.fhud}` : "");
+  const facilityLabel = source?.facility_name
+    ? `Facility ${source.facility_name}`
+    : identifiers.fhud
+      ? `Facility ${identifiers.fhud}`
+      : "";
 
   const description = [
     facilityLabel,
-    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : "",
     requestContext.panelName,
     requestContext.requestedAt,
   ]
@@ -209,6 +258,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     description,
     rawData: source,
     contextParams: {
+      hpercode: source?.hpercode ? String(source.hpercode).trim() : "",
       enccode: identifiers.enccode || "",
       enc: identifiers.enccode || "",
       fhud: identifiers.fhud || identifiers.facility_code || "",
@@ -342,27 +392,27 @@ const patientLastNameKeys = parseKeyList("VITE_LAB_CONTEXT_PATIENT_LAST_KEYS", [
 // ]);
 
 const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
-  "hpercode",
-  "id",
   "enccode",
   "enc",
   "data.0.enccode",
   "data.0.enc",
   "data.enccode",
   "data.enc",
-  "data.hpercode",
-  "data.id",
   "request.enccode",
   "request.enc",
   "context.enccode",
   "context.enc",
   "metadata.enccode",
   "metadata.enc",
+  "hpercode",
+  "id",
+  "data.hpercode",
+  "data.id",
 ]);
 
 const facilityRefKeys = parseKeyList("VITE_LAB_CONTEXT_FHUD_KEYS", [
-  "facility_code",
   "fhud",
+  "facility_code",
   "data.0.fhud",
   "data.fhud",
   "data.facility_code",
@@ -417,33 +467,37 @@ export function resolveRequestContext(payload) {
     };
   }
 
+  const hasDataRows = Array.isArray(payload?.data) && payload.data.length > 0;
+  const contextSource = hasDataRows ? payload.data[0] : payload;
+
   const identifiers = {
-    enccode: resolveFirstString(payload, encounterCodeKeys),
-    fhud: resolveFirstString(payload, facilityRefKeys),
-    docointkey: resolveFirstString(payload, docointkeyKeys),
+    enccode: resolveFirstString(contextSource, encounterCodeKeys),
+    fhud: resolveFirstString(contextSource, facilityRefKeys),
+    docointkey: resolveFirstString(contextSource, docointkeyKeys),
   };
 
-  const user = resolveFirstString(payload, userKeys);
+  const user = resolveFirstString(contextSource, userKeys);
 
-  const panelName = resolveFirstString(payload, panelNameKeys);
+  const panelName = resolveFirstString(contextSource, panelNameKeys);
 
-  const requestedAt = resolveFirstString(payload, requestedAtKeys);
+  const requestedAt = resolveFirstString(contextSource, requestedAtKeys);
 
-  let firstName = resolveFirstString(payload, patientFirstNameKeys);
-  let middleName = resolveFirstString(payload, patientMiddleNameKeys);
-  let lastName = resolveFirstString(payload, patientLastNameKeys);
+  let firstName = resolveFirstString(contextSource, patientFirstNameKeys);
+  let middleName = resolveFirstString(contextSource, patientMiddleNameKeys);
+  let lastName = resolveFirstString(contextSource, patientLastNameKeys);
 
-  const hasAnyContext = Boolean(
-    panelName ||
-    requestedAt ||
-    firstName ||
-    middleName ||
-    lastName ||
-    user ||
-    identifiers.enccode ||
-    identifiers.fhud ||
-    identifiers.docointkey,
-  );
+  const hasAnyContext =
+    Boolean(
+      panelName ||
+      requestedAt ||
+      firstName ||
+      middleName ||
+      lastName ||
+      user ||
+      identifiers.enccode ||
+      identifiers.fhud ||
+      identifiers.docointkey,
+    ) || hasDataRows;
 
   return {
     panelName,
@@ -456,6 +510,64 @@ export function resolveRequestContext(payload) {
       lastName,
     },
     hasAnyContext,
+  };
+}
+
+export async function fetchLatestEncounterForPatient({
+  hpercode,
+  token,
+  apiBaseUrl = API_BASE_URL,
+  patientSearchUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
+}) {
+  const trimmed = String(hpercode || "").trim();
+
+  if (!trimmed) {
+    return {
+      payload: null,
+      enccode: "",
+    };
+  }
+
+  const endpoint = buildLatestEncounterUrl({
+    apiBaseUrl,
+    patientSearchUrl,
+    hpercode: trimmed,
+  });
+
+  if (!endpoint) {
+    throw new Error(
+      "Latest encounter lookup is not configured. Set VITE_API_URL or VITE_LAB_PATIENT_SEARCH_URL.",
+    );
+  }
+
+  const requestUrl = buildRequestUrl(endpoint);
+  const headers = {};
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(requestUrl, {
+    method: "GET",
+    headers,
+  });
+
+  const responseText = await response.text();
+  const responsePayload = parseResponsePayload(responseText);
+
+  if (!response.ok) {
+    throw new Error(buildErrorMessage(response, responsePayload));
+  }
+
+  const enccode = resolveFirstString(responsePayload, [
+    "data.enccode",
+    "data.0.enccode",
+    "enccode",
+  ]);
+
+  return {
+    payload: responsePayload,
+    enccode,
   };
 }
 
@@ -523,12 +635,21 @@ export async function fetchLabPatientCandidates({
 
     if (!candidate.id || candidate.id.startsWith("candidate-")) {
       candidate.id =
-        candidate.requestContext?.identifiers?.enccode ||
         row.hpercode ||
+        candidate.requestContext?.identifiers?.docointkey ||
+        candidate.requestContext?.identifiers?.enccode ||
         row.id ||
         `candidate-${index + 1}`;
 
-      if (candidate.requestContext?.identifiers?.enccode === candidate.id) {
+      if (row.hpercode && candidate.id === String(row.hpercode).trim()) {
+        candidate.idSource = "hpercode";
+      } else if (
+        candidate.requestContext?.identifiers?.docointkey === candidate.id
+      ) {
+        candidate.idSource = "docointkey";
+      } else if (
+        candidate.requestContext?.identifiers?.enccode === candidate.id
+      ) {
         candidate.idSource = "enc";
       } else if (candidate.requestContext?.identifiers?.fhud === candidate.id) {
         candidate.idSource = "fhud";
@@ -666,6 +787,7 @@ export async function uploadLabResultBatch({
         resultFile: currentFile,
         remarks,
         contextParams,
+        hpercode: source?.hpercode ? String(source.hpercode).trim() : "",
       });
 
       successes.push({

@@ -23,11 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+*.sql
 
 # Local environment and history
 .history/
 .env
 .env.example
+
 
 # Local Copilot notes
 COPILOT_AGENT_NOTES.md

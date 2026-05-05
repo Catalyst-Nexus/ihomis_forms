@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 import { formatFileSize } from "../utils/labUploadUtils.js";
@@ -15,43 +14,17 @@ function LabReviewPanel({
   activePreviewUrl,
   token,
   onOpenFullscreen,
-  onCloseFullscreen,
   onClearPdfSelection,
   onShowLocalPreview,
   onShowUploadedPreview,
   onPreviewUploadedFile,
-  uploadSummary,
-  isReviewFullscreen,
 }) {
-  const [isFullscreenMounted, setIsFullscreenMounted] = useState(false);
-
-  useEffect(() => {
-    if (isReviewFullscreen) {
-      setIsFullscreenMounted(true);
-      return undefined;
-    }
-
-    if (!isFullscreenMounted) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setIsFullscreenMounted(false);
-    }, 230);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [isReviewFullscreen, isFullscreenMounted]);
-
-  const fullscreenStateClass = isReviewFullscreen ? "is-open" : "is-closing";
-
   return (
     <>
       <section className="lab-panel lab-review">
         <h2>PDF Review</h2>
 
-        <div className="lab-review-actions">
+        <div className="lab-review-toolbar">
           <button
             type="button"
             className="lab-review-action"
@@ -68,30 +41,30 @@ function LabReviewPanel({
           >
             Clear All PDFs
           </button>
-        </div>
 
-        {hasLocalPreview && hasUploadedPreview ? (
-          <div
-            className="lab-review-toggle"
-            role="tablist"
-            aria-label="Review mode"
-          >
-            <button
-              type="button"
-              className={reviewSource === "local" ? "active" : ""}
-              onClick={onShowLocalPreview}
-            >
-              Local Preview
-            </button>
-            <button
-              type="button"
-              className={reviewSource === "uploaded" ? "active" : ""}
-              onClick={onShowUploadedPreview}
-            >
-              Uploaded PDF
-            </button>
-          </div>
-        ) : null}
+          {hasLocalPreview && hasUploadedPreview ? (
+            <>
+              <button
+                type="button"
+                className={`lab-review-action ${
+                  reviewSource === "local" ? "is-active" : ""
+                }`}
+                onClick={onShowLocalPreview}
+              >
+                Local Preview
+              </button>
+              <button
+                type="button"
+                className={`lab-review-action ${
+                  reviewSource === "uploaded" ? "is-active" : ""
+                }`}
+                onClick={onShowUploadedPreview}
+              >
+                Uploaded PDF
+              </button>
+            </>
+          ) : null}
+        </div>
 
         {hasActivePreview ? (
           <div className="lab-pdf-wrap">
@@ -102,10 +75,7 @@ function LabReviewPanel({
             />
           </div>
         ) : (
-          <div className="lab-empty-preview">
-            Select a PDF file to preview it here instantly on desktop, tablet,
-            and mobile without downloading.
-          </div>
+          <div className="lab-empty-preview">Select a PDF file to preview.</div>
         )}
 
         {uploadedFiles.length ? (
@@ -150,41 +120,7 @@ function LabReviewPanel({
             </ul>
           </section>
         ) : null}
-
-        <ul className="lab-summary-list">
-          {uploadSummary.map((item) => (
-            <li key={item.label}>
-              <span>{item.label}</span>
-              <strong>{item.value}</strong>
-            </li>
-          ))}
-        </ul>
       </section>
-
-      {isFullscreenMounted && hasActivePreview ? (
-        <div
-          className={`lab-fullscreen-overlay ${fullscreenStateClass}`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Full screen PDF preview"
-          onClick={onCloseFullscreen}
-        >
-          <div
-            className="lab-fullscreen-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="lab-fullscreen-body">
-              <PdfCanvasPreview
-                file={activePreviewFile}
-                url={activePreviewUrl}
-                token={token}
-                fullscreen
-                onCloseFullscreen={onCloseFullscreen}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }
@@ -201,13 +137,10 @@ LabReviewPanel.propTypes = {
   activePreviewUrl: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
   onOpenFullscreen: PropTypes.func.isRequired,
-  onCloseFullscreen: PropTypes.func.isRequired,
   onClearPdfSelection: PropTypes.func.isRequired,
   onShowLocalPreview: PropTypes.func.isRequired,
   onShowUploadedPreview: PropTypes.func.isRequired,
   onPreviewUploadedFile: PropTypes.func.isRequired,
-  uploadSummary: PropTypes.array.isRequired,
-  isReviewFullscreen: PropTypes.bool.isRequired,
 };
 
 export default LabReviewPanel;

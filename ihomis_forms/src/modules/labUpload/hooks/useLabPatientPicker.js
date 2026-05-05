@@ -3,7 +3,6 @@ import { fetchLabPatientCandidates } from "../api/labUploadApi.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 
 const PAGE_SIZE = 10;
-const API_LIMIT = PAGE_SIZE + 5; // request more to compensate for dedup removal
 
 function resolveUserFilter(contextParams) {
   const candidates = [
@@ -87,72 +86,35 @@ function useLabPatientPicker({
       setErrorMessage("");
 
       try {
-        // Keep fetching with increasing offsets until we have enough unique patients
-        const allCandidatesMap = new Map();
-        let currentOffset = pageIndex * PAGE_SIZE;
-        const maxOffsets = 20; // safety cap to prevent infinite loops
-        let lastResponse = null;
+        const response = await fetchLabPatientCandidates({
+          patientSearchUrl,
+          contextUrl,
+          token,
+          contextParams: normalizedInitialContextParams,
+          search: debouncedSearchTerm,
+          user: explicitUserFilter,
+          limit: PAGE_SIZE,
+          offset: pageIndex * PAGE_SIZE,
+        });
 
-        for (let attempt = 0; attempt < maxOffsets; attempt++) {
-          const response = await fetchLabPatientCandidates({
-            patientSearchUrl,
-            contextUrl,
-            token,
-            contextParams: normalizedInitialContextParams,
-            search: debouncedSearchTerm,
-            user: explicitUserFilter,
-            limit: API_LIMIT,
-            offset: currentOffset,
-          });
-
-          if (!isActive) {
-            return;
-          }
-
-          lastResponse = response;
-          const rows = response.candidates || [];
-          let addedCount = 0;
-          rows.forEach((candidate) => {
-            if (!allCandidatesMap.has(candidate.id)) {
-              allCandidatesMap.set(candidate.id, candidate);
-              addedCount++;
-            }
-          });
-
-          // Stop if we reached PAGE_SIZE OR the response had no new items
-          if (allCandidatesMap.size >= PAGE_SIZE) {
-            break;
-          }
-
-          // No more data coming
-          if (addedCount === 0 || rows.length < API_LIMIT) {
-            break;
-          }
-
-          currentOffset += API_LIMIT;
+        if (!isActive) {
+          return;
         }
 
-        // Sort alphabetically by displayName
-        const candidates = Array.from(allCandidatesMap.values()).sort((a, b) =>
-          (a.displayName || "").localeCompare(b.displayName || ""),
-        );
-
+        const candidates = response.candidates || [];
         setPatients(candidates);
 
-        const responsePayload = lastResponse?.payload;
+        const responsePayload = response.payload;
         const responsePagination = responsePayload?.pagination;
-        const rawResponseCount = Number.isFinite(Number(responsePayload?.count))
-          ? Number(responsePayload.count)
-          : candidates.length;
-
         let nextPageAvailable = false;
+
         if (Number.isFinite(Number(responsePagination?.total))) {
           const total = Number(responsePagination.total);
           const serverOffset =
             Number(responsePagination.offset) || pageIndex * PAGE_SIZE;
-          nextPageAvailable = serverOffset + rawResponseCount < total;
+          nextPageAvailable = serverOffset + candidates.length < total;
         } else {
-          nextPageAvailable = candidates.length >= PAGE_SIZE;
+          nextPageAvailable = candidates.length === PAGE_SIZE;
         }
 
         setHasNextPage(nextPageAvailable);
@@ -238,10 +200,16 @@ function useLabPatientPicker({
       return normalizedInitialContextParams;
     }
 
+    const resolvedHpercode =
+      selectedPatient.rawData?.hpercode ||
+      selectedPatient.contextParams?.hpercode ||
+      (selectedPatient.idSource === "hpercode" ? selectedPatient.id : "") ||
+      "";
+
     return normalizeLabContextParams({
       ...normalizedInitialContextParams,
       ...selectedPatient.contextParams,
-      hpercode: selectedPatient.id,
+      hpercode: resolvedHpercode,
       user: explicitUserFilter || normalizedInitialContextParams.user || "",
     });
   }, [

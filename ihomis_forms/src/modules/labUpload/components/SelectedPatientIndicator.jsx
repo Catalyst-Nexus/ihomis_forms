@@ -14,9 +14,9 @@ function getPatientInitials(displayName) {
 }
 
 function SelectedPatientIndicator({
-  selectedPatient,
-  onChangeSelection,
-  changeLabel,
+  selectedPatient = null,
+  onChangeSelection = undefined,
+  changeLabel = "Change",
 }) {
   if (!selectedPatient) {
     return (
@@ -78,12 +78,6 @@ SelectedPatientIndicator.propTypes = {
   }),
   onChangeSelection: PropTypes.func,
   changeLabel: PropTypes.string,
-};
-
-SelectedPatientIndicator.defaultProps = {
-  selectedPatient: null,
-  onChangeSelection: undefined,
-  changeLabel: "Change",
 };
 
 export default SelectedPatientIndicator;
