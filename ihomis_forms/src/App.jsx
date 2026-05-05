@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
@@ -43,6 +44,38 @@ const LANDING_PAGE = {
   TRACKING:           "tracking",
   TAGGING:            "tagging",
 };
+
+function usePatientTrackingData() {
+  const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
+  const patientPicker = useLabPatientPicker({
+    patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
+    contextUrl:       LAB_UPLOAD_CONTEXT_URL,
+    token:            LAB_UPLOAD_API_TOKEN,
+    initialContextParams,
+  });
+
+  const trackingRows = useMemo(
+    () =>
+      patientPicker.patients.map((patient) => ({
+        id:             patient.id,
+        hospitalNo:     patient.contextParams?.enccode || patient.contextParams?.enc || patient.id,
+        admittedDate:   "2025-04-14 08:25:40",
+        dischargedDate: "2025-04-15 10:48:54",
+        patientName:    patient.displayName,
+        phic:           "No PHIC",
+        recordsReceived:"No Remarks",
+        verify:         "Not yet Verified",
+        scan:           "Not yet Scanned",
+        send:           "Not yet Sent",
+        recordsFiled:   "Not yet Filed",
+        claimMap:       "Not yet Submitted to PhilHealth",
+        acpm:           "No cheque yet",
+      })),
+    [patientPicker.patients],
+  );
+
+  return { patientPicker, trackingRows };
+}
 
 // ── Sub-pages (unchanged from your original) ─────────────────────────────────
 function PatientSelectionPage({ patientPicker, onConfirmSelection, onOpenTracking }) {
@@ -122,8 +155,68 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
   );
 }
 
+function TaggingRoute() {
+  const navigate = useNavigate();
+  const { currentUserId, currentUserName, setUser } = useUserSession();
+  const { patientPicker, trackingRows } = usePatientTrackingData();
+
+  if (!currentUserId) {
+    return (
+      <UserPicker
+        onSelect={(id, name) => {
+          setUser(id, name);
+          navigate("/tagging");
+        }}
+      />
+    );
+  }
+
+  return (
+    <Tagging
+      selectedPatient={patientPicker.selectedPatient}
+      trackingRows={trackingRows}
+      onBackToTracking={() => navigate("/tracking")}
+      onChangePatient={() => patientPicker.reopenSelection()}
+      currentUserId={currentUserId}
+      currentUserName={currentUserName}
+    />
+  );
+}
+
+function TrackingRoute() {
+  const navigate = useNavigate();
+  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
+
+  if (!currentUserId) {
+    return (
+      <UserPicker
+        onSelect={(id, name) => {
+          setUser(id, name);
+          navigate("/tracking");
+        }}
+      />
+    );
+  }
+
+  return (
+    <Tracking
+      selectedPatient={null}
+      onBackToModuleNavigator={() => navigate("/")}
+      onChangePatient={() => navigate("/")}
+      onOpenTagging={() => navigate("/tagging")}
+      currentUserId={currentUserId}
+      currentUserName={currentUserName}
+      onSwitchUser={() => {
+        clearUser();
+        navigate("/tracking");
+      }}
+    />
+  );
+}
+
 // ════════════════════════════════════════════════════════════════════════════
-function App() {
+function AppShell() {
+  const navigate = useNavigate();
   // ── User session (identity, no login system) ──────────────────────────────
   const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
 
@@ -137,39 +230,13 @@ function App() {
   const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
 
   // ── Patient picker ────────────────────────────────────────────────────────
-  const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
-  const patientPicker = useLabPatientPicker({
-    patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
-    contextUrl:       LAB_UPLOAD_CONTEXT_URL,
-    token:            LAB_UPLOAD_API_TOKEN,
-    initialContextParams,
-  });
+  const { patientPicker, trackingRows } = usePatientTrackingData();
 
   const hasConfirmedPatient = Boolean(
     patientPicker.selectionConfirmed && patientPicker.selectedPatient,
   );
 
   // ── trackingRows derived from patientPicker ───────────────────────────────
-  const trackingRows = useMemo(
-    () =>
-      patientPicker.patients.map((patient) => ({
-        id:             patient.id,
-        hospitalNo:     patient.contextParams?.enccode || patient.contextParams?.enc || patient.id,
-        admittedDate:   "2025-04-14 08:25:40",
-        dischargedDate: "2025-04-15 10:48:54",
-        patientName:    patient.displayName,
-        phic:           "No PHIC",
-        recordsReceived:"No Remarks",
-        verify:         "Not yet Verified",
-        scan:           "Not yet Scanned",
-        send:           "Not yet Sent",
-        recordsFiled:   "Not yet Filed",
-        claimMap:       "Not yet Submitted to PhilHealth",
-        acpm:           "No cheque yet",
-      })),
-    [patientPicker.patients],
-  );
-
   // ── Once user session is set, move to patient selection if not yet there ──
   useEffect(() => {
     if (currentUserId && landingPage === LANDING_PAGE.USER_PICKER) {
@@ -258,7 +325,7 @@ function App() {
       <UserPicker
         onSelect={(id, name) => {
           setUser(id, name);
-          // useEffect above will advance landingPage once currentUserId is set
+          navigate("/tracking");
         }}
       />
     );
@@ -342,6 +409,17 @@ function App() {
       onConfirmSelection={handleConfirmPatientSelection}
       onOpenTracking={handleOpenTrackingFromSelection}
     />
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/tagging" element={<TaggingRoute />} />
+      <Route path="/tracking" element={<TrackingRoute />} />
+      <Route path="/" element={<AppShell />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
