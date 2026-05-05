@@ -40,6 +40,7 @@
 
 .tracking-filter-row select,
 .tracking-filter-row input {
+  font-family: inherit;
   border: 1px solid rgba(16,54,63,.16);
   border-radius: 10px;
   padding: .38rem .5rem;
@@ -154,6 +155,7 @@
 }
 
 .tracking-pagination-btn {
+  font-family: inherit;
   border: none;
   background: linear-gradient(120deg,#1b7f79,#1f9d95);
   color: #fff;
@@ -195,6 +197,7 @@
 }
 
 .tracking-switch-user-link {
+  font-family: inherit;
   background: none;
   border: none;
   color: #1f9d95;
@@ -243,4 +246,11 @@
   color: #365961;
   margin-top: 1px;
   line-height: 1.2;
+}
+
+.tracking-filter-row button,
+.tracking-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
 }

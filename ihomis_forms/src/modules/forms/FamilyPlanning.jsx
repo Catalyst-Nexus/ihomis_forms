@@ -13,7 +13,7 @@ export default function FamilyPlanning({ patientName, patientData }) {
 		const pad = (n) => String(n).padStart(2, "0");
 		const h = now.getHours();
 		const m = now.getMinutes();
-		const ampm = h >= 12 ? "am" : "am";
+		const ampm = h >= 12 ? "pm" : "am";
 		const hh = String(h % 12 || 12).padStart(2, "0");
 		const dateStr = now.toLocaleDateString("en-US", {
 			year: "numeric", month: "long", day: "numeric",

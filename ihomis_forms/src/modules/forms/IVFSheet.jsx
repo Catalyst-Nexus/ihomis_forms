@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import "./IVFSheet.css";
 
 export default function IVFSheet({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name       = patientName            || "BAYSA , BABY BOY";
+  const hospitalNo = patientData?.hospitalNo || "000000000021041";
+  const sex        = patientData?.sex       || "M";
+  const age        = patientData?.age       || "0";
+  const caseNo     = patientData?.caseNo    || "ADM-2026-010651";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();
@@ -61,7 +65,7 @@ export default function IVFSheet({ patientName, patientData }) {
       <div className="ivf-patient-info">
         <div className="ivf-info-row">
           <span className="ivf-info-label">Hospital No.:</span>
-          <span className="ivf-info-value">000000000021041</span>
+          <span className="ivf-info-value">{hospitalNo}</span>
         </div>
         <div className="ivf-info-row">
           <span className="ivf-info-label">Patient Name:</span>
@@ -69,15 +73,15 @@ export default function IVFSheet({ patientName, patientData }) {
         </div>
         <div className="ivf-info-row">
           <span className="ivf-info-label">Sex:</span>
-          <span className="ivf-info-value">M</span>
+          <span className="ivf-info-value">{sex}</span>
         </div>
         <div className="ivf-info-row">
           <span className="ivf-info-label">Age:</span>
-          <span className="ivf-info-value">0</span>
+          <span className="ivf-info-value">{age}</span>
         </div>
         <div className="ivf-info-row">
           <span className="ivf-info-label">Case Number:</span>
-          <span className="ivf-info-value">&nbsp;&nbsp;ADM-2026-010651</span>
+          <span className="ivf-info-value">&nbsp;&nbsp;{caseNo}</span>
         </div>
       </div>
 

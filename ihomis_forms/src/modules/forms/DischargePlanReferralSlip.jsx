@@ -2,7 +2,12 @@ import { useMemo } from "react";
 import "./DischargePlanReferralSlip.css";
 
 export default function DischargePlanReferralSlip({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name        = patientName             || "BAYSA , BABY BOY";
+  const hospitalNo  = patientData?.hospitalNo || "000000000021041";
+  const department  = patientData?.department || "NEWBORN";
+  const sex         = patientData?.sex        || "M";
+  const age         = patientData?.age        || "1 hour(s)";
+  const address     = patientData?.address    || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
 
   const { admissionDate, generatedOn } = useMemo(() => {
     const now = new Date();
@@ -44,10 +49,10 @@ export default function DischargePlanReferralSlip({ patientName, patientData }) 
       <div className="dp-details-grid">
         <div className="dp-detail-row">
           <div className="dp-detail-cell">
-            <strong>Hospital Number:</strong> 000000000021041
+            <strong>Hospital Number:</strong> {hospitalNo}
           </div>
           <div className="dp-detail-cell">
-            <strong>Department:</strong> NEWBORN
+            <strong>Department:</strong> {department}
           </div>
         </div>
         <div className="dp-detail-row">
@@ -55,15 +60,15 @@ export default function DischargePlanReferralSlip({ patientName, patientData }) 
             <strong>Patient Name:</strong> {name}
           </div>
           <div className="dp-detail-cell">
-            <strong>Sex:</strong> M
+            <strong>Sex:</strong> {sex}
           </div>
         </div>
         <div className="dp-detail-row">
           <div className="dp-detail-cell">
-            <strong>Address:</strong> P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE
+            <strong>Address:</strong> {address}
           </div>
           <div className="dp-detail-cell">
-            <strong>Age:</strong> 1 hour(s)
+            <strong>Age:</strong> {age}
           </div>
         </div>
         <div className="dp-detail-row dp-detail-row--full">

@@ -2,21 +2,21 @@ import { useMemo } from "react";
 import "./AbtcForm.css";
 
 export default function AbtcForm({ patientName, patientData }) {
-	const name        = patientName              || "FELISELDA , CIAN REIN BAYSA";
-	const caseNo      = patientData?.caseNo      || "ADM-2026-010651";
-	const srCitizen   = patientData?.srCitizen   || "";
-	const hospitalNo  = patientData?.hospitalNo  || "000000000021041";
-	const address     = patientData?.address     || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
-	const telNo       = patientData?.telNo       || "None";
-	const sex         = patientData?.sex         || "M";
-	const civilStatus = patientData?.civilStatus || "S";
-	const religion    = patientData?.religion    || "Unknown";
-	const nationality = patientData?.nationality || "FILIPINO";
-	const birthPlace  = patientData?.birthPlace  || "ADNPH- BUTUAN CITY";
-	const birthdate   = patientData?.birthdate   || "April 22, 2026";
-	const age         = patientData?.age         || "1 hour(s)";
-	const occupation  = patientData?.occupation  || "";
-	const indigenous  = patientData?.indigenous  || "";
+	const name        = patientName;
+	const caseNo      = patientData?.caseNo;
+	const srCitizen   = patientData?.srCitizen;
+	const hospitalNo  = patientData?.hospitalNo;
+	const address     = patientData?.address;
+	const telNo       = patientData?.telNo;
+	const sex         = patientData?.sex;
+	const civilStatus = patientData?.civilStatus;
+	const religion    = patientData?.religion
+	const nationality = patientData?.nationality;
+	const birthPlace  = patientData?.birthPlace;
+	const birthdate   = patientData?.birthdate;
+	const age         = patientData?.age;
+	const occupation  = patientData?.occupation;
+	const indigenous  = patientData?.indigenous;
 
 	const generatedOn = useMemo(() => {
 		const now = new Date();
