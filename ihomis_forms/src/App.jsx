@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
 import PdfPreviewPage from "./modules/labUpload/pages/PdfPreviewPage.jsx";
@@ -191,7 +192,8 @@ ModuleNavigatorPage.propTypes = {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-function App() {
+function AppShell() {
+  const navigate = useNavigate();
   // ── User session (identity, no login system) ──────────────────────────────
   const { currentUserId, currentUserName, setUser, clearUser } =
     useUserSession();

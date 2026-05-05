@@ -249,6 +249,7 @@ export default function Tracking({
         title: log.remarks ?? "",
       };
     }
+
     const apiField = matchApiField(stepLabel);
     if (apiField && row._apiRow?.[apiField]) {
       const parsed = parseApiStatus(String(row._apiRow[apiField]));
@@ -259,7 +260,8 @@ export default function Tracking({
           title: String(row._apiRow[apiField]),
         };
     }
-    return { done: false, label: "—", title: "" };
+
+    return { done: false, value: "—", title: "" };
   }
 
   const taggableRows = filteredRows.filter((r) => r.id !== null);

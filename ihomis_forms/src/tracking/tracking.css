@@ -217,3 +217,30 @@
   color: #d0d8d6;
   font-size: 0.85rem;
 }
+
+.tracking-table td {
+  height: 52px;      
+  vertical-align: middle;
+}
+
+.tracking-td-step {
+  text-align: center;
+  min-width: 80px;
+  vertical-align: middle;
+}
+
+.tracking-step-check {
+  display: block;
+  font-size: .9rem;
+  color: #1b7f79;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tracking-step-date {
+  display: block;
+  font-size: .68rem;
+  color: #365961;
+  margin-top: 1px;
+  line-height: 1.2;
+}
