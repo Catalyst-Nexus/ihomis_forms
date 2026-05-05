@@ -25,49 +25,102 @@ function LabUploadFormPanel({
   status,
   statusClassName,
 }) {
+  const selectedContextParams = selectedPatient?.contextParams || {};
+  const patientId =
+    selectedContextParams.hpercode ||
+    selectedPatient?.rawData?.hpercode ||
+    (selectedPatient?.idSource === "hpercode" ? selectedPatient.id : "") ||
+    "";
+  const encounterCode =
+    selectedContextParams.enccode ||
+    (selectedPatient?.idSource === "enc" ? selectedPatient.id : "") ||
+    "";
+  const facilityCode =
+    selectedContextParams.fhud ||
+    selectedPatient?.rawData?.fhud ||
+    selectedPatient?.rawData?.facility_code ||
+    "";
+  const docointkey =
+    selectedContextParams.docointkey ||
+    selectedPatient?.rawData?.docointkey ||
+    "";
+  const facilityName = String(
+    selectedPatient?.rawData?.facility_name || "",
+  ).trim();
+  const resolvedUser = String(
+    selectedContextParams.user || selectedPatient?.rawData?.user || "",
+  ).trim();
+  const fallbackName = [
+    displayContext.patient.firstName,
+    displayContext.patient.middleName,
+    displayContext.patient.lastName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const patientName =
+    String(selectedPatient?.displayName || fallbackName || "Not provided") ||
+    "Not provided";
+  const resolvedEncounter = selectedPatient
+    ? encounterCode
+    : displayContext.identifiers?.enccode || "";
+  const resolvedDocointkey = selectedPatient
+    ? docointkey
+    : displayContext.identifiers?.docointkey || "";
+  const resolvedFacility = selectedPatient
+    ? facilityCode
+    : displayContext.identifiers?.fhud || "";
+  const resolvedFacilityName = selectedPatient ? facilityName : "";
+  const resolvedEntryBy = selectedPatient
+    ? resolvedUser
+    : displayContext.user || "";
+
   return (
     <form className="lab-panel lab-form" onSubmit={onSubmit}>
       <div className="lab-request-header">
         <div>
-          <p className="lab-request-label">Laboratory Panel</p>
-          <h2>{displayContext.panelName}</h2>
+          <p className="lab-request-label">Request Details</p>
+          <h2>Laboratory Request</h2>
         </div>
         <p className="lab-request-time">{displayContext.requestedAt}</p>
       </div>
 
       <section className="lab-patient-card" aria-label="Patient information">
         <h3>Patient Information</h3>
-        {selectedPatient ? (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>Patient ID</dt>
-              <dd>{selectedPatient.id || "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Name</dt>
-              <dd>{selectedPatient.displayName || "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Facility</dt>
-              <dd>{selectedPatient.description || "Not provided"}</dd>
-            </div>
-          </dl>
-        ) : (
-          <dl className="lab-patient-grid">
-            <div>
-              <dt>First Name</dt>
-              <dd>{displayContext.patient.firstName}</dd>
-            </div>
-            <div>
-              <dt>Middle Name</dt>
-              <dd>{displayContext.patient.middleName}</dd>
-            </div>
-            <div>
-              <dt>Last Name</dt>
-              <dd>{displayContext.patient.lastName}</dd>
-            </div>
-          </dl>
-        )}
+        <div className="lab-patient-tiles">
+          <div className="lab-patient-tile lab-patient-tile--primary">
+            <span className="lab-tile-label">Patient</span>
+            <span className="lab-tile-value">{patientName}</span>
+            <span className="lab-tile-sub">
+              HPER {patientId || "Not provided"}
+            </span>
+          </div>
+          <div className="lab-patient-tile">
+            <span className="lab-tile-label">Encounter</span>
+            <span className="lab-tile-value">
+              {resolvedEncounter || "Not provided"}
+            </span>
+            <span className="lab-tile-sub">
+              Doc key {resolvedDocointkey || "Not provided"}
+            </span>
+          </div>
+          <div className="lab-patient-tile">
+            <span className="lab-tile-label">Facility</span>
+            <span className="lab-tile-value">
+              {resolvedFacilityName || "Not provided"}
+            </span>
+            <span className="lab-tile-sub">
+              FHUD {resolvedFacility || "Not provided"}
+            </span>
+          </div>
+          <div className="lab-patient-tile">
+            <span className="lab-tile-label">User</span>
+            <span className="lab-tile-value">
+              {resolvedEntryBy || "Not provided"}
+            </span>
+            <span className="lab-tile-sub">Entry by</span>
+          </div>
+        </div>
       </section>
 
       <div
@@ -223,6 +276,12 @@ LabUploadFormPanel.propTypes = {
   displayContext: PropTypes.shape({
     panelName: PropTypes.string.isRequired,
     requestedAt: PropTypes.string.isRequired,
+    user: PropTypes.string,
+    identifiers: PropTypes.shape({
+      enccode: PropTypes.string,
+      fhud: PropTypes.string,
+      docointkey: PropTypes.string,
+    }),
     patient: PropTypes.shape({
       firstName: PropTypes.string.isRequired,
       middleName: PropTypes.string.isRequired,

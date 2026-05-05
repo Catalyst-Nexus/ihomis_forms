@@ -3,8 +3,8 @@ import "./ClinicalReferralSlip.css";
 
 export default function ClinicalReferralSlip({ patientName, patientData }) {
 	const name    = patientName          || "PELISCO , BABY GIRL";
-	const address = patientData?.address || "P-1, MATABAO, BUENAVISTA, AGUSAN DEL NORTE";
-	const age     = patientData?.age     || "1 hour(s)";
+	const address = patientData?.address || "";
+	const age     = patientData?.age     || "";
 	const sex     = patientData?.sex     || "F";
 
 	const { dateStr, timeStr, generatedOn } = useMemo(() => {

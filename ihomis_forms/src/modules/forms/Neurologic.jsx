@@ -16,7 +16,7 @@ const chartImageStyle = {
   objectFit: 'contain',
 };
 
-const Neurological = ({ patientName, patientData, generatedBy = "TCP T. TCP" }) => {
+const Neurological = ({ patientName, patientData }) => {
   const name      = patientName            || "FELISELDA , CIAN REIN BAYSA";
   const caseNo    = patientData?.caseNo    || "ADM-2026-010651";
   const age       = patientData?.age       || "1 hour(s)";
@@ -26,13 +26,16 @@ const Neurological = ({ patientName, patientData, generatedBy = "TCP T. TCP" }) 
   });
   const diagnosis = patientData?.diagnosis || "";
 
-  const generatedOn = useMemo(() => {
+  const { generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();
     const pad = (n) => String(n).padStart(2, "0");
     const timeStr = now.toLocaleTimeString("en-US", {
       hour: "2-digit", minute: "2-digit", hour12: true,
     }).toLowerCase();
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`;
+    return {
+      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
+      generatedBy: "TCP T. TCP"
+    };
   }, []);
 
   return (

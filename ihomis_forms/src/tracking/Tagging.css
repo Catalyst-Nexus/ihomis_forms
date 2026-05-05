@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Page ─────────────────────────────────────────────────────────────────── */
+.tg-page {
+  min-height: 100vh;
+  font-family: inherit;
+  background:
+    radial-gradient(ellipse at 5% 15%,  rgba(31,157,149,.22) 0%, transparent 42%),
+    radial-gradient(ellipse at 96% 85%, rgba(242,195,126,.20) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 50%, rgba(16,54,63,.04)   0%, transparent 70%),
+    #edf3f1;
+  padding: 1rem 1rem 3rem;
+}
+
+/* ── Toast ────────────────────────────────────────────────────────────────── */
+.tg-toasts {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  z-index: 9999; display: grid; gap: .45rem; pointer-events: none;
+}
+.tg-toast {
+  font-size: .78rem; font-weight: 600;
+  padding: .5rem 1rem; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(16,54,63,.18);
+  animation: tg-slidein 240ms ease forwards;
+  max-width: 300px; pointer-events: auto;
+}
+.tg-toast--success { background: #0e4a44; color: #fff; border-left: 3px solid #1f9d95; }
+.tg-toast--error   { background: #3f1010; color: #fff; border-left: 3px solid #d44; }
+.tg-toast--info    { background: #1a2e30; color: #fff; border-left: 3px solid #f2c37e; }
+@keyframes tg-slidein {
+  from { opacity: 0; transform: translateY(8px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────────── */
+.tg-shell { width: min(1380px, 100%); margin: 0 auto; display: grid; gap: .9rem; }
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.tg-header {
+  background: linear-gradient(160deg, #fff 0%, #f0faf8 100%);
+  border: 1px solid rgba(16,54,63,.13);
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(16,54,63,.08);
+  padding: 1.1rem 1.5rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .75rem;
+}
+.tg-header-text { flex: 1; min-width: 0; }
+.tg-header-text h1 {
+  margin: 0; color: #0e3a42;
+  font-size: clamp(1.1rem, 2.2vw, 1.9rem);
+  font-weight: 800; letter-spacing: -.025em;
+}
+.tg-header-text p {
+  margin: .2rem 0 0; color: #3a6870;
+  font-size: clamp(.8rem, 1.4vw, 1.1rem); font-weight: 500;
+}
+.tg-session-pill {
+  display: flex; align-items: center; gap: .4rem;
+  background: rgba(31,157,149,.1); border: 1px solid rgba(31,157,149,.25);
+  border-radius: 999px; padding: .3rem .7rem;
+  font-size: .75rem; font-weight: 600; color: #0f6e62;
+}
+.tg-session-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #1f9d95;
+  animation: tg-pulse 2s ease infinite;
+}
+@keyframes tg-pulse {
+  0%,100% { opacity: 1; } 50% { opacity: .35; }
+}
+.tg-patient-label {
+  width: 100%; margin: 0;
+  font-size: .78rem; color: #3a6870;
+}
+.tg-patient-label strong { color: #0e3a42; }
+
+/* ── Nav ──────────────────────────────────────────────────────────────────── */
+.tg-nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.tg-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-weight: 600; font-size: .78rem;
+  padding: .42rem .85rem;
+  transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+}
+.tg-btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.tg-btn--primary {
+  background: linear-gradient(120deg, #1b7f79, #22ada5);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(27,127,121,.28);
+}
+.tg-btn--primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(27,127,121,.34); }
+.tg-btn--ghost {
+  background: #fff; border: 1px solid rgba(16,54,63,.16);
+  color: #0e3a42;
+}
+.tg-btn--ghost:hover:not(:disabled) { background: #f3fcfa; }
+.tg-btn--sm { padding: .3rem .6rem; font-size: .72rem; }
+.tg-btn--assign {
+  background: linear-gradient(120deg, #1b7f79, #22ada5);
+  color: #fff; flex: 1;
+  box-shadow: 0 3px 8px rgba(27,127,121,.22);
+}
+.tg-btn--assign:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(27,127,121,.3); }
+.tg-btn--clear {
+  background: #fff; border: 1px solid rgba(16,54,63,.16); color: #0e3a42;
+}
+.tg-btn--clear:hover:not(:disabled) { background: #fef2f2; border-color: rgba(176,59,59,.3); color: #b03b3b; }
+
+/* ── Main panel ───────────────────────────────────────────────────────────── */
+.tg-panel {
+  background: linear-gradient(165deg, #fff 0%, #f5fcfa 100%);
+  border: 1px solid rgba(16,54,63,.13);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(16,54,63,.09);
+  padding: 1.25rem;
+  display: grid; gap: 1.1rem;
+}
+
+/* Panel top bar */
+.tg-panel-topbar {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;
+}
+.tg-panel-title { margin: 0; font-size: .98rem; font-weight: 700; color: #0e3a42; }
+.tg-panel-sub   { margin: .2rem 0 0; font-size: .78rem; color: #3a6870; }
+.tg-users-status {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .74rem; color: #3a6870;
+}
+.tg-count    { font-weight: 500; }
+.tg-err-text { color: #b03b3b; }
+.tg-spinner  {
+  width: 14px; height: 14px; border: 2px solid rgba(31,157,149,.2);
+  border-top-color: #1f9d95; border-radius: 50%;
+  animation: tg-spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes tg-spin { to { transform: rotate(360deg); } }
+
+/* Record row */
+.tg-record-row {
+  display: grid; grid-template-columns: 120px 1fr; gap: .5rem; align-items: center;
+}
+.tg-label { font-size: .78rem; color: #3a6870; font-weight: 500; }
+.tg-select {
+  border: 1px solid rgba(16,54,63,.16); border-radius: 10px;
+  padding: .38rem .55rem; font-family: inherit; font-size: .8rem;
+  color: #0e3a42; background: #fff; min-height: 32px;
+}
+.tg-select--flex { flex: 1; min-width: 0; }
+.tg-select:disabled { background: #f4f4f4; color: #999; }
+
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.tg-section {
+  background: rgba(16,54,63,.025);
+  border: 1px solid rgba(16,54,63,.09);
+  border-radius: 14px;
+  padding: .9rem 1rem;
+  display: grid; gap: .6rem;
+}
+.tg-section-cap {
+  font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: #3a6870; margin: 0;
+}
+.tg-section-desc { font-size: .75rem; color: #5a8a8f; margin: 0; line-height: 1.55; }
+.tg-notice-inline { color: #c07020; font-style: italic; }
+.tg-notice--success { font-size: .75rem; color: #1f9d95; margin: 0; }
+.tg-loading { font-size: .8rem; color: #5a8a8f; text-align: center; padding: .75rem 0; }
+
+/* ── User list ────────────────────────────────────────────────────────────── */
+.tg-user-list { display: grid; gap: .35rem; }
+.tg-user-row {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  background: #fff; border: 1px solid rgba(16,54,63,.11);
+  border-radius: 10px; padding: .5rem .75rem;
+  transition: box-shadow 150ms ease;
+}
+.tg-user-row:hover { box-shadow: 0 4px 12px rgba(16,54,63,.07); }
+.tg-order-badge {
+  font-size: .68rem; font-weight: 800;
+  padding: .16rem .5rem; border-radius: 999px; flex-shrink: 0;
+}
+.tg-user-name { font-size: .84rem; font-weight: 600; color: #0e3a42; flex: 1; min-width: 80px; }
+.tg-user-role { font-size: .7rem; color: #5a8a8f; white-space: nowrap; }
+.tg-remove-btn {
+  border: 1px solid rgba(176,59,59,.22); background: #fff;
+  color: #b03b3b; border-radius: 8px;
+  font-family: inherit; font-size: .7rem; font-weight: 600;
+  padding: .2rem .5rem; cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.tg-remove-btn:hover { background: #fef2f2; border-color: rgba(176,59,59,.45); }
+
+/* Add row */
+.tg-add-row {
+  display: flex; gap: .4rem; align-items: center;
+}
+
+/* ── Step grid ────────────────────────────────────────────────────────────── */
+.tg-step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: .55rem;
+}
+
+/* Step card */
+.tg-step-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: .7rem .75rem;
+  display: grid; gap: .38rem;
+  border: 1.5px solid rgba(16,54,63,.11);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.tg-step-card:hover { box-shadow: 0 6px 18px rgba(16,54,63,.09); }
+.tg-step-card--assigned  { border-color: rgba(24,95,165,.22); background: linear-gradient(160deg, #fff 60%, rgba(24,95,165,.04)); }
+.tg-step-card--remaining { border-color: rgba(133,79,11,.18);  background: linear-gradient(160deg, #fff 60%, rgba(133,79,11,.04)); }
+
+.tg-step-head {
+  display: flex; justify-content: space-between; align-items: center; gap: .3rem;
+}
+.tg-step-name { font-size: .82rem; font-weight: 700; color: #0e3a42; }
+.tg-step-num  {
+  font-size: .62rem; font-weight: 600; color: #1f9d95;
+  background: rgba(31,157,149,.1); padding: .1rem .4rem; border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Badge */
+.tg-step-badge-wrap { display: flex; }
+.tg-step-badge {
+  font-size: .68rem; font-weight: 600;
+  padding: .15rem .5rem; border-radius: 999px;
+}
+.tg-step-badge--user2 { background: rgba(24,95,165,.12); color: #1a5ea8; }
+.tg-step-badge--none  { background: rgba(16,54,63,.07);  color: #7a9ea4; }
+
+/* Dropdown */
+.tg-step-dropdown {
+  width: 100%; border: 1px solid rgba(16,54,63,.15); border-radius: 9px;
+  padding: .3rem .4rem; font-family: inherit; font-size: .77rem;
+  color: #0e3a42; background: #fff; min-height: 28px;
+  appearance: auto;
+}
+.tg-step-dropdown:disabled { background: #f4f6f5; color: #aaa; }
+
+/* Owner chip */
+.tg-step-owner { display: flex; }
+
+/* Actions */
+.tg-step-actions { display: flex; gap: .35rem; margin-top: .05rem; }
+
+/* ── Chips ────────────────────────────────────────────────────────────────── */
+.tg-chip {
+  display: inline-block;
+  font-size: .64rem; font-weight: 600;
+  padding: .12rem .42rem; border-radius: 999px;
+  white-space: nowrap;
+}
+.tg-chip--blue  { background: rgba(24,95,165,.11);  color: #1a5ea8; }
+.tg-chip--amber { background: rgba(133,79,11,.10);  color: #8a4f0b; }
+.tg-chip--step  { background: rgba(31,157,149,.11); color: #0f7a6e; }
+.tg-chip--empty { background: rgba(16,54,63,.06);   color: #7a9ea4; }
+
+/* ── Access summary ───────────────────────────────────────────────────────── */
+.tg-summary {
+  border: 1px solid rgba(16,54,63,.09);
+  border-radius: 12px; overflow: hidden;
+}
+.tg-summary-row {
+  padding: .65rem .85rem;
+  border-bottom: 1px solid rgba(16,54,63,.07);
+  background: color-mix(in srgb, var(--row-bg) 35%, white);
+  display: grid; gap: .35rem;
+}
+.tg-summary-row:last-child { border-bottom: none; }
+.tg-summary-meta {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: .5rem; flex-wrap: wrap;
+}
+.tg-summary-name { font-size: .8rem; color: #0e3a42; }
+.tg-summary-role { font-size: .7rem; font-weight: 500; }
+.tg-summary-chips { display: flex; flex-wrap: wrap; gap: .25rem; }
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .tg-nav         { flex-direction: column; }
+  .tg-panel-topbar { flex-direction: column; }
+  .tg-record-row  { grid-template-columns: 1fr; }
+  .tg-user-row    { flex-wrap: wrap; }
+  .tg-toasts      { left: 1rem; right: 1rem; }
+  .tg-header      { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* ── Step count pill (in user row) ───────────────────────────────────────── */
+.tg-step-count-pill {
+  font-size: .68rem; font-weight: 600;
+  padding: .15rem .55rem; border-radius: 999px;
+  background: rgba(16,54,63,.07); color: #3a6870;
+  white-space: nowrap;
+}
+.tg-step-count-pill--full {
+  background: rgba(31,157,149,.12); color: #0f7a6e;
+}
+
+/* ── Hint notice ──────────────────────────────────────────────────────────── */
+.tg-notice--hint {
+  font-size: .78rem; font-weight: 500;
+  color: #0f7a6e;
+  background: rgba(31,157,149,.08);
+  border: 1px solid rgba(31,157,149,.22);
+  border-radius: 10px; padding: .55rem .85rem; margin: 0;
+}
+
+/* ── Error notice ─────────────────────────────────────────────────────────── */
+.tg-notice--error {
+  font-size: .78rem; font-weight: 500;
+  color: #b03b3b;
+  background: #fdf0f0;
+  border: 1px solid #e8c0c0;
+  border-radius: 10px; padding: .55rem .85rem; margin: 0;
+}
+
+/* ── Generic notice base ──────────────────────────────────────────────────── */
+.tg-notice {
+  font-size: .78rem; padding: .55rem .85rem;
+  border-radius: 10px; border: 1px solid transparent; margin: 0;
+}

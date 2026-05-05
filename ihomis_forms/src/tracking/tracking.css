@@ -1,0 +1,256 @@
+.tracking-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 6% 18%, rgba(86,204,189,.35), rgba(86,204,189,0) 36%),
+    radial-gradient(circle at 94% 86%, rgba(242,195,126,.35), rgba(242,195,126,0) 34%),
+    #eaf2ef;
+  padding: 1rem;
+}
+
+.tracking-shell {
+  width: min(1600px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+/* ── Title box ── */
+.tracking-title-box {
+  background: linear-gradient(165deg,#fff 0%,#f3fcfa 100%);
+  border: 1px solid rgba(16,54,63,.16);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(16,54,63,.08);
+  text-align: center;
+  padding: 1rem .8rem;
+}
+.tracking-title-box h1 { margin:0; color:#10363f; font-size:clamp(1.4rem,2.5vw,2.8rem); font-weight:700; }
+.tracking-title-box p  { margin:.15rem 0 0; color:#365961; font-size:clamp(1rem,1.8vw,2rem); }
+.tracking-title-box small { display:block; margin-top:.5rem; color:#365961; font-size:.82rem; }
+
+/* ── Filters ── */
+.tracking-filters { display:grid; gap:.4rem; }
+
+.tracking-filter-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.tracking-filter-row--select label { color:#365961; font-size:.8rem; white-space:nowrap; }
+
+.tracking-filter-row select,
+.tracking-filter-row input {
+  font-family: inherit;
+  border: 1px solid rgba(16,54,63,.16);
+  border-radius: 10px;
+  padding: .38rem .5rem;
+  font-size: .82rem;
+  min-height: 32px;
+  background: #fff;
+  color: #10363f;
+  flex: 1;
+  min-width: 0;
+}
+.tracking-filter-row--select select { flex: 0 0 auto; min-width: 220px; }
+
+/* ── Buttons ── */
+.tracking-filter-row button,
+.tracking-actions button {
+  border: none;
+  background: linear-gradient(120deg,#1b7f79,#1f9d95);
+  color: #fff;
+  border-radius: 12px;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.tracking-filter-row button { padding:.37rem .75rem; min-height:32px; }
+.tracking-actions button    { padding:.42rem .8rem; }
+
+.tracking-btn-ghost {
+  background: #fff !important;
+  border: 1px solid rgba(16,54,63,.16) !important;
+  color: #10363f !important;
+}
+.tracking-filter-row button:hover,
+.tracking-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(27,127,121,.24);
+}
+.tracking-actions button:disabled { opacity:.6; cursor:not-allowed; }
+
+/* ── Actions ── */
+.tracking-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+
+/* ── Error / status ── */
+.tracking-error {
+  color:#b03b3b; font-size:.82rem;
+  background:#fdf0f0; border:1px solid #e8c0c0;
+  border-radius:10px; padding:.5rem .75rem; margin:0;
+}
+.tracking-status-bar { font-size:.78rem; color:#365961; padding:.25rem .25rem; }
+
+/* ── Table ── */
+.tracking-table-wrap {
+  border: 1px solid rgba(16,54,63,.16);
+  border-radius: 14px;
+  overflow: auto;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(16,54,63,.06);
+}
+.tracking-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+.tracking-table th,
+.tracking-table td {
+  border: 1px solid rgba(16,54,63,.1);
+  padding: .4rem .55rem;
+  font-size: .76rem;
+  color: #365961;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.tracking-table th {
+  background: #f3fcfa;
+  font-weight: 700;
+  color: #10363f;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.tracking-td-name   { font-weight:600; color:#10363f; min-width:160px; white-space:normal; }
+.tracking-td-center { text-align:center; padding:1.5rem; color:#365961; font-style:italic; }
+
+/* ── Step cells ── */
+.tracking-td-step          { text-align:center; min-width:80px; }
+.tracking-td-step--done    { background:rgba(31,157,149,.07); }
+.tracking-step-check       { display:block; font-size:.9rem; color:#1b7f79; font-weight:700; }
+.tracking-step-date        { display:block; font-size:.68rem; color:#365961; margin-top:1px; }
+.tracking-step-pending     { color:#ccc; font-size:.85rem; }
+
+/* ── Encounter badges ── */
+.tracking-badge {
+  display:inline-block; padding:.12rem .45rem;
+  border-radius:999px; font-size:.68rem; font-weight:700; text-transform:uppercase;
+}
+.tracking-badge--adm { background:rgba(31,157,149,.15); color:#1b7f79; }
+.tracking-badge--er  { background:rgba(176,59,59,.12);  color:#b03b3b; }
+.tracking-badge--opd { background:rgba(242,195,126,.3); color:#9a7020; }
+
+/* ── Pagination ── */
+.tracking-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #f3fcfa;
+  border-radius: 12px;
+  border: 1px solid rgba(16,54,63,.12);
+}
+
+.tracking-pagination-btn {
+  font-family: inherit;
+  border: none;
+  background: linear-gradient(120deg,#1b7f79,#1f9d95);
+  color: #fff;
+  border-radius: 8px;
+  padding: .4rem 1rem;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tracking-pagination-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(27,127,121,.2);
+}
+
+.tracking-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tracking-pagination-info {
+  font-size: .8rem;
+  color: #365961;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width:720px) {
+  .tracking-filter-row { flex-direction:column; align-items:stretch; }
+  .tracking-filter-row--select select { min-width:0; }
+  .tracking-actions { flex-direction:column; }
+  
+  .tracking-pagination {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
+
+.tracking-switch-user-link {
+  font-family: inherit;
+  background: none;
+  border: none;
+  color: #1f9d95;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(31,157,149,.4);
+  text-underline-offset: 2px;
+  transition: color 160ms ease;
+}
+.tracking-switch-user-link:hover { color: #1b7f79; }
+ 
+/* Locked/hidden step cells */
+.tracking-td-step--hidden {
+  background: rgba(16,54,63,.02);
+}
+.tracking-step-locked {
+  color: #d0d8d6;
+  font-size: 0.85rem;
+}
+
+.tracking-table td {
+  height: 52px;      
+  vertical-align: middle;
+}
+
+.tracking-td-step {
+  text-align: center;
+  min-width: 80px;
+  vertical-align: middle;
+}
+
+.tracking-step-check {
+  display: block;
+  font-size: .9rem;
+  color: #1b7f79;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tracking-step-date {
+  display: block;
+  font-size: .68rem;
+  color: #365961;
+  margin-top: 1px;
+  line-height: 1.2;
+}
+
+.tracking-filter-row button,
+.tracking-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+}

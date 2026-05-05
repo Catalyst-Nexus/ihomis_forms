@@ -31,7 +31,6 @@ export default function MISSafetyChecklist({ patientName, patientData = {} }) {
 	return (
 		<div className="mis-document">
 			<div className="mis-page">
-				<div className="mis-header-reserved-space" aria-hidden="true" />
 				{/* Patient Info Row */}
 				<div className="mis-patient-info">
 					<div className="mis-info-row">

@@ -45,31 +45,6 @@ PatientAvatar.propTypes = {
 
 function PatientCard({ patient, isSelected, onSelect }) {
   const { displayName, id, description } = patient;
-  const contextParams = patient.contextParams || {};
-
-  let idType = "ID";
-  if ((patient.idSource || "").toLowerCase() === "enc") {
-    idType = "ENC";
-  } else if ((patient.idSource || "").toLowerCase() === "fhud") {
-    idType = "FHUD";
-  } else if ((patient.idSource || "").toLowerCase() === "user") {
-    idType = "USER";
-  } else if (contextParams.enccode && id === contextParams.enccode) {
-    idType = "ENC";
-  } else if (contextParams.fhud && id === contextParams.fhud) {
-    idType = "FHUD";
-  } else if (contextParams.user && id === contextParams.user) {
-    idType = "USER";
-  }
-
-  const idTypeClassName =
-    idType === "ENC"
-      ? "pk-id-source pk-id-source--enc"
-      : idType === "FHUD"
-        ? "pk-id-source pk-id-source--fhud"
-        : idType === "USER"
-          ? "pk-id-source pk-id-source--user"
-          : "pk-id-source";
 
   return (
     <button
@@ -97,12 +72,7 @@ function PatientCard({ patient, isSelected, onSelect }) {
             </span>
           )}
         </div>
-
-        <div className="pk-card-meta">
-          <code className="pk-card-id">{id}</code>
-          <span className={idTypeClassName}>{idType}</span>
-          {description && <span className="pk-card-desc">{description}</span>}
-        </div>
+        {description && <p className="pk-card-desc">{description}</p>}
       </div>
     </button>
   );
@@ -114,10 +84,12 @@ PatientCard.propTypes = {
     idSource: PropTypes.string,
     displayName: PropTypes.string.isRequired,
     description: PropTypes.string,
+    rawData: PropTypes.object,
     contextParams: PropTypes.shape({
       enc: PropTypes.string,
       enccode: PropTypes.string,
       fhud: PropTypes.string,
+      hpercode: PropTypes.string,
       docointkey: PropTypes.string,
       user: PropTypes.string,
     }),
@@ -209,9 +181,11 @@ function LabPatientPickerPanel({
   onConfirmSelection,
   onNextPage,
   onPreviousPage,
-  title,
-  subtitle,
-  confirmLabel,
+  title = "Select Patient Before Upload",
+  subtitle = "Choose whose laboratory result you are uploading.",
+  confirmLabel = "Continue to Lab Upload",
+  onSecondaryAction = null,
+  secondaryActionLabel = "",
 }) {
   const hasSelection = Boolean(selectedPatientId);
 
@@ -241,26 +215,37 @@ function LabPatientPickerPanel({
           <p className="pk-header-sub">{subtitle}</p>
         </div>
         {hasSelection && (
-          <button
-            type="button"
-            className="pk-confirm-btn pk-confirm-btn--header"
-            onClick={onConfirmSelection}
-          >
-            <svg
-              viewBox="0 0 20 20"
-              width="15"
-              height="15"
-              fill="currentColor"
-              aria-hidden="true"
+          <div className="pk-header-actions">
+            <button
+              type="button"
+              className="pk-confirm-btn pk-confirm-btn--header"
+              onClick={onConfirmSelection}
             >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10 9.414l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0 0-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {confirmLabel}
-          </button>
+              <svg
+                viewBox="0 0 20 20"
+                width="15"
+                height="15"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10 9.414l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0 0-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {confirmLabel}
+            </button>
+            {onSecondaryAction && secondaryActionLabel ? (
+              <button
+                type="button"
+                className="pk-confirm-btn pk-confirm-btn--header pk-confirm-btn--secondary"
+                onClick={onSecondaryAction}
+              >
+                {secondaryActionLabel}
+              </button>
+            ) : null}
+          </div>
         )}
       </div>
 
@@ -422,10 +407,12 @@ LabPatientPickerPanel.propTypes = {
       idSource: PropTypes.string,
       displayName: PropTypes.string.isRequired,
       description: PropTypes.string,
+      rawData: PropTypes.object,
       contextParams: PropTypes.shape({
         enc: PropTypes.string,
         enccode: PropTypes.string,
         fhud: PropTypes.string,
+        hpercode: PropTypes.string,
         docointkey: PropTypes.string,
         user: PropTypes.string,
       }),
@@ -446,12 +433,8 @@ LabPatientPickerPanel.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   confirmLabel: PropTypes.string,
-};
-
-LabPatientPickerPanel.defaultProps = {
-  title: "Select Patient Before Upload",
-  subtitle: "Choose whose laboratory result you are uploading.",
-  confirmLabel: "Continue to Lab Upload",
+  onSecondaryAction: PropTypes.func,
+  secondaryActionLabel: PropTypes.string,
 };
 
 export default LabPatientPickerPanel;

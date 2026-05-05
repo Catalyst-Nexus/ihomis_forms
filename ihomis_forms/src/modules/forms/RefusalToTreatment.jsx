@@ -9,7 +9,7 @@ export default function RefusalToTreatment({ patientName, patientData }) {
 		const pad = (n) => String(n).padStart(2, "0");
 		const h = now.getHours();
 		const m = now.getMinutes();
-		const ampm = h >= 12 ? "AM" : "AM";
+		const ampm = h >= 12 ? "PM" : "AM";
 		const hh = String(h % 12 || 12).padStart(2, "0");
 		const timeStr = `${hh}:${pad(m)} ${ampm}`;
 		const dateStr = now.toLocaleDateString("en-US", {

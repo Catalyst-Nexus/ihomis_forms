@@ -11,7 +11,7 @@ const SigBlock = ({ label, dateStr }) => (
 );
 
 export default function DAMAForm({ patientName, patientData }) {
-  const name = patientName;
+  const name = patientName || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

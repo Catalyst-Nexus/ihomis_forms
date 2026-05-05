@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import "./CommitmentToBreastfeeding.css";
 
 export default function CommitmentToBreastfeeding({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name    = patientName            || "BAYSA , BABY BOY";
+  const address = patientData?.address   || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();
@@ -28,7 +29,7 @@ export default function CommitmentToBreastfeeding({ patientName, patientData }) 
 
       {/* ── Body ── */}
       <div className="ctb-body">
-        This is to signify that I, {name} of P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE
+        This is to signify that I, {name} of {address}
         <br />
         after having been fully informed and motivated on the benefits derived from breastfeeding by the staff of this hospital, promised
         to breastfeed my child right after delivery and will exclusively do so and sustain much even after my discharge from this hospital

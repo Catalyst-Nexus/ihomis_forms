@@ -63,8 +63,7 @@ function isPdfFile(file) {
 function normalizeLabContextParams(contextParams = {}) {
   const normalized = { ...contextParams };
 
-  const encounterCode =
-    normalized.enccode || normalized.enc || normalized.hpercode || "";
+  const encounterCode = normalized.enccode || normalized.enc || "";
   if (encounterCode) {
     normalized.enccode = encounterCode;
     normalized.enc = encounterCode;
@@ -84,6 +83,13 @@ function normalizeLabContextParams(contextParams = {}) {
     normalized.docointkey || normalized.documentKey || normalized.docKey || "";
   if (documentKey) {
     normalized.docointkey = documentKey;
+  }
+
+  const patientId =
+    normalized.hpercode || normalized.patient_id || normalized.patientId || "";
+  if (patientId) {
+    normalized.hpercode = patientId;
+    normalized.patient_id = patientId;
   }
 
   const resolvedUser =
@@ -178,9 +184,11 @@ function mapSuccessToUploadedEntry(item) {
 function buildDisplayContext(requestContext) {
   return {
     panelName: requestContext.panelName || "Laboratory Request",
-    requestedAt: requestContext.requestedAt || "Waiting for API context",
+    requestedAt: requestContext.requestedAt || "",
+    user: requestContext.user || "",
     identifiers: {
       enccode: requestContext.identifiers?.enccode || "Not provided",
+      fhud: requestContext.identifiers?.fhud || "Not provided",
       docointkey: requestContext.identifiers?.docointkey || "Not provided",
     },
     patient: {
@@ -191,47 +199,8 @@ function buildDisplayContext(requestContext) {
   };
 }
 
-function buildUploadSummary({
-  requestContext,
-  contextLoading,
-  displayContext,
-  hasApiUrl,
-}) {
-  return [
-    {
-      label: "Context Source",
-      value: requestContext.hasAnyContext
-        ? "Live API response"
-        : contextLoading
-          ? "Loading from API"
-          : "Awaiting context response",
-    },
-    {
-      label: "Upload Endpoint",
-      value: hasApiUrl ? "Configured" : "Not configured",
-    },
-    {
-      label: "Laboratory Panel",
-      value: displayContext.panelName,
-    },
-    {
-      label: "Requested At",
-      value: displayContext.requestedAt,
-    },
-    {
-      label: "Encounter Code",
-      value: displayContext.identifiers.enccode,
-    },
-    {
-      label: "Document Key",
-      value: displayContext.identifiers.docointkey,
-    },
-  ];
-}
-
 export {
   buildDisplayContext,
-  buildUploadSummary,
   formatFileSize,
   getContextParamsFromLocation,
   getFileKey,

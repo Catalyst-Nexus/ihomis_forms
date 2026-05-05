@@ -136,9 +136,12 @@ export default function FormSheetHeader({
           <span className="form-sheet-header__meta-value">{revised}</span>
         </p>
       </div>
-      <br></br>
-
-      <h1 className="form-sheet-header__title">{title}</h1>
+      {title ? (
+        <>
+          <br />
+          <h1 className="form-sheet-header__title">{title}</h1>
+        </>
+      ) : null}
     </header>
   );
 }

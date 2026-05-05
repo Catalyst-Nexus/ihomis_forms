@@ -1,6 +1,13 @@
 import { useMemo, useState } from "react";
-import { uploadLabResultBatch } from "../api/labUploadApi.js";
-import { mapSuccessToUploadedEntry } from "../utils/labUploadUtils.js";
+import {
+  canUseSupabaseUploads,
+  uploadLabResultBatchSupabase,
+} from "../api/labUploadSupabase.js";
+import { fetchLatestEncounterForPatient } from "../api/labUploadApi.js";
+import {
+  mapSuccessToUploadedEntry,
+  normalizeLabContextParams,
+} from "../utils/labUploadUtils.js";
 
 function getStatusClassName(type) {
   if (type === "success") {
@@ -14,12 +21,17 @@ function getStatusClassName(type) {
   return "lab-status-error";
 }
 
-function useUploadBatch({
-  uploadUrl,
-  token,
-  contextParams,
-  onContextFromSuccess,
-}) {
+function resolvePatientHpercode(patient, contextParams) {
+  const fromContext =
+    contextParams?.hpercode || contextParams?.patient_id || "";
+  const fromPatient =
+    patient?.rawData?.hpercode || patient?.contextParams?.hpercode || "";
+  const fromId = patient?.idSource === "hpercode" ? patient.id : "";
+
+  return String(fromContext || fromPatient || fromId || "").trim();
+}
+
+function useUploadBatch({ contextParams, patient, onContextFromSuccess }) {
   const [remarks, setRemarks] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [failedUploads, setFailedUploads] = useState([]);
@@ -42,6 +54,8 @@ function useUploadBatch({
       ? `Uploading ${uploadProgress.current} of ${uploadProgress.total} PDF files...`
       : "";
 
+  const useSupabaseUploads = canUseSupabaseUploads();
+
   function removeFailureForFileKey(fileKey) {
     setFailedUploads((currentItems) =>
       currentItems.filter((item) => item.fileKey !== fileKey),
@@ -61,11 +75,11 @@ function useUploadBatch({
 
     const resultFiles = Array.isArray(selectedFiles) ? selectedFiles : [];
 
-    if (!uploadUrl) {
+    if (!useSupabaseUploads) {
       setStatus({
         type: "error",
         message:
-          "Missing upload API URL. Set VITE_LAB_UPLOAD_API_URL in your .env file.",
+          "Supabase uploads are not configured. Set VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, and the lab results bucket/table env vars.",
       });
       return;
     }
@@ -82,13 +96,72 @@ function useUploadBatch({
     setStatus({ type: "", message: "" });
     setUploadProgress({ current: 0, total: resultFiles.length });
 
+    const normalizedContextParams = normalizeLabContextParams(contextParams);
+    let resolvedContextParams = normalizedContextParams;
+
+    if (!normalizedContextParams.enccode) {
+      const hpercode = resolvePatientHpercode(patient, normalizedContextParams);
+
+      if (!hpercode) {
+        setStatus({
+          type: "error",
+          message:
+            "Unable to resolve the encounter code because no patient ID is available.",
+        });
+        setSubmitting(false);
+        setUploadProgress({ current: 0, total: 0 });
+        return;
+      }
+
+      try {
+        const { enccode } = await fetchLatestEncounterForPatient({ hpercode });
+
+        if (!enccode) {
+          setStatus({
+            type: "error",
+            message:
+              "No encounter code was returned for this patient. Please confirm the patient has a recent encounter.",
+          });
+          setSubmitting(false);
+          setUploadProgress({ current: 0, total: 0 });
+          return;
+        }
+
+        resolvedContextParams = {
+          ...normalizedContextParams,
+          hpercode,
+          enccode,
+          enc: enccode,
+        };
+
+        if (typeof onContextFromSuccess === "function") {
+          onContextFromSuccess({
+            identifiers: {
+              enccode,
+            },
+            hasAnyContext: true,
+          });
+        }
+      } catch (error) {
+        setStatus({
+          type: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to resolve the latest encounter code.",
+        });
+        setSubmitting(false);
+        setUploadProgress({ current: 0, total: 0 });
+        return;
+      }
+    }
+
     try {
-      const { successes, failures } = await uploadLabResultBatch({
-        uploadUrl,
-        token,
+      const { successes, failures } = await uploadLabResultBatchSupabase({
         resultFiles,
         remarks,
-        contextParams,
+        contextParams: resolvedContextParams,
+        patient,
         onProgress: ({ current, total }) => {
           setUploadProgress({ current, total });
         },
@@ -169,13 +242,60 @@ function useUploadBatch({
     setRetryingFileKey(fileKey);
     setStatus({ type: "", message: "" });
 
+    const normalizedContextParams = normalizeLabContextParams(contextParams);
+    let resolvedContextParams = normalizedContextParams;
+
+    if (!normalizedContextParams.enccode) {
+      const hpercode = resolvePatientHpercode(patient, normalizedContextParams);
+
+      if (!hpercode) {
+        setStatus({
+          type: "error",
+          message:
+            "Unable to resolve the encounter code because no patient ID is available.",
+        });
+        setRetryingFileKey("");
+        return;
+      }
+
+      try {
+        const { enccode } = await fetchLatestEncounterForPatient({ hpercode });
+
+        if (!enccode) {
+          setStatus({
+            type: "error",
+            message:
+              "No encounter code was returned for this patient. Please confirm the patient has a recent encounter.",
+          });
+          setRetryingFileKey("");
+          return;
+        }
+
+        resolvedContextParams = {
+          ...normalizedContextParams,
+          hpercode,
+          enccode,
+          enc: enccode,
+        };
+      } catch (error) {
+        setStatus({
+          type: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to resolve the latest encounter code.",
+        });
+        setRetryingFileKey("");
+        return;
+      }
+    }
+
     try {
-      const { successes, failures } = await uploadLabResultBatch({
-        uploadUrl,
-        token,
+      const { successes, failures } = await uploadLabResultBatchSupabase({
         resultFiles: [failedItem.file],
         remarks,
-        contextParams,
+        contextParams: resolvedContextParams,
+        patient,
       });
 
       if (successes.length > 0) {
