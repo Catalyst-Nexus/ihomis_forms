@@ -80,7 +80,7 @@ async function uploadLabResult({ file, contextParams, patient, remarks }) {
     patient?.contextParams?.hpercode ||
     normalizedContextParams.hpercode ||
     normalizedContextParams.patient_id ||
-    patient?.id ||
+    (patient?.idSource === "hpercode" ? patient.id : "") ||
     "";
   const encounterCode = normalizedContextParams.enccode || "";
   const docointkey = normalizedContextParams.docointkey || "";

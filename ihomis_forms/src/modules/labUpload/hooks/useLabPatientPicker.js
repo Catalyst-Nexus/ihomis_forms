@@ -200,10 +200,16 @@ function useLabPatientPicker({
       return normalizedInitialContextParams;
     }
 
+    const resolvedHpercode =
+      selectedPatient.rawData?.hpercode ||
+      selectedPatient.contextParams?.hpercode ||
+      (selectedPatient.idSource === "hpercode" ? selectedPatient.id : "") ||
+      "";
+
     return normalizeLabContextParams({
       ...normalizedInitialContextParams,
       ...selectedPatient.contextParams,
-      hpercode: selectedPatient.id,
+      hpercode: resolvedHpercode,
       user: explicitUserFilter || normalizedInitialContextParams.user || "",
     });
   }, [

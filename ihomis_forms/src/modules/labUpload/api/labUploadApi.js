@@ -182,17 +182,22 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   let id = "";
   let idSource = "";
 
-  if (identifiers.enccode) {
-    id = identifiers.enccode;
-    idSource = "enc";
-  } else if (source?.hpercode) {
+  if (source?.hpercode) {
     id = String(source.hpercode).trim();
     idSource = "hpercode";
+  } else if (identifiers.docointkey) {
+    id = identifiers.docointkey;
+    idSource = "docointkey";
+  } else if (identifiers.enccode) {
+    id = identifiers.enccode;
+    idSource = "enc";
   } else if (source?.id) {
     id = String(source.id).trim();
 
     if (source?.hpercode && id === String(source.hpercode).trim()) {
       idSource = "hpercode";
+    } else if (identifiers.docointkey && id === identifiers.docointkey) {
+      idSource = "docointkey";
     } else if (identifiers.enccode && id === identifiers.enccode) {
       idSource = "enc";
     } else if (identifiers.fhud && id === identifiers.fhud) {
@@ -253,6 +258,7 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
     description,
     rawData: source,
     contextParams: {
+      hpercode: source?.hpercode ? String(source.hpercode).trim() : "",
       enccode: identifiers.enccode || "",
       enc: identifiers.enccode || "",
       fhud: identifiers.fhud || identifiers.facility_code || "",
@@ -629,12 +635,21 @@ export async function fetchLabPatientCandidates({
 
     if (!candidate.id || candidate.id.startsWith("candidate-")) {
       candidate.id =
-        candidate.requestContext?.identifiers?.enccode ||
         row.hpercode ||
+        candidate.requestContext?.identifiers?.docointkey ||
+        candidate.requestContext?.identifiers?.enccode ||
         row.id ||
         `candidate-${index + 1}`;
 
-      if (candidate.requestContext?.identifiers?.enccode === candidate.id) {
+      if (row.hpercode && candidate.id === String(row.hpercode).trim()) {
+        candidate.idSource = "hpercode";
+      } else if (
+        candidate.requestContext?.identifiers?.docointkey === candidate.id
+      ) {
+        candidate.idSource = "docointkey";
+      } else if (
+        candidate.requestContext?.identifiers?.enccode === candidate.id
+      ) {
         candidate.idSource = "enc";
       } else if (candidate.requestContext?.identifiers?.fhud === candidate.id) {
         candidate.idSource = "fhud";

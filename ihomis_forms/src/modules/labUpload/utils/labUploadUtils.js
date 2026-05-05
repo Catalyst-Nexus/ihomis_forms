@@ -85,6 +85,13 @@ function normalizeLabContextParams(contextParams = {}) {
     normalized.docointkey = documentKey;
   }
 
+  const patientId =
+    normalized.hpercode || normalized.patient_id || normalized.patientId || "";
+  if (patientId) {
+    normalized.hpercode = patientId;
+    normalized.patient_id = patientId;
+  }
+
   const resolvedUser =
     normalized.user ||
     normalized.userid ||
