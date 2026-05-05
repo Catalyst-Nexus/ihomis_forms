@@ -232,13 +232,14 @@ function buildPatientCandidate(source, fallbackIndex = 0) {
   const displayName =
     fullName || source?.hpercode || identifiers.enccode || "Unlabeled Patient";
 
-  const facilityLabel =
-    source?.facility_name ||
-    (identifiers.fhud ? `Facility ${identifiers.fhud}` : "");
+  const facilityLabel = source?.facility_name
+    ? `Facility ${source.facility_name}`
+    : identifiers.fhud
+      ? `Facility ${identifiers.fhud}`
+      : "";
 
   const description = [
     facilityLabel,
-    identifiers.docointkey ? `Doc ${identifiers.docointkey}` : "",
     requestContext.panelName,
     requestContext.requestedAt,
   ]
@@ -385,27 +386,27 @@ const patientLastNameKeys = parseKeyList("VITE_LAB_CONTEXT_PATIENT_LAST_KEYS", [
 // ]);
 
 const encounterCodeKeys = parseKeyList("VITE_LAB_CONTEXT_ENCCODE_KEYS", [
-  "hpercode",
-  "id",
   "enccode",
   "enc",
   "data.0.enccode",
   "data.0.enc",
   "data.enccode",
   "data.enc",
-  "data.hpercode",
-  "data.id",
   "request.enccode",
   "request.enc",
   "context.enccode",
   "context.enc",
   "metadata.enccode",
   "metadata.enc",
+  "hpercode",
+  "id",
+  "data.hpercode",
+  "data.id",
 ]);
 
 const facilityRefKeys = parseKeyList("VITE_LAB_CONTEXT_FHUD_KEYS", [
-  "facility_code",
   "fhud",
+  "facility_code",
   "data.0.fhud",
   "data.fhud",
   "data.facility_code",
@@ -771,6 +772,7 @@ export async function uploadLabResultBatch({
         resultFile: currentFile,
         remarks,
         contextParams,
+        hpercode: source?.hpercode ? String(source.hpercode).trim() : "",
       });
 
       successes.push({

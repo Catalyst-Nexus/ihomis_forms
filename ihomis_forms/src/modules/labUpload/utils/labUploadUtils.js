@@ -178,8 +178,10 @@ function buildDisplayContext(requestContext) {
   return {
     panelName: requestContext.panelName || "Laboratory Request",
     requestedAt: requestContext.requestedAt || "",
+    user: requestContext.user || "",
     identifiers: {
       enccode: requestContext.identifiers?.enccode || "Not provided",
+      fhud: requestContext.identifiers?.fhud || "Not provided",
       docointkey: requestContext.identifiers?.docointkey || "Not provided",
     },
     patient: {

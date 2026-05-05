@@ -21,7 +21,13 @@ function LabUploadModule({
   onRequestPatientChange,
   onNavigateToPreview = null,
 }) {
-  const contextParams = selectedContextParams;
+  const contextParams = useMemo(
+    () => ({
+      ...(selectedPatient?.contextParams || {}),
+      ...selectedContextParams,
+    }),
+    [selectedPatient, selectedContextParams],
+  );
   const hasSupabaseUpload = canUseSupabaseUploads();
   const { openPreview } = usePdfPreview();
 
