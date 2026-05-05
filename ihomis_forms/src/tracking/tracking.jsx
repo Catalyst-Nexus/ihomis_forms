@@ -14,12 +14,6 @@ function safeIso(raw) {
   return isNaN(d2.getTime()) ? null : d2.toISOString();
 }
 
-function safeDisplay(raw) {
-  const iso = safeIso(raw);
-  if (!iso) return raw ? String(raw) : "—";
-  return new Date(iso).toLocaleDateString();
-}
-
 function parseApiStatus(raw = "") {
   if (!raw) return { done: false };
   const lower = raw.toLowerCase();
@@ -47,8 +41,10 @@ function matchApiField(stepDescription = "") {
 }
 
 function extractAdmittedDate(encoCode = "") {
-  const m = encoCode.match(/(\d{2}\/\d{2}\/\d{4})/);
-  return m ? m[1] : "—";
+  const value = String(encoCode);
+  const m = value.match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
+  if (!m) return "—";
+  return m[2] ? `${m[1]} ${m[2]}` : m[1];
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -56,7 +52,6 @@ export default function Tracking({
   selectedPatient,
   onBackToModuleNavigator,
   onChangePatient,
-  onOpenTagging,
   currentUserId,     // ← from useUserSession
   currentUserName,   // ← from useUserSession
   onSwitchUser,      // ← clears session → shows UserPicker
@@ -230,14 +225,23 @@ export default function Tracking({
   function getStepStatus(row, seqId, stepLabel) {
     if (row.id !== null && logs[row.id]?.[seqId]) {
       const log = logs[row.id][seqId];
-      return { done: true, label: log.done_at ? safeDisplay(log.done_at) : "Done", title: log.remarks ?? "" };
+      const remarks = log.remarks ? String(log.remarks) : "";
+      const doneAt = log.done_at ? String(log.done_at) : "";
+      let value = remarks || doneAt || "—";
+      if (remarks && doneAt && !remarks.includes(doneAt)) {
+        value = `${remarks} (${doneAt})`;
+      }
+      return { done: true, value, title: value };
     }
+
     const apiField = matchApiField(stepLabel);
-    if (apiField && row._apiRow?.[apiField]) {
-      const parsed = parseApiStatus(String(row._apiRow[apiField]));
-      if (parsed.done) return { done: true, label: parsed.isoDate ? safeDisplay(parsed.isoDate) : "Done", title: String(row._apiRow[apiField]) };
+    if (apiField && row._apiRow?.[apiField] != null) {
+      const rawValue = String(row._apiRow[apiField]);
+      const parsed = parseApiStatus(rawValue);
+      return { done: parsed.done, value: rawValue, title: rawValue };
     }
-    return { done: false, label: "—", title: "" };
+
+    return { done: false, value: "—", title: "" };
   }
 
   const taggableRows = filteredRows.filter((r) => r.id !== null);
@@ -403,11 +407,9 @@ const visibleSteps = useMemo(() => {
                       const status = getStepStatus(row, step.id, step.label);
                       return (
                         <td key={step.id} className={`tracking-td-step${status.done ? " tracking-td-step--done" : ""}`} title={status.title}>
-                          {status.done ? (
-                            <><span className="tracking-step-check">✓</span><span className="tracking-step-date">{status.label}</span></>
-                          ) : (
-                            <span className="tracking-step-pending">—</span>
-                          )}
+                          <span className={status.done ? "tracking-step-date" : "tracking-step-pending"}>
+                            {status.value}
+                          </span>
                         </td>
                       );
                     })}

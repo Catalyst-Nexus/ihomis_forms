@@ -6,6 +6,27 @@ body {
 	margin: 0;
 }
 
+.anesthesia-record-container {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	min-height: 100vh;
+	width: 100%;
+	padding: 12px 0 24px;
+	background: #fff;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.anesthesia-record {
+	width: 100%;
+	max-width: 210mm;
+	min-height: 297mm;
+	background: #fff;
+	padding: 10.5mm 12mm 8mm;
+	display: flex;
+	flex-direction: column;
+}
+
 /* ANESTHESIA RECORD STYLES */
 .anesthesia-header {
 	display: flex;
@@ -39,6 +60,7 @@ body {
 	border: 0.35mm solid #000;
 	background: #fff;
 	margin-bottom: 1.5mm;
+	width: 100%;
 }
 
 .anesthesia-table-row {
@@ -74,6 +96,7 @@ body {
 	font-size: 2.9mm;
 	border-right: 0.35mm solid #000;
 	overflow: visible;
+	min-width: 0;
 }
 
 .anesthesia-table-cell:last-child {
@@ -150,10 +173,12 @@ body {
 }
 
 .chart-image {
-  width: 187mm;
-  height: 180mm;
-  display: block;
-  object-fit: fill;
+	width: 100%;
+	max-width: 187mm;
+	height: auto;
+	max-height: 180mm;
+	display: block;
+	object-fit: fill;
 }
 
 
@@ -686,8 +711,23 @@ body {
 		print-color-adjust: exact;
 	}
 
-	body > *:not(.neurologic-root) {
+	body > *:not(.anesthesia-record-container) {
 		display: none !important;
+	}
+
+	.anesthesia-record-container {
+		min-height: 0;
+		padding: 0 !important;
+		background: #fff !important;
+	}
+
+	.anesthesia-record {
+		width: 210mm !important;
+		height: 297mm !important;
+		min-height: 297mm !important;
+		margin: 0 !important;
+		padding: 10.5mm 12mm 8mm !important;
+		box-shadow: none !important;
 	}
 
 	.neurologic-root {
@@ -703,6 +743,64 @@ body {
 		margin: 0 !important;
 		padding: 10.5mm 12mm 8mm !important;
 		box-shadow: none !important;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.anesthesia-record {
+		max-width: 100%;
+		min-height: 0;
+		padding: 8mm 8mm 6mm;
+		box-shadow: none;
+	}
+
+	.anesthesia-table-cell {
+		flex-wrap: wrap;
+	}
+
+	.anesthesia-label {
+		white-space: normal;
+	}
+
+	.anesthesia-input-inline,
+	.anesthesia-input-full,
+	.anesthesia-input-sm,
+	.anesthesia-input-md {
+		min-width: 0;
+	}
+
+	.anesthesia-row-1 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.anesthesia-row-2 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.anesthesia-row-3,
+	.anesthesia-row-4 {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media screen and (max-width: 720px) {
+	.anesthesia-row-2 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.anesthesia-case-number {
+		flex-wrap: wrap;
+	}
+
+	.anesthesia-row-1,
+	.anesthesia-row-2 {
+		grid-template-columns: 1fr;
+	}
+
+	.anesthesia-table-cell {
+		min-height: auto;
 	}
 }
 
