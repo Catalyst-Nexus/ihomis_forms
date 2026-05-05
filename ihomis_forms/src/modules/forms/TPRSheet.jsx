@@ -4,12 +4,12 @@ import "./TPRSheet.css";
 export default function TPRSheet({ patientName, patientData }) {
   const chartSrc = "src/modules/forms/img/tpr.png";
 
-  const hospitalNumber = patientData?.hospitalNumber || "000000000021386";
-  const caseNumber     = patientData?.caseNumber     || "ADM-2026-010707";
-  const name           = patientName                 || "SALUCANA , NELLY JEAN LOFRANCO";
-  const sex            = patientData?.sex            || "F";
-  const age            = patientData?.age            || "32";
-  const ward           = patientData?.ward           || "EMERGENCY WARD - ER - ADMISSION - BED 04";
+  const hospitalNumber = patientData?.hospitalNumber;
+  const caseNumber     = patientData?.caseNumber;
+  const name           = patientName;
+  const sex            = patientData?.sex;
+  const age            = patientData?.age;
+  const ward           = patientData?.ward;
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();
@@ -25,8 +25,6 @@ export default function TPRSheet({ patientName, patientData }) {
   return (
     <div className="tpr-page">
       <br />
-
-      {/* ── Chart Image (at top) ── */}
       <div className="tpr-chart-wrap">
         <img
           className="tpr-chart"

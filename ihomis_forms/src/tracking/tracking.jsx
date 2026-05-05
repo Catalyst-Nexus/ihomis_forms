@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "./tracking.css";
 import { supabase } from "../tracking/hooks/supabaseClient.js";
 import { useTagAccess } from "../tracking/hooks/useTagAccess.js";
+import { Search, X, Calendar } from "lucide-react";
 
 // ── Safe date helpers ─────────────────────────────────────────────────────────
 function safeIso(raw) {
@@ -302,25 +303,49 @@ const visibleSteps = useMemo(() => {
             </select>
           </div>
           <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Search patient name…" value={nameInput}
+            <input
+              type="text"
+              style={{ fontFamily: 'inherit' }}
+              placeholder="Search patient name…"
+              value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && setNameFilter(nameInput)} />
-            <button type="button" onClick={() => setNameFilter(nameInput)}>Search</button>
-            {nameFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setNameFilter(""); setNameInput(""); }}>✕ Clear</button>}
+              onKeyDown={(e) => e.key === "Enter" && setNameFilter(nameInput)}
+            />
+            <button type="button" style={{ fontFamily: 'inherit' }} onClick={() => setNameFilter(nameInput)}>
+              <Search size={13} strokeWidth={2.5} /> Search
+            </button>
+            {nameFilter && (
+              <button type="button" className="tracking-btn-ghost" onClick={() => { setNameFilter(""); setNameInput(""); }}>
+                <X size={12} strokeWidth={2.5} /> Clear
+              </button>
+            )}
           </div>
+
           <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Filter by date e.g. 02/18/2026…" value={dateInput}
+            <input
+              type="text"
+              style={{ fontFamily: 'inherit' }}
+              placeholder="Filter by date e.g. 02/18/2026…"
+              value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && setDateFilter(dateInput)} />
-            <button type="button" onClick={() => setDateFilter(dateInput)}>Search</button>
-            {dateFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setDateFilter(""); setDateInput(""); }}>✕ Clear</button>}
+              onKeyDown={(e) => e.key === "Enter" && setDateFilter(dateInput)}
+            />
+            <button type="button" style={{ fontFamily: 'inherit' }} onClick={() => setDateFilter(dateInput)}>
+              <Calendar size={13} strokeWidth={2.5} /> Search
+            </button>
+            {dateFilter && (
+              <button type="button" className="tracking-btn-ghost" onClick={() => { setDateFilter(""); setDateInput(""); }}>
+                <X size={12} strokeWidth={2.5} /> Clear
+              </button>
+            )}
           </div>
         </div>
 
         {/* Actions */}
         <section className="tracking-actions">
-          <button type="button" onClick={onBackToModuleNavigator}>← Back to Navigator</button>
-          <button type="button" onClick={() => { fetchApi(); refreshAccess(); }} disabled={isLoading}>
+          <button type="button"  style={{ fontFamily: 'inherit' }} onClick={onBackToModuleNavigator}>← Back to Navigator</button>
+          <button type="button"  style={{ fontFamily: 'inherit' }} onClick={() => onOpenTagging?.(taggableRows)} disabled={!taggableRows.length}>Open Tagging</button>
+          <button type="button"  style={{ fontFamily: 'inherit' }} onClick={() => { fetchApi(); refreshAccess(); }} disabled={isLoading}>
             {isLoading ? "Syncing…" : "↺ Refresh"}
           </button>
         </section>
