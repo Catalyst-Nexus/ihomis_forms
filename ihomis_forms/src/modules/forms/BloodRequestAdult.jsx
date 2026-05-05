@@ -11,17 +11,17 @@ const formatGeneratedOn = (date = new Date()) => {
 };
 
 export default function BloodRequestAdult({ patientName, patientData = {} }) {
-	const hospitalNo = patientData.hospitalNo || patientData.hospNo || "000000021041";
-	const name = patientName || patientData.patientName || "FELISELDA , CIAN REIN BAYSA";
-	const sex = patientData.sex || "M";
-	const age = patientData.age || "1 hour(s)";
-	const caseNo = patientData.caseNo || patientData.caseNum || "ADM-2026-010651";
-	const birthDate = patientData.birthDate || "April 22, 2026";
-	const date = patientData.date || "April 22, 2026";
-	const department = patientData.department || "NEWBORN";
-	const roomNo = patientData.roomNo || "OB GYNE - OB 2 - BED 03 - NB";
+	const hospitalNo = patientData.hospitalNo || patientData.hospNo || "";
+	const name = patientName || patientData.patientName || "";
+	const sex = patientData.sex || "";
+	const age = patientData.age || "";
+	const caseNo = patientData.caseNo || patientData.caseNum || "";
+	const birthDate = patientData.birthDate || "";
+	const date = patientData.date || "";
+	const department = patientData.department || "";
+	const roomNo = patientData.roomNo || "";
 	const address = patientData.address || "";
-	const admittingImpression = patientData.admittingImpression || "TERM MALE NEONATE DELIVERED NSVD CEPHALIC WITH AS 8,9 BS 40 WEEKS, BW 3.8 KGS, AGA";
+	const admittingImpression = patientData.admittingImpression || "";
 	const generatedOn = patientData.generatedOn || formatGeneratedOn();
 
 
@@ -87,6 +87,7 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 					)}
 					<div className="brf-info-row brf-impression-row">
 						<span className="brf-label">Admitting Impression/Clinical Diagnosis: </span>
+						<br></br>
 						<span className="brf-value">{admittingImpression}</span>
 					</div>
 				</div>

@@ -11,8 +11,10 @@ const chartSectionStyle = {
 };
 
 const chartImageStyle = {
-  width: '187mm',
-  height: '180mm',
+  width: '100%',
+  maxWidth: '187mm',
+  height: 'auto',
+  maxHeight: '180mm',
   display: 'block',
   objectFit: 'fill',
 };
@@ -79,13 +81,12 @@ const AnesthesiaRecord = ({ patientName, patientData = {} }) => {
   };
 
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
+    <div className="anesthesia-record-container">
+      <div className="anesthesia-record">
         <div className="header-reserved-space" aria-hidden="true" />
 
         <section className="form-intro anesthesia-header" aria-label="Form title and patient details">
-          <div className="anesthesia-title">ANESTHESIA RECORD</div>
-
+          
           <div className="anesthesia-case-number">
             <span className="anesthesia-label">Case Number:</span>
             <input
@@ -96,8 +97,8 @@ const AnesthesiaRecord = ({ patientName, patientData = {} }) => {
             />
           </div>
 
-     <div className="anesthesia-table">
-          <div className="anesthesia-table-row" style={{ gridTemplateColumns: '28mm 1fr 28mm 1fr' }}>
+    <div className="anesthesia-table">
+      <div className="anesthesia-table-row anesthesia-row-1">
               <div className="anesthesia-table-cell">
                 <span className="anesthesia-label">Name of Patient:</span>
               </div>
