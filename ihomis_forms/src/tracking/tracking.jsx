@@ -242,26 +242,27 @@ export default function Tracking({
   const taggableRows = filteredRows.filter((r) => r.id !== null);
   const isLoading    = loadingApi || syncing || accessLoading;
 
-  // ── Visible steps for current user ────────────────────────────────────────
-  // For the table header: only show step columns accessible to this user
-  // (union of all accessible seqIds across all their records)
-  const visibleStepIds = useMemo(() => {
-    if (!currentUserId || !Object.keys(accessMap).length) return new Set(steps.map((s) => s.id));
-    const ids = new Set();
-    for (const [, access] of Object.entries(accessMap)) {
-      if (access.seqIds === "all") return new Set(steps.map((s) => s.id)); // show all
-      if (access.seqIds === "remaining") {
-        steps.forEach((s) => {
-          if (!(access.excludeSeqIds ?? []).includes(s.id)) ids.add(s.id);
-        });
-      } else {
-        (access.seqIds ?? []).forEach((id) => ids.add(id));
-      }
-    }
-    return ids;
-  }, [accessMap, currentUserId, steps]);
+// ── Visible steps for current user ────────────────────────────────────────
+const visibleSteps = useMemo(() => {
+  // No auth / admin mode → show all steps
+  if (!currentUserId) return steps;
 
-  const visibleSteps = steps.filter((s) => visibleStepIds.has(s.id));
+  // No assignments yet → show NO step columns (base columns only)
+  if (!Object.keys(accessMap).length) return [];
+
+  const ids = new Set();
+  for (const [, access] of Object.entries(accessMap)) {
+    if (access.seqIds === "all") return steps; // full access → all steps
+    if (access.seqIds === "remaining") {
+      steps.forEach((s) => {
+        if (!(access.excludeSeqIds ?? []).includes(s.id)) ids.add(s.id);
+      });
+    } else {
+      (access.seqIds ?? []).forEach((id) => ids.add(id));
+    }
+  }
+  return steps.filter((s) => ids.has(s.id));
+}, [accessMap, currentUserId, steps]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
