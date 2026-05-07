@@ -583,10 +583,14 @@ export async function fetchPatientEncounters({
     return { payload: null, encounters: [] };
   }
 
-  const baseUrl = String(patientSearchUrl || apiBaseUrl || "").replace(
+  // Strip /patients suffix to get the base API URL
+  let baseUrl = String(patientSearchUrl || apiBaseUrl || "").replace(
     /\/+$/,
     "",
   );
+  
+  // Remove /patients suffix if present (patientSearchUrl ends with /patients)
+  baseUrl = baseUrl.replace(/\/patients$/, "");
 
   if (!baseUrl) {
     throw new Error(
@@ -595,7 +599,7 @@ export async function fetchPatientEncounters({
   }
 
   const requestUrl = buildRequestUrl(
-    `${baseUrl}/${encodeURIComponent(trimmedHpercode)}/encounters`,
+    `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/encounters`,
   );
 
   const headers = {};

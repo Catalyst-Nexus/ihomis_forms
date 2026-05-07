@@ -178,12 +178,14 @@ function LabTestsStep({
   orders,
   ordersLoading,
   ordersError,
+  statusFilter,
+  onStatusFilterChange,
 }) {
   useEffect(() => {
     if (enccode && orderType) {
-      onLoadOrders(enccode, orderType, hpercode);
+      onLoadOrders(enccode, orderType, hpercode, statusFilter);
     }
-  }, [enccode, hpercode, onLoadOrders, orderType]);
+  }, [enccode, hpercode, onLoadOrders, orderType, statusFilter]);
 
   return (
     <div className="lum-step-content">
@@ -191,6 +193,32 @@ function LabTestsStep({
       <p className="lum-step-desc">
         Choose the tests you are uploading results for.
       </p>
+
+      {/* Status Filter */}
+      <div className="lum-status-filter-wrap">
+        <label htmlFor="status-filter" className="lum-status-filter-label">Filter by Status:</label>
+        <select
+          id="status-filter"
+          className="lum-status-filter"
+          value={statusFilter}
+          onChange={(e) => onStatusFilterChange(e.target.value)}
+        >
+          <option value="all">All Status</option>
+          <option value="S">Scheduled</option>
+          <option value="P">Pending</option>
+          <option value="C">Completed</option>
+          <option value="R">Resulted</option>
+          <option value="X">Cancelled</option>
+        </select>
+        <button
+          type="button"
+          className="lum-btn lum-btn--secondary"
+          onClick={() => onLoadOrders(enccode, orderType, hpercode, statusFilter)}
+          disabled={ordersLoading}
+        >
+          Refresh
+        </button>
+      </div>
 
       {ordersLoading && (
         <div className="lum-loading">
@@ -311,6 +339,8 @@ LabTestsStep.propTypes = {
   orders: PropTypes.array.isRequired,
   ordersLoading: PropTypes.bool.isRequired,
   ordersError: PropTypes.string,
+  statusFilter: PropTypes.string,
+  onStatusFilterChange: PropTypes.func.isRequired,
 };
 
 // ── Upload Step ────────────────────────────────────────────────────────────────
@@ -546,6 +576,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
   const [uploads, setUploads] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const enccode =
     selectedContextParams?.enccode || selectedContextParams?.enc || "";
@@ -709,6 +740,8 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
               orders={orders}
               ordersLoading={ordersLoading}
               ordersError={ordersError}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
             />
           </div>
         )}
