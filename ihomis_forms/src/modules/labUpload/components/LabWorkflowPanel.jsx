@@ -72,14 +72,14 @@ function OrderCard({ order, isSelected, onSelect }) {
       onKeyDown={(e) => e.key === "Enter" && onSelect(order)}
     >
       <div className="order-card-header">
-        <span className="order-code">{order.orcode}</span>
-        <span className="order-type-badge">{order.ordcode}</span>
+        <span className="order-code">{order.docointkey}</span>
+        <span className="order-status">{order.estatus}</span>
       </div>
       <div className="order-card-body">
-        <p className="order-item">{order.oritem}</p>
+        <p className="order-desc">Doctor Order</p>
         <div className="order-meta">
-          <span>{order.ordate}</span>
-          <span>{order.ortime}</span>
+          <span>📅 {order.ordate}</span>
+          <span>🕐 {order.ortime}</span>
         </div>
       </div>
       {isSelected && <div className="order-selected-indicator">✓ Selected</div>}
@@ -249,7 +249,8 @@ export default function LabWorkflowPanel({
             ...contextParams,
             hpercode: contextParams?.hpercode || patient?.contextParams?.hpercode,
             enccode,
-            orcode: selectedOrder?.orcode,
+            docointkey: selectedOrder?.docointkey,
+            procode: selectedProcedure?.chrgcod,
             procedureInstanceId: selectedProcedure?.procedureInstanceId,
             user: LAB_UPLOAD_API_TOKEN ? "system" : "",
           },
@@ -363,9 +364,9 @@ export default function LabWorkflowPanel({
             <div className="order-list">
               {orders.map((order) => (
                 <OrderCard
-                  key={order.orcode}
+                  key={order.docointkey}
                   order={order}
-                  isSelected={selectedOrder?.orcode === order.orcode}
+                  isSelected={selectedOrder?.docointkey === order.docointkey}
                   onSelect={handleSelectOrder}
                 />
               ))}
@@ -392,7 +393,7 @@ export default function LabWorkflowPanel({
           </div>
 
           <div className="selected-order-badge">
-            Selected: {selectedOrder?.oritem} ({selectedOrder?.orcode})
+            Order: {selectedOrder?.docointkey}
           </div>
 
           {proceduresError && (
