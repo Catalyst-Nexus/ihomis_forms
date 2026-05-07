@@ -63,6 +63,8 @@ WorkflowStepIndicator.propTypes = {
 };
 
 function OrderCard({ order, isSelected, onSelect }) {
+  // orcode in Supabase = hdocord.docointkey in MySQL
+  const orderCode = order.docointkey || order.orcode;
   return (
     <div
       className={`order-card ${isSelected ? "selected" : ""}`}
@@ -72,11 +74,11 @@ function OrderCard({ order, isSelected, onSelect }) {
       onKeyDown={(e) => e.key === "Enter" && onSelect(order)}
     >
       <div className="order-card-header">
-        <span className="order-code">{order.docointkey}</span>
+        <span className="order-code">{orderCode}</span>
         <span className="order-status">{order.estatus}</span>
       </div>
       <div className="order-card-body">
-        <p className="order-desc">Doctor Order</p>
+        <p className="order-desc">Lab/Radiology Order</p>
         <div className="order-meta">
           <span>📅 {order.ordate}</span>
           <span>🕐 {order.ortime}</span>
@@ -94,6 +96,8 @@ OrderCard.propTypes = {
 };
 
 function ProcedureCard({ procedure, isSelected, onSelect }) {
+  // procode = actual lab test code (CBC, U/A, etc.)
+  const procedureCode = procedure.chrgcod || procedure.procode;
   return (
     <div
       className={`procedure-card ${isSelected ? "selected" : ""}`}
@@ -103,11 +107,11 @@ function ProcedureCard({ procedure, isSelected, onSelect }) {
       onKeyDown={(e) => e.key === "Enter" && onSelect(procedure)}
     >
       <div className="procedure-card-header">
-        <span className="procedure-id">{procedure.procedureInstanceId}</span>
+        <span className="procedure-code">{procedureCode}</span>
         <span className="procedure-status">{procedure.procedureStatus}</span>
       </div>
       <div className="procedure-card-body">
-        <p className="procedure-desc">{procedure.procedureDescription}</p>
+        <p className="procedure-desc">{procedure.procedureDescription || procedureCode}</p>
         <div className="procedure-meta">
           <span>{procedure.procdateFormatted || procedure.procedureDate}</span>
           <span>{procedure.proctimeFormatted || procedure.procedureTime}</span>
@@ -243,13 +247,15 @@ export default function LabWorkflowPanel({
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       try {
+        // orcode in Supabase = hdocord.docointkey in MySQL
+        const orderCode = selectedOrder?.docointkey || selectedOrder?.orcode;
         const result = await submitLabResult({
           file,
           contextParams: {
             ...contextParams,
             hpercode: contextParams?.hpercode || patient?.contextParams?.hpercode,
             enccode,
-            docointkey: selectedOrder?.docointkey,
+            orcode: orderCode,
             procode: selectedProcedure?.chrgcod,
             procedureInstanceId: selectedProcedure?.procedureInstanceId,
             user: LAB_UPLOAD_API_TOKEN ? "system" : "",

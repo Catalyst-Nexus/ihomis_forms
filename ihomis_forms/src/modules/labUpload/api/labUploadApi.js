@@ -1027,15 +1027,13 @@ export async function fetchEncounterOrders({
     orderType: type,
     count: rawOrders.length,
     data: rawOrders.map((order) => ({
-      orcode: order.orcode,
+      orcode: order.orcode,           // Lab/Radio classification
       enccode: order.enccode,
-      ordcode: order.ordcode,
-      oritem: order.oritem,
+      docointkey: order.docointkey,    // Unique order ID
+      estatus: order.estatus,
       ordate: order.ordate || order.ordates,
       ortime: order.ortime,
-      estatus: order.estatus,
       entryby: order.entryby,
-      docointkey: order.docointkey,
       hpercode: order.hpercode,
       patlast: order.patlast,
       patfirst: order.patfirst,
