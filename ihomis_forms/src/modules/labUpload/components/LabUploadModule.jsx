@@ -168,6 +168,7 @@ OrderTypeStep.propTypes = {
 // ── Lab Tests Selection ───────────────────────────────────────────────────────
 function LabTestsStep({
   enccode,
+  hpercode,
   orderType,
   selectedProcs,
   onToggleProc,
@@ -180,9 +181,9 @@ function LabTestsStep({
 }) {
   useEffect(() => {
     if (enccode && orderType) {
-      onLoadOrders(enccode, orderType);
+      onLoadOrders(enccode, orderType, hpercode);
     }
-  }, [enccode, orderType]);
+  }, [enccode, hpercode, onLoadOrders, orderType]);
 
   return (
     <div className="lum-step-content">
@@ -269,7 +270,7 @@ function LabTestsStep({
                 </div>
                 <div className="lum-order-info">
                   <span className="lum-order-proc">{order.proccode}</span>
-                  <span className="lum-order-desc">{order.procdesc}</span>
+                  <span className="lum-order-desc">{order.procedureDescription}</span>
                 </div>
               </button>
             );
@@ -300,6 +301,7 @@ function LabTestsStep({
 
 LabTestsStep.propTypes = {
   enccode: PropTypes.string,
+  hpercode: PropTypes.string,
   orderType: PropTypes.string,
   selectedProcs: PropTypes.arrayOf(PropTypes.string).isRequired,
   onToggleProc: PropTypes.func.isRequired,
@@ -338,7 +340,7 @@ function UploadStep({
                   {order?.proccode || docointkey}
                 </span>
                 <span className="lum-upload-desc">
-                  {order?.procdesc || "Unknown test"}
+                  {order?.procedureDescription || "Unknown test"}
                 </span>
               </div>
               <div className="lum-upload-action">
@@ -582,21 +584,24 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
     setCurrentStep("orderType");
   };
 
-  const loadOrders = useCallback(async (enc, type) => {
+  const loadOrders = useCallback(async (enc, type, hpercode) => {
     if (!enc) return;
 
     setOrdersLoading(true);
     setOrdersError("");
 
     try {
-      const orderTypeCode = type === "RADIO" ? "radio" : "lab";
+      // Backend expects: 'lab' for LABOR, 'rad' for RADIO
+      const orderTypeCode = type === "RADIO" ? "rad" : "lab";
       const response = await fetchEncounterOrders({
         enccode: enc,
+        hpercode: hpercode,
         type: orderTypeCode,
         token: LAB_UPLOAD_API_TOKEN,
       });
 
-      setOrders(response.orders || []);
+      // API returns orders in response.data
+      setOrders(response.data || []);
     } catch (err) {
       setOrdersError(
         err instanceof Error ? err.message : "Failed to load orders",
@@ -694,6 +699,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
           <div className="lab-panel">
             <LabTestsStep
               enccode={enccode}
+              hpercode={selectedContextParams?.hpercode}
               orderType={orderType}
               selectedProcs={selectedProcs}
               onToggleProc={handleToggleProc}

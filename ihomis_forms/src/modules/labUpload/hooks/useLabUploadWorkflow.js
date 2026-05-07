@@ -70,10 +70,11 @@ export function useLabUploadWorkflow() {
    * @param {string} enccode - Encounter ID
    * @param {Object} [options]
    * @param {string} [options.type] - 'lab' | 'rad' | 'all'
+   * @param {string} [options.hpercode] - Patient ID for fallback lookup
    * @param {Object} [options.contextParams] - Optional context for token resolution
    */
   const fetchOrdersForEncounter = useCallback(
-    async (enccode, { type = "all", contextParams } = {}) => {
+    async (enccode, { type = "all", hpercode = null, contextParams } = {}) => {
       setOrdersLoading(true);
       setOrdersError(null);
       setOrders([]);
@@ -90,8 +91,9 @@ export function useLabUploadWorkflow() {
 
         const result = await fetchEncounterOrders({
           enccode,
+          hpercode,
           type,
-          status: "S",
+          status: "all",  // Show all order statuses, not just "S"
           token,
         });
 

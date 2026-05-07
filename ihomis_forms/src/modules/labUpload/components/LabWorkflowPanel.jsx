@@ -18,7 +18,18 @@ import { useLabUploadWorkflow } from "../hooks/useLabUploadWorkflow.js";
 import {
   LAB_UPLOAD_API_TOKEN,
 } from "../labUploadConfig.js";
+import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 import "./LabWorkflowPanel.css";
+
+// Status mapping for display
+const STATUS_LABELS = {
+  S: "Scheduled",
+  C: "Completed",
+  P: "Pending",
+  X: "Cancelled",
+  R: "Resulted",
+  I: "In Progress",
+};
 
 const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
 
@@ -65,6 +76,7 @@ WorkflowStepIndicator.propTypes = {
 function OrderCard({ order, isSelected, onSelect }) {
   // orcode in Supabase = hdocord.docointkey in MySQL
   const orderCode = order.docointkey || order.orcode;
+  const statusLabel = STATUS_LABELS[order.estatus] || order.estatus || "Unknown";
   return (
     <div
       className={`order-card ${isSelected ? "selected" : ""}`}
@@ -75,7 +87,9 @@ function OrderCard({ order, isSelected, onSelect }) {
     >
       <div className="order-card-header">
         <span className="order-code">{orderCode}</span>
-        <span className="order-status">{order.estatus}</span>
+        <span className={`order-status order-status--${order.estatus?.toLowerCase() || 'unknown'}`}>
+          {statusLabel}
+        </span>
       </div>
       <div className="order-card-body">
         <p className="order-desc">Lab/Radiology Order</p>
@@ -162,6 +176,9 @@ export default function LabWorkflowPanel({
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all"); // Status filter: all, S, C, P, R
+  const [showPreview, setShowPreview] = useState(false); // PDF preview state
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0); // Which file to preview
   const fileInputRef = useRef(null);
 
   // ── Derived state ────────────────────────────────────────────
@@ -179,12 +196,14 @@ export default function LabWorkflowPanel({
     try {
       await fetchOrdersForEncounter(enccode, {
         type: "all",
+        status: statusFilter, // Pass status filter to API
+        hpercode: contextParams?.hpercode || patient?.contextParams?.hpercode || null,
         contextParams,
       });
     } catch {
       // error handled by hook
     }
-  }, [enccode, fetchOrdersForEncounter, contextParams]);
+  }, [enccode, fetchOrdersForEncounter, contextParams, patient, statusFilter]);
 
   // ── Fetch procedures when order is selected ─────────────────
   const handleSelectOrder = useCallback(
@@ -328,14 +347,28 @@ export default function LabWorkflowPanel({
         <div className="workflow-step order-step">
           <div className="step-header">
             <h3>Select Order</h3>
-            <button
-              type="button"
-              className="btn-fetch-orders"
-              onClick={handleFetchOrders}
-              disabled={ordersLoading || !enccode}
-            >
-              {ordersLoading ? "Loading..." : "Load Orders"}
-            </button>
+            <div className="step-header-actions">
+              <select
+                className="status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="S">Scheduled</option>
+                <option value="P">Pending</option>
+                <option value="C">Completed</option>
+                <option value="R">Resulted</option>
+                <option value="X">Cancelled</option>
+              </select>
+              <button
+                type="button"
+                className="btn-fetch-orders"
+                onClick={handleFetchOrders}
+                disabled={ordersLoading || !enccode}
+              >
+                {ordersLoading ? "Loading..." : "Load Orders"}
+              </button>
+            </div>
           </div>
 
           {ordersError && (
@@ -517,6 +550,17 @@ export default function LabWorkflowPanel({
                     </span>
                     <button
                       type="button"
+                      className="btn-preview-file"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePreviewIndex(idx);
+                        setShowPreview(true);
+                      }}
+                    >
+                      👁️ Preview
+                    </button>
+                    <button
+                      type="button"
                       className="btn-remove-file"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -530,6 +574,28 @@ export default function LabWorkflowPanel({
               </div>
             )}
           </div>
+
+          {/* PDF Preview Panel */}
+          {showPreview && selectedFiles.length > 0 && (
+            <div className="pdf-preview-section">
+              <div className="pdf-preview-header">
+                <h4>PDF Preview: {selectedFiles[activePreviewIndex]?.name}</h4>
+                <button
+                  type="button"
+                  className="btn-close-preview"
+                  onClick={() => setShowPreview(false)}
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <div className="pdf-preview-container">
+                <PdfCanvasPreview
+                  file={selectedFiles[activePreviewIndex]}
+                  token={LAB_UPLOAD_API_TOKEN}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Remarks */}
           <div className="upload-remarks">

@@ -963,8 +963,9 @@ export async function uploadLabResultBatch({
  */
 export async function fetchEncounterOrders({
   enccode,
+  hpercode = null,
   type = "all",
-  status = "S",
+  status = "all",  // Changed from "S" to show all order statuses
   token,
   apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
 }) {
@@ -977,13 +978,24 @@ export async function fetchEncounterOrders({
     /\/+$/,
     "",
   );
-  // Replace /patients suffix with empty to get base API URL
-  // Double-encode the enccode since it may contain special chars like / and :
-  const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
+  
+  // Build the base URL - remove /patients suffix if present
+  const cleanBaseUrl = baseUrl.replace(/\/patients$/, "");
+  
+  // Encode the enccode to handle special characters like / and :
+  // This is necessary because the enccode contains path-like characters
+  const encodedEnccode = encodeURIComponent(trimmedEnccode);
+  
+  // Build URL with properly encoded enccode path parameter
+  // Pass hpercode as query param for fallback lookup
   const requestUrl = buildRequestUrl(
-    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders`,
-    { type, status },
+    `${cleanBaseUrl}/encounters/${encodedEnccode}/orders`,
+    { type, status, hpercode },
   );
+  
+  // Debug log for troubleshooting
+  console.log("[fetchEncounterOrders] Request URL:", requestUrl);
+  console.log("[fetchEncounterOrders] Params:", { enccode: trimmedEnccode, type, status });
 
   const headers = {};
   if (token) {
@@ -1001,6 +1013,10 @@ export async function fetchEncounterOrders({
       `Network error fetching encounter orders: ${networkError.message}`,
     );
   }
+
+  // Debug: Log the raw response
+  console.log("[fetchEncounterOrders] Response status:", response.status);
+  console.log("[fetchEncounterOrders] Response body:", responsePayload);
 
   if (!response.ok) {
     const parsed = tryParseJson(responsePayload);
@@ -1075,9 +1091,9 @@ export async function fetchOrderProcedures({
     /\/+$/,
     "",
   );
-  // Double-encode both enccode and docointkey since they may contain special chars
-  const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
-  const encodedDocointkey = encodeURIComponent(encodeURIComponent(trimmedDocointkey));
+  // Only single-encode path parameters
+  const encodedEnccode = encodeURIComponent(trimmedEnccode);
+  const encodedDocointkey = encodeURIComponent(trimmedDocointkey);
   const requestUrl = buildRequestUrl(
     `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedDocointkey}/procedures`,
     { procedureInstanceId },
