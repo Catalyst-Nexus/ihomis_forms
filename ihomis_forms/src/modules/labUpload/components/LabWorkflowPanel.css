@@ -1,0 +1,546 @@
+/* LabWorkflowPanel.css */
+
+.lab-workflow-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.workflow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workflow-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-change-patient {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.btn-change-patient:hover {
+  background: #f5f5f5;
+}
+
+/* ── Context summary ─────────────────────────────────────────── */
+.workflow-context-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.context-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  background: #e8f0fe;
+  color: #1a73e8;
+  border: 1px solid #c2d8fb;
+}
+
+.context-chip.patient {
+  background: #e6f4ea;
+  color: #1e8e3e;
+  border-color: #b7e1c6;
+}
+
+.context-chip.encounter {
+  background: #fce8e6;
+  color: #d93025;
+  border-color: #f5c6c2;
+}
+
+/* ── Step Indicator ─────────────────────────────────────────── */
+.workflow-step-indicator {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  gap: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.step-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #ddd;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.step-badge.active {
+  background: #1a73e8;
+  color: #fff;
+}
+
+.step-badge.completed {
+  background: #1e8e3e;
+  color: #fff;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.step-label.active {
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.step-connector {
+  width: 32px;
+  height: 2px;
+  background: #ddd;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.step-connector.completed {
+  background: #1e8e3e;
+}
+
+/* ── Step containers ─────────────────────────────────────────── */
+.workflow-step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.step-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.step-empty {
+  padding: 24px;
+  text-align: center;
+  color: #888;
+  font-size: 0.875rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border: 1px dashed #ddd;
+}
+
+.step-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fce8e6;
+  color: #d93025;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #f5c6c2;
+}
+
+/* ── Order cards ─────────────────────────────────────────────── */
+.order-list,
+.procedure-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.order-card,
+.procedure-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.order-card:hover,
+.procedure-card:hover {
+  border-color: #1a73e8;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.15);
+}
+
+.order-card.selected,
+.procedure-card.selected {
+  border-color: #1a73e8;
+  background: #e8f0fe;
+}
+
+.order-card-header,
+.procedure-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.order-code,
+.procedure-id {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.order-type-badge {
+  font-size: 0.6875rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  border: 1px solid #c2d8fb;
+  text-transform: uppercase;
+}
+
+.procedure-status {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e6f4ea;
+  color: #1e8e3e;
+  border: 1px solid #b7e1c6;
+}
+
+.order-card-body,
+.procedure-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-item,
+.procedure-desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.order-meta,
+.procedure-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.order-selected-indicator,
+.procedure-selected-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.6875rem;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn-fetch-orders,
+.btn-retry,
+.btn-back,
+.btn-skip-procedure {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: #555;
+}
+
+.btn-fetch-orders:hover:not(:disabled),
+.btn-retry:hover,
+.btn-back:hover,
+.btn-skip-procedure:hover {
+  background: #f5f5f5;
+}
+
+.btn-fetch-orders:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selected-order-badge {
+  padding: 6px 12px;
+  background: #e8f0fe;
+  border: 1px solid #c2d8fb;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #1a73e8;
+}
+
+.procedure-skip-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Upload step ─────────────────────────────────────────────── */
+.upload-context-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.file-drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-active {
+  border-color: #1a73e8;
+  background: #e8f0fe;
+}
+
+.file-drop-zone.has-files {
+  border-style: solid;
+  border-color: #1a73e8;
+}
+
+.drop-zone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+}
+
+.drop-icon {
+  font-size: 2rem;
+}
+
+.drop-zone-empty p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.selected-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.selected-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.btn-remove-file {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #d93025;
+  font-size: 0.875rem;
+  padding: 0 4px;
+}
+
+.upload-remarks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upload-remarks label {
+  font-size: 0.8125rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.upload-remarks textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 0.875rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.upload-error {
+  padding: 10px 12px;
+  background: #fce8e6;
+  color: #d93025;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #f5c6c2;
+}
+
+.btn-upload-submit {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-upload-submit:hover:not(:disabled) {
+  background: #1557b0;
+}
+
+.btn-upload-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Upload results ─────────────────────────────────────────── */
+.upload-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #e6f4ea;
+  border-radius: 8px;
+  border: 1px solid #b7e1c6;
+}
+
+.upload-results h4 {
+  margin: 0 0 4px;
+  font-size: 0.9375rem;
+  color: #1e8e3e;
+}
+
+.upload-result-item {
+  background: #fff;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #c8e6cd;
+}
+
+.result-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-file-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 50%;
+}
+
+.result-docointkey {
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.result-docointkey strong {
+  color: #1a73e8;
+  font-family: monospace;
+}
+
+.result-item-url a {
+  font-size: 0.8125rem;
+  color: #1a73e8;
+}
+
+.result-item-time {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.btn-reset-workflow {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #555;
+  align-self: flex-start;
+}
+
+.btn-reset-workflow:hover {
+  background: #f5f5f5;
+}
+
+/* ── Spinner ────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #1a73e8;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

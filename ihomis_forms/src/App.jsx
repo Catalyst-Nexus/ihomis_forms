@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
 import { PdfPreviewProvider } from "./lib/PdfPreviewContext.jsx";
@@ -89,7 +90,37 @@ function PatientSelectionPage({
   patientPicker,
   onConfirmSelection,
   onOpenTracking,
+  onConfirmEncounter,
 }) {
+  // Handle patient selection - open encounter modal
+  const handleSelectPatient = (patient) => {
+    // Check if patient has an hpercode that could have multiple encounters
+    const hpercode =
+      patient?.rawData?.hpercode ||
+      patient?.contextParams?.hpercode ||
+      patient?.id ||
+      "";
+
+    // Open encounter modal for any patient with an hpercode
+    if (hpercode) {
+      patientPicker.openEncounterModalForPatient(patient);
+    } else {
+      // Fallback: just select the patient directly
+      patientPicker.selectPatient(patient);
+    }
+  };
+
+  // Handle confirmation with encounter selected
+  const handleConfirmSelection = () => {
+    if (patientPicker.selectedEncounter) {
+      patientPicker.confirmEncounterSelection();
+      onConfirmSelection();
+    } else {
+      patientPicker.confirmSelection();
+      onConfirmSelection();
+    }
+  };
+
   return (
     <div className="app-landing-page">
       <div
@@ -120,8 +151,8 @@ function PatientSelectionPage({
             hasNextPage={patientPicker.hasNextPage}
             hasPreviousPage={patientPicker.hasPreviousPage}
             onSearchTermChange={patientPicker.setSearchTerm}
-            onSelectPatient={patientPicker.selectPatient}
-            onConfirmSelection={onConfirmSelection}
+            onSelectPatient={handleSelectPatient}
+            onConfirmSelection={handleConfirmSelection}
             onNextPage={patientPicker.goToNextPage}
             onPreviousPage={patientPicker.goToPreviousPage}
             title="Select Patient Before Continuing"
@@ -129,12 +160,37 @@ function PatientSelectionPage({
             confirmLabel="Continue to Module Navigator"
             secondaryActionLabel="Tracking System"
             onSecondaryAction={onOpenTracking}
+            // Encounter modal props
+            showEncounterModal={patientPicker.showEncounterModal}
+            patientForEncounterSelection={
+              patientPicker.patientForEncounterSelection
+            }
+            encounters={patientPicker.encounters}
+            selectedEncounter={patientPicker.selectedEncounter}
+            encountersLoading={patientPicker.encountersLoading}
+            encountersError={patientPicker.encountersError}
+            onOpenEncounterModal={patientPicker.openEncounterModalForPatient}
+            onCloseEncounterModal={patientPicker.closeEncounterModal}
+            onSelectEncounter={patientPicker.handleEncounterSelection}
+            onConfirmEncounter={onConfirmEncounter}
+            onRetryEncounters={() =>
+              patientPicker.loadPatientEncounters(
+                patientPicker.patientForEncounterSelection,
+              )
+            }
           />
         </section>
       </main>
     </div>
   );
 }
+
+PatientSelectionPage.propTypes = {
+  patientPicker: PropTypes.object.isRequired,
+  onConfirmSelection: PropTypes.func.isRequired,
+  onOpenTracking: PropTypes.func.isRequired,
+  onConfirmEncounter: PropTypes.func.isRequired,
+};
 
 function ModuleNavigatorPage({
   selectedPatient,
@@ -192,6 +248,20 @@ function ModuleNavigatorPage({
     </div>
   );
 }
+
+ModuleNavigatorPage.propTypes = {
+  selectedPatient: PropTypes.object,
+  modulesList: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  onChangePatient: PropTypes.func.isRequired,
+  onOpenModule: PropTypes.func.isRequired,
+};
 
 function TaggingRoute() {
   const navigate = useNavigate();
@@ -311,17 +381,23 @@ function AppShell() {
   }
 
   function handleConfirmPatientSelection() {
-    patientPicker.confirmSelection();
-    if (patientPicker.selectedPatientId) {
-      setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
+    const patient = patientPicker.selectedPatient;
+    if (patient) {
+      patientPicker.openEncounterModalForPatient(patient);
     }
   }
 
   function handleOpenTrackingFromSelection() {
-    patientPicker.confirmSelection();
-    if (patientPicker.selectedPatientId) {
-      setLandingPage(LANDING_PAGE.TRACKING);
+    const patient = patientPicker.selectedPatient;
+    if (patient) {
+      patientPicker.openEncounterModalForPatient(patient);
     }
+  }
+
+  // Called by PatientSelectionPage when the encounter modal is confirmed (with enccode now set)
+  function handleEncounterConfirmed() {
+    patientPicker.confirmEncounterSelection();
+    setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
   }
 
   function handleOpenTaggingFromTracking() {
@@ -464,6 +540,7 @@ function AppShell() {
       patientPicker={patientPicker}
       onConfirmSelection={handleConfirmPatientSelection}
       onOpenTracking={handleOpenTrackingFromSelection}
+      onConfirmEncounter={handleEncounterConfirmed}
     />
   );
 }
