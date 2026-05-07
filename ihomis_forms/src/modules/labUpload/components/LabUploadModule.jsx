@@ -3,6 +3,68 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchEncounterOrders } from "../api/labUploadApi.js";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 
+// ── Patient Avatar ─────────────────────────────────────────────────────────────
+function getInitials(displayName) {
+  const parts = (displayName || "?").trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return parts[0].slice(0, 2).toUpperCase();
+}
+
+function getAvatarColor(id) {
+  const colors = [
+    "#1f9d95",
+    "#3a8f7a",
+    "#5b7fcb",
+    "#8b5dcb",
+    "#cb5b8f",
+    "#cb8b5b",
+    "#5bcb7a",
+    "#7a8f3a",
+  ];
+  let hash = 0;
+  for (let i = 0; i < (id || "").length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) & 0xffffffff;
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function PatientBadge({ patient }) {
+  const displayName = patient?.displayName || "Unknown Patient";
+  const id = patient?.id || "";
+  const hpercode = patient?.contextParams?.hpercode || patient?.rawData?.hpercode || "";
+
+  return (
+    <div className="lab-hero-patient">
+      <div
+        className="lab-hero-patient-avatar"
+        style={{ background: getAvatarColor(id) }}
+      >
+        {getInitials(displayName)}
+      </div>
+      <div className="lab-hero-patient-info">
+        <span className="lab-hero-patient-label">Patient</span>
+        <span className="lab-hero-patient-name">{displayName}</span>
+      </div>
+      {hpercode && (
+        <span className="enc-modal-hper">{hpercode}</span>
+      )}
+    </div>
+  );
+}
+
+PatientBadge.propTypes = {
+  patient: PropTypes.shape({
+    id: PropTypes.string,
+    displayName: PropTypes.string,
+    rawData: PropTypes.object,
+    contextParams: PropTypes.shape({
+      hpercode: PropTypes.string,
+    }),
+  }),
+};
+
 // ── Step Indicator ───────────────────────────────────────────────────────────
 const WORKFLOW_STEPS = [
   { id: "orderType", label: "Order Type", icon: "📋" },
@@ -17,7 +79,6 @@ function StepIndicator({ currentStep, completedSteps }) {
       {WORKFLOW_STEPS.map((step, index) => {
         const isCompleted = completedSteps.includes(step.id);
         const isCurrent = step.id === currentStep;
-        const isClickable = isCompleted;
 
         return (
           <div
@@ -26,15 +87,10 @@ function StepIndicator({ currentStep, completedSteps }) {
             role="listitem"
             aria-current={isCurrent ? "step" : undefined}
           >
-            <button
-              type="button"
-              className="lum-step-btn"
-              disabled={!isClickable}
-              aria-label={`${step.label}${isCompleted ? " (completed)" : ""}${isCurrent ? " (current)" : ""}`}
-            >
+            <div className="lum-step-btn">
               <span className="lum-step-icon">{step.icon}</span>
               <span className="lum-step-label">{step.label}</span>
-            </button>
+            </div>
             {index < WORKFLOW_STEPS.length - 1 && (
               <div
                 className={`lum-step-connector ${isCompleted ? "lum-step-connector--active" : ""}`}
@@ -588,56 +644,95 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
   };
 
   return (
-    <div className="lum-container">
-      <StepIndicator
-        currentStep={currentStep}
-        completedSteps={completedSteps}
-      />
+    <div className="lab-page">
+      <div className="lab-ambient lab-ambient-a" aria-hidden="true" />
+      <div className="lab-ambient lab-ambient-b" aria-hidden="true" />
+      
+      <div className="lab-layout">
+        {/* Hero Header with Patient Info */}
+        <div className="lab-hero-wrap">
+          <div className="lab-hero">
+            <div className="lab-hero-left">
+              <div className="lab-hero-eyebrow">
+                <span className="lab-hero-system">Lab Upload</span>
+                <div className={`lab-hero-status ${currentStep === "review" ? "lab-hero-status--ready" : "lab-hero-status--loading"}`}>
+                  <span className="lab-hero-status-dot" />
+                  {currentStep === "review" ? "Complete" : "In Progress"}
+                </div>
+              </div>
+              <h1 className="lab-hero-title">
+                Upload <span className="lab-hero-panel-name">Laboratory Results</span>
+              </h1>
+              <p className="lab-hero-meta">
+                Upload and manage laboratory test results for patient encounters.
+              </p>
+            </div>
+            <div className="lab-hero-right">
+              <PatientBadge patient={selectedPatient} />
+            </div>
+          </div>
+        </div>
 
-      {currentStep === "orderType" && (
-        <OrderTypeStep
-          selectedType={orderType}
-          onSelect={handleOrderTypeSelect}
-          onNext={handleOrderTypeNext}
+        {/* Step Indicator */}
+        <StepIndicator
+          currentStep={currentStep}
+          completedSteps={completedSteps}
         />
-      )}
 
-      {currentStep === "labTests" && (
-        <LabTestsStep
-          enccode={enccode}
-          orderType={orderType}
-          selectedProcs={selectedProcs}
-          onToggleProc={handleToggleProc}
-          onNext={handleLabTestsNext}
-          onBack={handleLabTestsBack}
-          onLoadOrders={loadOrders}
-          orders={orders}
-          ordersLoading={ordersLoading}
-          ordersError={ordersError}
-        />
-      )}
+        {/* Step Content */}
+        {currentStep === "orderType" && (
+          <div className="lab-panel">
+            <OrderTypeStep
+              selectedType={orderType}
+              onSelect={handleOrderTypeSelect}
+              onNext={handleOrderTypeNext}
+            />
+          </div>
+        )}
 
-      {currentStep === "upload" && (
-        <UploadStep
-          selectedProcs={selectedProcs}
-          orders={orders}
-          uploads={uploads}
-          onFileChange={handleFileChange}
-          onRemoveFile={handleRemoveFile}
-          onComplete={handleComplete}
-          onBack={handleUploadBack}
-        />
-      )}
+        {currentStep === "labTests" && (
+          <div className="lab-panel">
+            <LabTestsStep
+              enccode={enccode}
+              orderType={orderType}
+              selectedProcs={selectedProcs}
+              onToggleProc={handleToggleProc}
+              onNext={handleLabTestsNext}
+              onBack={handleLabTestsBack}
+              onLoadOrders={loadOrders}
+              orders={orders}
+              ordersLoading={ordersLoading}
+              ordersError={ordersError}
+            />
+          </div>
+        )}
 
-      {currentStep === "review" && (
-        <ReviewStep
-          patient={selectedPatient}
-          encounter={selectedContextParams}
-          orderType={orderType}
-          uploads={uploads}
-          onFinish={handleReviewFinish}
-        />
-      )}
+        {currentStep === "upload" && (
+          <div className="lab-panel">
+            <UploadStep
+              selectedProcs={selectedProcs}
+              orders={orders}
+              uploads={uploads}
+              onFileChange={handleFileChange}
+              onRemoveFile={handleRemoveFile}
+              onComplete={handleComplete}
+              onBack={handleUploadBack}
+            />
+          </div>
+        )}
+
+        {currentStep === "review" && (
+          <div className="lab-panel">
+            <ReviewStep
+              patient={selectedPatient}
+              encounter={selectedContextParams}
+              orderType={orderType}
+              uploads={uploads}
+              onFinish={handleReviewFinish}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -646,6 +741,12 @@ LabUploadModule.propTypes = {
   selectedPatient: PropTypes.shape({
     id: PropTypes.string,
     displayName: PropTypes.string,
+    rawData: PropTypes.object,
+    contextParams: PropTypes.shape({
+      enccode: PropTypes.string,
+      enc: PropTypes.string,
+      hpercode: PropTypes.string,
+    }),
   }),
   selectedContextParams: PropTypes.shape({
     enccode: PropTypes.string,
