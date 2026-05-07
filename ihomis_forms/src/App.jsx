@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import LabUploadModule from "./modules/labUpload/LabUploadModule.jsx";
+import LabUploadModule from "./modules/labUpload/components/LabUploadModule.jsx";
 import { PdfPreviewProvider } from "./lib/PdfPreviewContext.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
