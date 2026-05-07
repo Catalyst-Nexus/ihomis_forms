@@ -127,10 +127,10 @@ ProcedureCard.propTypes = {
 };
 
 export default function LabWorkflowPanel({
-  patient,
+  patient = null,
   contextParams = {},
-  onUploadComplete,
-  onRequestPatientChange,
+  onUploadComplete = null,
+  onRequestPatientChange = null,
 }) {
   const {
     selectedOrder,
@@ -605,11 +605,4 @@ LabWorkflowPanel.propTypes = {
   contextParams: PropTypes.object,
   onUploadComplete: PropTypes.func,
   onRequestPatientChange: PropTypes.func,
-};
-
-LabWorkflowPanel.defaultProps = {
-  patient: null,
-  contextParams: {},
-  onUploadComplete: null,
-  onRequestPatientChange: null,
 };
