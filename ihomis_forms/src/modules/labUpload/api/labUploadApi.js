@@ -1027,9 +1027,10 @@ export async function fetchEncounterOrders({
     orderType: type,
     count: rawOrders.length,
     data: rawOrders.map((order) => ({
-      orcode: order.orcode,           // Lab/Radio classification
+      orcode: order.orcode,                    // Lab/Radio classification (LABOR, RADIO, etc.)
+      proccode: order.proccode,                // Procedure code (LABOR00009, RADIO01023, etc.)
       enccode: order.enccode,
-      docointkey: order.docointkey,    // Unique order ID
+      docointkey: order.docointkey,            // Unique order ID
       estatus: order.estatus,
       ordate: order.ordate || order.ordates,
       ortime: order.ortime,
@@ -1038,6 +1039,7 @@ export async function fetchEncounterOrders({
       patlast: order.patlast,
       patfirst: order.patfirst,
       patmiddle: order.patmiddle,
+      procedureDescription: order.procedureDescription || '',  // Joined from hprocm
     })),
   };
 }
