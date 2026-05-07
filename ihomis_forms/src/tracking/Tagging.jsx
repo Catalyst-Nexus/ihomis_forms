@@ -1,24 +1,4 @@
-/**
- * Tagging.jsx — User-based access control via tagging order [FIXED v3]
- *
- * KEY FIX: 
- * - No FK constraint checks
- * - No user table syncing
- * - Direct inserts to tracking_user_assignment
- * - Works with API users directly
- *
- * DB schema:
- *   tracking:                  id | tracking_encocode | encounter_type | ...
- *   tracking_user_assignment:  id | tracking_id | user_id | tag_order
- *   user_seq_assignment:       id | user_id | seq_id
- *   tracking_sequence:         id | description | sort_order
- *
- * Access rules:
- *   tag_order 1  → full access (all steps)
- *   tag_order 2  → only steps in user_seq_assignment for their user_id
- *   tag_order 3  → steps NOT in user_seq_assignment for the tag-order-2 user
- *   tag_order 4+ → can be extended with same "remaining" logic
- */
+
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
@@ -28,6 +8,9 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
+
+// ── Persist selectedRecordId across remounts / refreshes ───────────────────
+const RECORD_SESSION_KEY = "tagging_selected_record_id";
 
 function normalizeUser(u, i) {
   const id    = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
@@ -128,19 +111,31 @@ export default function Tagging({
   const { toasts, push } = useToast();
 
   // ── Access check state ────────────────────────────────────────────────────
-  const [accessStatus, setAccessStatus] = useState("checking"); // "checking" | "allowed" | "denied"
+  const [accessStatus, setAccessStatus] = useState("checking");
 
   // ── Init ──────────────────────────────────────────────────────────────────
   const [initComplete,     setInitComplete]     = useState(false);
   const [initError,        setInitError]        = useState("");
-  const [selectedRecordId, setSelectedRecordId] = useState("");
+
+  // FIX: restore selectedRecordId from sessionStorage so it survives remounts
+  const [selectedRecordId, setSelectedRecordId] = useState(() => {
+    return sessionStorage.getItem(RECORD_SESSION_KEY) ?? "";
+  });
+
+  // Keep sessionStorage in sync
+  useEffect(() => {
+    if (selectedRecordId) {
+      sessionStorage.setItem(RECORD_SESSION_KEY, selectedRecordId);
+    } else {
+      sessionStorage.removeItem(RECORD_SESSION_KEY);
+    }
+  }, [selectedRecordId]);
 
   useEffect(() => {
     let live = true;
     (async () => {
       setInitError("");
       setInitComplete(false);
-      setSelectedRecordId("");
       setAccessStatus("checking");
 
       if (!trackingRows.length) { setInitComplete(true); setAccessStatus("allowed"); return; }
@@ -194,7 +189,11 @@ export default function Tagging({
 
       if (!live) return;
       if (errors.length) setInitError(errors.join(" | "));
-      if (firstId) setSelectedRecordId(firstId);
+
+      // FIX: only override selectedRecordId if we don't already have a persisted one
+      if (firstId) {
+        setSelectedRecordId((prev) => prev || firstId);
+      }
       setInitComplete(true);
     })();
     return () => { live = false; };
@@ -260,6 +259,7 @@ export default function Tagging({
     })));
   }, [selectedRecordId]);
 
+  // FIX: always fetch on mount + when selectedRecordId changes
   useEffect(() => { fetchTaggedUsers(); }, [fetchTaggedUsers]);
 
   // ── Step assignments ───────────────────────────────────────────────────────
@@ -283,36 +283,22 @@ export default function Tagging({
     setStepAssign(map);
   }, [taggedUsers, users]);
 
+  // FIX: fetch step assignments whenever taggedUsers or users changes (covers remount)
   useEffect(() => { fetchStepAssign(); }, [fetchStepAssign]);
 
-  // ── ACCESS CHECK: runs after taggedUsers + stepAssign are loaded ───────────
+  // ── ACCESS CHECK ───────────────────────────────────────────────────────────
   useEffect(() => {
-    // Still loading — wait
     if (!initComplete || stepsLoading) return;
-
-    // If currentUserId is not set, allow (admin/no-auth mode)
     if (!currentUserId) { setAccessStatus("allowed"); return; }
 
-    // Find if current user is tagged on this record
     const myTag = taggedUsers.find((u) => u.userId === String(currentUserId));
-
-    // Not tagged at all → allowed (they might be the admin adding users)
-    // You can change this to "denied" if you want untagged users blocked too
     if (!myTag) { setAccessStatus("allowed"); return; }
-
-    // 1st tagged user → full access always
     if (myTag.tagOrder === 1) { setAccessStatus("allowed"); return; }
 
-    // 2nd/3rd/4th tagged user → only allowed if they have at least 1 assigned step
     const mySteps = Object.values(stepAssign).filter(
       (s) => s.userId === String(currentUserId)
     );
-
-    if (mySteps.length > 0) {
-      setAccessStatus("allowed");
-    } else {
-      setAccessStatus("denied");
-    }
+    setAccessStatus(mySteps.length > 0 ? "allowed" : "denied");
   }, [initComplete, stepsLoading, taggedUsers, stepAssign, currentUserId]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
@@ -364,34 +350,106 @@ export default function Tagging({
 
   const canAddUser      = taggedUsers.length < 4;
   const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
-  const unusedUsers     = users.filter((u) => !taggedUsers.some((t) => t.userId === u.id));
+
+  // FIX: exclude already-tagged users from the dropdown — always derived from live taggedUsers state
+  const unusedUsers = useMemo(
+    () => users.filter((u) => !taggedUsers.some((t) => t.userId === u.id)),
+    [users, taggedUsers]
+  );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
+
+  /**
+   * FIX: handleAddUser — complete rewrite with strict sequential validation
+   *
+   * Rules enforced:
+   * 1. Always re-fetch live assignments from DB before inserting (no stale state)
+   * 2. A user already tagged (any order) cannot be added again
+   * 3. tag_order 1 can only exist ONCE per record
+   * 4. New tag_order = max(existing) + 1, gap-filled if needed
+   * 5. Maximum 4 users per record
+   */
   async function handleAddUser() {
     if (!selectedRecordId || !pendingUser) return;
-    if (taggedUsers.some((u) => u.userId === pendingUser)) {
-      push("User already tagged.", "info"); return;
-    }
-    if (!canAddUser) { push("Maximum users reached.", "info"); return; }
 
     const trackingIdInt = parseInt(selectedRecordId, 10);
-    if (isNaN(trackingIdInt)) { push("Invalid tracking record. Please refresh.", "error"); return; }
+    if (isNaN(trackingIdInt)) {
+      push("Invalid tracking record. Please refresh.", "error");
+      return;
+    }
 
+    // ── Step 1: Verify the tracking record actually exists in DB ──────────
     const { data: exists, error: chkErr } = await supabase
       .from("tracking").select("id").eq("id", trackingIdInt).maybeSingle();
     if (chkErr || !exists) {
-      push("Tracking record not found in DB. Try refreshing.", "error"); return;
+      push("Tracking record not found in DB. Try refreshing.", "error");
+      return;
     }
 
-    const { data: existing } = await supabase
+    // ── Step 2: Fetch LIVE assignments from DB (ignore local state) ───────
+    const { data: existing, error: existingErr } = await supabase
       .from("tracking_user_assignment")
-      .select("tag_order")
+      .select("id, user_id, tag_order")
       .eq("tracking_id", trackingIdInt)
-      .order("tag_order", { ascending: false })
-      .limit(1);
-    const maxOrder = existing?.[0]?.tag_order ?? 0;
-    const newOrder = maxOrder + 1;
+      .order("tag_order", { ascending: true });
 
+    if (existingErr) {
+      push(`Error loading existing tags: ${existingErr.message}`, "error");
+      return;
+    }
+
+    const liveAssignments = existing ?? [];
+
+    // ── Step 3: Check if this user is already tagged (any order) ─────────
+    const alreadyTagged = liveAssignments.some(
+      (r) => String(r.user_id) === String(pendingUser)
+    );
+    if (alreadyTagged) {
+      push("This user is already tagged on this record.", "info");
+      // Sync local state in case it was stale
+      setTaggedUsers(liveAssignments.map((r) => ({
+        rowId: r.id, userId: String(r.user_id), tagOrder: r.tag_order,
+      })));
+      setPendingUser("");
+      return;
+    }
+
+    // ── Step 4: Validate tag_order integrity ──────────────────────────────
+    const orders = liveAssignments
+      .map((r) => Number(r.tag_order))
+      .filter((n) => Number.isFinite(n))
+      .sort((a, b) => a - b);
+
+    const orderSet = new Set(orders);
+
+    // Detect duplicate orders (data corruption)
+    if (orders.length !== orderSet.size) {
+      push("Tag order inconsistency detected. Please refresh and resolve duplicates before adding a new user.", "error");
+      return;
+    }
+
+    // If any assignments exist, tag_order 1 must be present
+    if (orders.length > 0 && !orderSet.has(1)) {
+      push("Tag order is missing the 1st tag. Please resolve existing tags first.", "error");
+      return;
+    }
+
+    // ── Step 5: Compute next tag_order (fill first gap, or max+1) ─────────
+    let newOrder = 1; // default if no assignments yet
+    if (orders.length > 0) {
+      // Find the first unused order starting from 1
+      newOrder = orders[orders.length - 1] + 1; // start with max+1
+      for (let i = 1; i <= orders[orders.length - 1] + 1; i++) {
+        if (!orderSet.has(i)) { newOrder = i; break; }
+      }
+    }
+
+    if (newOrder > 4) {
+      push("Maximum of 4 users per record has been reached.", "info");
+      return;
+    }
+
+    // ── Step 6: Insert ────────────────────────────────────────────────────
     const { data, error } = await supabase
       .from("tracking_user_assignment")
       .insert({ tracking_id: trackingIdInt, user_id: pendingUser, tag_order: newOrder })
@@ -400,10 +458,8 @@ export default function Tagging({
 
     if (error) { push(`Error: ${error.message}`, "error"); return; }
 
-    setTaggedUsers((prev) => [
-      ...prev,
-      { rowId: data.id, userId: pendingUser, tagOrder: newOrder },
-    ]);
+    // ── Step 7: Sync local state from DB (re-fetch to be safe) ───────────
+    await fetchTaggedUsers();
 
     const uLabel = users.find((u) => u.id === pendingUser)?.label ?? pendingUser;
     push(`Tagged ${uLabel} as #${newOrder} — ${tagCfg(newOrder).label}`);
@@ -412,6 +468,10 @@ export default function Tagging({
   }
 
   async function handleRemoveUser(rowId, userId, tagOrder) {
+    if (tagOrder === 1) {
+      push("The 1st tagged user cannot be removed.", "info");
+      return;
+    }
     const { error } = await supabase
       .from("tracking_user_assignment").delete().eq("id", rowId);
     if (error) { push(`Error: ${error.message}`, "error"); return; }
@@ -480,7 +540,7 @@ export default function Tagging({
 
   const selectedRecord = trackingRows.find((r) => String(r.id) === selectedRecordId);
 
-  // ── Access gate: show loading while checking ───────────────────────────────
+  // ── Access gate: checking ─────────────────────────────────────────────────
   if (accessStatus === "checking") {
     return (
       <div className="tg-page">
@@ -509,7 +569,7 @@ export default function Tagging({
     );
   }
 
-  // ── Normal render (accessStatus === "allowed") ────────────────────────────
+  // ── Normal render ─────────────────────────────────────────────────────────
   return (
     <div className="tg-page">
       <div className="tg-toasts" aria-live="polite">
@@ -548,7 +608,7 @@ export default function Tagging({
               {usersState === "loading" && <span className="tg-spinner" />}
               {usersState === "error"   && <span className="tg-err-text">{usersError}</span>}
               {usersState === "idle"    && <span className="tg-count">{users.length} users loaded</span>}
-              <button className="tg-btn tg-btn--sm" onClick={fetchUsers}>↺ Refresh</button>
+              <button className="tg-btn tg-btn--sm" onClick={() => { fetchUsers(); fetchTaggedUsers(); }}>↺ Refresh</button>
             </div>
           </div>
 
@@ -569,6 +629,7 @@ export default function Tagging({
                 <p className="tg-section-desc">
                   The 1st tagged user gets full access to all steps.
                   Tag more users to restrict their access to specific steps.
+                  Each user can only be tagged once and follows a strict sequence.
                 </p>
 
                 {taggedUsers.length > 0 && (
@@ -591,6 +652,8 @@ export default function Tagging({
                           <button
                             className="tg-remove-btn"
                             onClick={() => handleRemoveUser(tu.rowId, tu.userId, tu.tagOrder)}
+                            disabled={tu.tagOrder === 1}
+                            title={tu.tagOrder === 1 ? "The 1st tag is fixed and cannot be removed." : "Remove user"}
                           >
                             Remove
                           </button>
@@ -609,6 +672,7 @@ export default function Tagging({
                       disabled={taggingDisabled}
                     >
                       <option value="">+ Add user…</option>
+                      {/* FIX: unusedUsers is always derived from live taggedUsers — already-tagged users never appear */}
                       {unusedUsers.map((u) => (
                         <option key={u.id} value={u.id}>{u.label}</option>
                       ))}
@@ -624,7 +688,7 @@ export default function Tagging({
                 )}
 
                 {!canAddUser && (
-                  <p className="tg-notice tg-notice--success">✓ Maximum users tagged for this record.</p>
+                  <p className="tg-notice tg-notice--success">✓ Maximum users tagged for this record (4 users max).</p>
                 )}
               </div>
 
@@ -738,11 +802,11 @@ export default function Tagging({
                 )}
               </div>
 
-              {/* ── ACCESS SUMMARY ─────────────────────────────────────── */}
+              {/* ── ACCESS SUMMARY — always rendered from DB-loaded state ── */}
               {taggedUsers.length > 0 && !stepsLoading && (
                 <div className="tg-section">
                   <p className="tg-section-cap">ACCESS SUMMARY</p>
-                  <p className="tg-section-desc">Overview of what each tagged user can access.</p>
+                  <p className="tg-section-desc">Overview of what each tagged user can access. This reflects live data from the database.</p>
                   <div className="tg-summary">
                     {taggedUsers.map((tu) => {
                       const cfg     = tagCfg(tu.tagOrder);
