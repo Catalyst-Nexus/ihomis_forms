@@ -121,7 +121,7 @@ export function useLabUploadWorkflow() {
    * @param {Object} [options.contextParams] - Optional context for token resolution
    */
   const fetchProceduresForOrder = useCallback(
-    async (enccode, orcode, { procedureInstanceId, contextParams } = {}) => {
+    async (enccode, docointkey, { procedureInstanceId, contextParams } = {}) => {
       setProceduresLoading(true);
       setProceduresError(null);
       setProcedures([]);
@@ -136,7 +136,7 @@ export function useLabUploadWorkflow() {
 
         const result = await fetchOrderProcedures({
           enccode,
-          orcode,
+          docointkey,
           procedureInstanceId,
           token,
         });
@@ -245,7 +245,7 @@ export function useLabUploadWorkflow() {
    * Advance to a specific step (for UI navigation).
    */
   const goToStep = useCallback(
-    (step) => {
+    () => {
       // Guard: only allow forward navigation for now
       // Full step management is derived from selection state
     },

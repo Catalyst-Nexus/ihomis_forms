@@ -1045,40 +1045,41 @@ export async function fetchEncounterOrders({
 }
 
 /**
- * GET /api/db/encounters/:enccode/orders/:orcode/procedures
+ * GET /api/db/encounters/:enccode/orders/:docointkey/procedures
  *
  * Fetch procedures/line items for a specific order (from pcchrgcod table).
+ * Note: pcchrgcod.orcode references hdocord.docointkey
  *
  * @param {Object} options
  * @param {string} options.enccode - Encounter ID (required)
- * @param {string} options.orcode - Order ID (required)
+ * @param {string} options.docointkey - Order ID from hdocord.docointkey (required)
  * @param {string} [options.procedureInstanceId] - Filter by specific procedure ID
  * @param {string} [options.token] - Auth token
  * @param {string} [options.apiBaseUrl] - Override API base URL
  */
 export async function fetchOrderProcedures({
   enccode,
-  orcode,
+  docointkey,
   procedureInstanceId,
   token,
   apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
 }) {
   const trimmedEnccode = String(enccode || "").trim();
-  const trimmedOrcode = String(orcode || "").trim();
+  const trimmedDocointkey = String(docointkey || "").trim();
 
-  if (!trimmedEnccode || !trimmedOrcode) {
-    throw new Error("Both enccode and orcode are required to fetch procedures.");
+  if (!trimmedEnccode || !trimmedDocointkey) {
+    throw new Error("Both enccode and docointkey are required to fetch procedures.");
   }
 
   const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
     /\/+$/,
     "",
   );
-  // Double-encode both enccode and orcode since they may contain special chars
+  // Double-encode both enccode and docointkey since they may contain special chars
   const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
-  const encodedOrcode = encodeURIComponent(encodeURIComponent(trimmedOrcode));
+  const encodedDocointkey = encodeURIComponent(encodeURIComponent(trimmedDocointkey));
   const requestUrl = buildRequestUrl(
-    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedOrcode}/procedures`,
+    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedDocointkey}/procedures`,
     { procedureInstanceId },
   );
 
@@ -1120,7 +1121,7 @@ export async function fetchOrderProcedures({
   return {
     ok: data?.ok ?? true,
     enccode: trimmedEnccode,
-    orcode: trimmedOrcode,
+    docointkey: trimmedDocointkey,
     count: rawProcedures.length,
     data: rawProcedures.map((proc) => ({
       procedureInstanceId: proc.procedureInstanceId,

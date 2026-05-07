@@ -187,9 +187,9 @@ export default function LabWorkflowPanel({
     async (order) => {
       setSelectedOrder(order);
       setSelectedProcedure(null);
-      if (enccode && order?.orcode) {
+      if (enccode && order?.docointkey) {
         try {
-          await fetchProceduresForOrder(enccode, order.orcode, { contextParams });
+          await fetchProceduresForOrder(enccode, order.docointkey, { contextParams });
         } catch {
           // error handled by hook
         }
