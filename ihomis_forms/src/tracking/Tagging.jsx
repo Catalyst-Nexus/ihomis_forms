@@ -54,7 +54,7 @@ function AccessDenied({ userName, onSwitchUser, onBack }) {
           {userName && (
             <div className="tg-session-pill">
               <span className="tg-session-dot" />
-              {userName}
+              {userName?.toUpperCase()}
             </div>
           )}
         </header>
@@ -83,7 +83,7 @@ function AccessDenied({ userName, onSwitchUser, onBack }) {
               before you can access the tagging panel.
             </p>
             <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem" }}>
-              Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName}</strong>
+              Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName?.toUpperCase()}</strong>
             </p>
             <button
               className="tg-btn tg-btn--primary"

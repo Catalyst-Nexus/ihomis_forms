@@ -1,15 +1,3 @@
-/**
- * TaggingUserPicker
- * 
- * A standalone user picker component for the tagging module.
- * Uses users passed from useTaggingSession hook (not its own internal fetch).
- * 
- * Features:
- * - Displays users from the tagging session
- * - Stores selected user in a separate localStorage key
- * - Provides a clean, dedicated UI for tagging user selection
- */
-
 import { useState } from "react";
 import "./TaggingUserPicker.css";
 
@@ -113,7 +101,7 @@ export default function TaggingUserPicker({
                   <span className="tg-up-avatar" aria-hidden="true">
                     {u.label.charAt(0).toUpperCase()}
                   </span>
-                  <span className="tg-up-user-name">{u.label}</span>
+                  <span className="tg-up-user-name">{u.label.toUpperCase()}</span>
                   {chosen === u.id && (
                     <span className="tg-up-check" aria-hidden="true">✓</span>
                   )}
@@ -131,7 +119,7 @@ export default function TaggingUserPicker({
           disabled={!chosen}
           onClick={handleConfirm}
         >
-          Continue as {users.find((u) => u.id === chosen)?.label ?? "…"}
+          Continue as {users.find((u) => u.id === chosen)?.label?.toUpperCase() ?? "…"}
         </button>
       </div>
     </div>

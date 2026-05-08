@@ -13,7 +13,6 @@
   overflow: hidden;
 }
 
-/* Floating decorative orbs */
 .up-orb {
   position: absolute;
   border-radius: 50%;
@@ -43,7 +42,6 @@
   50%       { transform: translateY(-18px) scale(1.04); }
 }
 
-/* ── Card ── */
 .up-card {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(24px);
@@ -62,7 +60,6 @@
   z-index: 1;
 }
 
-/* ── Logo ── */
 .up-logo {
   display: flex;
   justify-content: center;
@@ -72,7 +69,6 @@
   filter: drop-shadow(0 6px 16px rgba(31,157,149,.35));
 }
 
-/* ── Typography ── */
 .up-heading {
   margin: 0;
   font-size: 1.65rem;
@@ -93,22 +89,7 @@
   background: linear-gradient(90deg, transparent, rgba(16,54,63,.12), transparent);
   margin: .35rem 0;
 }
-.up-prompt {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #10363f;
-  margin: 0;
-  text-align: center;
-}
-.up-hint {
-  font-size: 1rem;
-  color: #5a8a8f;
-  margin: 0;
-  line-height: 1.5;
-  text-align: center;
-}
 
-/* ── Loading ── */
 .up-loading {
   display: flex;
   align-items: center;
@@ -128,7 +109,6 @@
 }
 @keyframes up-spin { to { transform: rotate(360deg); } }
 
-/* ── Error ── */
 .up-error {
   font-size: .78rem;
   color: #b03b3b;
@@ -138,7 +118,7 @@
   padding: .5rem .75rem;
   margin: 0;
 }
-/* ── Search ── */
+
 .up-search {
   position: relative;
   display: flex;
@@ -192,7 +172,6 @@
   color: #10363f;
 }
 
-/* ── User list ── */
 .up-list {
   display: grid;
   gap: .45rem;
@@ -253,7 +232,6 @@
   font-weight: 700;
 }
 
-/* ── No results ── */
 .up-no-results {
   font-size: .78rem;
   color: #5a8a8f;
@@ -262,7 +240,6 @@
   margin: 0;
 }
 
-/* ── Confirm button ── */
 .up-confirm {
   margin-top: .4rem;
   width: 100%;
@@ -288,7 +265,6 @@
   box-shadow: none;
 }
 
-/* ── Mobile ── */
 @media (max-width: 480px) {
   .up-card { padding: 1.75rem 1.25rem; }
   .up-heading { font-size: 1.4rem; }

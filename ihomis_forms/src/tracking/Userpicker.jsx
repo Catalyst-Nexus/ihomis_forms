@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import "./UserPicker.css";
 
-/**
- * UserPicker
- * Shown when no active session exists. Fetches users from VITE_TRACKING_USERS
- * and lets one select their identity. Calls onSelect(userId, userName).
- */export default function UserPicker({ onSelect }) {
+export default function UserPicker({ onSelect }) {
   const [users,   setUsers]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
@@ -26,10 +22,12 @@ import "./UserPicker.css";
                    : Array.isArray(raw?.users) ? raw.users
                    : [];
 
-        setUsers(list.map((u, i) => ({
-          id:    String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i),
-          label: u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? String(i),
-        })));
+        setUsers(list.map((u, i) => {
+          const id    = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
+          const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? String(i);
+          const isSuperUser = !!(u?.super_user ?? u?.is_super ?? u?.is_admin ?? u?.admin ?? (u?.role === 'admin' || u?.role === 'super'));
+          return { id, label, isSuperUser };
+        }));
       } catch (e) {
         setError(`Failed to load users: ${e.message}`);
       } finally {
@@ -45,7 +43,6 @@ import "./UserPicker.css";
 
   return (
     <div className="userpicker-bg">
-      {/* Decorative orbs */}
       <span className="up-orb up-orb--1" aria-hidden="true" />
       <span className="up-orb up-orb--2" aria-hidden="true" />
       <span className="up-orb up-orb--3" aria-hidden="true" />
@@ -63,9 +60,6 @@ import "./UserPicker.css";
         <p className="up-sub">Agusan del Norte Provincial Health Office</p>
 
         <div className="up-divider" />
-        <p className="up-prompt">Who are you?</p>
-        <p className="up-hint">Select your name to continue. Your session will be saved locally.</p>
-
         {loading && (
           <div className="up-loading">
             <span className="up-spinner" />
@@ -115,7 +109,7 @@ import "./UserPicker.css";
                   <span className="up-avatar" aria-hidden="true">
                     {u.label.charAt(0).toUpperCase()}
                   </span>
-                  <span className="up-user-name">{u.label}</span>
+                  <span className="up-user-name">{u.label.toUpperCase()}</span>
                   {chosen === u.id && (
                     <span className="up-check" aria-hidden="true">✓</span>
                   )}
@@ -135,7 +129,7 @@ import "./UserPicker.css";
           disabled={!chosen}
           onClick={handleConfirm}
         >
-          Continue as {users.find((u) => u.id === chosen)?.label ?? "…"}
+          Continue as {users.find((u) => u.id === chosen)?.label?.toUpperCase() ?? "…"}
         </button>
       </div>
     </div>

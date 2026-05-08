@@ -23,7 +23,6 @@
   z-index: 0;
 }
 
-/* ── Toast ────────────────────────────────────────────────────────────────── */
 .tg-toasts {
   position: fixed; bottom: 1.5rem; right: 1.5rem;
   z-index: 9999; display: grid; gap: .45rem; pointer-events: none;
