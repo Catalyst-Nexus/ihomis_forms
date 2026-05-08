@@ -75,8 +75,8 @@ function AccessDenied({ userName, onBack }) {
             </h2>
             <p style={{ margin: 0, color: "#7a5c2e", fontSize: ".95rem", lineHeight: 1.6 }}>
               You do not have any assigned steps yet.
-              Please wait for an administrator to assign steps to your account
-              before you can access this panel.
+              Please wait for the first tagged user to assign steps to your account
+              before you can access the tagging panel.
             </p>
             <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem" }}>
               Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName}</strong>
@@ -132,9 +132,8 @@ export default function Tagging({
     (async () => {
       setInitError("");
       setInitComplete(false);
-      setAccessStatus("checking");
 
-      if (!trackingRows.length) { setInitComplete(true); setAccessStatus("allowed"); return; }
+      if (!trackingRows.length) { setInitComplete(true); return; }
 
       const errors  = [];
       let   firstId = "";
@@ -194,6 +193,15 @@ export default function Tagging({
     })();
     return () => { live = false; };
   }, [trackingRows, selectedPatient]);
+
+  // If nothing is selected yet, fall back to the first available row.
+  useEffect(() => {
+    if (!initComplete || !trackingRows.length || selectedRecordId) return;
+    const firstValid = trackingRows.find((r) => r?.id);
+    if (firstValid) {
+      setSelectedRecordId(String(firstValid.id));
+    }
+  }, [initComplete, trackingRows, selectedRecordId]);
 
   // ── Steps ──────────────────────────────────────────────────────────────────
   const [steps,        setSteps]        = useState([]);
@@ -259,6 +267,7 @@ export default function Tagging({
   useEffect(() => { fetchTaggedUsers(); }, [fetchTaggedUsers]);
 
   // ── Step assignments ───────────────────────────────────────────────────────
+  // Store multiple assignments per step: { [stepKey]: [{ rowId, userId, userName }, ...] }
   const [stepAssign, setStepAssign] = useState({});
 
   const fetchStepAssign = useCallback(async () => {
@@ -270,11 +279,17 @@ export default function Tagging({
     if (error) { console.error("fetchStepAssign:", error.message); return; }
     const map = {};
     for (const row of data ?? []) {
-      map[String(row.seq_id)] = {
+      const stepKey = String(row.seq_id);
+      const assignment = {
         rowId:    row.id,
         userId:   String(row.user_id),
         userName: users.find((u) => u.id === String(row.user_id))?.label ?? String(row.user_id),
       };
+      // Allow multiple assignments per step
+      if (!map[stepKey]) {
+        map[stepKey] = [];
+      }
+      map[stepKey].push(assignment);
     }
     setStepAssign(map);
   }, [taggedUsers, users]);
@@ -282,20 +297,25 @@ export default function Tagging({
   // FIX: fetch step assignments whenever taggedUsers or users changes (covers remount)
   useEffect(() => { fetchStepAssign(); }, [fetchStepAssign]);
 
+  // ── CRITICAL: Compute who can manage tagging ───────────────────────────────
+  // Only the FIRST tagged user (tag_order = 1) can manage tagging
+  const firstTaggedUser = useMemo(
+    () => taggedUsers.find((u) => u.tagOrder === 1),
+    [taggedUsers]
+  );
+
+  const canManageTagging = useMemo(() => {
+    if (!currentUserId || !firstTaggedUser) return false;
+    return String(firstTaggedUser.userId) === String(currentUserId);
+  }, [taggedUsers, currentUserId, firstTaggedUser]);
+
   // ── ACCESS CHECK ───────────────────────────────────────────────────────────
+  // CRITICAL: If current user is not the first tagged user, deny access
   useEffect(() => {
-    if (!initComplete || stepsLoading) return;
-    if (!currentUserId) { setAccessStatus("allowed"); return; }
-
-    const myTag = taggedUsers.find((u) => u.userId === String(currentUserId));
-    if (!myTag) { setAccessStatus("allowed"); return; }
-    if (myTag.tagOrder === 1) { setAccessStatus("allowed"); return; }
-
-    const mySteps = Object.values(stepAssign).filter(
-      (s) => s.userId === String(currentUserId)
-    );
-    setAccessStatus(mySteps.length > 0 ? "allowed" : "denied");
-  }, [initComplete, stepsLoading, taggedUsers, stepAssign, currentUserId]);
+    if (!initComplete) return;
+    if (!currentUserId) { setAccessStatus("denied"); return; }
+    setAccessStatus(canManageTagging ? "allowed" : "denied");
+  }, [initComplete, currentUserId, canManageTagging]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const assignableUsers = useMemo(
@@ -304,31 +324,6 @@ export default function Tagging({
   );
 
   const stepsEnabled = assignableUsers.length > 0;
-
-  const accessByUser = useMemo(() => {
-    if (!steps.length) return {};
-    const assignedKeys = new Set(Object.keys(stepAssign));
-    const byUser2 = {};
-    for (const [k, v] of Object.entries(stepAssign)) {
-      if (!byUser2[v.userId]) byUser2[v.userId] = new Set();
-      byUser2[v.userId].add(k);
-    }
-    const result = {};
-    for (const tu of taggedUsers) {
-      if (tu.tagOrder === 1) {
-        result[tu.userId] = steps.map((s) => s.label);
-      } else if (byUser2[tu.userId]?.size) {
-        result[tu.userId] = steps
-          .filter((s) => byUser2[tu.userId].has(s.key))
-          .map((s) => s.label);
-      } else {
-        result[tu.userId] = steps
-          .filter((s) => !assignedKeys.has(s.key))
-          .map((s) => s.label);
-      }
-    }
-    return result;
-  }, [taggedUsers, steps, stepAssign]);
 
   // ── Drafts ─────────────────────────────────────────────────────────────────
   const [drafts,      setDrafts]      = useState({});
@@ -344,16 +339,17 @@ export default function Tagging({
     }
   }, [selectedRecordId]);
 
-  const canAddUser      = taggedUsers.length < 4;
-  const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
-
   // FIX: exclude already-tagged users from the dropdown — always derived from live taggedUsers state
   const unusedUsers = useMemo(
     () => users.filter((u) => !taggedUsers.some((t) => t.userId === u.id)),
     [users, taggedUsers]
   );
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // canAddUser is true when there are still unused users available to add
+  const canAddUser = unusedUsers.length > 0;
+  const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
+
+  // ── Handlers ──────────────────────────────────────────────────────────
 
   /**
    * FIX: handleAddUser — complete rewrite with strict sequential validation
@@ -366,6 +362,10 @@ export default function Tagging({
    * 5. Maximum 4 users per record
    */
   async function handleAddUser() {
+    if (!canManageTagging) {
+      push("Only the 1st tagged user can manage tagging.", "error");
+      return;
+    }
     if (!selectedRecordId || !pendingUser) return;
 
     const trackingIdInt = parseInt(selectedRecordId, 10);
@@ -440,19 +440,14 @@ export default function Tagging({
       }
     }
 
-    if (newOrder > 4) {
-      push("Maximum of 4 users per record has been reached.", "info");
-      return;
-    }
-
     // ── Step 6: Insert ────────────────────────────────────────────────────
-    const { data, error } = await supabase
+    const { error: insertErr } = await supabase
       .from("tracking_user_assignment")
       .insert({ tracking_id: trackingIdInt, user_id: pendingUser, tag_order: newOrder })
       .select("id")
       .single();
 
-    if (error) { push(`Error: ${error.message}`, "error"); return; }
+    if (insertErr) { push(`Error: ${insertErr.message}`, "error"); return; }
 
     // ── Step 7: Sync local state from DB (re-fetch to be safe) ───────────
     await fetchTaggedUsers();
@@ -464,6 +459,10 @@ export default function Tagging({
   }
 
   async function handleRemoveUser(rowId, userId, tagOrder) {
+    if (!canManageTagging) {
+      push("Only the 1st tagged user can manage tagging.", "error");
+      return;
+    }
     if (tagOrder === 1) {
       push("The 1st tagged user cannot be removed.", "info");
       return;
@@ -474,10 +473,19 @@ export default function Tagging({
 
     setTaggedUsers((p) => p.filter((u) => u.rowId !== rowId));
 
+    // Remove all step assignments for this user
     await supabase.from("user_seq_assignment").delete().eq("user_id", userId);
     setStepAssign((p) => {
       const n = { ...p };
-      for (const k of Object.keys(n)) if (n[k].userId === userId) delete n[k];
+      // stepAssign is now: { [stepKey]: [{ rowId, userId, userName }, ...] }
+      for (const k of Object.keys(n)) {
+        if (Array.isArray(n[k])) {
+          n[k] = n[k].filter(a => a.userId !== userId);
+          if (n[k].length === 0) delete n[k];
+        } else if (n[k]?.userId === userId) {
+          delete n[k];
+        }
+      }
       return n;
     });
 
@@ -487,50 +495,103 @@ export default function Tagging({
   }
 
   async function handleAssignStep(step, userId) {
+    if (!canManageTagging) {
+      push("Only the 1st tagged user can manage tagging.", "error");
+      return;
+    }
     if (!userId) { push("Select a user for this step first.", "info"); return; }
 
     const tu = taggedUsers.find((u) => u.userId === userId);
     if (!tu) { push("User not tagged on this record.", "info"); return; }
     if (tu.tagOrder === 1) { push("1st user already has full access to all steps.", "info"); return; }
 
-    const existing = stepAssign[step.key];
-    setSaving((p) => ({ ...p, [step.key]: true }));
-
-    let error = null, returnedId = existing?.rowId ?? null;
-    if (existing?.rowId) {
-      ({ error } = await supabase
-        .from("user_seq_assignment")
-        .update({ user_id: userId })
-        .eq("id", existing.rowId));
-    } else {
-      const { data, error: e } = await supabase
-        .from("user_seq_assignment")
-        .insert({ user_id: userId, seq_id: step.id })
-        .select("id").single();
-      error = e; returnedId = data?.id ?? null;
+    // Check if this user is already assigned to this step
+    const currentAssignments = stepAssign[step.key] || [];
+    const alreadyAssigned = currentAssignments.some(a => a.userId === userId);
+    if (alreadyAssigned) {
+      push(`${users.find(u => u.id === userId)?.label ?? userId} is already assigned to "${step.label}".`, "info");
+      setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
+      return;
     }
 
+    setSaving((p) => ({ ...p, [step.key]: true }));
+
+    // Insert new assignment (always add, never replace)
+    const { data, error: e } = await supabase
+      .from("user_seq_assignment")
+      .insert({ user_id: userId, seq_id: step.id })
+      .select("id").single();
+
     setSaving((p) => ({ ...p, [step.key]: false }));
-    if (error) { push(`Error: ${error.message}`, "error"); return; }
+    if (e) { push(`Error: ${e.message}`, "error"); return; }
 
     const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
-    setStepAssign((p) => ({ ...p, [step.key]: { rowId: returnedId, userId, userName: uLabel } }));
+    const newAssignment = {
+      rowId: data.id,
+      userId,
+      userName: uLabel,
+    };
+    
+    setStepAssign((p) => ({
+      ...p,
+      [step.key]: [...(p[step.key] || []), newAssignment]
+    }));
     setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
-    push(`Assigned "${step.label}" → ${uLabel}`);
+    push(`Assigned "${step.label}" → ${uLabel} (${(currentAssignments.length + 1)} total)`);
     onAccessChanged?.();
   }
 
   async function handleClearStep(step) {
+    if (!canManageTagging) {
+      push("Only the 1st tagged user can manage tagging.", "error");
+      return;
+    }
     const existing = stepAssign[step.key];
-    if (!existing?.rowId) return;
+    if (!existing || (Array.isArray(existing) && existing.length === 0)) return;
+    
     setSaving((p) => ({ ...p, [step.key]: true }));
+
+    // Delete ALL assignments for this step
+    const rowIds = Array.isArray(existing) 
+      ? existing.map(a => a.rowId) 
+      : [existing.rowId];
+    
     const { error } = await supabase
-      .from("user_seq_assignment").delete().eq("id", existing.rowId);
+      .from("user_seq_assignment")
+      .delete()
+      .in("id", rowIds);
+
     setSaving((p) => ({ ...p, [step.key]: false }));
     if (error) { push(`Error: ${error.message}`, "error"); return; }
     setStepAssign((p) => { const n = { ...p }; delete n[step.key]; return n; });
     setDrafts((p) => { const n = { ...p }; delete n[step.key]; return n; });
-    push(`Cleared "${step.label}"`, "info");
+    push(`Cleared all assignments for "${step.label}"`, "info");
+    onAccessChanged?.();
+  }
+
+  // Remove a single assignment from a step
+  async function handleRemoveStepAssignment(step, rowId) {
+    if (!canManageTagging) {
+      push("Only the 1st tagged user can manage tagging.", "error");
+      return;
+    }
+    setSaving((p) => ({ ...p, [step.key]: true }));
+    const { error } = await supabase
+      .from("user_seq_assignment").delete().eq("id", rowId);
+    setSaving((p) => ({ ...p, [step.key]: false }));
+    if (error) { push(`Error: ${error.message}`, "error"); return; }
+    
+    setStepAssign((p) => {
+      const current = p[step.key] || [];
+      const updated = current.filter(a => a.rowId !== rowId);
+      if (updated.length === 0) {
+        const n = { ...p };
+        delete n[step.key];
+        return n;
+      }
+      return { ...p, [step.key]: updated };
+    });
+    push(`Removed assignment from "${step.label}"`, "info");
     onAccessChanged?.();
   }
 
@@ -617,15 +678,16 @@ export default function Tagging({
             <div className="tg-notice tg-notice--error">⚠️ {initError}</div>
           )}
 
-          {selectedRecord && initComplete && (
+          {initComplete && selectedRecordId && (
             <>
               {/* ── USER TAGGING ORDER ─────────────────────────────────── */}
               <div className="tg-section">
                 <p className="tg-section-cap">USER TAGGING ORDER</p>
                 <p className="tg-section-desc">
-                  The 1st tagged user gets full access to all steps.
-                  Tag more users to restrict their access to specific steps.
-                  Each user can only be tagged once and follows a strict sequence.
+                  The 1st tagged user gets full access to all steps and can manage all tagging.
+                  Only the 1st user can add, remove, or manage other users.
+                  Tag more users to restrict their access to specific steps only.
+                  Each user can only be tagged once and follows a strict sequence (1 → 2 → 3 → 4).
                 </p>
 
                 {taggedUsers.length > 0 && (
@@ -633,13 +695,23 @@ export default function Tagging({
                     {taggedUsers.map((tu) => {
                       const cfg       = tagCfg(tu.tagOrder);
                       const uName     = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
-                      const stepCount = Object.values(stepAssign).filter((s) => s.userId === tu.userId).length;
+                      // Count steps where this user is assigned (supports multiple per step)
+                      const stepCount = Object.values(stepAssign).filter((assignments) => {
+                        if (Array.isArray(assignments)) {
+                          return assignments.some(a => a.userId === tu.userId);
+                        }
+                        return assignments?.userId === tu.userId;
+                      }).length;
+                      const isCurrent = String(tu.userId) === String(currentUserId);
                       return (
                         <div key={tu.rowId} className="tg-user-row">
                           <span className="tg-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
                             #{tu.tagOrder}
                           </span>
-                          <span className="tg-user-name">{uName}</span>
+                          <span className="tg-user-name">
+                            {uName}
+                            {isCurrent && tu.tagOrder === 1 && <span style={{ marginLeft: ".5rem", fontSize: ".75rem", opacity: .7 }}>(you)</span>}
+                          </span>
                           <span className="tg-user-role">{cfg.label}</span>
                           {tu.tagOrder === 1
                             ? <span className="tg-step-count-pill tg-step-count-pill--full">All {steps.length} steps</span>
@@ -648,8 +720,8 @@ export default function Tagging({
                           <button
                             className="tg-remove-btn"
                             onClick={() => handleRemoveUser(tu.rowId, tu.userId, tu.tagOrder)}
-                            disabled={tu.tagOrder === 1}
-                            title={tu.tagOrder === 1 ? "The 1st tag is fixed and cannot be removed." : "Remove user"}
+                            disabled={tu.tagOrder === 1 || !canManageTagging}
+                            title={tu.tagOrder === 1 ? "The 1st tag is fixed and cannot be removed." : !canManageTagging ? "Only the 1st tagged user can remove other users." : "Remove user"}
                           >
                             Remove
                           </button>
@@ -659,7 +731,13 @@ export default function Tagging({
                   </div>
                 )}
 
-                {canAddUser && (
+                {taggedUsers.length === 0 && (
+                  <div className="tg-notice tg-notice--hint">
+                    💡 No users tagged yet. Add the first user below to begin.
+                  </div>
+                )}
+
+                {canAddUser && canManageTagging && (
                   <div className="tg-add-row">
                     <select
                       className="tg-select tg-select--flex"
@@ -668,7 +746,6 @@ export default function Tagging({
                       disabled={taggingDisabled}
                     >
                       <option value="">+ Add user…</option>
-                      {/* FIX: unusedUsers is always derived from live taggedUsers — already-tagged users never appear */}
                       {unusedUsers.map((u) => (
                         <option key={u.id} value={u.id}>{u.label}</option>
                       ))}
@@ -684,130 +761,189 @@ export default function Tagging({
                 )}
 
                 {!canAddUser && (
-                  <p className="tg-notice tg-notice--success">✓ Maximum users tagged for this record (4 users max).</p>
+                  <p className="tg-notice tg-notice--hint">💡 All available users have been tagged for this record.</p>
+                )}
+
+                {taggedUsers.length > 0 && !canManageTagging && (
+                  <p className="tg-notice tg-notice--error">Only the 1st tagged user (#1) can add or remove users.</p>
                 )}
               </div>
 
               {/* ── STEP ASSIGNMENTS ───────────────────────────────────── */}
-              <div className="tg-section">
-                <p className="tg-section-cap">STEP ASSIGNMENTS</p>
-                <p className="tg-section-desc">
-                  {stepsEnabled
-                    ? "Select a user in each step's dropdown, then click Assign."
-                    : taggedUsers.length === 0
-                      ? "Tag at least one user above to begin."
-                      : "Add a 2nd user above — the 1st user already has full access to all steps."}
-                </p>
+              {canManageTagging && (
+                <div className="tg-section">
+                  <p className="tg-section-cap">STEP ASSIGNMENTS</p>
+                  <p className="tg-section-desc">
+                    {stepsEnabled
+                      ? "Select a user in each step's dropdown, then click Assign."
+                      : taggedUsers.length === 0
+                        ? "Tag at least one user above to begin."
+                        : "Add a 2nd user above — the 1st user already has full access to all steps."}
+                  </p>
 
-                {!stepsEnabled && taggedUsers.length > 0 && (
-                  <div className="tg-notice tg-notice--hint">
-                    💡 Tag a 2nd user above to start assigning specific steps to them.
-                  </div>
-                )}
+                  {!stepsEnabled && taggedUsers.length > 0 && (
+                    <div className="tg-notice tg-notice--hint">
+                      💡 Tag a 2nd user above to start assigning specific steps to them.
+                    </div>
+                  )}
 
-                {stepsLoading ? (
-                  <p className="tg-loading">Loading steps…</p>
-                ) : (
-                  <div className="tg-step-grid">
-                    {steps.map((step, idx) => {
-                      const assigned  = stepAssign[step.key];
-                      const isSaving  = saving[step.key] ?? false;
-                      const draftVal  = drafts[step.key] ?? assigned?.userId ?? "";
-                      const assignedTu  = assigned
-                        ? taggedUsers.find((u) => u.userId === assigned.userId)
-                        : null;
-                      const assignedCfg = assignedTu ? tagCfg(assignedTu.tagOrder) : null;
-                      const canAssign = stepsEnabled
-                        && !isSaving
-                        && !!draftVal
-                        && draftVal !== (assigned?.userId ?? "");
+                  {stepsLoading ? (
+                    <p className="tg-loading">Loading steps…</p>
+                  ) : (
+                    <div className="tg-step-grid">
+                      {steps.map((step, idx) => {
+                        const assignedList = stepAssign[step.key] || [];
+                        const isSaving  = saving[step.key] ?? false;
+                        const draftVal  = drafts[step.key] ?? "";
+                        const hasAssigned = assignedList.length > 0;
+                        // Check if draft user is already assigned to this step
+                        const draftUserAlreadyAssigned = draftVal 
+                          ? assignedList.some(a => a.userId === draftVal)
+                          : false;
+                        const canAssign = stepsEnabled
+                          && !isSaving
+                          && !!draftVal
+                          && !draftUserAlreadyAssigned;
 
-                      return (
-                        <div
-                          key={step.key}
-                          className={`tg-step-card ${assigned ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}
-                          style={assigned && assignedCfg ? {
-                            borderColor: assignedCfg.color + "44",
-                            background:  `linear-gradient(160deg, #fff 55%, ${assignedCfg.bg} 100%)`,
-                          } : {}}
-                        >
-                          <div className="tg-step-head">
-                            <span className="tg-step-name">{step.label}</span>
-                            <span className="tg-step-num">Step {idx + 1}</span>
-                          </div>
-
-                          <div className="tg-step-badge-wrap">
-                            {assigned ? (
-                              <span className="tg-step-badge" style={{ background: assignedCfg?.bg, color: assignedCfg?.color }}>
-                                {assigned.userName}
-                              </span>
-                            ) : (
-                              <span className="tg-step-badge tg-step-badge--none">Unassigned</span>
-                            )}
-                          </div>
-
-                          <select
-                            className="tg-step-dropdown"
-                            value={draftVal}
-                            disabled={isSaving || !stepsEnabled}
-                            onChange={(e) =>
-                              setDrafts((p) => ({ ...p, [step.key]: e.target.value }))
-                            }
+                        return (
+                          <div
+                            key={step.key}
+                            className={`tg-step-card ${hasAssigned ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}
+                            style={hasAssigned && assignedList[0] ? {
+                              borderColor: tagCfg(
+                                taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
+                              ).color + "44",
+                              background:  `linear-gradient(160deg, #fff 55%, ${tagCfg(
+                                taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
+                              ).bg} 100%)`,
+                            } : {}}
                           >
-                            <option value="">— Select user —</option>
-                            {assignableUsers.map((tu) => {
-                              const uLabel = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
-                              return (
-                                <option key={tu.userId} value={tu.userId}>
-                                  #{tu.tagOrder} {uLabel}
-                                </option>
-                              );
-                            })}
-                          </select>
+                            <div className="tg-step-head">
+                              <span className="tg-step-name">{step.label}</span>
+                              <span className="tg-step-num">Step {idx + 1}</span>
+                              {hasAssigned && (
+                                <span className="tg-step-count-badge">{assignedList.length} assigned</span>
+                              )}
+                            </div>
 
-                          <div className="tg-step-owner">
-                            {assignedTu ? (
-                              <span className="tg-chip" style={{ background: assignedCfg?.bg, color: assignedCfg?.color }}>
-                                #{assignedTu.tagOrder} — {assignedTu.tagOrder === 2 ? "assigned" : "remaining"}
-                              </span>
-                            ) : (
-                              <span className="tg-chip tg-chip--amber">Unassigned (remaining)</span>
-                            )}
-                          </div>
+                            <div className="tg-step-badge-wrap">
+                              {hasAssigned ? (
+                                <div className="tg-assigned-users-list">
+                                  {assignedList.map((assignment) => {
+                                    const tu = taggedUsers.find((u) => u.userId === assignment.userId);
+                                    const cfg = tu ? tagCfg(tu.tagOrder) : null;
+                                    return (
+                                      <div key={assignment.rowId} className="tg-assigned-user-item">
+                                        <span 
+                                          className="tg-step-badge" 
+                                          style={{ background: cfg?.bg, color: cfg?.color }}
+                                        >
+                                          {assignment.userName}
+                                        </span>
+                                        <button
+                                          className="tg-remove-assign-btn"
+                                          disabled={isSaving}
+                                          onClick={() => handleRemoveStepAssignment(step, assignment.rowId)}
+                                          title="Remove this assignment"
+                                        >
+                                          ×
+                                        </button>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <span className="tg-step-badge tg-step-badge--none">Unassigned</span>
+                              )}
+                            </div>
 
-                          <div className="tg-step-actions">
-                            <button
-                              className="tg-btn tg-btn--assign"
-                              disabled={!canAssign}
-                              onClick={() => handleAssignStep(step, draftVal)}
+                            <select
+                              className="tg-step-dropdown"
+                              value={draftVal}
+                              disabled={isSaving || !stepsEnabled}
+                              onChange={(e) =>
+                                setDrafts((p) => ({ ...p, [step.key]: e.target.value }))
+                              }
                             >
-                              {isSaving ? "Saving…" : "Assign"}
-                            </button>
-                            <button
-                              className="tg-btn tg-btn--clear"
-                              disabled={!assigned || isSaving}
-                              onClick={() => handleClearStep(step)}
-                            >
-                              Clear
-                            </button>
+                              <option value="">— Select user —</option>
+                              {assignableUsers.map((tu) => {
+                                const uLabel = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
+                                const isAlreadyAssigned = assignedList.some(a => a.userId === tu.userId);
+                                return (
+                                  <option 
+                                    key={tu.userId} 
+                                    value={tu.userId}
+                                    disabled={isAlreadyAssigned}
+                                  >
+                                    #{tu.tagOrder} {uLabel}{isAlreadyAssigned ? ' (assigned)' : ''}
+                                  </option>
+                                );
+                              })}
+                            </select>
+
+                            <div className="tg-step-owner">
+                              {hasAssigned ? (
+                                <span className="tg-chip" style={{ 
+                                  background: tagCfg(
+                                    taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
+                                  ).bg, 
+                                  color: tagCfg(
+                                    taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
+                                  ).color 
+                                }}>
+                                  {assignedList.length} user{assignedList.length !== 1 ? 's' : ''} assigned
+                                </span>
+                              ) : (
+                                <span className="tg-chip tg-chip--amber">Unassigned (remaining)</span>
+                              )}
+                            </div>
+
+                            <div className="tg-step-actions">
+                              <button
+                                className="tg-btn tg-btn--assign"
+                                disabled={!canAssign}
+                                onClick={() => handleAssignStep(step, draftVal)}
+                              >
+                                {isSaving ? "Saving…" : "Assign"}
+                              </button>
+                              <button
+                                className="tg-btn tg-btn--clear"
+                                disabled={!hasAssigned || isSaving}
+                                onClick={() => handleClearStep(step)}
+                              >
+                                Clear All
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* ── ACCESS SUMMARY — always rendered from DB-loaded state ── */}
               {taggedUsers.length > 0 && !stepsLoading && (
                 <div className="tg-section">
                   <p className="tg-section-cap">ACCESS SUMMARY</p>
-                  <p className="tg-section-desc">Overview of what each tagged user can access. This reflects live data from the database.</p>
+                  <p className="tg-section-desc">Overview of what each tagged user can access. Each user has independent access to all steps. This reflects live data from the database.</p>
                   <div className="tg-summary">
                     {taggedUsers.map((tu) => {
                       const cfg     = tagCfg(tu.tagOrder);
                       const uName   = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
-                      const mySteps = accessByUser[tu.userId] ?? [];
+                      // First user sees all steps; other users see only their assigned steps
+                      // Now supports multiple assignments per step
+                      const mySteps = tu.tagOrder === 1
+                        ? steps.map((s) => s.label)
+                        : steps
+                            .filter((s) => {
+                              const assignments = stepAssign[s.key];
+                              if (Array.isArray(assignments)) {
+                                return assignments.some(a => a.userId === tu.userId);
+                              }
+                              return assignments?.userId === tu.userId;
+                            })
+                            .map((s) => s.label);
                       return (
                         <div
                           key={tu.rowId}
@@ -850,7 +986,7 @@ export default function Tagging({
             </>
           )}
 
-          {!selectedRecord && initComplete && trackingRows.length > 0 && (
+          {!selectedRecord && initComplete && trackingRows.length > 0 && selectedRecordId && (
             <div className="tg-notice" style={{ color: "#8a4f0b", background: "#faebd5" }}>
               ⚠️ Could not match a tracking record. Try refreshing the page.
             </div>
