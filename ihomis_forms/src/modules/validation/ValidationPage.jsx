@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
-import { useMemo } from "react";
-import { useChartValidation } from "./hooks/useChartValidation.js";
+import { useMemo, useState } from "react";
+import { useFormValidation } from "./hooks/useFormValidation.js";
+import { ValidationModal } from "./components/ValidationModal.jsx";
 import "./Validation.css";
 
 function SummaryCard({ label, value, tone = "default" }) {
@@ -21,72 +22,6 @@ SummaryCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   tone: PropTypes.string,
-};
-
-function EncounterCard({ encounter }) {
-  const badgeClass = encounter.encounterType
-    ? `validation-badge validation-badge--${encounter.encounterType.toLowerCase()}`
-    : "validation-badge validation-badge--unknown";
-
-  return (
-    <article className="validation-encounter-card">
-      <header className="validation-encounter-header">
-        <div>
-          <span className={badgeClass}>
-            {encounter.encounterType || "Unknown"}
-          </span>
-          <div className="validation-encounter-meta">
-            <span>Encounter {encounter.enccode || "N/A"}</span>
-            <span>Hospital No. {encounter.hospitalNo || "N/A"}</span>
-            <span>Admitted {encounter.admittedDate || "N/A"}</span>
-            <span>Discharged {encounter.dischargedDate || "Not recorded"}</span>
-          </div>
-        </div>
-        <div className="validation-pill validation-pill--complete">
-          {encounter.completedSteps.length}/{encounter.totalSteps} steps done
-        </div>
-      </header>
-
-      <div>
-        <p className="validation-section-label">Missing steps</p>
-        <div className="validation-step-list">
-          {encounter.missingSteps.length ? (
-            encounter.missingSteps.map((step) => (
-              <span
-                key={step.id}
-                className="validation-pill validation-pill--missing"
-              >
-                {step.label}
-              </span>
-            ))
-          ) : (
-            <span className="validation-pill validation-pill--complete">
-              All chart steps completed
-            </span>
-          )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-EncounterCard.propTypes = {
-  encounter: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    enccode: PropTypes.string,
-    encounterType: PropTypes.string,
-    hospitalNo: PropTypes.string,
-    admittedDate: PropTypes.string,
-    dischargedDate: PropTypes.string,
-    missingSteps: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.any,
-        label: PropTypes.string,
-      }),
-    ).isRequired,
-    completedSteps: PropTypes.array.isRequired,
-    totalSteps: PropTypes.number.isRequired,
-  }).isRequired,
 };
 
 function resolvePatientLabel(selectedPatient) {
@@ -122,43 +57,52 @@ function getPatientInitials(label) {
 }
 
 function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
-  const { encounters, loading, error, summary, refresh, patientHpercode } =
-    useChartValidation({ selectedPatient });
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [proceedAction, setProceedAction] = useState(null);
+
+  const { enccode, loading, error, summary, refresh } = useFormValidation({
+    selectedPatient,
+  });
 
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
     [selectedPatient],
   );
 
-  const hasEncounters = encounters.length > 0;
-  const missingTone = summary.missingSteps > 0 ? "alert" : "default";
   const patientInitials = useMemo(
     () => getPatientInitials(patientLabel.name),
     [patientLabel.name],
   );
+
   const statusTone = loading
     ? "loading"
-    : summary.missingSteps > 0
+    : summary.hasIssues
       ? "attention"
       : "ready";
   const statusLabel = loading
     ? "Loading"
-    : summary.missingSteps > 0
+    : summary.hasIssues
       ? "Needs attention"
       : "Ready";
-  const missingStepSummary = useMemo(() => {
-    const uniqueSteps = new Map();
 
-    encounters.forEach((encounter) => {
-      encounter.missingSteps.forEach((step) => {
-        if (!uniqueSteps.has(step.id)) {
-          uniqueSteps.set(step.id, step.label);
-        }
-      });
-    });
+  const handleProceedClick = () => {
+    // Show validation modal before proceeding
+    setProceedAction(onProceed);
+    setShowValidationModal(true);
+  };
 
-    return Array.from(uniqueSteps.values());
-  }, [encounters]);
+  const handleModalProceed = () => {
+    setShowValidationModal(false);
+    if (proceedAction) {
+      proceedAction();
+    }
+    setProceedAction(null);
+  };
+
+  const handleModalClose = () => {
+    setShowValidationModal(false);
+    setProceedAction(null);
+  };
 
   return (
     <div className="validation-page">
@@ -187,13 +131,12 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
                 CHART Tracking checklist
               </h1>
               <p className="validation-hero-sub">
-                Review missing chart steps before generating patient forms.
+                Review missing form fields before generating patient forms.
               </p>
               <div className="validation-hero-meta">
-                <span>Tracking records: {summary.encounters}</span>
-                {patientHpercode &&
-                patientHpercode !== patientLabel.hpercode ? (
-                  <span>Resolved HPER: {patientHpercode}</span>
+                <span>Validation endpoint: /api/validation</span>
+                {enccode && enccode !== patientLabel.hpercode ? (
+                  <span>Resolved ENCCODE: {enccode}</span>
                 ) : null}
               </div>
             </div>
@@ -239,8 +182,8 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
             <button
               type="button"
               className="validation-btn validation-btn--primary"
-              onClick={onProceed}
-              disabled={!selectedPatient}
+              onClick={handleProceedClick}
+              disabled={!selectedPatient || loading}
             >
               Proceed to Forms
             </button>
@@ -248,34 +191,22 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
         </section>
 
         <section className="validation-summary">
-          <SummaryCard label="Encounters" value={summary.encounters} />
-          <SummaryCard label="Total steps" value={summary.totalSteps} />
-          <SummaryCard
-            label="Missing steps"
-            value={summary.missingSteps}
-            tone={missingTone}
+          <SummaryCard label="Form Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
+          <SummaryCard 
+            label="Admission Form" 
+            value={summary.admissionComplete ? "✓ Complete" : "✗ Incomplete"}
+            tone={summary.admissionComplete ? "default" : "alert"}
           />
-          <SummaryCard label="Completed" value={summary.completedSteps} />
-        </section>
-
-        <section className="validation-panel">
-          <h2 className="validation-panel-title">Missing steps overview</h2>
-          <div className="validation-step-list">
-            {missingStepSummary.length ? (
-              missingStepSummary.map((stepLabel) => (
-                <span
-                  key={stepLabel}
-                  className="validation-pill validation-pill--missing"
-                >
-                  {stepLabel}
-                </span>
-              ))
-            ) : (
-              <span className="validation-pill validation-pill--complete">
-                No missing steps detected
-              </span>
-            )}
-          </div>
+          <SummaryCard 
+            label="Discharge Form" 
+            value={summary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"}
+            tone={summary.dischargeComplete ? "default" : "alert"}
+          />
+          <SummaryCard 
+            label="Missing Fields" 
+            value={summary.allMissing.length} 
+            tone={summary.allMissing.length > 0 ? "alert" : "default"}
+          />
         </section>
 
         {error ? (
@@ -286,19 +217,41 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
 
         {loading ? (
           <div className="validation-loading">
-            Loading chart tracking status...
+            Loading form validation status...
           </div>
-        ) : hasEncounters ? (
-          <section className="validation-encounters">
-            {encounters.map((encounter) => (
-              <EncounterCard key={encounter.key} encounter={encounter} />
-            ))}
+        ) : summary.allMissing.length > 0 ? (
+          <section className="validation-panel">
+            <h2 className="validation-panel-title">Missing form fields</h2>
+            <div className="validation-step-list">
+              {summary.allMissing.map((field) => (
+                <span
+                  key={field}
+                  className="validation-pill validation-pill--missing"
+                >
+                  {field}
+                </span>
+              ))}
+            </div>
+            <p className="validation-helper-text">
+              Complete all missing fields in the forms before proceeding.
+            </p>
           </section>
         ) : (
           <div className="validation-empty">
-            No CHART tracking records were found for this patient.
+            ✓ All forms are complete and ready to proceed.
           </div>
         )}
+        {/* Validation Modal */}
+        <ValidationModal
+          isOpen={showValidationModal}
+          enccode={enccode}
+          admissionMissing={summary.admissionMissing}
+          dischargeMissing={summary.dischargeMissing}
+          admissionComplete={summary.admissionComplete}
+          dischargeComplete={summary.dischargeComplete}
+          onClose={handleModalClose}
+          onProceed={handleModalProceed}
+        />
       </main>
     </div>
   );

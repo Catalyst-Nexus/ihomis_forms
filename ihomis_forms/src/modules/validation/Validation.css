@@ -500,3 +500,11 @@
     justify-content: flex-start;
   }
 }
+
+/* Helper text for validation */
+.validation-helper-text {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--lab-ink-700);
+  font-style: italic;
+}
