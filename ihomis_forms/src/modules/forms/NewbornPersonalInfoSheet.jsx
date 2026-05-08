@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import "./NewbornPersonalInfoSheet.css";
 
 export default function NewbornPersonalInfoSheet({ patientName, patientData }) {
-  const babyName = patientName || "BABY GIRL";
-  const caseNum = patientData?.caseNum || "ADM-2026-010707";
-  const sex = patientData?.sex || "F";
-  const age = patientData?.age || "32 year(s)";
-  const motherName = patientData?.motherName || "Error: No newborn record found.";
-  const hospitalNo = patientData?.hospitalNo || "000000000021386";
-  const address = patientData?.address || "P-1E, AMPAYON, BUTUAN CITY (Capital), AGUSAN DEL NORTE";
+  const babyName = patientName || "";
+  const caseNum = patientData?.caseNum || "";
+  const sex = patientData?.sex || "";
+  const age = patientData?.age || "";
+  const motherName = patientData?.motherName || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const address = patientData?.address || "";
 
   const { dateStr, timeStr, generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();

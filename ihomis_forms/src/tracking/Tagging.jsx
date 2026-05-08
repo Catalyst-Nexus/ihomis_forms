@@ -1,25 +1,3 @@
-/**
- * Tagging.jsx — User-based access control via tagging order [FIXED v3]
- *
- * KEY FIX: 
- * - No FK constraint checks
- * - No user table syncing
- * - Direct inserts to tracking_user_assignment
- * - Works with API users directly
- *
- * DB schema:
- *   tracking:                  id | tracking_encocode | encounter_type | ...
- *   tracking_user_assignment:  id | tracking_id | user_id | tag_order
- *   user_seq_assignment:       id | user_id | seq_id
- *   tracking_sequence:         id | description | sort_order
- *
- * Access rules:
- *   tag_order 1  → full access (all steps)
- *   tag_order 2  → only steps in user_seq_assignment for their user_id
- *   tag_order 3  → steps NOT in user_seq_assignment for the tag-order-2 user
- *   tag_order 4+ → can be extended with same "remaining" logic
- */
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./Tagging.css";
@@ -56,7 +34,6 @@ function tagCfg(order) {
   return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
 }
 
-// ── Access Gate Component ─────────────────────────────────────────────────────
 function AccessDenied({ userName, onBack }) {
   return (
     <div className="tg-page">

@@ -27,14 +27,14 @@ const KardexTable = () => (
 );
 
 export default function KardexSheet({ patientName, patientData }) {
-  const name      = patientName            || "AMARAH N/A ORTIZ";
-  const caseNo    = patientData?.caseNo    || "ADM-2026-010651";
-  const age       = patientData?.age       || "1";
-  const ageUnit   = patientData?.ageUnit   || "hour(s)";
-  const sex       = patientData?.sex       || "M";
-  const diagnosis = patientData?.diagnosis || "TERM MALE NEONATE DELIVERED NSVD";
-  const cc        = patientData?.cc        || "CEPHALIC WITH AS 8,9 BS 40 WEEKS, BW 3.8 KGS, AGA";
-  const room      = patientData?.room      || "OB GYNE - OB 2 - BED 03 - NB";
+  const name      = patientName            || "";
+  const caseNo    = patientData?.caseNo    || "";
+  const age       = patientData?.age       || "";
+  const ageUnit   = patientData?.ageUnit   || "";
+  const sex       = patientData?.sex       || "";
+  const diagnosis = patientData?.diagnosis || "";
+  const cc        = patientData?.cc        || "";
+  const room      = patientData?.room      || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();

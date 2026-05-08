@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./HistopathologyCytology.css";
 
 export default function HistopathologyCytology({ patientName, patientData }) {
-  const name      = patientName            || "BAYSA , BABY BOY";
-  const caseNo    = patientData?.caseNo    || "ADM-2026-010651";
-  const address   = patientData?.address   || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
-  const age       = patientData?.age       || "1 hour(s)";
-  const sex       = patientData?.sex       || "M";
+    const name      = patientName          || "";
+    const caseNo    = patientData?.caseNo  || "";
+  const address   = patientData?.address   || "";
+  const age       = patientData?.age       || "";
+  const sex       = patientData?.sex       || "";
   const physician = patientData?.physician || "";
 
   const { dateStr, generatedOn } = useMemo(() => {

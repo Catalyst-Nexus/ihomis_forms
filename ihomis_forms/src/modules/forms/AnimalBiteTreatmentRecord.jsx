@@ -2,23 +2,23 @@ import { useMemo } from "react";
 import "./AnimalBiteTreatmentRecord.css";
 
 export default function AnimalBiteTreatmentRecord({ patientName, patientData }) {
-	const name        = patientName              || "SALUCANAN , NELLY JEAN LOFRANCO";
-	const hospitalNo  = patientData?.hospitalNo  || "000000000021386";
-	const caseNum     = patientData?.caseNum     || "ADM-2026-010707";
-	const address     = patientData?.address     || "P-1E, AMPAYON, BUTUAN CITY (Capital), AGUSAN DEL NORTE";
-	const telNo       = patientData?.telNo       || "09852299137";
-	const sex         = patientData?.sex         || "F";
-	const civilStatus = patientData?.civilStatus || "M";
-	const birthdate   = patientData?.birthdate   || "July 27, 1993";
-	const age         = patientData?.age         || "32 year(s)";
-	const birthPlace  = patientData?.birthPlace  || "Unknown";
-	const nationality = patientData?.nationality || "FILIPINO";
-	const religion    = patientData?.religion    || "Catholic";
+	const name        = patientName              || "";
+	const hospitalNo  = patientData?.hospitalNo  || "";
+	const caseNum     = patientData?.caseNum     || "";
+	const address     = patientData?.address     || "";
+	const telNo       = patientData?.telNo       || "";
+	const sex         = patientData?.sex         || "";
+	const civilStatus = patientData?.civilStatus || "";
+	const birthdate   = patientData?.birthdate   || "";
+	const age         = patientData?.age         || "";
+	const birthPlace  = patientData?.birthPlace  || "";
+	const nationality = patientData?.nationality || "";
+	const religion    = patientData?.religion    || "";
 	const occupation  = patientData?.occupation  || "";
 	const indigenous  = patientData?.indigenous  || "";
 	const srCitizen   = patientData?.srCitizen   || "";
-	const physician   = patientData?.physician   || "JANNETTE A. DEANG, RN";
-	const licenseNo   = patientData?.licenseNo   || "LICENSE # 0251759";
+	const physician   = patientData?.physician   || "";
+	const licenseNo   = patientData?.licenseNo   || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();

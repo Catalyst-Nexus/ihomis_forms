@@ -17,9 +17,9 @@ const chartImageStyle = {
 };
 
 const PostAnesthesiaSheet = ({ patientName, patientData }) => {
-  const name = patientName || "FELISELDA , CIAN REIN BAYSA";
-  const caseNo = patientData?.caseNo || "ADM-2026-010651";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
+  const name = patientName || "";
+  const caseNo = patientData?.caseNo || "";
+  const hospitalNo = patientData?.hospitalNo || "";
 
   const generatedOn = useMemo(() => {
     const now = new Date();

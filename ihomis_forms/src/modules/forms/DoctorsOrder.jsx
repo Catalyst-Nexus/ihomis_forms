@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./DoctorsOrder.css";
 
 export default function DoctorsOrder({ patientName, patientData }) {
-	const name       = patientName             || "PELISCO , BABY GIRL";
-	const sex        = patientData?.sex        || "F";
-	const age        = patientData?.age        || "0";
-	const caseNum    = patientData?.caseNum    || "ADM-2026-010623";
-	const hospitalNo = patientData?.hospitalNo || "000000000020997";
+	const name       = patientName             || "";
+	const sex        = patientData?.sex        || "";
+	const age        = patientData?.age        || "";
+	const caseNum    = patientData?.caseNum    || "";
+	const hospitalNo = patientData?.hospitalNo || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();

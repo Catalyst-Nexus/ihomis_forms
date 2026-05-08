@@ -17,10 +17,10 @@ const chartImageStyle = {
 };
 
 const Neurological = ({ patientName, patientData }) => {
-  const name      = patientName            || "FELISELDA , CIAN REIN BAYSA";
-  const caseNo    = patientData?.caseNo    || "ADM-2026-010651";
-  const age       = patientData?.age       || "1 hour(s)";
-  const sex       = patientData?.sex       || "M";
+  const name      = patientName            || "";
+  const caseNo    = patientData?.caseNo    || "";
+  const age       = patientData?.age       || "";
+  const sex       = patientData?.sex       || "";
   const date      = patientData?.date      || new Date().toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric"
   });
