@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useState } from "react";
-import { fetchEncounterOrders } from "../api/labUploadApi.js";
+import { fetchEncounterOrders, fetchPatientUploadedFiles } from "../api/labUploadApi.js";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
+import LabReviewPanel from "./LabReviewPanel.jsx";
 
 // ── Patient Avatar ─────────────────────────────────────────────────────────────
 function getInitials(displayName) {
@@ -470,75 +471,119 @@ UploadStep.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
-// ── Review Step ────────────────────────────────────────────────────────────────
-function ReviewStep({ patient, encounter, orderType, uploads, onFinish }) {
+// ── Review Step with PDF Preview & Uploaded Files ─────────────────────────────
+function ReviewStep({ 
+  patient, 
+  encounter, 
+  orderType, 
+  uploads, 
+  onFinish,
+  uploadedFiles = [],
+  activePreviewFile,
+  activePreviewUrl,
+  onOpenFullscreen,
+  onClearPdfSelection,
+  onShowLocalPreview,
+  onShowUploadedPreview,
+  onPreviewUploadedFile,
+  reviewSource,
+  activeUploadedFileIndex,
+}) {
   const orderTypeLabel =
     ORDER_TYPES.find((t) => t.code === orderType)?.label || orderType;
 
+  const hasLocalPreview = uploads.length > 0;
+  const hasUploadedPreview = uploadedFiles.length > 0;
+  const hasActivePreview = Boolean(activePreviewFile || activePreviewUrl);
+  const hasAnyPdf = hasLocalPreview || hasUploadedPreview;
+
   return (
-    <div className="lum-step-content">
-      <div className="lum-review-success">
-        <svg
-          viewBox="0 0 20 20"
-          width="48"
-          height="48"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z"
-            clipRule="evenodd"
-          />
-        </svg>
-        <h2>Upload Complete!</h2>
-        <p>{uploads.length} file(s) uploaded successfully.</p>
-      </div>
+    <div className="lum-step-content lum-review-step">
+      <div className="lum-review-main">
+        <div className="lum-review-success">
+          <svg
+            viewBox="0 0 20 20"
+            width="48"
+            height="48"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <h2>Upload Complete!</h2>
+          <p>{uploads.length} file(s) uploaded successfully.</p>
+        </div>
 
-      <div className="lum-review-summary">
-        <h3>Summary</h3>
-        <div className="lum-summary-item">
-          <span className="lum-summary-label">Patient</span>
-          <span className="lum-summary-value">
-            {patient?.displayName || "Unknown"}
-          </span>
-        </div>
-        <div className="lum-summary-item">
-          <span className="lum-summary-label">Encounter</span>
-          <span className="lum-summary-value">
-            {encounter?.enccode || "Unknown"}
-          </span>
-        </div>
-        <div className="lum-summary-item">
-          <span className="lum-summary-label">Order Type</span>
-          <span className="lum-summary-value">{orderTypeLabel}</span>
-        </div>
-        <div className="lum-summary-item">
-          <span className="lum-summary-label">Files Uploaded</span>
-          <span className="lum-summary-value">{uploads.length}</span>
-        </div>
-      </div>
-
-      <div className="lum-review-files">
-        <h3>Uploaded Files</h3>
-        {uploads.map((upload) => (
-          <div key={upload.docointkey} className="lum-review-file">
-            <svg
-              viewBox="0 0 20 20"
-              width="16"
-              height="16"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span>{upload.fileName}</span>
+        <div className="lum-review-summary">
+          <h3>Summary</h3>
+          <div className="lum-summary-item">
+            <span className="lum-summary-label">Patient</span>
+            <span className="lum-summary-value">
+              {patient?.displayName || "Unknown"}
+            </span>
           </div>
-        ))}
+          <div className="lum-summary-item">
+            <span className="lum-summary-label">Encounter</span>
+            <span className="lum-summary-value">
+              {encounter?.enccode || "Unknown"}
+            </span>
+          </div>
+          <div className="lum-summary-item">
+            <span className="lum-summary-label">Order Type</span>
+            <span className="lum-summary-value">{orderTypeLabel}</span>
+          </div>
+          <div className="lum-summary-item">
+            <span className="lum-summary-label">Files Uploaded</span>
+            <span className="lum-summary-value">{uploads.length}</span>
+          </div>
+        </div>
+
+        <div className="lum-review-files">
+          <h3>Uploaded Files</h3>
+          {uploads.map((upload) => (
+            <div key={upload.docointkey} className="lum-review-file">
+              <svg
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{upload.fileName}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* PDF Preview Section */}
+      <div className="lum-review-panel">
+        <LabReviewPanel
+          uploadedFiles={uploadedFiles}
+          reviewSource={reviewSource}
+          activeUploadedFileIndex={activeUploadedFileIndex}
+          hasLocalPreview={hasLocalPreview}
+          hasUploadedPreview={hasUploadedPreview}
+          hasActivePreview={hasActivePreview}
+          hasAnyPdf={hasAnyPdf}
+          activePreviewFile={activePreviewFile}
+          activePreviewUrl={activePreviewUrl}
+          token={LAB_UPLOAD_API_TOKEN}
+          onOpenFullscreen={onOpenFullscreen}
+          onClearPdfSelection={onClearPdfSelection}
+          onShowLocalPreview={onShowLocalPreview}
+          onShowUploadedPreview={onShowUploadedPreview}
+          onPreviewUploadedFile={onPreviewUploadedFile}
+        />
       </div>
 
       <div className="lum-step-actions">
@@ -564,6 +609,16 @@ ReviewStep.propTypes = {
   orderType: PropTypes.string.isRequired,
   uploads: PropTypes.array.isRequired,
   onFinish: PropTypes.func.isRequired,
+  uploadedFiles: PropTypes.array,
+  activePreviewFile: PropTypes.object,
+  activePreviewUrl: PropTypes.string,
+  onOpenFullscreen: PropTypes.func,
+  onClearPdfSelection: PropTypes.func,
+  onShowLocalPreview: PropTypes.func,
+  onShowUploadedPreview: PropTypes.func,
+  onPreviewUploadedFile: PropTypes.func,
+  reviewSource: PropTypes.string,
+  activeUploadedFileIndex: PropTypes.number,
 };
 
 // ── Main Module ───────────────────────────────────────────────────────────────
@@ -578,8 +633,87 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
   const [uploads, setUploads] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const enccode =
-    selectedContextParams?.enccode || selectedContextParams?.enc || "";
+  // PDF Preview & Uploaded Files State
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [reviewSource, setReviewSource] = useState("local"); // "local" or "uploaded"
+  const [activeUploadedFileIndex, setActiveUploadedFileIndex] = useState(-1);
+  const [activePreviewUrl, setActivePreviewUrl] = useState("");
+
+  const hpercode = selectedContextParams?.hpercode || selectedPatient?.id || "";
+  const enccode = selectedContextParams?.enccode || selectedContextParams?.enc || "";
+
+  // Load uploaded files when entering review step
+  useEffect(() => {
+    if (currentStep === "review" && hpercode) {
+      loadUploadedFiles();
+    }
+  }, [currentStep, hpercode]);
+
+  const loadUploadedFiles = async () => {
+    if (!hpercode) return;
+
+    try {
+      const response = await fetchPatientUploadedFiles({
+        hpercode,
+        enccode: enccode || null,
+        token: LAB_UPLOAD_API_TOKEN,
+      });
+
+      const files = response.data.map((file) => ({
+        id: file.id,
+        docointkey: file.docointkey,
+        fileName: file.fileName || file.file_name,
+        fileSize: file.fileSize || file.file_size,
+        fileUrl: file.fileUrl || file.file_url,
+        previewUrl: file.fileUrl || file.file_url,
+        uploadedAt: file.uploadedAt || file.uploaded_at,
+        uploadedAtLabel: file.uploadedAt 
+          ? new Date(file.uploadedAt).toLocaleString() 
+          : file.uploaded_at 
+            ? new Date(file.uploaded_at).toLocaleString() 
+            : "Unknown",
+      }));
+
+      setUploadedFiles(files);
+    } catch (err) {
+      console.error("Failed to load uploaded files:", err);
+      setUploadedFiles([]);
+    }
+  };
+
+  const handleOpenFullscreen = () => {
+    // Open fullscreen preview in new window/tab
+    if (activePreviewUrl) {
+      window.open(activePreviewUrl, "_blank");
+    }
+  };
+
+  const handleClearPdfSelection = () => {
+    setActivePreviewUrl("");
+    setActiveUploadedFileIndex(-1);
+    setReviewSource("local");
+  };
+
+  const handleShowLocalPreview = () => {
+    setReviewSource("local");
+    setActiveUploadedFileIndex(-1);
+  };
+
+  const handleShowUploadedPreview = () => {
+    setReviewSource("uploaded");
+    if (uploadedFiles.length > 0) {
+      setActiveUploadedFileIndex(0);
+      setActivePreviewUrl(uploadedFiles[0].previewUrl || "");
+    }
+  };
+
+  const handlePreviewUploadedFile = (index) => {
+    setReviewSource("uploaded");
+    setActiveUploadedFileIndex(index);
+    if (uploadedFiles[index]) {
+      setActivePreviewUrl(uploadedFiles[index].previewUrl || "");
+    }
+  };
 
   const markStepComplete = (stepId) => {
     setCompletedSteps((prev) => [...new Set([...prev, stepId])]);
@@ -615,7 +749,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
     setCurrentStep("orderType");
   };
 
-  const loadOrders = useCallback(async (enc, type, hpercode) => {
+  const loadOrders = useCallback(async (enc, type, hpercode, status = "all") => {
     if (!enc) return;
 
     setOrdersLoading(true);
@@ -628,6 +762,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
         enccode: enc,
         hpercode: hpercode,
         type: orderTypeCode,
+        status: status, // Pass status filter to backend
         token: LAB_UPLOAD_API_TOKEN,
       });
 
@@ -768,6 +903,16 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
               orderType={orderType}
               uploads={uploads}
               onFinish={handleReviewFinish}
+              uploadedFiles={uploadedFiles}
+              activePreviewFile={null}
+              activePreviewUrl={activePreviewUrl}
+              onOpenFullscreen={handleOpenFullscreen}
+              onClearPdfSelection={handleClearPdfSelection}
+              onShowLocalPreview={handleShowLocalPreview}
+              onShowUploadedPreview={handleShowUploadedPreview}
+              onPreviewUploadedFile={handlePreviewUploadedFile}
+              reviewSource={reviewSource}
+              activeUploadedFileIndex={activeUploadedFileIndex}
             />
           </div>
         )}

@@ -3623,3 +3623,40 @@
   color: var(--lab-accent-600);
   flex-shrink: 0;
 }
+
+/* Review Step Layout with PDF Preview Panel */
+.lum-review-step {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.lum-review-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.lum-review-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 200px);
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--lab-line-soft);
+  box-shadow: 0 4px 16px rgba(16, 54, 63, 0.08);
+}
+
+@media (max-width: 900px) {
+  .lum-review-step {
+    grid-template-columns: 1fr;
+  }
+  
+  .lum-review-panel {
+    position: relative;
+    top: 0;
+    max-height: 500px;
+  }
+}

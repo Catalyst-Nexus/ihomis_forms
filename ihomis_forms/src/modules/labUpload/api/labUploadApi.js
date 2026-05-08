@@ -1289,6 +1289,92 @@ export async function uploadMappedLabResult({
   };
 }
 
+/**
+ * GET /api/db/patients/:hpercode/uploaded-files
+ * 
+ * Fetch all uploaded lab result files for a patient from Supabase.
+ * Returns list of previously uploaded PDFs with their metadata.
+ *
+ * @param {Object} options
+ * @param {string} options.hpercode - Patient ID (required)
+ * @param {string} [options.enccode] - Filter by encounter (optional)
+ * @param {string} [options.token] - Auth token
+ */
+export async function fetchPatientUploadedFiles({
+  hpercode,
+  enccode = null,
+  token,
+}) {
+  const trimmedHpercode = String(hpercode || "").trim();
+  
+  if (!trimmedHpercode) {
+    throw new Error("hpercode is required to fetch patient uploaded files.");
+  }
+
+  const baseUrl = String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(/\/+$/, "").replace(/\/patients$/, "");
+  
+  if (!baseUrl) {
+    throw new Error("API base URL is not configured.");
+  }
+
+  const requestUrl = buildRequestUrl(
+    `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/uploaded-files`,
+    { enccode }
+  );
+
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  let response;
+  let responsePayload;
+
+  try {
+    response = await fetch(requestUrl, { method: "GET", headers });
+    responsePayload = await response.text();
+  } catch (networkError) {
+    throw new Error(`Network error fetching uploaded files: ${networkError.message}`);
+  }
+
+  if (!response.ok) {
+    const parsed = tryParseJson(responsePayload);
+    const message = parsed?.message || buildErrorMessage(response, responsePayload);
+    throw new Error(message);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(responsePayload);
+  } catch {
+    throw new Error("Invalid JSON response when parsing uploaded files.");
+  }
+
+  const rawFiles = Array.isArray(data?.data) ? data.data : [];
+
+  return {
+    ok: data?.ok ?? true,
+    hpercode: trimmedHpercode,
+    count: rawFiles.length,
+    data: rawFiles.map((file) => ({
+      id: file.id,
+      docointkey: file.docointkey,
+      fileName: file.file_name,
+      fileUrl: file.file_url,
+      storagePath: file.storage_path,
+      fileSize: file.file_size,
+      contentType: file.content_type,
+      uploadedBy: file.uploaded_by,
+      uploadedAt: file.uploaded_at,
+      remarks: file.remarks,
+      hpercode: file.hpercode,
+      enccode: file.enccode,
+      orcode: file.orcode,
+      procode: file.procode,
+    })),
+  };
+}
+
 // ============================================================
 // Internal helpers
 // ============================================================
