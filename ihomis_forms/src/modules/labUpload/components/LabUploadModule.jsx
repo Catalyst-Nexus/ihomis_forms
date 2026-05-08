@@ -642,13 +642,6 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
   const hpercode = selectedContextParams?.hpercode || selectedPatient?.id || "";
   const enccode = selectedContextParams?.enccode || selectedContextParams?.enc || "";
 
-  // Load uploaded files when entering review step
-  useEffect(() => {
-    if (currentStep === "review" && hpercode) {
-      loadUploadedFiles();
-    }
-  }, [currentStep, hpercode]);
-
   const loadUploadedFiles = async () => {
     if (!hpercode) return;
 
@@ -680,6 +673,13 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
       setUploadedFiles([]);
     }
   };
+
+  // Load uploaded files when entering review step
+  useEffect(() => {
+    if (currentStep === "review" && hpercode) {
+      loadUploadedFiles();
+    }
+  }, [currentStep, hpercode]);
 
   const handleOpenFullscreen = () => {
     // Open fullscreen preview in new window/tab
