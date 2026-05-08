@@ -7,7 +7,6 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
 
-// ── Persist selectedRecordId across remounts / refreshes ───────────────────
 const RECORD_SESSION_KEY = "tagging_selected_record_id";
 
 function normalizeUser(u, i) {

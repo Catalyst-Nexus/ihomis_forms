@@ -5,12 +5,12 @@ import "./UserPicker.css";
  * UserPicker
  * Shown when no active session exists. Fetches users from VITE_TRACKING_USERS
  * and lets one select their identity. Calls onSelect(userId, userName).
- */
-export default function UserPicker({ onSelect }) {
+ */export default function UserPicker({ onSelect }) {
   const [users,   setUsers]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
   const [chosen,  setChosen]  = useState("");
+  const [search,  setSearch]  = useState("");
 
   useEffect(() => {
     const url = import.meta.env.VITE_TRACKING_USERS;
@@ -63,7 +63,6 @@ export default function UserPicker({ onSelect }) {
         <p className="up-sub">Agusan del Norte Provincial Health Office</p>
 
         <div className="up-divider" />
-
         <p className="up-prompt">Who are you?</p>
         <p className="up-hint">Select your name to continue. Your session will be saved locally.</p>
 
@@ -77,25 +76,58 @@ export default function UserPicker({ onSelect }) {
         {error && <p className="up-error">{error}</p>}
 
         {!loading && !error && (
-          <div className="up-list" role="listbox" aria-label="Select user">
-            {users.map((u) => (
-              <button
-                key={u.id}
-                role="option"
-                aria-selected={chosen === u.id}
-                className={`up-user-btn${chosen === u.id ? " up-user-btn--selected" : ""}`}
-                onClick={() => setChosen(u.id)}
-              >
-                <span className="up-avatar" aria-hidden="true">
-                  {u.label.charAt(0).toUpperCase()}
-                </span>
-                <span className="up-user-name">{u.label}</span>
-                {chosen === u.id && (
-                  <span className="up-check" aria-hidden="true">✓</span>
-                )}
-              </button>
-            ))}
-          </div>
+          <>
+            <div className="up-search">
+              <svg className="up-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                className="up-search-input"
+                placeholder="Search users..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search users"
+              />
+              {search && (
+                <button
+                  className="up-search-clear"
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            <div className="up-list" role="listbox" aria-label="Select user">
+              {users.filter((u) =>
+                u.label.toLowerCase().includes(search.toLowerCase())
+              ).map((u) => (
+                <button
+                  key={u.id}
+                  role="option"
+                  aria-selected={chosen === u.id}
+                  className={`up-user-btn${chosen === u.id ? " up-user-btn--selected" : ""}`}
+                  onClick={() => setChosen(u.id)}
+                >
+                  <span className="up-avatar" aria-hidden="true">
+                    {u.label.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="up-user-name">{u.label}</span>
+                  {chosen === u.id && (
+                    <span className="up-check" aria-hidden="true">✓</span>
+                  )}
+                </button>
+              ))}
+              {users.filter((u) =>
+                u.label.toLowerCase().includes(search.toLowerCase())
+              ).length === 0 && (
+                <p className="up-no-results">No users found matching "{search}"</p>
+              )}
+            </div>
+          </>
         )}
 
         <button
