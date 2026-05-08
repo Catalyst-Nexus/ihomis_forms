@@ -1,24 +1,10 @@
-/**
- * useTagAccess.js
- *
- * Resolves per-record step access for the current user.
- *
- * DB schema (actual):
- *   tracking_user_assignment: id | tracking_id | user_id | tag_order
- *   user_seq_assignment:      id | user_id     | seq_id   ← NO tracking_id
- *
- * Rules:
- *   tag_order 1  → seqIds: "all"
- *   tag_order 2  → seqIds: [their user_seq_assignment seq_ids]
- *   tag_order 3+ → seqIds: "remaining" (all NOT in user2's assignments)
- */
-
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "./supabaseClient";
 
 export function useTagAccess(currentUserId) {
   const [accessMap, setAccessMap] = useState({});
   const [loading, setLoading] = useState(false);
+  const channelsRef = useRef([]);
 
   const rebuild = useCallback(async () => {
     if (!currentUserId) {
@@ -46,10 +32,10 @@ export function useTagAccess(currentUserId) {
       const tagOrder = row.tag_order;
 
       if (tagOrder === 1) {
-        // Full access
+        // Full access to all steps
         map[trackingId] = { tagOrder, seqIds: "all" };
       } else if (tagOrder === 2) {
-        // Only my assigned steps (user_seq_assignment by user_id — no tracking_id)
+        // Only steps explicitly assigned to this user
         const { data: mySeqs } = await supabase
           .from("user_seq_assignment")
           .select("seq_id")
@@ -80,7 +66,7 @@ export function useTagAccess(currentUserId) {
             excludeSeqIds: (u2Seqs ?? []).map((r) => r.seq_id),
           };
         } else {
-          // No user2 assigned yet → show all
+          // No tag-order-2 user assigned yet → show all steps
           map[trackingId] = { tagOrder, seqIds: "all" };
         }
       }
@@ -90,9 +76,51 @@ export function useTagAccess(currentUserId) {
     setLoading(false);
   }, [currentUserId]);
 
+  // Initial fetch + realtime subscription
   useEffect(() => {
     rebuild();
-  }, [rebuild]);
+
+    if (!currentUserId) return;
+
+    // Remove old channels before creating new ones
+    channelsRef.current.forEach((ch) => supabase.removeChannel(ch));
+    channelsRef.current = [];
+
+    // Watch tracking_user_assignment (tagging changes)
+    const ch1 = supabase
+      .channel(`tag-access-assignment-${currentUserId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tracking_user_assignment",
+        },
+        () => rebuild(),
+      )
+      .subscribe();
+
+    // Watch user_seq_assignment (step assignment changes)
+    const ch2 = supabase
+      .channel(`tag-access-seqassign-${currentUserId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_seq_assignment",
+        },
+        () => rebuild(),
+      )
+      .subscribe();
+
+    channelsRef.current = [ch1, ch2];
+
+    return () => {
+      channelsRef.current.forEach((ch) => supabase.removeChannel(ch));
+      channelsRef.current = [];
+    };
+  }, [currentUserId, rebuild]);
 
   /** Returns true if the current user can see a given step on a given record */
   function canSeeStep(row, seqId) {

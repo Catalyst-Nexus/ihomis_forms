@@ -4,7 +4,35 @@ import { supabase } from "../tracking/hooks/supabaseClient.js";
 import { useTagAccess } from "../tracking/hooks/useTagAccess.js";
 import { Search, X, Calendar } from "lucide-react";
 
-// ── Safe date helpers ─────────────────────────────────────────────────────────
+// ── Helper to calculate remaining days from a discharged date
+function calculateRemainingDays(dischargedDate) {
+  console.log("🔍 calculateRemainingDays input:", dischargedDate, "type:", typeof dischargedDate);
+  
+  if (!dischargedDate || dischargedDate === "—") {
+    console.log("✓ Returning null (empty or dash)");
+    return null;
+  }
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const discharged = new Date(dischargedDate);
+  
+  console.log("📅 Today:", today, "Discharged:", discharged);
+  
+  if (isNaN(discharged.getTime())) {
+    console.log("❌ Invalid discharge date");
+    return null;
+  }
+  
+  const diffTime = today - discharged;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const remaining = 60 - diffDays;
+  
+  console.log("📊 Diff days:", diffDays, "Remaining:", remaining);
+  return remaining;
+}
+
+// ── Safe date helpers 
 function safeIso(raw) {
   if (!raw) return null;
   const cleaned = String(raw).replace(/^[^(]*\(([^)]+)\).*$/, "$1").trim();
@@ -74,11 +102,11 @@ export default function Tracking({
   const [currentPage, setCurrentPage] = useState(1);
   const ROWS_PER_PAGE = 10;
 
-  // ── Access control ────────────────────────────────────────────────────────
+  // ── Access control 
   const { accessMap, canSeeStep, hasAccess, loading: accessLoading, refresh: refreshAccess } =
     useTagAccess(currentUserId);
 
-  // ── 1. Load steps ──────────────────────────────────────────────────────────
+  // ── 1. Load steps 
   useEffect(() => {
     (async () => {
       const { data, error: err } = await supabase
@@ -91,7 +119,7 @@ export default function Tracking({
     })();
   }, []);
 
-  // ── 2. Fetch API ───────────────────────────────────────────────────────────
+  // ── 2. Fetch API 
   const fetchApi = useCallback(async () => {
     const url = import.meta.env.VITE_CHART_TRACKING;
     if (!url) { setError("VITE_CHART_TRACKING is not configured."); return; }
@@ -114,7 +142,7 @@ export default function Tracking({
 
   useEffect(() => { fetchApi(); }, [fetchApi]);
 
-  // ── 3. Sync API → Supabase ─────────────────────────────────────────────────
+  // ── 3. Sync API → Supabase 
   useEffect(() => {
     if (!apiRows.length || !steps.length) return;
     let cancelled = false;
@@ -158,7 +186,7 @@ export default function Tracking({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiRows, steps]);
 
-  // ── 4. Reload DB rows ──────────────────────────────────────────────────────
+  // ── 4. Reload DB rows
   const reloadDbRows = useCallback(async () => {
     const { data: trackingData, error: tErr } = await supabase
       .from("tracking").select("id, tracking_encocode, encounter_type, date_created")
@@ -185,6 +213,7 @@ export default function Tracking({
     return apiRows.map((apiRow) => {
       const encoCode = apiRow.enccode ?? apiRow.tracking_encocode ?? "";
       const dbRow    = dbRows.find((r) => r.tracking_encocode === encoCode);
+      const dischargedDate = apiRow.discharged_date || "—";
       return {
         id:             dbRow?.id ?? null,
         encoCode,
@@ -192,15 +221,16 @@ export default function Tracking({
         patientName:    apiRow.patient_name ?? "—",
         hospitalNo:     apiRow.hospital_no  ?? apiRow.patient_id ?? "—",
         admittedDate:   extractAdmittedDate(encoCode),
-        dischargedDate: apiRow.discharged_date || "—",
+        dischargedDate,
+        remainingDays:  calculateRemainingDays(dischargedDate),
         _apiRow:        apiRow,
       };
     });
   }, [apiRows, dbRows]);
 
-  // ── 6. Filter rows — include access control ────────────────────────────────
+  // ── 6. Filter rows — include access control and sort by remaining days ─────
   const filteredRows = useMemo(() => {
-    return mergedRows.filter((r) => {
+    const filtered = mergedRows.filter((r) => {
       // ── Access gate: only show records this user is tagged on ──────────────
       // If accessMap has entries (user is tagged somewhere), enforce it.
       // If accessMap is empty (user not tagged anywhere), show nothing.
@@ -211,6 +241,25 @@ export default function Tracking({
       if (nameFilter && !r.patientName.toLowerCase().includes(nameFilter.toLowerCase())) return false;
       if (dateFilter && !r.admittedDate.includes(dateFilter)) return false;
       return true;
+    });
+
+    // Sort by remaining days: positive values ascending (most urgent first),
+    // negative values (expired) and null values at the end
+    return filtered.sort((a, b) => {
+      // Both null → maintain order
+      if (a.remainingDays === null && b.remainingDays === null) return 0;
+      // a is null → b comes first
+      if (a.remainingDays === null) return 1;
+      // b is null → a comes first
+      if (b.remainingDays === null) return -1;
+      // Both negative (expired) → maintain original order (both go to bottom)
+      if (a.remainingDays < 0 && b.remainingDays < 0) return 0;
+      // a is negative (expired) → b comes first
+      if (a.remainingDays < 0) return 1;
+      // b is negative (expired) → a comes first
+      if (b.remainingDays < 0) return -1;
+      // Both positive → sort ascending (smallest remaining days first)
+      return a.remainingDays - b.remainingDays;
     });
   }, [mergedRows, encounterFilter, nameFilter, dateFilter, accessMap, currentUserId, hasAccess]);
 
@@ -368,6 +417,7 @@ const visibleSteps = useMemo(() => {
                 <th>Encounter</th>
                 <th>Admitted Date</th>
                 <th>Discharged Date</th>
+                <th>Remaining Days</th>
                 <th>Patient Name</th>
                 {visibleSteps.map((step) => (
                   <th key={step.id}>{step.label}</th>
@@ -376,9 +426,9 @@ const visibleSteps = useMemo(() => {
             </thead>
             <tbody>
               {isLoading && !filteredRows.length ? (
-                <tr><td colSpan={6 + visibleSteps.length} className="tracking-td-center">⏳ Loading records…</td></tr>
+                <tr><td colSpan={7 + visibleSteps.length} className="tracking-td-center">⏳ Loading records…</td></tr>
               ) : filteredRows.length === 0 ? (
-                <tr><td colSpan={6 + visibleSteps.length} className="tracking-td-center">
+                <tr><td colSpan={7 + visibleSteps.length} className="tracking-td-center">
                   {currentUserId && Object.keys(accessMap).length === 0
                     ? "You have not been tagged on any records yet."
                     : `No ${encounterFilter || ""} records found.`}
@@ -395,6 +445,9 @@ const visibleSteps = useMemo(() => {
                     </td>
                     <td>{row.admittedDate}</td>
                     <td>{row.dischargedDate}</td>
+                    <td className={row.remainingDays !== null && row.remainingDays <= 10 ? "tracking-remaining-urgent" : ""}>
+                      {row.remainingDays !== null ? `${row.remainingDays} days` : "—"}
+                    </td>
                     <td className="tracking-td-name">{row.patientName}</td>
                     {visibleSteps.map((step) => {
                       // Cell-level gate: hide cells this user can't see
