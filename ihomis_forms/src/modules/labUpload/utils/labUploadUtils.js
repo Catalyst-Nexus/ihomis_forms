@@ -1,65 +1,33 @@
+// ============================================================
+// labUploadUtils.js
+// Shared utility helpers for the lab upload module
+// ============================================================
+
+// ── File key helpers ─────────────────────────────────────────
+
 function getFileKey(file) {
-  return `${file.name}-${file.size}-${file.lastModified}`;
+  if (!file) return "";
+  if (typeof file === "string") return file;
+  const name = file.name || file.filename || String(file);
+  const size = file.size;
+  return size ? `${name}::${size}` : name;
 }
 
-function mergeUniqueFiles(existingFiles, incomingFiles) {
-  const knownKeys = new Set(existingFiles.map((file) => getFileKey(file)));
-  const mergedFiles = [...existingFiles];
-
-  for (const file of incomingFiles) {
-    const fileKey = getFileKey(file);
-
-    if (knownKeys.has(fileKey)) {
-      continue;
-    }
-
-    knownKeys.add(fileKey);
-    mergedFiles.push(file);
-  }
-
-  return mergedFiles;
-}
-
-function formatDateTime(value) {
-  if (!value) {
-    return "";
-  }
-
-  const parsedDate = new Date(value);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return value;
-  }
-
-  return parsedDate.toLocaleString();
-}
-
-function formatFileSize(bytes) {
-  if (!bytes) {
-    return "0 KB";
-  }
-
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function isPdfFile(file) {
-  if (!file) {
-    return false;
-  }
-
-  const mimeType = (file.type || "").toLowerCase();
-  const fileName = file.name.toLowerCase();
-
-  return mimeType === "application/pdf" || fileName.endsWith(".pdf");
-}
-
+// ============================================================
+// normalizeLabContextParams
+//
+// Normalizes all possible alias names for the core identifiers
+// used across the lab upload workflow.
+//
+// Handles:
+//   enccode  ← enc, encounter_code, encounterCode
+//   hpercode ← patient_id, patientId
+//   fhud     ← facility_code, facilityCode
+//   docointkey ← documentKey, docKey
+//   user     ← userid, username, account
+//   orcode   ← order_code, orderCode
+//   procode  ← procedure_id, procedureInstanceId, procedureCode
+// ============================================================
 function normalizeLabContextParams(contextParams = {}) {
   const normalized = { ...contextParams };
 
@@ -102,6 +70,23 @@ function normalizeLabContextParams(contextParams = {}) {
     normalized.user = resolvedUser;
   }
 
+  // Normalize order and procedure IDs
+  const resolvedOrcode =
+    normalized.orcode || normalized.order_code || normalized.orderCode || "";
+  if (resolvedOrcode) {
+    normalized.orcode = resolvedOrcode;
+  }
+
+  const resolvedProcode =
+    normalized.procode ||
+    normalized.procedure_id ||
+    normalized.procedureInstanceId ||
+    normalized.procedureCode ||
+    "";
+  if (resolvedProcode) {
+    normalized.procode = resolvedProcode;
+  }
+
   return normalized;
 }
 
@@ -132,71 +117,106 @@ function mergeRequestContext(previousContext, nextContext) {
 
   return {
     ...previousContext,
-    panelName: nextContext.panelName || previousContext.panelName,
-    requestedAt: nextContext.requestedAt || previousContext.requestedAt,
-    user: nextContext.user || previousContext.user || "",
+    ...nextContext,
     identifiers: {
-      enccode:
-        nextContext.identifiers?.enccode ||
-        previousContext.identifiers?.enccode ||
-        "",
-      fhud:
-        nextContext.identifiers?.fhud ||
-        previousContext.identifiers?.fhud ||
-        "",
-      docointkey:
-        nextContext.identifiers?.docointkey ||
-        previousContext.identifiers?.docointkey ||
-        "",
+      ...(previousContext.identifiers || {}),
+      ...(nextContext.identifiers || {}),
     },
     patient: {
-      firstName:
-        nextContext.patient?.firstName ||
-        previousContext.patient?.firstName ||
-        "",
-      middleName:
-        nextContext.patient?.middleName ||
-        previousContext.patient?.middleName ||
-        "",
-      lastName:
-        nextContext.patient?.lastName ||
-        previousContext.patient?.lastName ||
-        "",
+      ...(previousContext.patient || {}),
+      ...(nextContext.patient || {}),
     },
-    hasAnyContext: nextContext.hasAnyContext ?? previousContext.hasAnyContext,
   };
 }
 
-function getFirstUploadedPreviewIndex(uploadedFiles) {
-  return uploadedFiles.findIndex((item) => Boolean(item.previewUrl));
+function mergeUniqueFiles(existing, incoming) {
+  const all = [...existing];
+  const existingKeys = new Set(all.map(getFileKey));
+
+  for (const file of incoming) {
+    const key = getFileKey(file);
+    if (!existingKeys.has(key)) {
+      all.push(file);
+      existingKeys.add(key);
+    }
+  }
+
+  return all;
 }
 
-function mapSuccessToUploadedEntry(item) {
+function isPdfFile(file) {
+  if (!file) {
+    return false;
+  }
+
+  return (
+    file.type === "application/pdf" ||
+    String(file.name || "").toLowerCase().endsWith(".pdf")
+  );
+}
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) {
+    return "0 Bytes";
+  }
+
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+function buildDisplayContext(requestContext = {}) {
   return {
-    id: `${item.fileKey}-${item.uploadedAt}`,
-    fileName: item.fileName,
-    fileSize: item.fileSize,
-    previewUrl: item.uploadedPdfUrl,
-    uploadedAtLabel: formatDateTime(item.uploadedAt),
+    ...requestContext,
+    hasAnyContext: Boolean(
+      requestContext.identifiers?.enccode ||
+        requestContext.identifiers?.docointkey ||
+        requestContext.identifiers?.hpercode ||
+        requestContext.patient?.lastName ||
+        requestContext.requestedAt,
+    ),
   };
 }
 
-function buildDisplayContext(requestContext) {
+function mapSuccessToUploadedEntry(successEntry) {
+  if (!successEntry) return null;
+
   return {
-    panelName: requestContext.panelName || "Laboratory Request",
-    requestedAt: requestContext.requestedAt || "",
-    user: requestContext.user || "",
-    identifiers: {
-      enccode: requestContext.identifiers?.enccode || "Not provided",
-      fhud: requestContext.identifiers?.fhud || "Not provided",
-      docointkey: requestContext.identifiers?.docointkey || "Not provided",
-    },
-    patient: {
-      firstName: requestContext.patient?.firstName || "Not provided",
-      middleName: requestContext.patient?.middleName || "Not provided",
-      lastName: requestContext.patient?.lastName || "Not provided",
-    },
+    payload: successEntry.payload || successEntry,
+    file: successEntry.file,
+    fileKey: successEntry.fileKey || getFileKey(successEntry.file),
+    fileName:
+      successEntry.file?.name ||
+      successEntry.payload?.file_name ||
+      "Unknown",
+    fileSize:
+      successEntry.file?.size ||
+      successEntry.payload?.file_size || 0,
+    uploadedAt:
+      successEntry.uploadedAt ||
+      successEntry.payload?.created_at ||
+      new Date().toISOString(),
+    uploadedPdfUrl:
+      successEntry.uploadedPdfUrl ||
+      successEntry.payload?.file_url || "",
   };
+}
+
+function getFirstUploadedPreviewIndex(files, uploadedFiles) {
+  if (!uploadedFiles || uploadedFiles.length === 0) return -1;
+
+  for (let i = 0; i < files.length; i += 1) {
+    const file = files[i];
+    const key = getFileKey(file);
+    const uploaded = uploadedFiles.find(
+      (u) => getFileKey(u.file || u) === key,
+    );
+    if (uploaded) return i;
+  }
+
+  return -1;
 }
 
 export {
