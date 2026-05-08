@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useTaggingSession } from "./hooks/useTaggingSession";
+import TaggingUserPicker from "./TaggingUserPicker";
 import "./Tagging.css";
 
 const supabase = createClient(
@@ -40,7 +42,7 @@ function tagCfg(order) {
   return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
 }
 
-function AccessDenied({ userName, onBack }) {
+function AccessDenied({ userName, onSwitchUser, onBack }) {
   return (
     <div className="tg-page">
       <main className="tg-shell">
@@ -57,9 +59,7 @@ function AccessDenied({ userName, onBack }) {
           )}
         </header>
         <nav className="tg-nav">
-          <button className="tg-btn tg-btn--ghost" onClick={onBack}>
-            ← Back to Tracking
-          </button>
+          
         </nav>
         <div className="tg-panel" style={{ textAlign: "center", padding: "3rem 2rem" }}>
           <div style={{
@@ -86,12 +86,13 @@ function AccessDenied({ userName, onBack }) {
               Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName}</strong>
             </p>
             <button
-              className="tg-btn tg-btn--ghost"
-              onClick={onBack}
+              className="tg-btn tg-btn--primary"
+              onClick={onSwitchUser}
               style={{ marginTop: ".5rem" }}
             >
-              ← Go Back
+              Switch User
             </button>
+          
           </div>
         </div>
       </main>
@@ -104,14 +105,36 @@ export default function Tagging({
   selectedPatient,
   trackingRows = [],
   onBackToTracking,
-  currentUserId,
-  currentUserName,
+  // Removed: currentUserId, currentUserName props - now uses independent tagging session
+  // This ensures tagging user selection is completely isolated from tracking module
   onAccessChanged,
 }) {
   const { toasts, push } = useToast();
 
+  // ── INDEPENDENT TAGGING SESSION ──────────────────────────────────────────
+  // This session is completely separate from the tracking module's user picker.
+  // It uses its own localStorage key and fetches users independently.
+  const {
+    taggingUserId,
+    taggingUserName,
+    users,
+    usersLoading,
+    usersError,
+    selectTaggingUser,
+    clearTaggingSession,
+    refreshUsers,
+  } = useTaggingSession();
+
+  // ── Go back to user picker ─────────────────────────────────────────────────
+  const handleSwitchUser = useCallback(() => {
+    clearTaggingSession();
+    setAccessStatus("needs-user");
+  }, [clearTaggingSession]);
+
   // ── Access check state ────────────────────────────────────────────────────
-  const [accessStatus, setAccessStatus] = useState("checking");
+  // IMPORTANT: Start with "needs-user" so the picker shows immediately on page load
+  // The access check happens AFTER user selection, not before
+  const [accessStatus, setAccessStatus] = useState("needs-user");
 
   // ── Init ──────────────────────────────────────────────────────────────────
   const [initComplete,     setInitComplete]     = useState(false);
@@ -226,30 +249,8 @@ export default function Tagging({
     return () => { live = false; };
   }, []);
 
-  // ── Users ──────────────────────────────────────────────────────────────────
-  const [users,      setUsers]      = useState([]);
-  const [usersState, setUsersState] = useState("idle");
-  const [usersError, setUsersError] = useState("");
-
-  const fetchUsers = useCallback(async () => {
-    const url = import.meta.env.VITE_TRACKING_USERS;
-    if (!url) { setUsersState("error"); setUsersError("VITE_TRACKING_USERS not set."); return; }
-    setUsersState("loading"); setUsersError("");
-    try {
-      const res  = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const raw  = await res.json();
-      const list = Array.isArray(raw) ? raw
-        : Array.isArray(raw?.data)  ? raw.data
-        : Array.isArray(raw?.users) ? raw.users : [];
-      setUsers(list.map(normalizeUser));
-      setUsersState("idle");
-    } catch (e) {
-      setUsersState("error"); setUsersError(e.message);
-    }
-  }, []);
-
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  // NOTE: Users are now fetched from useTaggingSession hook - no local state needed
+  // The hook provides: users, usersLoading, usersError, selectTaggingUser, refreshUsers
 
   // ── Tagged users ───────────────────────────────────────────────────────────
   const [taggedUsers, setTaggedUsers] = useState([]);
@@ -267,8 +268,12 @@ export default function Tagging({
     })));
   }, [selectedRecordId]);
 
-  // FIX: always fetch on mount + when selectedRecordId changes
-  useEffect(() => { fetchTaggedUsers(); }, [fetchTaggedUsers]);
+  // FIX: only fetch tagged users AFTER init is complete and when selectedRecordId changes
+  useEffect(() => {
+    if (!initComplete) return;
+    if (!selectedRecordId) return;
+    fetchTaggedUsers();
+  }, [initComplete, selectedRecordId, fetchTaggedUsers]);
 
   // ── Step assignments ───────────────────────────────────────────────────────
   // Store multiple assignments per step: { [stepKey]: [{ rowId, userId, userName }, ...] }
@@ -302,24 +307,42 @@ export default function Tagging({
   useEffect(() => { fetchStepAssign(); }, [fetchStepAssign]);
 
   // ── CRITICAL: Compute who can manage tagging ───────────────────────────────
-  // Only the FIRST tagged user (tag_order = 1) can manage tagging
+  // Rules:
+  // 1. User must be the FIRST tagged user (tag_order = 1) to access tagging
+  // 2. If no first tagged user exists yet, user cannot access (they need to be tagged first)
   const firstTaggedUser = useMemo(
     () => taggedUsers.find((u) => u.tagOrder === 1),
     [taggedUsers]
   );
 
   const canManageTagging = useMemo(() => {
-    if (!currentUserId || !firstTaggedUser) return false;
-    return String(firstTaggedUser.userId) === String(currentUserId);
-  }, [taggedUsers, currentUserId, firstTaggedUser]);
+    // Must have a selected tagging user
+    if (!taggingUserId) return false;
+    
+    // Must have a first tagged user in the database
+    if (!firstTaggedUser) return false;
+    
+    // Only the first tagged user can manage tagging
+    return String(firstTaggedUser.userId) === String(taggingUserId);
+  }, [taggingUserId, firstTaggedUser]);
 
   // ── ACCESS CHECK ───────────────────────────────────────────────────────────
-  // CRITICAL: If current user is not the first tagged user, deny access
+  // With independent tagging session:
+  // 1. If no tagging user selected yet → show user picker (immediately, don't wait for init)
+  // 2. If user selected but not first tagged → deny access
+  // 3. If user is first tagged → allow access
   useEffect(() => {
+    // Show user picker immediately if no user selected - don't wait for init
+    if (!taggingUserId) {
+      setAccessStatus("needs-user");
+      return;
+    }
+    
+    // Only check initComplete for the actual access decision
     if (!initComplete) return;
-    if (!currentUserId) { setAccessStatus("denied"); return; }
+    
     setAccessStatus(canManageTagging ? "allowed" : "denied");
-  }, [initComplete, currentUserId, canManageTagging]);
+  }, [initComplete, taggingUserId, canManageTagging]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const assignableUsers = useMemo(
@@ -351,7 +374,7 @@ export default function Tagging({
 
   // canAddUser is true when there are still unused users available to add
   const canAddUser = unusedUsers.length > 0;
-  const taggingDisabled = !selectedRecordId || usersState === "loading" || !users.length || !initComplete;
+  const taggingDisabled = !selectedRecordId || usersLoading || !users.length || !initComplete;
 
   // ── Handlers ──────────────────────────────────────────────────────────
 
@@ -370,7 +393,10 @@ export default function Tagging({
       push("Only the 1st tagged user can manage tagging.", "error");
       return;
     }
-    if (!selectedRecordId || !pendingUser) return;
+    if (!selectedRecordId || !pendingUser) {
+      push("No record selected or no user selected.", "error");
+      return;
+    }
 
     const trackingIdInt = parseInt(selectedRecordId, 10);
     if (isNaN(trackingIdInt)) {
@@ -378,12 +404,64 @@ export default function Tagging({
       return;
     }
 
-    // ── Step 1: Verify the tracking record actually exists in DB ──────────
-    const { data: exists, error: chkErr } = await supabase
-      .from("tracking").select("id").eq("id", trackingIdInt).maybeSingle();
+    // ── Step 1: Verify the tracking record exists in DB, or re-initialize if needed ──
+    let { data: exists, error: chkErr } = await supabase
+      .from("tracking").select("id, tracking_encocode, encounter_type").eq("id", trackingIdInt).maybeSingle();
+    
+    // If record doesn't exist, try to create it on the fly
     if (chkErr || !exists) {
-      push("Tracking record not found in DB. Try refreshing.", "error");
-      return;
+      // Try to get the tracking code from trackingRows using multiple possible ID fields
+      const trackingRow = trackingRows.find(r => 
+        String(r.id) === selectedRecordId || 
+        String(r.tracking_encocode) === selectedRecordId ||
+        String(r.encoCode) === selectedRecordId
+      );
+      
+      // Fallback: try to find by matching against any tracking row's DB id
+      let encoCode = trackingRow?.encoCode || trackingRow?.tracking_encocode;
+      let encounterType = trackingRow?.encounterType || trackingRow?.encounter_type || "";
+      
+      // If no encoCode found from trackingRows, try fetching by tracking_encocode
+      if (!encoCode && trackingIdInt) {
+        const { data: byCode } = await supabase
+          .from("tracking")
+          .select("tracking_encocode, encounter_type")
+          .eq("id", trackingIdInt)
+          .maybeSingle();
+        if (byCode) {
+          encoCode = byCode.tracking_encocode;
+          encounterType = byCode.encounter_type || "";
+        }
+      }
+      
+      // Last resort: use the selectedRecordId itself as the encoCode
+      if (!encoCode) {
+        encoCode = selectedRecordId;
+      }
+      
+      // Try to create the tracking record
+      const { data: upserted, error: upsertErr } = await supabase
+        .from("tracking")
+        .upsert({
+          tracking_encocode: String(encoCode),
+          encounter_type: String(encounterType),
+          is_current: true,
+          created_by: String(selectedPatient?.id ?? selectedPatient?.patient_id ?? "TAGGING_INIT"),
+        }, { onConflict: "tracking_encocode", ignoreDuplicates: false })
+        .select("id")
+        .single();
+      
+      if (upsertErr || !upserted?.id) {
+        push(`Error creating tracking record: ${upsertErr?.message ?? "Unknown error"}`, "error");
+        return;
+      }
+      
+      // Update the selectedRecordId with the correct DB id if needed
+      if (String(upserted.id) !== selectedRecordId) {
+        setSelectedRecordId(String(upserted.id));
+      }
+      
+      exists = upserted;
     }
 
     // ── Step 2: Fetch LIVE assignments from DB (ignore local state) ───────
@@ -624,8 +702,23 @@ export default function Tagging({
   if (accessStatus === "denied") {
     return (
       <AccessDenied
-        userName={currentUserName}
+        userName={taggingUserName}
+        onSwitchUser={handleSwitchUser}
         onBack={onBackToTracking}
+      />
+    );
+  }
+
+  // ── Needs user selection ─────────────────────────────────────────────────
+  // When no tagging user is selected yet, show the TaggingUserPicker
+  if (accessStatus === "needs-user") {
+    return (
+      <TaggingUserPicker
+        users={users}
+        usersLoading={usersLoading}
+        usersError={usersError}
+        onSelect={selectTaggingUser}
+        onRefresh={refreshUsers}
       />
     );
   }
@@ -645,18 +738,19 @@ export default function Tagging({
             <h1>Agusan del Norte Provincial Health Office</h1>
             <p>CHART Tagging System</p>
           </div>
-          {currentUserName && (
+          {taggingUserName && (
             <div className="tg-session-pill">
               <span className="tg-session-dot" />
-              {currentUserName}
+              {taggingUserName}
             </div>
           )}
         </header>
 
         <nav className="tg-nav">
-          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>
-            ← Back to Tracking
+          <button className="tg-btn tg-btn--ghost" onClick={handleSwitchUser}>
+            ← Switch User
           </button>
+        
         </nav>
 
         <div className="tg-panel">
@@ -666,10 +760,10 @@ export default function Tagging({
               <p className="tg-panel-sub">Assign users to records and workflow steps.</p>
             </div>
             <div className="tg-users-status">
-              {usersState === "loading" && <span className="tg-spinner" />}
-              {usersState === "error"   && <span className="tg-err-text">{usersError}</span>}
-              {usersState === "idle"    && <span className="tg-count">{users.length} users loaded</span>}
-              <button className="tg-btn tg-btn--sm" onClick={() => { fetchUsers(); fetchTaggedUsers(); }}>↺ Refresh</button>
+              {usersLoading && <span className="tg-spinner" />}
+              {usersError   && <span className="tg-err-text">{usersError}</span>}
+              {!usersLoading && !usersError && <span className="tg-count">{users.length} users loaded</span>}
+              <button className="tg-btn tg-btn--sm" onClick={() => { refreshUsers(); fetchTaggedUsers(); }}>↺ Refresh</button>
             </div>
           </div>
 
@@ -706,7 +800,7 @@ export default function Tagging({
                         }
                         return assignments?.userId === tu.userId;
                       }).length;
-                      const isCurrent = String(tu.userId) === String(currentUserId);
+                      const isCurrent = String(tu.userId) === String(taggingUserId);
                       return (
                         <div key={tu.rowId} className="tg-user-row">
                           <span className="tg-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
@@ -989,12 +1083,12 @@ export default function Tagging({
               )}
             </>
           )}
-
+{/* 
           {!selectedRecord && initComplete && trackingRows.length > 0 && selectedRecordId && (
             <div className="tg-notice" style={{ color: "#8a4f0b", background: "#faebd5" }}>
               ⚠️ Could not match a tracking record. Try refreshing the page.
             </div>
-          )}
+          )} */}
         </div>
       </main>
     </div>
