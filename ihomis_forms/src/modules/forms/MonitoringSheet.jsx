@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./MonitoringSheet.css";
 
 export default function MonitoringSheet({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
-  const caseNum = patientData?.caseNum || "ADM-2026-010707";
-  const age = patientData?.age || "32 year(s)";
-  const sex = patientData?.sex || "F";
+  const name = patientName || "";
+  const caseNum = patientData?.caseNum || "";
+  const age = patientData?.age || "";
+  const sex = patientData?.sex || "";
 
   const { generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();

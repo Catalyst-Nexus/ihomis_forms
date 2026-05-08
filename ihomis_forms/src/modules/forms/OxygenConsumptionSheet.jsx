@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./OxygenConsumptionSheet.css";
 
 export default function OxygenConsumptionSheet({ patientName, patientData }) {
-	const name    = patientName          || "PELISCO , BABY GIRL";
-	const age     = patientData?.age     || "1 hour(s)";
-	const sex     = patientData?.sex     || "F";
-	const caseNum = patientData?.caseNum || "ADM-2026-010623";
+	const name    = patientName          || "";
+	const age     = patientData?.age     || "";
+	const sex     = patientData?.sex     || "";
+	const caseNum = patientData?.caseNum || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();

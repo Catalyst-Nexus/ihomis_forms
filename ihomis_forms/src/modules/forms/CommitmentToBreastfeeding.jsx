@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import "./CommitmentToBreastfeeding.css";
 
 export default function CommitmentToBreastfeeding({ patientName, patientData }) {
-  const name    = patientName            || "BAYSA , BABY BOY";
-  const address = patientData?.address   || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
+  const name    = patientName            || "";
+  const address = patientData?.address   || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

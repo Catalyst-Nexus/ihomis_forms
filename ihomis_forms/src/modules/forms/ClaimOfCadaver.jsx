@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./ClaimOfCadaver.css";
 
 export default function ClaimOfCadaver({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name = patientName || "";
 
   const { dateStr, timeStr, generatedOn } = useMemo(() => {
     const now = new Date();

@@ -2,15 +2,15 @@ import { useMemo } from "react";
 import "./OtherLaboratoryRequest.css";
 
 export default function OtherLaboratoryRequest({ patientName, patientData }) {
-	const name      = patientName            || "PELISCO , BABY GIRL";
-	const age       = patientData?.age       || "1 hour(s)";
-	const sex       = patientData?.sex       || "F";
-	const address   = patientData?.address   || "P-1, MATABAO, BUENAVISTA, AGUSAN DEL NORTE";
-	const caseNum   = patientData?.caseNum   || "ADM-2026-010623";
-	const ward      = patientData?.ward      || "NEWBORN - TRANSIENT - BED 02";
-	const category  = patientData?.category  || "NEWBORN";
-	const birthdate = patientData?.birthdate || "April 21, 2026";
-	const diagnosis = patientData?.diagnosis || "TERM FEMALE NEONATE DELIVERED VIA REPEAT CS WITH AS 8,9 BS 40 WEEKS AOG, BW 3.0 KGS, AGA";
+	const name      = patientName            || "";
+	const age       = patientData?.age       || "";
+	const sex       = patientData?.sex       || "";
+	const address   = patientData?.address   || "";
+	const caseNum   = patientData?.caseNum   || "";
+	const ward      = patientData?.ward      || "";
+	const category  = patientData?.category  || "";
+	const birthdate = patientData?.birthdate || "";
+	const diagnosis = patientData?.diagnosis || "";
 
 	const { dateTimeOrdered, generatedOn, generatedBy } = useMemo(() => {
 		const now = new Date();

@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import "./IsolationRecommendation.css";
 
 export default function IsolationRecommendation({ patientName, patientData }) {
-	const name = patientName        || "BAYSA , BABY BOY";
-	const age  = patientData?.age   || "1 hour(s)";
-	const sex  = patientData?.sex   || "M";
+	const name = patientName        || "";
+	const age  = patientData?.age   || "";
+	const sex  = patientData?.sex   || "";
 
 	const { dateStr, issuedStr, generatedOn } = useMemo(() => {
 		const now = new Date();

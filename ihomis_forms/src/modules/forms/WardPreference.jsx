@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./WardPreference.css";
 
 export default function WardPreference({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name = patientName || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

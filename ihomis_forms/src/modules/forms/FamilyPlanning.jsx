@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./FamilyPlanning.css";
 
 export default function FamilyPlanning({ patientName, patientData }) {
-	const name      = patientName           || "BAYSA , BABY BOY";
-	const address   = patientData?.address  || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
-	const birthdate = patientData?.birthdate|| "April 22, 2026";
-	const age       = patientData?.age      || "1 hour(s)";
+	const name      = patientName           || "";
+	const address   = patientData?.address  || "";
+	const birthdate = patientData?.birthdate|| "";
+	const age       = patientData?.age      || "";
 	const gp        = patientData?.gp       || "";
 
 	const { dateStr, generatedOn } = useMemo(() => {

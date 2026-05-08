@@ -37,7 +37,6 @@ function tagCfg(order) {
   return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
 }
 
-// ── Access Gate Component ─────────────────────────────────────────────────────
 function AccessDenied({ userName, onBack }) {
   return (
     <div className="tg-page">

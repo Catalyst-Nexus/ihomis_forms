@@ -2,21 +2,21 @@ import { useMemo } from "react";
 import "./AbtcForm.css";
 
 export default function AbtcForm({ patientName, patientData }) {
-	const name        = patientName;
-	const caseNo      = patientData?.caseNo;
-	const srCitizen   = patientData?.srCitizen;
-	const hospitalNo  = patientData?.hospitalNo;
-	const address     = patientData?.address;
-	const telNo       = patientData?.telNo;
-	const sex         = patientData?.sex;
-	const civilStatus = patientData?.civilStatus;
-	const religion    = patientData?.religion
-	const nationality = patientData?.nationality;
-	const birthPlace  = patientData?.birthPlace;
-	const birthdate   = patientData?.birthdate;
-	const age         = patientData?.age;
-	const occupation  = patientData?.occupation;
-	const indigenous  = patientData?.indigenous;
+	const name        = patientName || "";
+	const caseNo      = patientData?.caseNo || "";
+	const srCitizen   = patientData?.srCitizen || "";
+	const hospitalNo  = patientData?.hospitalNo || "";
+	const address     = patientData?.address || "";
+	const telNo       = patientData?.telNo || "";
+	const sex         = patientData?.sex || "";
+	const civilStatus = patientData?.civilStatus || "";
+	const religion    = patientData?.religion || "";
+	const nationality = patientData?.nationality || "";
+	const birthPlace  = patientData?.birthPlace || "";
+	const birthdate   = patientData?.birthdate || "";
+	const age         = patientData?.age || "";
+	const occupation  = patientData?.occupation || "";
+	const indigenous  = patientData?.indigenous || "";
 
 	const generatedOn = useMemo(() => {
 		const now = new Date();
