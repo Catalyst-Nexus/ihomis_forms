@@ -5,22 +5,24 @@
  *
  *   Step 1: PATIENT_SELECTED  (handled by useLabPatientPicker)
  *   Step 2: ENCOUNTER_SELECTED (handled by useLabPatientPicker)
- *   Step 3: ORDER_SELECTED     ← managed here
- *   Step 4: PROCEDURE_SELECTED ← managed here
- *   Step 5: UPLOAD             ← managed here (calls uploadMappedLabResult)
- *   Step 6: FINALIZED          ← docointkey returned, upload complete
+ *   Step 3: ORDER_SELECTED     ← managed here (hdocord IS the order)
+ *   Step 4: UPLOAD             ← managed here (calls uploadMappedLabResult)
+ *   Step 5: FINALIZED          ← docointkey returned, upload complete
+ *
+ * Note: hdocord IS the order table - no separate pcchrgcod fetch needed.
+ * Each hdocord row already contains docointkey, proccode, orcode.
  *
  * Usage:
  *   const {
- *     selectedOrder, selectedProcedure,
- *     orders, procedures,
- *     ordersLoading, proceduresLoading,
- *     ordersError, proceduresError,
+ *     selectedOrder,
+ *     orders,
+ *     ordersLoading,
+ *     ordersError,
  *     uploadResults,
  *     uploading,
  *     workflowError,
- *     setSelectedOrder, setSelectedProcedure,
- *     fetchOrdersForEncounter, fetchProceduresForOrder,
+ *     setSelectedOrder,
+ *     fetchOrdersForEncounter,
  *     submitLabResult, resetWorkflow,
  *   } = useLabUploadWorkflow();
  */
@@ -28,7 +30,6 @@
 import { useCallback, useState } from "react";
 import {
   fetchEncounterOrders,
-  fetchOrderProcedures,
   uploadMappedLabResult,
 } from "../api/labUploadApi.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
@@ -38,7 +39,6 @@ export const WORKFLOW_STEPS = {
   PATIENT_SELECTED: "PATIENT_SELECTED",
   ENCOUNTER_SELECTED: "ENCOUNTER_SELECTED",
   ORDER_SELECTED: "ORDER_SELECTED",
-  PROCEDURE_SELECTED: "PROCEDURE_SELECTED",
   UPLOADING: "UPLOADING",
   FINALIZED: "FINALIZED",
 };
@@ -46,17 +46,11 @@ export const WORKFLOW_STEPS = {
 export function useLabUploadWorkflow() {
   // ── Selection state ──────────────────────────────────────────
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedProcedure, setSelectedProcedure] = useState(null);
 
   // ── Orders state ─────────────────────────────────────────────
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState(null);
-
-  // ── Procedures state ────────────────────────────────────────
-  const [procedures, setProcedures] = useState([]);
-  const [proceduresLoading, setProceduresLoading] = useState(false);
-  const [proceduresError, setProceduresError] = useState(null);
 
   // ── Upload / finalize state ─────────────────────────────────
   const [uploadResults, setUploadResults] = useState([]);
@@ -64,23 +58,20 @@ export function useLabUploadWorkflow() {
   const [workflowError, setWorkflowError] = useState(null);
 
   /**
-   * Fetch orders for a given encounter.
-   * Resets procedure selection when encounter changes.
+   * Fetch orders for a given encounter from hdocord.
+   * Resets order selection when encounter changes.
    *
    * @param {string} enccode - Encounter ID
    * @param {Object} [options]
    * @param {string} [options.type] - 'lab' | 'rad' | 'all'
-   * @param {string} [options.hpercode] - Patient ID for fallback lookup
    * @param {Object} [options.contextParams] - Optional context for token resolution
    */
   const fetchOrdersForEncounter = useCallback(
-    async (enccode, { type = "all", hpercode = null, contextParams } = {}) => {
+    async (enccode, { type = "all", contextParams } = {}) => {
       setOrdersLoading(true);
       setOrdersError(null);
       setOrders([]);
       setSelectedOrder(null);
-      setProcedures([]);
-      setSelectedProcedure(null);
       setWorkflowError(null);
 
       try {
@@ -91,9 +82,8 @@ export function useLabUploadWorkflow() {
 
         const result = await fetchEncounterOrders({
           enccode,
-          hpercode,
           type,
-          status: "all",  // Show all order statuses, not just "S"
+          status: "S",
           token,
         });
 
@@ -113,58 +103,15 @@ export function useLabUploadWorkflow() {
   );
 
   /**
-   * Fetch procedures for a given order.
-   * Resets procedure selection when order changes.
-   *
-   * @param {string} enccode - Encounter ID
-   * @param {string} orcode - Order ID
-   * @param {Object} [options]
-   * @param {string} [options.procedureInstanceId] - Filter by specific procedure
-   * @param {Object} [options.contextParams] - Optional context for token resolution
-   */
-  const fetchProceduresForOrder = useCallback(
-    async (enccode, docointkey, { procedureInstanceId, contextParams } = {}) => {
-      setProceduresLoading(true);
-      setProceduresError(null);
-      setProcedures([]);
-      setSelectedProcedure(null);
-      setWorkflowError(null);
-
-      try {
-        const token =
-          LAB_UPLOAD_API_TOKEN ||
-          contextParams?.token ||
-          "";
-
-        const result = await fetchOrderProcedures({
-          enccode,
-          docointkey,
-          procedureInstanceId,
-          token,
-        });
-
-        setProcedures(result.data || []);
-        return result;
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to fetch procedures.";
-        setProceduresError(message);
-        setProcedures([]);
-        throw err;
-      } finally {
-        setProceduresLoading(false);
-      }
-    },
-    [],
-  );
-
-  /**
    * Submit a single lab result (called per file).
    * Uses uploadMappedLabResult which sends to backend → Supabase.
+   * Links uploaded file to the selected order's docointkey.
    *
-   * Returns the docointkey on success.
+   * @param {Object} params
+   * @param {File} params.file - PDF file to upload
+   * @param {Object} params.contextParams - Contains hpercode, enccode, etc.
+   * @param {Object} params.patient - Patient info
+   * @param {string} params.remarks - Optional remarks
    */
   const submitLabResult = useCallback(
     async ({ file, contextParams, patient, remarks }) => {
@@ -177,14 +124,15 @@ export function useLabUploadWorkflow() {
           contextParams?.token ||
           "";
 
-        // Merge selected order/procedure into contextParams
+        // Merge selected order into contextParams
         const enrichedContextParams = {
           ...normalizeLabContextParams(contextParams),
+          // Include docointkey from selected order for linking
+          docointkey: selectedOrder?.docointkey || contextParams?.docointkey || null,
+          // Include orcode (LABOR/RADIO)
           orcode: selectedOrder?.orcode || contextParams?.orcode || null,
-          procedureInstanceId:
-            selectedProcedure?.procedureInstanceId ||
-            contextParams?.procedureInstanceId ||
-            null,
+          // Include proccode (double 'c')
+          proccode: selectedOrder?.proccode || contextParams?.proccode || null,
         };
 
         const result = await uploadMappedLabResult({
@@ -195,7 +143,7 @@ export function useLabUploadWorkflow() {
           token,
         });
 
-        // Store successful result for display / retry tracking
+        // Store successful result for display / tracking
         setUploadResults((prev) => [
           ...prev,
           {
@@ -206,7 +154,6 @@ export function useLabUploadWorkflow() {
             patientId: result.patientId,
             encounterCode: result.encounterCode,
             orderCode: result.orderCode,
-            procedureInstanceId: result.procedureInstanceId,
             message: result.message,
             submittedAt: new Date().toISOString(),
           },
@@ -222,7 +169,7 @@ export function useLabUploadWorkflow() {
         setUploading(false);
       }
     },
-    [selectedOrder, selectedProcedure],
+    [selectedOrder],
   );
 
   /**
@@ -231,47 +178,24 @@ export function useLabUploadWorkflow() {
    */
   const resetWorkflow = useCallback(() => {
     setSelectedOrder(null);
-    setSelectedProcedure(null);
     setOrders([]);
-    setProcedures([]);
     setOrdersLoading(false);
-    setProceduresLoading(false);
     setOrdersError(null);
-    setProceduresError(null);
     setUploadResults([]);
     setUploading(false);
     setWorkflowError(null);
   }, []);
 
-  /**
-   * Advance to a specific step (for UI navigation).
-   */
-  const goToStep = useCallback(
-    () => {
-      // Guard: only allow forward navigation for now
-      // Full step management is derived from selection state
-    },
-    [],
-  );
-
   return {
     // Selection state
     selectedOrder,
     setSelectedOrder,
-    selectedProcedure,
-    setSelectedProcedure,
 
     // Orders
     orders,
     ordersLoading,
     ordersError,
     fetchOrdersForEncounter,
-
-    // Procedures
-    procedures,
-    proceduresLoading,
-    proceduresError,
-    fetchProceduresForOrder,
 
     // Upload results (list of submitted results)
     uploadResults,
@@ -281,6 +205,5 @@ export function useLabUploadWorkflow() {
 
     // Reset
     resetWorkflow,
-    goToStep,
   };
 }

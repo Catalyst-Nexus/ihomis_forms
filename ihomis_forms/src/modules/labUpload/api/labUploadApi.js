@@ -583,14 +583,10 @@ export async function fetchPatientEncounters({
     return { payload: null, encounters: [] };
   }
 
-  // Strip /patients suffix to get the base API URL
-  let baseUrl = String(patientSearchUrl || apiBaseUrl || "").replace(
+  const baseUrl = String(patientSearchUrl || apiBaseUrl || "").replace(
     /\/+$/,
     "",
   );
-  
-  // Remove /patients suffix if present (patientSearchUrl ends with /patients)
-  baseUrl = baseUrl.replace(/\/patients$/, "");
 
   if (!baseUrl) {
     throw new Error(
@@ -599,7 +595,7 @@ export async function fetchPatientEncounters({
   }
 
   const requestUrl = buildRequestUrl(
-    `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/encounters`,
+    `${baseUrl}/${encodeURIComponent(trimmedHpercode)}/encounters`,
   );
 
   const headers = {};
@@ -967,9 +963,8 @@ export async function uploadLabResultBatch({
  */
 export async function fetchEncounterOrders({
   enccode,
-  hpercode = null,
   type = "all",
-  status = "all",  // Changed from "S" to show all order statuses
+  status = "S",
   token,
   apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
 }) {
@@ -982,24 +977,13 @@ export async function fetchEncounterOrders({
     /\/+$/,
     "",
   );
-  
-  // Build the base URL - remove /patients suffix if present
-  const cleanBaseUrl = baseUrl.replace(/\/patients$/, "");
-  
-  // Encode the enccode to handle special characters like / and :
-  // This is necessary because the enccode contains path-like characters
+  // Replace /patients suffix with empty to get base API URL
+  // Encode the enccode once - it may contain special chars like / and :
   const encodedEnccode = encodeURIComponent(trimmedEnccode);
-  
-  // Build URL with properly encoded enccode path parameter
-  // Pass hpercode as query param for fallback lookup
   const requestUrl = buildRequestUrl(
-    `${cleanBaseUrl}/encounters/${encodedEnccode}/orders`,
-    { type, status, hpercode },
+    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders`,
+    { type, status },
   );
-  
-  // Debug log for troubleshooting
-  console.log("[fetchEncounterOrders] Request URL:", requestUrl);
-  console.log("[fetchEncounterOrders] Params:", { enccode: trimmedEnccode, type, status });
 
   const headers = {};
   if (token) {
@@ -1018,10 +1002,6 @@ export async function fetchEncounterOrders({
     );
   }
 
-  // Debug: Log the raw response
-  console.log("[fetchEncounterOrders] Response status:", response.status);
-  console.log("[fetchEncounterOrders] Response body:", responsePayload);
-
   if (!response.ok) {
     const parsed = tryParseJson(responsePayload);
     const message =
@@ -1038,7 +1018,7 @@ export async function fetchEncounterOrders({
     throw new Error("Invalid JSON response when parsing encounter orders.");
   }
 
-  // Normalize to array
+  // Normalize to array - preserve ALL fields from backend including proccode
   const rawOrders = Array.isArray(data?.data) ? data.data : [];
 
   return {
@@ -1047,117 +1027,14 @@ export async function fetchEncounterOrders({
     orderType: type,
     count: rawOrders.length,
     data: rawOrders.map((order) => ({
-      orcode: order.orcode,                    // Lab/Radio classification (LABOR, RADIO, etc.)
-      proccode: order.proccode,                // Procedure code (LABOR00009, RADIO01023, etc.)
-      enccode: order.enccode,
-      docointkey: order.docointkey,            // Unique order ID
-      estatus: order.estatus,
-      ordate: order.ordate || order.ordates,
-      ortime: order.ortime,
-      entryby: order.entryby,
-      hpercode: order.hpercode,
-      patlast: order.patlast,
-      patfirst: order.patfirst,
-      patmiddle: order.patmiddle,
-      procedureDescription: order.procedureDescription || '',  // Joined from hprocm
-    })),
-  };
-}
-
-/**
- * GET /api/db/encounters/:enccode/orders/:docointkey/procedures
- *
- * Fetch procedures/line items for a specific order (from pcchrgcod table).
- * Note: pcchrgcod.orcode references hdocord.docointkey
- *
- * @param {Object} options
- * @param {string} options.enccode - Encounter ID (required)
- * @param {string} options.docointkey - Order ID from hdocord.docointkey (required)
- * @param {string} [options.procedureInstanceId] - Filter by specific procedure ID
- * @param {string} [options.token] - Auth token
- * @param {string} [options.apiBaseUrl] - Override API base URL
- */
-export async function fetchOrderProcedures({
-  enccode,
-  docointkey,
-  procedureInstanceId,
-  token,
-  apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
-}) {
-  const trimmedEnccode = String(enccode || "").trim();
-  const trimmedDocointkey = String(docointkey || "").trim();
-
-  if (!trimmedEnccode || !trimmedDocointkey) {
-    throw new Error("Both enccode and docointkey are required to fetch procedures.");
-  }
-
-  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    "",
-  );
-  // Only single-encode path parameters
-  const encodedEnccode = encodeURIComponent(trimmedEnccode);
-  const encodedDocointkey = encodeURIComponent(trimmedDocointkey);
-  const requestUrl = buildRequestUrl(
-    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedDocointkey}/procedures`,
-    { procedureInstanceId },
-  );
-
-  const headers = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  let response;
-  let responsePayload;
-
-  try {
-    response = await fetch(requestUrl, { method: "GET", headers });
-    responsePayload = await response.text();
-  } catch (networkError) {
-    throw new Error(
-      `Network error fetching order procedures: ${networkError.message}`,
-    );
-  }
-
-  if (!response.ok) {
-    const parsed = tryParseJson(responsePayload);
-    const message =
-      parsed?.message ||
-      buildErrorMessage(response, responsePayload) ||
-      `Server error: ${response.status}`;
-    throw new Error(message);
-  }
-
-  let data;
-  try {
-    data = JSON.parse(responsePayload);
-  } catch {
-    throw new Error("Invalid JSON response when parsing order procedures.");
-  }
-
-  const rawProcedures = Array.isArray(data?.data) ? data.data : [];
-
-  return {
-    ok: data?.ok ?? true,
-    enccode: trimmedEnccode,
-    docointkey: trimmedDocointkey,
-    count: rawProcedures.length,
-    data: rawProcedures.map((proc) => ({
-      procedureInstanceId: proc.procedureInstanceId,
-      orcode: proc.orcode,
-      enccode: proc.enccode,
-      chrgcod: proc.chrgcod,
-      procedureDescription: proc.procedureDescription,
-      procedureDate: proc.procedureDate,
-      procedureTime: proc.procedureTime,
-      procedureStatus: proc.procedureStatus,
-      providerCode: proc.providerCode,
-      enteredBy: proc.enteredBy,
-      procdateFormatted: proc.procdate_formatted,
-      proctimeFormatted: proc.proctime_formatted,
-      ordcode: proc.ordcode,
-      oritem: proc.oritem,
+      // Include ALL fields from backend
+      ...order,
+      // Normalize field names if needed
+      ordcode: order.ordcode,
+      ordate: order.ordate || order.ordates || order.ordate,
+      docointkey: order.docointkey,
+      // procdesc from hprocm join (procedure description)
+      procdesc: order.procdesc,
     })),
   };
 }
@@ -1180,6 +1057,68 @@ export async function fetchOrderProcedures({
  * @param {string} [options.token] - Auth token
  * @param {string} [options.uploadUrl] - Override upload URL
  */
+/**
+ * GET /api/db/patients/:hpercode/uploaded-files
+ *
+ * Fetch all uploaded lab result files for a patient from Supabase.
+ *
+ * @param {Object} options
+ * @param {string} options.hpercode - Patient ID (required)
+ * @param {string} [options.enccode] - Optional encounter filter
+ * @param {string} [options.token] - Auth token
+ */
+export async function fetchPatientUploadedFiles({
+  hpercode,
+  enccode = null,
+  token,
+}) {
+  const trimmedHpercode = String(hpercode || "").trim();
+  if (!trimmedHpercode) {
+    throw new Error("hpercode is required to fetch patient uploaded files.");
+  }
+
+  const baseUrl = String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
+    /\/+$/,
+    ""
+  ).replace(/\/patients$/, "");
+
+  if (!baseUrl) {
+    throw new Error(
+      "Lab upload API URL is not configured. Set VITE_LAB_PATIENT_SEARCH_URL."
+    );
+  }
+
+  const requestUrl = buildRequestUrl(
+    `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/uploaded-files`,
+    enccode ? { enccode } : {}
+  );
+
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(requestUrl, {
+    method: "GET",
+    headers,
+  });
+
+  const responseText = await response.text();
+  const responsePayload = parseResponsePayload(responseText);
+
+  if (!response.ok) {
+    throw new Error(buildErrorMessage(response, responsePayload));
+  }
+
+  return {
+    ok: responsePayload?.ok ?? true,
+    hpercode: trimmedHpercode,
+    enccode: enccode || null,
+    count: responsePayload?.count || 0,
+    data: responsePayload?.data || [],
+  };
+}
+
 export async function uploadMappedLabResult({
   file,
   contextParams = {},
@@ -1216,8 +1155,9 @@ export async function uploadMappedLabResult({
   if (normalizedContextParams.orcode) {
     formData.append("orcode", normalizedContextParams.orcode);
   }
-  if (normalizedContextParams.procode) {
-    formData.append("procode", normalizedContextParams.procode);
+  if (normalizedContextParams.proccode) {
+    // proccode matches MySQL column name (maps to Supabase proccode column)
+    formData.append("proccode", normalizedContextParams.proccode);
   }
   if (normalizedContextParams.procedureInstanceId) {
     formData.append("procedureInstanceId", normalizedContextParams.procedureInstanceId);
@@ -1286,92 +1226,6 @@ export async function uploadMappedLabResult({
     orderCode: result?.orderCode,
     procedureInstanceId: result?.procedureInstanceId,
     message: result?.message || "Lab result uploaded successfully.",
-  };
-}
-
-/**
- * GET /api/db/patients/:hpercode/uploaded-files
- * 
- * Fetch all uploaded lab result files for a patient from Supabase.
- * Returns list of previously uploaded PDFs with their metadata.
- *
- * @param {Object} options
- * @param {string} options.hpercode - Patient ID (required)
- * @param {string} [options.enccode] - Filter by encounter (optional)
- * @param {string} [options.token] - Auth token
- */
-export async function fetchPatientUploadedFiles({
-  hpercode,
-  enccode = null,
-  token,
-}) {
-  const trimmedHpercode = String(hpercode || "").trim();
-  
-  if (!trimmedHpercode) {
-    throw new Error("hpercode is required to fetch patient uploaded files.");
-  }
-
-  const baseUrl = String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(/\/+$/, "").replace(/\/patients$/, "");
-  
-  if (!baseUrl) {
-    throw new Error("API base URL is not configured.");
-  }
-
-  const requestUrl = buildRequestUrl(
-    `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/uploaded-files`,
-    { enccode }
-  );
-
-  const headers = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  let response;
-  let responsePayload;
-
-  try {
-    response = await fetch(requestUrl, { method: "GET", headers });
-    responsePayload = await response.text();
-  } catch (networkError) {
-    throw new Error(`Network error fetching uploaded files: ${networkError.message}`);
-  }
-
-  if (!response.ok) {
-    const parsed = tryParseJson(responsePayload);
-    const message = parsed?.message || buildErrorMessage(response, responsePayload);
-    throw new Error(message);
-  }
-
-  let data;
-  try {
-    data = JSON.parse(responsePayload);
-  } catch {
-    throw new Error("Invalid JSON response when parsing uploaded files.");
-  }
-
-  const rawFiles = Array.isArray(data?.data) ? data.data : [];
-
-  return {
-    ok: data?.ok ?? true,
-    hpercode: trimmedHpercode,
-    count: rawFiles.length,
-    data: rawFiles.map((file) => ({
-      id: file.id,
-      docointkey: file.docointkey,
-      fileName: file.file_name,
-      fileUrl: file.file_url,
-      storagePath: file.storage_path,
-      fileSize: file.file_size,
-      contentType: file.content_type,
-      uploadedBy: file.uploaded_by,
-      uploadedAt: file.uploaded_at,
-      remarks: file.remarks,
-      hpercode: file.hpercode,
-      enccode: file.enccode,
-      orcode: file.orcode,
-      procode: file.procode,
-    })),
   };
 }
 

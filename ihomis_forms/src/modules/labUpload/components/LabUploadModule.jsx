@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useState } from "react";
-import { fetchEncounterOrders, fetchPatientUploadedFiles } from "../api/labUploadApi.js";
+import { fetchEncounterOrders, fetchPatientUploadedFiles, uploadMappedLabResult } from "../api/labUploadApi.js";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 import LabReviewPanel from "./LabReviewPanel.jsx";
+import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 
 // ── Patient Avatar ─────────────────────────────────────────────────────────────
 function getInitials(displayName) {
@@ -181,6 +182,8 @@ function LabTestsStep({
   ordersError,
   statusFilter,
   onStatusFilterChange,
+  uploadedFiles = [],
+  onPreviewUploadedFile,
 }) {
   useEffect(() => {
     if (enccode && orderType) {
@@ -220,6 +223,47 @@ function LabTestsStep({
           Refresh
         </button>
       </div>
+
+      {/* Previously Uploaded Files Section */}
+      {uploadedFiles.length > 0 && (
+        <div className="lum-uploaded-files-section">
+          <h3 className="lum-uploaded-files-title">
+            Previously Uploaded Files ({uploadedFiles.length})
+          </h3>
+          <div className="lum-uploaded-files-list">
+            {uploadedFiles.map((file, index) => (
+              <div key={file.id || index} className="lum-uploaded-file-item">
+                <svg
+                  viewBox="0 0 20 20"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="lum-uploaded-file-info">
+                  <span className="lum-uploaded-file-name">{file.fileName}</span>
+                  <span className="lum-uploaded-file-date">{file.uploadedAtLabel}</span>
+                </div>
+                {onPreviewUploadedFile && file.previewUrl && (
+                  <button
+                    type="button"
+                    className="lum-btn lum-btn--small"
+                    onClick={() => onPreviewUploadedFile(index)}
+                  >
+                    View PDF
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {ordersLoading && (
         <div className="lum-loading">
@@ -298,8 +342,8 @@ function LabTestsStep({
                   )}
                 </div>
                 <div className="lum-order-info">
-                  <span className="lum-order-proc">{order.proccode}</span>
-                  <span className="lum-order-desc">{order.procedureDescription}</span>
+                  <span className="lum-order-proc">{order.proccode || order.orcode || order.docointkey || 'Unknown'}</span>
+                <span className="lum-order-desc">{order.procdesc || order.procedureDescription || 'No description'}</span>
                 </div>
               </button>
             );
@@ -342,6 +386,8 @@ LabTestsStep.propTypes = {
   ordersError: PropTypes.string,
   statusFilter: PropTypes.string,
   onStatusFilterChange: PropTypes.func.isRequired,
+  uploadedFiles: PropTypes.array,
+  onPreviewUploadedFile: PropTypes.func,
 };
 
 // ── Upload Step ────────────────────────────────────────────────────────────────
@@ -353,109 +399,165 @@ function UploadStep({
   onRemoveFile,
   onComplete,
   onBack,
+  // PDF Preview props
+  activeUploadIndex,
+  onSelectUploadPreview,
+  token,
+  isUploading,
 }) {
+  // Find the active upload for preview
+  const activeUpload = activeUploadIndex >= 0 ? uploads[activeUploadIndex] : null;
+  const activeOrder = activeUpload 
+    ? orders.find((o) => o.docointkey === activeUpload.docointkey) 
+    : null;
+
   return (
-    <div className="lum-step-content">
-      <h2 className="lum-step-title">Upload Results</h2>
-      <p className="lum-step-desc">Upload PDF files for the selected tests.</p>
+    <div className="lum-step-content lum-upload-step">
+      <div className="lum-upload-main">
+        <div className="lum-upload-header">
+          <h2 className="lum-step-title">Upload Results</h2>
+          <p className="lum-step-desc">Upload PDF files for the selected tests.</p>
+        </div>
 
-      <div className="lum-upload-list">
-        {selectedProcs.map((docointkey) => {
-          const order = orders.find((o) => o.docointkey === docointkey);
-          const upload = uploads.find((u) => u.docointkey === docointkey);
+        <div className="lum-upload-list">
+          {selectedProcs.map((docointkey, index) => {
+            const order = orders.find((o) => o.docointkey === docointkey);
+            const upload = uploads.find((u) => u.docointkey === docointkey);
+            const isActivePreview = activeUpload?.docointkey === docointkey;
 
-          return (
-            <div key={docointkey} className="lum-upload-item">
-              <div className="lum-upload-info">
-                <span className="lum-upload-proc">
-                  {order?.proccode || docointkey}
-                </span>
-                <span className="lum-upload-desc">
-                  {order?.procedureDescription || "Unknown test"}
-                </span>
-              </div>
-              <div className="lum-upload-action">
-                {upload ? (
-                  <div className="lum-upload-complete">
-                    <svg
-                      viewBox="0 0 20 20"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>{upload.fileName}</span>
-                    <button
-                      type="button"
-                      className="lum-upload-remove"
-                      onClick={() => onRemoveFile(docointkey)}
-                      aria-label="Remove file"
-                    >
+            return (
+              <div 
+                key={docointkey} 
+                className={`lum-upload-item ${isActivePreview ? 'lum-upload-item--active' : ''}`}
+                onClick={() => upload && onSelectUploadPreview(index)}
+              >
+                <div className="lum-upload-info">
+                  <span className="lum-upload-proc">
+                    {order?.proccode || docointkey}
+                  </span>
+                  <span className="lum-upload-desc">
+                    {order?.procdesc || order?.procedureDescription || "Unknown test"}
+                  </span>
+                </div>
+                <div className="lum-upload-action">
+                  {upload ? (
+                    <div className="lum-upload-complete">
                       <svg
                         viewBox="0 0 20 20"
-                        width="14"
-                        height="14"
+                        width="16"
+                        height="16"
                         fill="currentColor"
                         aria-hidden="true"
                       >
-                        <path d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <label className="lum-upload-btn">
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) =>
-                        onFileChange(docointkey, e.target.files?.[0])
-                      }
-                      aria-label={`Upload PDF for ${order?.procdesc || docointkey}`}
-                    />
-                    <svg
-                      viewBox="0 0 20 20"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zM6.293 6.707a1 1 0 0 1 1.414-1.414l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L8.586 8 6.293 5.707a1 1 0 0 1 0-1.414z"
-                        clipRule="evenodd"
+                      <span>{upload.fileName}</span>
+                      <button
+                        type="button"
+                        className="lum-upload-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveFile(docointkey);
+                        }}
+                        aria-label="Remove file"
+                      >
+                        <svg
+                          viewBox="0 0 20 20"
+                          width="14"
+                          height="14"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414z" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="lum-upload-btn" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) =>
+                          onFileChange(docointkey, e.target.files?.[0])
+                        }
+                        aria-label={`Upload PDF for ${order?.procdesc || docointkey}`}
                       />
-                    </svg>
-                    Choose PDF
-                  </label>
-                )}
+                      <svg
+                        viewBox="0 0 20 20"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zM6.293 6.707a1 1 0 0 1 1.414-1.414l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L8.586 8 6.293 5.707a1 1 0 0 1 0-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Choose PDF
+                    </label>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        <div className="lum-step-actions">
+          <button
+            type="button"
+            className="lum-btn lum-btn--secondary"
+            onClick={onBack}
+            disabled={isUploading}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            className="lum-btn lum-btn--primary"
+            onClick={onComplete}
+            disabled={uploads.length !== selectedProcs.length || isUploading}
+          >
+            {isUploading ? "Uploading..." : "Complete Upload"}
+          </button>
+        </div>
       </div>
 
-      <div className="lum-step-actions">
-        <button
-          type="button"
-          className="lum-btn lum-btn--secondary"
-          onClick={onBack}
-        >
-          Back
-        </button>
-        <button
-          type="button"
-          className="lum-btn lum-btn--primary"
-          onClick={onComplete}
-          disabled={uploads.length !== selectedProcs.length}
-        >
-          Complete Upload
-        </button>
+      {/* PDF Preview Panel */}
+      <div className="lum-upload-preview-panel">
+        <h3 className="lum-preview-title">
+          {activeOrder?.procdesc || activeOrder?.procedureDescription || "PDF Preview"}
+        </h3>
+        {activeUpload?.file ? (
+          <div className="lum-pdf-wrap">
+            <PdfCanvasPreview
+              file={activeUpload.file}
+              url={null}
+              token={token}
+            />
+          </div>
+        ) : (
+          <div className="lum-empty-preview">
+            <svg
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              aria-hidden="true"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <p>Select an uploaded file to preview</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -469,6 +571,10 @@ UploadStep.propTypes = {
   onRemoveFile: PropTypes.func.isRequired,
   onComplete: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
+  activeUploadIndex: PropTypes.number,
+  onSelectUploadPreview: PropTypes.func,
+  token: PropTypes.string,
+  isUploading: PropTypes.bool,
 };
 
 // ── Review Step with PDF Preview & Uploaded Files ─────────────────────────────
@@ -632,17 +738,20 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
   const [ordersError, setOrdersError] = useState("");
   const [uploads, setUploads] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isUploading, setIsUploading] = useState(false);
 
   // PDF Preview & Uploaded Files State
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [reviewSource, setReviewSource] = useState("local"); // "local" or "uploaded"
   const [activeUploadedFileIndex, setActiveUploadedFileIndex] = useState(-1);
   const [activePreviewUrl, setActivePreviewUrl] = useState("");
+  const [activeLocalFile, setActiveLocalFile] = useState(null); // Track local file for PDF preview
+  const [activeUploadIndex, setActiveUploadIndex] = useState(-1); // Track which upload is selected in UploadStep
 
   const hpercode = selectedContextParams?.hpercode || selectedPatient?.id || "";
   const enccode = selectedContextParams?.enccode || selectedContextParams?.enc || "";
 
-  const loadUploadedFiles = async () => {
+  const loadUploadedFiles = useCallback(async () => {
     if (!hpercode) return;
 
     try {
@@ -652,34 +761,41 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
         token: LAB_UPLOAD_API_TOKEN,
       });
 
-      const files = response.data.map((file) => ({
-        id: file.id,
-        docointkey: file.docointkey,
-        fileName: file.fileName || file.file_name,
-        fileSize: file.fileSize || file.file_size,
-        fileUrl: file.fileUrl || file.file_url,
-        previewUrl: file.fileUrl || file.file_url,
-        uploadedAt: file.uploadedAt || file.uploaded_at,
-        uploadedAtLabel: file.uploadedAt 
-          ? new Date(file.uploadedAt).toLocaleString() 
-          : file.uploaded_at 
-            ? new Date(file.uploaded_at).toLocaleString() 
-            : "Unknown",
-      }));
-
-      setUploadedFiles(files);
+      // Handle both successful response with empty data and missing route
+      if (response && response.data && Array.isArray(response.data)) {
+        const files = response.data.map((file) => ({
+          id: file.id,
+          docointkey: file.docointkey,
+          fileName: file.fileName || file.file_name,
+          fileSize: file.fileSize || file.file_size,
+          fileUrl: file.fileUrl || file.file_url,
+          previewUrl: file.fileUrl || file.file_url,
+          uploadedAt: file.uploadedAt || file.uploaded_at,
+          uploadedAtLabel: file.uploadedAt 
+            ? new Date(file.uploadedAt).toLocaleString() 
+            : file.uploaded_at 
+              ? new Date(file.uploaded_at).toLocaleString() 
+              : "Unknown",
+        }));
+        setUploadedFiles(files);
+      } else {
+        // API returned but no data (or route not found)
+        console.warn("Uploaded files API not available or returned no data");
+        setUploadedFiles([]);
+      }
     } catch (err) {
-      console.error("Failed to load uploaded files:", err);
+      // Gracefully handle errors (e.g., route not found)
+      console.warn("Could not load uploaded files:", err.message);
       setUploadedFiles([]);
     }
-  };
+  }, [hpercode, enccode]);
 
-  // Load uploaded files when entering review step
+  // Load uploaded files when entering labTests or review step
   useEffect(() => {
-    if (currentStep === "review" && hpercode) {
+    if (hpercode && (currentStep === "labTests" || currentStep === "review")) {
       loadUploadedFiles();
     }
-  }, [currentStep, hpercode]);
+  }, [currentStep, hpercode, loadUploadedFiles]);
 
   const handleOpenFullscreen = () => {
     // Open fullscreen preview in new window/tab
@@ -762,7 +878,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
         enccode: enc,
         hpercode: hpercode,
         type: orderTypeCode,
-        status: status, // Pass status filter to backend
+        status: status, // Pass status filter to backend (now applies correctly)
         token: LAB_UPLOAD_API_TOKEN,
       });
 
@@ -788,17 +904,91 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
           u.docointkey === docointkey ? { ...u, file, fileName: file.name } : u,
         );
       }
-      return [...prev, { docointkey, file, fileName: file.name }];
+      const newUploads = [...prev, { docointkey, file, fileName: file.name }];
+      
+      // Set the first upload as active local file for PDF preview
+      if (newUploads.length === 1) {
+        setActiveLocalFile(file);
+      }
+      
+      return newUploads;
     });
+
+    // Set this upload as the active preview
+    const uploadIndex = selectedProcs.indexOf(docointkey);
+    if (uploadIndex >= 0) {
+      setActiveUploadIndex(uploadIndex);
+    }
   };
 
   const handleRemoveFile = (docointkey) => {
     setUploads((prev) => prev.filter((u) => u.docointkey !== docointkey));
   };
 
-  const handleComplete = () => {
-    markStepComplete("upload");
-    setCurrentStep("review");
+  const handleComplete = async () => {
+    setIsUploading(true);
+    
+    try {
+      // Upload all files to Supabase
+      const results = [];
+      
+      for (const upload of uploads) {
+        try {
+          const result = await uploadMappedLabResult({
+            file: upload.file,
+            contextParams: {
+              hpercode,
+              enccode,
+              docointkey: upload.docointkey,
+              proccode: upload.docointkey, // Use docointkey as proccode
+            },
+            patient: selectedPatient,
+            token: LAB_UPLOAD_API_TOKEN,
+          });
+          
+          results.push({
+            docointkey: upload.docointkey,
+            fileName: upload.fileName,
+            result,
+          });
+        } catch (err) {
+          console.error("Upload failed for", upload.docointkey, err);
+          results.push({
+            docointkey: upload.docointkey,
+            fileName: upload.fileName,
+            error: err.message,
+          });
+        }
+      }
+      
+      // Store results in state for review
+      setUploads((prev) => 
+        prev.map((upload) => {
+          const result = results.find((r) => r.docointkey === upload.docointkey);
+          if (result?.result) {
+            return {
+              ...upload,
+              uploadedDocointkey: result.result.docointkey,
+              uploadedUrl: result.result.uploadedPdfUrl,
+              uploadSuccess: true,
+            };
+          }
+          return {
+            ...upload,
+            uploadError: result?.error || "Upload failed",
+            uploadSuccess: false,
+          };
+        })
+      );
+      
+      // Refresh uploaded files list from Supabase
+      await loadUploadedFiles();
+      
+      markStepComplete("upload");
+      setCurrentStep("review");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleUploadBack = () => {
@@ -877,6 +1067,8 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
               ordersError={ordersError}
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
+              uploadedFiles={uploadedFiles}
+              onPreviewUploadedFile={handlePreviewUploadedFile}
             />
           </div>
         )}
@@ -891,6 +1083,10 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
               onRemoveFile={handleRemoveFile}
               onComplete={handleComplete}
               onBack={handleUploadBack}
+              activeUploadIndex={activeUploadIndex}
+              onSelectUploadPreview={setActiveUploadIndex}
+              token={LAB_UPLOAD_API_TOKEN}
+              isUploading={isUploading}
             />
           </div>
         )}
@@ -904,7 +1100,7 @@ function LabUploadModule({ selectedPatient, selectedContextParams }) {
               uploads={uploads}
               onFinish={handleReviewFinish}
               uploadedFiles={uploadedFiles}
-              activePreviewFile={null}
+              activePreviewFile={activeLocalFile}
               activePreviewUrl={activePreviewUrl}
               onOpenFullscreen={handleOpenFullscreen}
               onClearPdfSelection={handleClearPdfSelection}

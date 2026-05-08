@@ -824,6 +824,84 @@
   font-size: 0.875rem;
 }
 
+/* Upload Step - Two Column Layout */
+.lum-upload-step {
+  display: flex;
+  gap: 1.5rem;
+  min-height: 500px;
+}
+
+.lum-upload-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.lum-upload-preview-panel {
+  flex: 1;
+  min-width: 0;
+  background: white;
+  border-radius: var(--lum-radius);
+  border: 1px solid var(--lum-border);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.lum-preview-title {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--lum-text);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--lum-border);
+}
+
+.lum-upload-preview-panel .lum-pdf-wrap {
+  flex: 1;
+  overflow: auto;
+  background: #f1f5f9;
+  border-radius: var(--lum-radius-sm);
+  min-height: 400px;
+}
+
+.lum-upload-preview-panel .lum-empty-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--lum-text-muted);
+  background: #f8fafc;
+  border-radius: var(--lum-radius-sm);
+  min-height: 400px;
+}
+
+.lum-upload-preview-panel .lum-empty-preview svg {
+  opacity: 0.4;
+  margin-bottom: 0.75rem;
+}
+
+.lum-upload-preview-panel .lum-empty-preview p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Upload Item Active State */
+.lum-upload-item {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.lum-upload-item:hover {
+  background: #f8fafc;
+}
+
+.lum-upload-item.lum-upload-item--active {
+  border-color: var(--lum-primary);
+  background: #eff6ff;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .lab-upload-header {

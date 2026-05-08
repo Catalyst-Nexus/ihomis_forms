@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/components/LabUploadModule.jsx";
+import PdfPreviewPage from "./modules/labUpload/pages/PdfPreviewPage.jsx";
 import { PdfPreviewProvider } from "./lib/PdfPreviewContext.jsx";
 import FormsModule from "./modules/forms/FormsModule.jsx";
 import LabPatientPickerPanel from "./modules/labUpload/components/LabPatientPickerPanel.jsx";
@@ -545,11 +546,27 @@ function AppShell() {
   );
 }
 
+// ── PDF Preview Route ────────────────────────────────────────────────────────
+function PreviewRoute() {
+  const [searchParams] = useSearchParams();
+  const previewUrl = searchParams.get("url") || "";
+  const previewToken = searchParams.get("token") || LAB_UPLOAD_API_TOKEN || "";
+
+  return (
+    <PdfPreviewPage
+      previewUrl={previewUrl}
+      previewToken={previewToken}
+      onBack={() => window.close()}
+    />
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route path="/tagging" element={<TaggingRoute />} />
       <Route path="/tracking" element={<TrackingRoute />} />
+      <Route path="/preview" element={<PreviewRoute />} />
       <Route path="/" element={<AppShell />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
