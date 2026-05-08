@@ -1,15 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
 
-/* ── Page ─────────────────────────────────────────────────────────────────── */
 .tg-page {
   min-height: 100vh;
-  font-family: inherit;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
-    radial-gradient(ellipse at 5% 15%,  rgba(31,157,149,.22) 0%, transparent 42%),
-    radial-gradient(ellipse at 96% 85%, rgba(242,195,126,.20) 0%, transparent 38%),
-    radial-gradient(ellipse at 50% 50%, rgba(16,54,63,.04)   0%, transparent 70%),
-    #edf3f1;
-  padding: 1rem 1rem 3rem;
+    linear-gradient(135deg, #e8f5f3 0%, #f0f7f5 50%, #e5f2ef 100%);
+  padding: 1.5rem 1.5rem 3rem;
+  position: relative;
+}
+.tg-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at 10% 20%, rgba(31,157,149,.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(242,195,126,.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(16,54,63,.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── Toast ────────────────────────────────────────────────────────────────── */
@@ -196,61 +207,188 @@
 .tg-add-row {
   display: flex; gap: .4rem; align-items: center;
 }
-
 /* ── Step grid ────────────────────────────────────────────────────────────── */
 .tg-step-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: .55rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 /* Step card */
 .tg-step-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: .7rem .75rem;
-  display: grid; gap: .38rem;
-  border: 1.5px solid rgba(16,54,63,.11);
-  transition: box-shadow 180ms ease, border-color 180ms ease;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fdfc 100%);
+  border-radius: 16px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  border: 2px solid rgba(16,54,63,.08);
+  transition: all 200ms ease;
+  position: relative;
+  overflow: hidden;
 }
-.tg-step-card:hover { box-shadow: 0 6px 18px rgba(16,54,63,.09); }
-.tg-step-card--assigned  { border-color: rgba(24,95,165,.22); background: linear-gradient(160deg, #fff 60%, rgba(24,95,165,.04)); }
-.tg-step-card--remaining { border-color: rgba(133,79,11,.18);  background: linear-gradient(160deg, #fff 60%, rgba(133,79,11,.04)); }
+.tg-step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1f9d95, #22ada5);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.tg-step-card:hover { 
+  box-shadow: 0 12px 32px rgba(16,54,63,.12);
+  transform: translateY(-2px);
+  border-color: rgba(31,157,149,.25);
+}
+.tg-step-card:hover::before { opacity: 1; }
+.tg-step-card--assigned  { 
+  border-color: rgba(24,95,165,.25); 
+  background: linear-gradient(180deg, #ffffff 0%, #f0f5fc 100%);
+}
+.tg-step-card--assigned::before { 
+  background: linear-gradient(90deg, #1a5ea8, #2465c7);
+  opacity: 1;
+}
+.tg-step-card--remaining { 
+  border-color: rgba(31,157,149,.20);
+  background: linear-gradient(180deg, #ffffff 0%, #f5fcfa 100%);
+}
+.tg-step-card--remaining::before {
+  background: linear-gradient(90deg, #0f7a6e, #1f9d95);
+  opacity: 1;
+}
 
 .tg-step-head {
-  display: flex; justify-content: space-between; align-items: center; gap: .3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  align-items: flex-start;
 }
-.tg-step-name { font-size: .82rem; font-weight: 700; color: #0e3a42; }
+.tg-step-name { 
+  font-size: .88rem; 
+  font-weight: 700; 
+  color: #0e3a42; 
+  line-height: 1.3;
+}
 .tg-step-num  {
-  font-size: .62rem; font-weight: 600; color: #1f9d95;
-  background: rgba(31,157,149,.1); padding: .1rem .4rem; border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .62rem; 
+  font-weight: 700; 
+  color: #1f9d95;
+  background: rgba(31,157,149,.1); 
+  padding: .2rem .5rem; 
+  border-radius: 999px;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.tg-step-count-badge {
+  font-size: .6rem;
+  font-weight: 600;
+  padding: .12rem .4rem;
+  border-radius: 999px;
+  background: rgba(24,95,165,.12);
+  color: #1a5ea8;
 }
 
 /* Badge */
-.tg-step-badge-wrap { display: flex; }
+.tg-step-badge-wrap { display: flex; flex-wrap: wrap; gap: .25rem; }
 .tg-step-badge {
-  font-size: .68rem; font-weight: 600;
-  padding: .15rem .5rem; border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .7rem; 
+  font-weight: 600;
+  padding: .25rem .6rem; 
+  border-radius: 999px;
+  background: rgba(31,157,149,.1);
+  color: #0f7a6e;
 }
 .tg-step-badge--user2 { background: rgba(24,95,165,.12); color: #1a5ea8; }
-.tg-step-badge--none  { background: rgba(16,54,63,.07);  color: #7a9ea4; }
+.tg-step-badge--none  { 
+  background: rgba(16,54,63,.06);  
+  color: #7a9ea4; 
+  font-style: italic;
+}
+
+/* Assigned users list */
+.tg-assigned-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+.tg-assigned-user-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .2rem;
+}
+.tg-remove-assign-btn {
+  background: rgba(176,59,59,.15);
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: .75rem;
+  line-height: 1;
+  color: #b03b3b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 150ms ease;
+}
+.tg-remove-assign-btn:hover {
+  background: #b03b3b;
+  color: #fff;
+}
 
 /* Dropdown */
 .tg-step-dropdown {
-  width: 100%; border: 1px solid rgba(16,54,63,.15); border-radius: 9px;
-  padding: .3rem .4rem; font-family: inherit; font-size: .77rem;
-  color: #0e3a42; background: #fff; min-height: 28px;
-  appearance: auto;
+  width: 100%; 
+  border: 1.5px solid rgba(16,54,63,.12); 
+  border-radius: 10px;
+  padding: .45rem .6rem; 
+  font-family: inherit; 
+  font-size: .78rem;
+  color: #0e3a42; 
+  background: #fff;
+  min-height: 36px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a8a8f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .6rem center;
+  padding-right: 2rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.tg-step-dropdown:disabled { background: #f4f6f5; color: #aaa; }
+.tg-step-dropdown:focus {
+  outline: none;
+  border-color: #1f9d95;
+  box-shadow: 0 0 0 3px rgba(31,157,149,.15);
+}
+.tg-step-dropdown:disabled { 
+  background-color: #f8f8f8; 
+  color: #aaa;
+  cursor: not-allowed;
+}
 
 /* Owner chip */
-.tg-step-owner { display: flex; }
+.tg-step-owner { display: flex; align-items: center; }
 
 /* Actions */
-.tg-step-actions { display: flex; gap: .35rem; margin-top: .05rem; }
-
+.tg-step-actions { 
+  display: flex; 
+  gap: .4rem; 
+  margin-top: auto;
+  padding-top: .5rem;
+  border-top: 1px solid rgba(16,54,63,.06);
+}
 /* ── Chips ────────────────────────────────────────────────────────────────── */
 .tg-chip {
   display: inline-block;
@@ -284,6 +422,16 @@
 .tg-summary-chips { display: flex; flex-wrap: wrap; gap: .25rem; }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .tg-step-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .tg-step-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 @media (max-width: 700px) {
   .tg-nav         { flex-direction: column; }
   .tg-panel-topbar { flex-direction: column; }
@@ -291,6 +439,9 @@
   .tg-user-row    { flex-wrap: wrap; }
   .tg-toasts      { left: 1rem; right: 1rem; }
   .tg-header      { flex-direction: column; align-items: flex-start; }
+  .tg-step-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 

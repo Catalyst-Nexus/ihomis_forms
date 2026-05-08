@@ -31,6 +31,10 @@ const TAG_CFG = {
   2: { color: "#1a5ea8", bg: "#e2eef9", label: "2nd tag — assigned steps only" },
   3: { color: "#8a4f0b", bg: "#faebd5", label: "3rd tag — remaining steps"     },
   4: { color: "#6b3a8a", bg: "#f0e8f7", label: "4th tag — remaining steps"     },
+  5: { color: "#b8860b", bg: "#fff8dc", label: "5th tag — remaining steps"     },
+  6: { color: "#2e8b57", bg: "#e0ffe0", label: "6th tag — remaining steps"     },
+  7: { color: "#8b008b", bg: "#ffe4ff", label: "7th tag — remaining steps"     },
+  8: { color: "#4b0082", bg: "#eee8ff", label: "8th tag — remaining steps"     },
 };
 function tagCfg(order) {
   return TAG_CFG[order] ?? { color: "#555", bg: "#f0f0f0", label: `#${order} tag` };
