@@ -60,9 +60,10 @@ function getPatientInitials(label) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function ValidationPage({ selectedPatient, selectedForms, onProceed, onBackToForms, onChangePatient }) {
-  const { enccode, loading, error, summary, refresh } = useFormValidation({
+function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
+  const { enccode, loading, error, summary, refresh, validationData } = useFormValidation({
     selectedPatient,
+    enccode: enccodeOverride || undefined,
   });
 
   const scopedSummary = useMemo(
@@ -84,6 +85,9 @@ function ValidationPage({ selectedPatient, selectedForms, onProceed, onBackToFor
     () => getPatientInitials(patientLabel.name),
     [patientLabel.name],
   );
+
+  const resolvedEnccode =
+    validationData?.details?.DEBUG_INFO?.resolvedEnccode || enccode;
 
   const statusTone = loading
     ? "loading"
@@ -136,8 +140,8 @@ function ValidationPage({ selectedPatient, selectedForms, onProceed, onBackToFor
               </p>
               <div className="validation-hero-meta">
                 <span>Validation endpoint: /api/validation</span>
-                {enccode && enccode !== patientLabel.hpercode ? (
-                  <span>Resolved ENCCODE: {enccode}</span>
+                {resolvedEnccode ? (
+                  <span>Resolved ENCCODE: {resolvedEnccode}</span>
                 ) : null}
               </div>
             </div>
@@ -291,6 +295,7 @@ ValidationPage.propTypes = {
     rawData: PropTypes.object,
     contextParams: PropTypes.object,
   }),
+  enccode: PropTypes.string,
   selectedForms: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.object,

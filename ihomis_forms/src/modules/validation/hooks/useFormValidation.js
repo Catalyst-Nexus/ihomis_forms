@@ -18,6 +18,8 @@ function resolveEnccode(selectedPatient) {
   return normalizeEncounterCode(
     selectedPatient?.rawData?.enccode ||
       selectedPatient?.contextParams?.enccode ||
+      selectedPatient?.contextParams?.enc ||
+      selectedPatient?.selectedEncounter?.enccode ||
       (selectedPatient?.idSource === "enccode" ? selectedPatient.id : "") ||
       selectedPatient?.id ||
       "",
@@ -37,9 +39,14 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const normalizedPropEnccode = useMemo(
+    () => normalizeEncounterCode(propEnccode),
+    [propEnccode],
+  );
+
   const enccode = useMemo(
-    () => propEnccode || resolveEnccode(selectedPatient),
-    [propEnccode, selectedPatient],
+    () => normalizedPropEnccode || resolveEnccode(selectedPatient),
+    [normalizedPropEnccode, selectedPatient],
   );
 
   const validationApiBase =

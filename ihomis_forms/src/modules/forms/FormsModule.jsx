@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Forms from "./Forms.jsx";
 import ValidationModule from "../validation/ValidationModule.jsx";
 
-function FormsModule({ selectedPatient = null, onRequestPatientChange }) {
+function FormsModule({ selectedPatient = null, selectedContextParams = null, onRequestPatientChange }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   // Start by showing forms first. Validation will be shown after the user selects forms.
   const [showValidation, setShowValidation] = useState(false);
@@ -23,6 +23,7 @@ function FormsModule({ selectedPatient = null, onRequestPatientChange }) {
     return (
       <ValidationModule
         selectedPatient={selectedPatient}
+        enccode={selectedContextParams?.enccode || selectedContextParams?.enc || null}
         selectedForms={pendingSelectedForms}
         onProceed={(result = {}) => {
           // After validation proceed back to forms; only open preview when allowed
@@ -69,5 +70,6 @@ FormsModule.propTypes = {
     rawData: PropTypes.object,
     contextParams: PropTypes.object,
   }),
+  selectedContextParams: PropTypes.object,
   onRequestPatientChange: PropTypes.func,
 };

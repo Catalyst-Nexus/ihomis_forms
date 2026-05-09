@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
 import ValidationPage from "./ValidationPage.jsx";
 
-function ValidationModule({ selectedPatient, selectedForms = null, onProceed, onBackToForms, onChangePatient }) {
+function ValidationModule({ selectedPatient, enccode = null, selectedForms = null, onProceed, onBackToForms, onChangePatient }) {
   return (
     <ValidationPage
       selectedPatient={selectedPatient}
+      enccode={enccode}
       // forward selected forms (optional) so the page/component tree can react if needed
       selectedForms={selectedForms}
       onProceed={onProceed}
@@ -21,6 +22,7 @@ ValidationModule.propTypes = {
     rawData: PropTypes.object,
     contextParams: PropTypes.object,
   }),
+  enccode: PropTypes.string,
   selectedForms: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.object,
