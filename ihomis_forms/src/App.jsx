@@ -9,9 +9,9 @@ import {
   LAB_UPLOAD_CONTEXT_URL,
   LAB_UPLOAD_PATIENT_SEARCH_URL,
 } from "./modules/labUpload/labUploadConfig.js";
+import Tracking from "./tracking/tracking.jsx";
 import Tagging from "./tracking/Tagging.jsx";
 import UserPicker from "./tracking/UserPicker.jsx";
-import WorkflowTracking from "./tracking/Workflowtracking.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
 import { useUserSession } from "./tracking/hooks/useUserSession.js";
@@ -38,11 +38,11 @@ const modules = [
 
 // ── Page keys ─────────────────────────────────────────────────────────────────
 const LANDING_PAGE = {
-  USER_PICKER:       "user-picker",
-  PATIENT_SELECTION: "patient-selection",
-  MODULE_NAVIGATOR:  "module-navigator",
-  TRACKING:          "tracking",
-  TAGGING:           "tagging",
+  USER_PICKER:        "user-picker",        // ← new: identity gate
+  PATIENT_SELECTION:  "patient-selection",
+  MODULE_NAVIGATOR:   "module-navigator",
+  TRACKING:           "tracking",
+  TAGGING:            "tagging",
 };
 
 function usePatientTrackingData() {
@@ -77,7 +77,7 @@ function usePatientTrackingData() {
   return { patientPicker, trackingRows };
 }
 
-// ── Sub-pages ─────────────────────────────────────────────────────────────────
+// ── Sub-pages (unchanged from your original) ─────────────────────────────────
 function PatientSelectionPage({ patientPicker, onConfirmSelection, onOpenTracking }) {
   return (
     <div className="app-landing-page">
@@ -144,11 +144,7 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
                 <span>{moduleItem.status}</span>
               </div>
               <p>{moduleItem.description}</p>
-              <button
-                type="button"
-                className="app-open-module"
-                onClick={() => onOpenModule(moduleItem.id)}
-              >
+              <button type="button" className="app-open-module" onClick={() => onOpenModule(moduleItem.id)}>
                 Open Module
               </button>
             </article>
@@ -159,7 +155,6 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
   );
 }
 
-// ── /tagging route ────────────────────────────────────────────────────────────
 function TaggingRoute() {
   const navigate = useNavigate();
   const { currentUserId, currentUserName, setUser } = useUserSession();
@@ -188,7 +183,6 @@ function TaggingRoute() {
   );
 }
 
-// ── /tracking route ───────────────────────────────────────────────────────────
 function TrackingRoute() {
   const navigate = useNavigate();
   const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
@@ -205,8 +199,11 @@ function TrackingRoute() {
   }
 
   return (
-    <WorkflowTracking
+    <Tracking
+      selectedPatient={null}
       onBackToModuleNavigator={() => navigate("/")}
+      onChangePatient={() => navigate("/")}
+      onOpenTagging={() => navigate("/tagging")}
       currentUserId={currentUserId}
       currentUserName={currentUserName}
       onSwitchUser={() => {
@@ -220,16 +217,15 @@ function TrackingRoute() {
 // ════════════════════════════════════════════════════════════════════════════
 function AppShell() {
   const navigate = useNavigate();
-
-  // ── User session ──────────────────────────────────────────────────────────
+  // ── User session (identity, no login system) ──────────────────────────────
   const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
 
-  // ── App state ─────────────────────────────────────────────────────────────
-  const [activeModuleId, setActiveModuleId] = useState(null);
-  const [landingPage,    setLandingPage]    = useState(LANDING_PAGE.USER_PICKER);
-  const [isDarkMode,     setIsDarkMode]     = useState(false);
+  // ── App routing ───────────────────────────────────────────────────────────
+  const [activeModuleId,  setActiveModuleId]  = useState(null);
+  const [landingPage,     setLandingPage]     = useState(LANDING_PAGE.USER_PICKER);
+  const [isDarkMode,      setIsDarkMode]      = useState(false);
 
-  // ── Access version: bump after any tag write to re-mount WorkflowTracking ─
+  // ── Access version: bump after any tag write to re-mount Tracking ─────────
   const [accessVersion, setAccessVersion] = useState(0);
   const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
 
@@ -240,14 +236,15 @@ function AppShell() {
     patientPicker.selectionConfirmed && patientPicker.selectedPatient,
   );
 
-  // ── Once user session is set, move past UserPicker ────────────────────────
+  // ── trackingRows derived from patientPicker ───────────────────────────────
+  // ── Once user session is set, move to patient selection if not yet there ──
   useEffect(() => {
     if (currentUserId && landingPage === LANDING_PAGE.USER_PICKER) {
       setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
     }
   }, [currentUserId, landingPage]);
 
-  // ── Guard: if patient is deselected, bounce back to selection ────────────
+  // ── Guard: if patient is deselected, bounce back ──────────────────────────
   useEffect(() => {
     if (
       !hasConfirmedPatient &&
@@ -259,13 +256,12 @@ function AppShell() {
     }
   }, [hasConfirmedPatient, landingPage]);
 
-  // ── Active module ─────────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const activeModule = useMemo(
     () => modules.find((m) => m.id === activeModuleId) || null,
     [activeModuleId],
   );
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   function handleOpenModule(moduleId) {
     if (!hasConfirmedPatient) return;
     setActiveModuleId(moduleId);
@@ -311,6 +307,7 @@ function AppShell() {
     setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
   }
 
+  // ── Switch user: clear session → return to UserPicker ────────────────────
   function handleSwitchUser() {
     clearUser();
     setLandingPage(LANDING_PAGE.USER_PICKER);
@@ -318,9 +315,11 @@ function AppShell() {
     patientPicker.reopenSelection();
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
   // ── Render tree ───────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
 
-  // 1. No user session → UserPicker
+  // 1. No user session yet → UserPicker
   if (!currentUserId || landingPage === LANDING_PAGE.USER_PICKER) {
     return (
       <UserPicker
@@ -374,12 +373,16 @@ function AppShell() {
     );
   }
 
-  // 4. Tracking → now uses WorkflowTracking
+  // 4. Tracking
   if (landingPage === LANDING_PAGE.TRACKING) {
     return (
-      <WorkflowTracking
+      <Tracking
         key={accessVersion}
+        selectedPatient={patientPicker.selectedPatient}
+        trackingRows={trackingRows}
         onBackToModuleNavigator={() => setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR)}
+        onChangePatient={handleChangeLandingPatient}
+        onOpenTagging={handleOpenTaggingFromTracking}
         currentUserId={currentUserId}
         currentUserName={currentUserName}
         onSwitchUser={handleSwitchUser}
@@ -409,14 +412,13 @@ function AppShell() {
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
 function App() {
   return (
     <Routes>
-      <Route path="/tagging"  element={<TaggingRoute />} />
+      <Route path="/tagging" element={<TaggingRoute />} />
       <Route path="/tracking" element={<TrackingRoute />} />
-      <Route path="/"         element={<AppShell />} />
-      <Route path="*"         element={<Navigate to="/" replace />} />
+      <Route path="/" element={<AppShell />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
