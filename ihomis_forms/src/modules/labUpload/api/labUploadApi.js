@@ -978,8 +978,8 @@ export async function fetchEncounterOrders({
     "",
   );
   // Replace /patients suffix with empty to get base API URL
-  // Encode the enccode once - it may contain special chars like / and :
-  const encodedEnccode = encodeURIComponent(trimmedEnccode);
+  // Double-encode the enccode since it may contain special chars like / and :
+  const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
   const requestUrl = buildRequestUrl(
     `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders`,
     { type, status },
@@ -1018,23 +1018,132 @@ export async function fetchEncounterOrders({
     throw new Error("Invalid JSON response when parsing encounter orders.");
   }
 
-  // Normalize to array - preserve ALL fields from backend including proccode
+  // Normalize to array
   const rawOrders = Array.isArray(data?.data) ? data.data : [];
+
+  // Extract full enccode from response (backend returns enccodeFull)
+  const fullEnccode = data?.enccodeFull || data?.enccode || trimmedEnccode;
+  
+  return {
+    ok: data?.ok ?? true,
+    enccode: trimmedEnccode,
+    enccodeFull: fullEnccode,
+    orderType: type,
+    count: rawOrders.length,
+    data: rawOrders.map((order) => ({
+      orcode: order.orcode,
+      enccode: order.enccode,  // Full hdocord enccode
+      enccodeShort: trimmedEnccode,  // Short henctr enccode for reference
+      ordcode: order.ordcode,
+      oritem: order.oritem,
+      ordate: order.ordate || order.ordates,
+      ortime: order.ortime,
+      estatus: order.estatus,
+      entryby: order.entryby,
+      docointkey: order.docointkey,
+      hpercode: order.hpercode,
+      patlast: order.patlast,
+      patfirst: order.patfirst,
+      patmiddle: order.patmiddle,
+      procdesc: order.procdesc,
+      proccode: order.proccode,
+    })),
+  };
+}
+
+/**
+ * GET /api/db/encounters/:enccode/orders/:orcode/procedures
+ *
+ * Fetch procedures/line items for a specific order (from pcchrgcod table).
+ *
+ * @param {Object} options
+ * @param {string} options.enccode - Encounter ID (required)
+ * @param {string} options.orcode - Order ID (required)
+ * @param {string} [options.procedureInstanceId] - Filter by specific procedure ID
+ * @param {string} [options.token] - Auth token
+ * @param {string} [options.apiBaseUrl] - Override API base URL
+ */
+export async function fetchOrderProcedures({
+  enccode,
+  orcode,
+  procedureInstanceId,
+  token,
+  apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
+}) {
+  const trimmedEnccode = String(enccode || "").trim();
+  const trimmedOrcode = String(orcode || "").trim();
+
+  if (!trimmedEnccode || !trimmedOrcode) {
+    throw new Error("Both enccode and orcode are required to fetch procedures.");
+  }
+
+  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
+    /\/+$/,
+    "",
+  );
+  // Double-encode both enccode and orcode since they may contain special chars
+  const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
+  const encodedOrcode = encodeURIComponent(encodeURIComponent(trimmedOrcode));
+  const requestUrl = buildRequestUrl(
+    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedOrcode}/procedures`,
+    { procedureInstanceId },
+  );
+
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  let response;
+  let responsePayload;
+
+  try {
+    response = await fetch(requestUrl, { method: "GET", headers });
+    responsePayload = await response.text();
+  } catch (networkError) {
+    throw new Error(
+      `Network error fetching order procedures: ${networkError.message}`,
+    );
+  }
+
+  if (!response.ok) {
+    const parsed = tryParseJson(responsePayload);
+    const message =
+      parsed?.message ||
+      buildErrorMessage(response, responsePayload) ||
+      `Server error: ${response.status}`;
+    throw new Error(message);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(responsePayload);
+  } catch {
+    throw new Error("Invalid JSON response when parsing order procedures.");
+  }
+
+  const rawProcedures = Array.isArray(data?.data) ? data.data : [];
 
   return {
     ok: data?.ok ?? true,
     enccode: trimmedEnccode,
-    orderType: type,
-    count: rawOrders.length,
-    data: rawOrders.map((order) => ({
-      // Include ALL fields from backend
-      ...order,
-      // Normalize field names if needed
-      ordcode: order.ordcode,
-      ordate: order.ordate || order.ordates || order.ordate,
-      docointkey: order.docointkey,
-      // procdesc from hprocm join (procedure description)
-      procdesc: order.procdesc,
+    orcode: trimmedOrcode,
+    count: rawProcedures.length,
+    data: rawProcedures.map((proc) => ({
+      procedureInstanceId: proc.procedureInstanceId,
+      orcode: proc.orcode,
+      enccode: proc.enccode,
+      chrgcod: proc.chrgcod,
+      procedureDescription: proc.procedureDescription,
+      procedureDate: proc.procedureDate,
+      procedureTime: proc.procedureTime,
+      procedureStatus: proc.procedureStatus,
+      providerCode: proc.providerCode,
+      enteredBy: proc.enteredBy,
+      procdateFormatted: proc.procdate_formatted,
+      proctimeFormatted: proc.proctime_formatted,
+      ordcode: proc.ordcode,
+      oritem: proc.oritem,
     })),
   };
 }
@@ -1156,7 +1265,6 @@ export async function uploadMappedLabResult({
     formData.append("orcode", normalizedContextParams.orcode);
   }
   if (normalizedContextParams.proccode) {
-    // proccode matches MySQL column name (maps to Supabase proccode column)
     formData.append("proccode", normalizedContextParams.proccode);
   }
   if (normalizedContextParams.procedureInstanceId) {

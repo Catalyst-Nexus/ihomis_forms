@@ -26,7 +26,7 @@ function getFileKey(file) {
 //   docointkey ← documentKey, docKey
 //   user     ← userid, username, account
 //   orcode   ← order_code, orderCode
-//   proccode ← procedure_id, procedureInstanceId, procedureCode (matches MySQL column name)
+//   proccode  ← procedure_id, procedureInstanceId, procedureCode
 // ============================================================
 function normalizeLabContextParams(contextParams = {}) {
   const normalized = { ...contextParams };
