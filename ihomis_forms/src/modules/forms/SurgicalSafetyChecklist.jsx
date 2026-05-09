@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import "./SurgicalSafetyChecklist.css";
 
 export default function SurgicalSafetyChecklist({ patientName, patientData }) {
-  const caseNumber      = patientData?.caseNumber      || "ADM-2026-010707";
-  const name            = patientName                  || "SALUCANA , NELLY JEAN LOFRANCO";
+  const caseNumber      = patientData?.caseNumber      || "";
+  const name            = patientName                  || "";
   const date            = patientData?.date            || "";
   const preOpDiagnosis  = patientData?.preOpDiagnosis  || "";
   const surgeon         = patientData?.surgeon         || "";

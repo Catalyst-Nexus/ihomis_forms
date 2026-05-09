@@ -5,9 +5,9 @@ export default function NewbornDailyWeightAbdominalGirth({
   patientName,
   patientData,
 }) {
-  const caseNumber     = patientData?.caseNumber     || "ADM-2026-010651";
-  const hospitalNumber = patientData?.hospitalNumber || "000000000021041";
-  const name           = patientName                 || "BAYSA , BABY BOY";
+  const caseNumber     = patientData?.caseNumber     || "";
+  const hospitalNumber = patientData?.hospitalNumber || "";
+  const name           = patientName                 || "";
   const dateOfBirth    = patientData?.dateOfBirth    || "";
   const rows           = patientData?.rows           || [];
 

@@ -2,16 +2,16 @@ import { useMemo } from "react";
 import "./OtoacousticEmissionResults.css";
 
 export default function OtoacousticEmissionResults({ patientName, patientData }) {
-	const name        = patientName;
-	const caseNum     = patientData?.caseNum;
-	const hospitalNo  = patientData?.hospitalNo;
-	const weight      = patientData?.weight;
-	const dob         = patientData?.dob;
-	const timeDelivery = patientData?.timeDelivery;
-	const motherDob   = patientData?.motherDob;
-	const contactNo   = patientData?.contactNo;
-	const aog         = patientData?.aog;
-	const address     = patientData?.address;
+	const name        = patientName  || "";
+	const caseNum     = patientData?.caseNum || "";
+	const hospitalNo  = patientData?.hospitalNo || "";
+	const weight      = patientData?.weight || "";
+	const dob         = patientData?.dob || "";
+	const timeDelivery = patientData?.timeDelivery || "";
+	const motherDob   = patientData?.motherDob || "";
+	const contactNo   = patientData?.contactNo || "";
+	const aog         = patientData?.aog || "";
+	const address     = patientData?.address || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();

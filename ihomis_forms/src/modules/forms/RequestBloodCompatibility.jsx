@@ -2,16 +2,16 @@ import { useMemo } from "react";
 import "./RequestBloodCompatibility.css";
 
 export default function RequestBloodCompatibility({ patientName, patientData }) {
-  const name      = patientName             || "SALUCANA , NELLY JEAN LOFRANCO";
-  const hospNo    = patientData?.hospitalNo || "000000000021386";
-  const caseNo    = patientData?.caseNo     || "ADM-2026-010707";
-  const sex       = patientData?.sex        || "F";
-  const age       = patientData?.age        || "32";
-  const birthdate = patientData?.birthdate  || "July 27, 1993";
-  const room      = patientData?.room       || "OB GYNE - POST-OP OB - BED 07";
+  const name      = patientName             || "";
+  const hospNo    = patientData?.hospitalNo || "";
+  const caseNo    = patientData?.caseNo     || "";
+  const sex       = patientData?.sex        || "";
+  const age       = patientData?.age        || "";
+  const birthdate = patientData?.birthdate  || "";
+  const room      = patientData?.room       || "";
   const bloodType = patientData?.bloodType  || "";
-  const address   = patientData?.address    || "P-1E, AMPAYON, BUTUAN CITY (Capital), AGUSAN DEL NORTE";
-  const diagnosis = patientData?.diagnosis  || "G2P1 (1001) PREGNANCY UTERINE 38 4/7 WEEKS AOG BY LMP, CEPHALIC NOT IN LABOR, S/P PRIMARY LSCS FOR IAI (JAN 2023, MJSH)";
+  const address   = patientData?.address    || "";
+  const diagnosis = patientData?.diagnosis  || "";
   const admitting = patientData?.admitting  || "";
 
   const { generatedOn } = useMemo(() => {

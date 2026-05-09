@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./PhototherapyForm.css";
 
 export default function PhototherapyForm({ patientName, patientData }) {
-  const hospitalNumber = patientData?.hospitalNumber || "000000000021041";
-  const caseNumber     = patientData?.caseNumber     || "ADM-2026-010651";
-  const name           = patientName                 || "BAYSA , BABY BOY";
-  const dateOfBirth    = patientData?.dateOfBirth    || "04:10 AM";
+  const hospitalNumber = patientData?.hospitalNumber || "";
+  const caseNumber     = patientData?.caseNumber     || "";
+  const name           = patientName                 || "";
+  const dateOfBirth    = patientData?.dateOfBirth    || "";
   const rows           = patientData?.rows           || [];
 
   const { generatedOn, generatedBy } = useMemo(() => {

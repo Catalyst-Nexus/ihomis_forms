@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import "./RandomBloodSugar.css";
 
 export default function RandomBloodSugar({ patientName, patientData }) {
-  const name     = patientName           || "PELISCO , BABY GIRL";
-  const address  = patientData?.address  || "P-1, MATABAO, BUENAVISTA, AGUSAN DEL NORTE";
-  const age      = patientData?.age      || "1 hour(s)";
-  const sex      = patientData?.sex      || "F";
-  const ward     = patientData?.ward     || "No room assigned";
-  const category = patientData?.category || "NEWBORN";
-  const caseNum  = patientData?.caseNum  || "ADM-2026-010623";
+  const name     = patientName           || "";
+  const address  = patientData?.address  || "";
+  const age      = patientData?.age      || "";
+  const sex      = patientData?.sex      || "";
+  const ward     = patientData?.ward     || "";
+  const category = patientData?.category || "";
+  const caseNum  = patientData?.caseNum  || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

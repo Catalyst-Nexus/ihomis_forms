@@ -2,10 +2,6 @@ import { useEffect, useMemo } from 'react';
 import './NeuroVitalSignsLessThan.css';
 import chartPlaceholderSrc from './img/NEURO VITAL SIGNS STATUS.png';
 
-// Injects a <style> tag that clamps html/body/#root during print.
-// Cannot be done from a component CSS file because CSS modules/scoped
-// styles can't target ancestors. This runs once on mount and cleans up
-// on unmount so it never leaks into other pages.
 const PRINT_STYLE_ID = 'neuro-print-clamp';
 
 const injectPrintClamp = () => {
@@ -32,12 +28,12 @@ const removePrintClamp = () => {
 };
 
 const NeuroVitalSignsLessThan = ({ patientName, patientData }) => {
-  const caseNum = patientData?.caseNum || "ADM-2026-010651";
-  const hospitalNo = patientData?.hospitalNo || "00000000021041";
-  const name = patientName || "FELISELDA, CIAN REIN BAYSA";
-  const room = patientData?.room || "OB GYNE - OB 2 - BED 03 - NB";
-  const age = patientData?.age || "1 hour(s)";
-  const date = patientData?.date || "April 21, 2026";
+  const caseNum = patientData?.caseNum || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const name = patientName || "";
+  const room = patientData?.room || "";
+  const age = patientData?.age || "";
+  const date = patientData?.date || "";
 
   const patientFields = [
     { label: 'Case Number:', value: caseNum },

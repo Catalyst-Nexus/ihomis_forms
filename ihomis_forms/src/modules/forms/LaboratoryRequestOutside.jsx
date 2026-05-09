@@ -6,15 +6,15 @@ const Item = ({ label }) => (
 );
 
 export default function LaboratoryRequestOutside({ patientName, patientData }) {
-  const name      = patientName            || "BAYSA , BABY BOY";
-  const age       = patientData?.age       || "1 hour(s)";
-  const sex       = patientData?.sex       || "M";
-  const birthdate = patientData?.birthdate || "April 22, 2026";
-  const ward      = patientData?.ward      || "OB GYNE - OB 2 - BED 03 - NB";
-  const category  = patientData?.category  || "NEWBORN";
-  const caseNo    = patientData?.caseNo    || "ADM-2026-010651";
-  const address   = patientData?.address   || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
-  const diagnosis = patientData?.diagnosis || "TERM MALE NEONATE DELIVERED NSVD CEPHALIC WITH AS 8,9 BS 40 WEEKS, BW 3.8 KGS, AGA";
+  const name      = patientName            || "";
+  const age       = patientData?.age       || "";
+  const sex       = patientData?.sex       || "";
+  const birthdate = patientData?.birthdate || "";
+  const ward      = patientData?.ward      || "";
+  const category  = patientData?.category  || "";
+  const caseNo    = patientData?.caseNo    || "";
+  const address   = patientData?.address   || "";
+  const diagnosis = patientData?.diagnosis || "";
 
   const { dateTimeStr, generatedOn } = useMemo(() => {
     const now = new Date();

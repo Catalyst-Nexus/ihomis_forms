@@ -19,12 +19,12 @@ const chartImageStyle = {
 };
 
 const Partograph = ({ patientName, patientData }) => {
-  const name = patientName || "FELISELDA , CIAN REIN BAYSA";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
-  const caseNo = patientData?.caseNo || "ADM-2026-010651";
-  const dateTimeAdmitted = patientData?.dateTimeAdmitted || "2026-04-22 04:10 AM";
-  const age = patientData?.age || "1 hour(s)";
-  const sex = patientData?.sex || "M";
+  const name = patientName || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const caseNo = patientData?.caseNo || "";
+  const dateTimeAdmitted = patientData?.dateTimeAdmitted || "";
+  const age = patientData?.age || "";
+  const sex = patientData?.sex || "";
 
   const generatedOn = useMemo(() => {
     const now = new Date();

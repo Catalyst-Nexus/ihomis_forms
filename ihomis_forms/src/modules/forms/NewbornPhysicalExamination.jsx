@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./NewbornPhysicalExamination.css";
 
 export default function NewbornPhysicalExamination({ patientName, patientData }) {
-  const name = patientName || "BABY BOY BAYSA";
-  const caseNum = patientData?.caseNum || "ADM-2026-010651";
-  const sex = patientData?.sex || "M";
-  const age = patientData?.age || "1 hour(s)";
+  const name = patientName || "";
+  const caseNum = patientData?.caseNum || "";
+  const sex = patientData?.sex || "";
+  const age = patientData?.age || "";
 
   const { generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();
@@ -59,15 +59,15 @@ export default function NewbornPhysicalExamination({ patientName, patientData })
                   </tr>
                   <tr>
                     <td className="npe-vs-label">Temperatue:</td>
-                    <td className="npe-vs-value">37.3 °C</td>
+                    <td className="npe-vs-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-vs-label">Respiratory rate:</td>
-                    <td className="npe-vs-value">53</td>
+                    <td className="npe-vs-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-vs-label">Oxygen Saturation:</td>
-                    <td className="npe-vs-value">99</td>
+                    <td className="npe-vs-value"></td>
                   </tr>
                 </tbody>
               </table>
@@ -77,23 +77,23 @@ export default function NewbornPhysicalExamination({ patientName, patientData })
                 <tbody>
                   <tr>
                     <td className="npe-ant-label">Weight:</td>
-                    <td className="npe-ant-value">3800</td>
+                    <td className="npe-ant-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-ant-label">Length:</td>
-                    <td className="npe-ant-value">55</td>
+                    <td className="npe-ant-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-ant-label">Head circumference:</td>
-                    <td className="npe-ant-value">35</td>
+                    <td className="npe-ant-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-ant-label">Chest Circumference:</td>
-                    <td className="npe-ant-value">34</td>
+                    <td className="npe-ant-value"></td>
                   </tr>
                   <tr>
                     <td className="npe-ant-label">Abdominal Girth:</td>
-                    <td className="npe-ant-value">34</td>
+                    <td className="npe-ant-value"></td>
                   </tr>
                 </tbody>
               </table>

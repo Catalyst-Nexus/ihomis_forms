@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./ConsentToCare.css";
 
 export default function ConsentToCare({ patientName, patientData }) {
-	const name       = patientName            || "BAYSA , BABY BOY";
-	const sex        = patientData?.sex       || "M";
-	const age        = patientData?.age       || "1 hour(s)";
-	const caseNum    = patientData?.caseNum   || "ADM-2026-010651";
-	const hospitalNo = patientData?.hospitalNo || "000000000021041";
+	const name       = patientName            || "";
+	const sex        = patientData?.sex       || "";
+	const age        = patientData?.age       || "";
+	const caseNum    = patientData?.caseNum   || "";
+	const hospitalNo = patientData?.hospitalNo || "";
 
 	const { dateStr, generatedOn } = useMemo(() => {
 		const now = new Date();

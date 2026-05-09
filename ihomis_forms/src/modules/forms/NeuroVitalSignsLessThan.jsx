@@ -3,12 +3,12 @@ import './NeuroVitalSignsLessThan.css';
 import chartPlaceholderSrc from './img/neurolessthan.png';
 
 const NeuroVitalSignsLessThan = ({ patientName, patientData }) => {
-  const caseNum = patientData?.caseNum || "ADM-2026-010651";
-  const hospitalNo = patientData?.hospitalNo || "00000000021041";
-  const name = patientName || "FELISELDA, CIAN REIN BAYSA";
-  const room = patientData?.room || "OB GYNE - OB 2 - BED 03 - NB";
-  const age = patientData?.age || "1 hour(s)";
-  const date = patientData?.date || "April 21, 2026";
+  const caseNum = patientData?.caseNum || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const name = patientName || "";
+  const room = patientData?.room || "";
+  const age = patientData?.age || "";
+  const date = patientData?.date || "";
 
   const patientFields = [
     { label: 'Case Number:', value: caseNum },

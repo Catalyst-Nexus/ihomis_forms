@@ -6,11 +6,11 @@ const imagePlaceholderSrc = 'src/modules/forms/img/child immunization record2.jp
 
 
 const ChildImmunizationRecord = ({ patientName, patientData }) => {
-  const caseNumber = patientData?.caseNumber || "ADM-2026-010651";
-  const patientNameVal = patientName || "FELISELDA , CIAN REIN BAYSA";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
-  const sex = patientData?.sex || "M";
-  const age = patientData?.age || "1 hour(s)";
+  const caseNumber = patientData?.caseNumber || "";
+    const patientNameVal = patientName || "";
+    const hospitalNo = patientData?.hospitalNo || "";
+  const sex = patientData?.sex || "";
+  const age = patientData?.age || "";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();

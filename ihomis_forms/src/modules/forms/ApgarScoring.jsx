@@ -14,7 +14,6 @@ export default function ApgarForm({ apiResponse }) {
     setFormData(mapped);
   }, [apiResponse]);
 
-  // 🧠 DEBUG (remove later if needed)
   useEffect(() => {
     console.log("RAW API RESPONSE:", apiResponse);
     console.log("MAPPED FORM DATA:", formData);
@@ -28,18 +27,18 @@ export default function ApgarForm({ apiResponse }) {
 
   const generatedBy = "TCP T. TCP";
 
-  const caseNum = formData?.caseNum || "ADM-2026-010651";
+  const caseNum = formData?.caseNum || "";
   const babyDisplayName = formData?.babyDisplayName || "";
   const babySex = formData?.babySex || "";
   const babyAge = formData?.babyAge || "";
   const motherName = formData?.motherName || "";
-  const motherSex = formData?.motherSex || "N/A";
-  const hospitalNo = formData?.hospitalNo || "000000000021041";
+  const motherSex = formData?.motherSex || "";
+  const hospitalNo = formData?.hospitalNo || "";
   const address = formData?.address || "";
   const deliveryType = formData?.deliveryType || "";
   const obstetrician = formData?.obstetrician || "";
-  const anesthesia = formData?.anesthesia || "N/A";
-  const anesthesiologist = formData?.anesthesiologist || "N/A";
+  const anesthesia = formData?.anesthesia || "";
+  const anesthesiologist = formData?.anesthesiologist || "";
   const generatedOn = formData?.generatedOn || formatGeneratedOn();
 
   return (
