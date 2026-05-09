@@ -1,0 +1,1245 @@
+/**
+ * LabWorkflowPanel Styles
+ * Redesigned professional UI with consistent class naming (lwp- prefix)
+ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+.lwp-container {
+  --lwp-primary: #1f9d95;
+  --lwp-primary-dark: #1b7f79;
+  --lwp-primary-light: rgba(31, 157, 149, 0.1);
+  --lwp-secondary: #6366f1;
+  --lwp-success: #10b981;
+  --lwp-success-light: rgba(16, 185, 129, 0.1);
+  --lwp-warning: #f59e0b;
+  --lwp-warning-light: rgba(245, 158, 11, 0.1);
+  --lwp-danger: #ef4444;
+  --lwp-danger-light: rgba(239, 68, 68, 0.1);
+  --lwp-ink-900: #0f172a;
+  --lwp-ink-700: #334155;
+  --lwp-ink-500: #64748b;
+  --lwp-ink-400: #94a3b8;
+  --lwp-surface: #ffffff;
+  --lwp-surface-alt: #f8fafc;
+  --lwp-border: #e2e8f0;
+  --lwp-border-light: #f1f5f9;
+  --lwp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --lwp-shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --lwp-shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --lwp-radius-sm: 6px;
+  --lwp-radius-md: 10px;
+  --lwp-radius-lg: 14px;
+  --lwp-radius-xl: 20px;
+  --lwp-font-sans:
+    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --lwp-font-display: "Space Grotesk", var(--lwp-font-sans);
+}
+
+/* ── Container ──────────────────────────────────────────────── */
+.lwp-container {
+  font-family: var(--lwp-font-sans);
+  color: var(--lwp-ink-700);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.lwp-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-lg);
+  margin-bottom: 1rem;
+}
+
+.lwp-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--lwp-primary-light);
+  border-radius: var(--lwp-radius-md);
+  color: var(--lwp-primary);
+  flex-shrink: 0;
+}
+
+.lwp-header-text {
+  flex: 1;
+}
+
+.lwp-header-text h2 {
+  margin: 0;
+  font-family: var(--lwp-font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--lwp-ink-900);
+}
+
+.lwp-header-text p {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-btn-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--lwp-surface-alt);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-change:hover {
+  background: var(--lwp-surface);
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+/* ── Context Bar ────────────────────────────────────────────── */
+.lwp-context-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f0fdfb 0%, #ecfdf5 100%);
+  border: 1px solid rgba(31, 157, 149, 0.15);
+  border-radius: var(--lwp-radius-lg);
+  margin-bottom: 1.25rem;
+}
+
+.lwp-patient-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lwp-patient-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--lwp-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.lwp-patient-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.lwp-patient-name {
+  font-weight: 600;
+  color: var(--lwp-ink-900);
+  font-size: 0.95rem;
+}
+
+.lwp-patient-id {
+  font-size: 0.78rem;
+  color: var(--lwp-ink-500);
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+}
+
+.lwp-encounter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--lwp-surface);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  color: var(--lwp-ink-700);
+}
+
+.lwp-encounter-badge svg {
+  color: var(--lwp-secondary);
+}
+
+.lwp-encounter-badge strong {
+  color: var(--lwp-ink-900);
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+}
+
+/* ── Steps Indicator ─────────────────────────────────────────── */
+.lwp-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 1.25rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-lg);
+  margin-bottom: 1.25rem;
+}
+
+.lwp-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.lwp-step-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--lwp-surface-alt);
+  border: 2px solid var(--lwp-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.lwp-step.active .lwp-step-icon {
+  background: var(--lwp-primary);
+  border-color: var(--lwp-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(31, 157, 149, 0.2);
+}
+
+.lwp-step.completed .lwp-step-icon {
+  background: var(--lwp-success);
+  border-color: var(--lwp-success);
+  color: #fff;
+}
+
+.lwp-step-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.lwp-step-number {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lwp-ink-400);
+}
+
+.lwp-step.active .lwp-step-number {
+  color: var(--lwp-primary);
+}
+
+.lwp-step.completed .lwp-step-number {
+  color: var(--lwp-success);
+}
+
+.lwp-step-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lwp-ink-700);
+}
+
+.lwp-step.active .lwp-step-label {
+  color: var(--lwp-ink-900);
+}
+
+.lwp-step-line {
+  width: 48px;
+  height: 2px;
+  background: var(--lwp-border);
+  margin: 0 0.75rem;
+  transition: background 0.3s ease;
+}
+
+.lwp-step-line.completed {
+  background: var(--lwp-success);
+}
+
+/* ── Step Content ───────────────────────────────────────────── */
+.lwp-step-content {
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-lg);
+  padding: 1.5rem;
+}
+
+.lwp-step-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.lwp-step-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.lwp-step-icon-sm {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.lwp-step-title-group h3 {
+  margin: 0;
+  font-family: var(--lwp-font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--lwp-ink-900);
+}
+
+.lwp-step-title-group p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--lwp-ink-500);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.lwp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: var(--lwp-primary);
+  border: none;
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-primary:hover:not(:disabled) {
+  background: var(--lwp-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--lwp-shadow-md);
+}
+
+.lwp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lwp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-secondary:hover {
+  background: var(--lwp-surface-alt);
+  border-color: var(--lwp-ink-400);
+}
+
+.lwp-btn-skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 1px dashed var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-skip:hover {
+  background: var(--lwp-surface-alt);
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+/* ── Selection Summary ──────────────────────────────────────── */
+.lwp-selection-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--lwp-primary-light);
+  border-radius: var(--lwp-radius-md);
+  margin-bottom: 1.25rem;
+}
+
+.lwp-selection-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-selection-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lwp-ink-900);
+}
+
+/* ── Card Grid ──────────────────────────────────────────────── */
+.lwp-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lwp-card {
+  position: relative;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.lwp-card:hover {
+  border-color: var(--lwp-primary);
+  box-shadow: var(--lwp-shadow-sm);
+}
+
+.lwp-card.selected {
+  border-color: var(--lwp-primary);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 157, 149, 0.03) 0%,
+    rgba(31, 157, 149, 0.08) 100%
+  );
+}
+
+.lwp-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--lwp-border);
+  transition: background 0.2s ease;
+}
+
+.lwp-card.selected .lwp-card-accent {
+  background: var(--lwp-primary);
+}
+
+.lwp-card-accent.procedure {
+  background: var(--lwp-secondary);
+}
+
+.lwp-card.selected .lwp-card-accent.procedure {
+  background: var(--lwp-secondary);
+}
+
+.lwp-card-content {
+  padding-left: 0.75rem;
+}
+
+.lwp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.lwp-card-code {
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-card-badge {
+  display: inline-flex;
+  padding: 0.2rem 0.5rem;
+  background: var(--lwp-surface-alt);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--lwp-ink-600);
+  text-transform: uppercase;
+}
+
+.lwp-card-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lwp-card-badge.type {
+  background: var(--lwp-primary-light);
+  color: var(--lwp-primary-dark);
+}
+
+.lwp-card-badge.status {
+  background: var(--lwp-surface-alt);
+  color: var(--lwp-ink-600);
+}
+
+.lwp-card-badge.status.pending {
+  background: var(--lwp-warning-light);
+  color: #b45309;
+}
+
+.lwp-card-badge.status.done {
+  background: var(--lwp-success-light);
+  color: var(--lwp-success);
+}
+
+.lwp-card-badge.status.cancelled {
+  background: var(--lwp-danger-light);
+  color: var(--lwp-danger);
+}
+
+.lwp-card-badge.status.progress {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--lwp-secondary);
+}
+
+.lwp-card-badge.success {
+  background: var(--lwp-success-light);
+  color: var(--lwp-success);
+}
+
+.lwp-card-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: var(--lwp-ink-500);
+  line-height: 1.4;
+}
+
+/* ── Filter Tabs ──────────────────────────────────────────────── */
+.lwp-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--lwp-border-light);
+}
+
+.lwp-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-filter-tab:hover {
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+.lwp-filter-tab.active {
+  background: var(--lwp-primary);
+  border-color: var(--lwp-primary);
+  color: #fff;
+}
+
+/* ── Section Label ────────────────────────────────────────────── */
+.lwp-section-label {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lwp-ink-700);
+}
+
+/* ── Card Arrow ───────────────────────────────────────────────── */
+.lwp-card-arrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--lwp-ink-400);
+  transition: all 0.2s ease;
+}
+
+.lwp-card:hover .lwp-card-arrow {
+  color: var(--lwp-primary);
+  transform: translateY(-50%) translateX(3px);
+}
+
+.lwp-card-clickable {
+  cursor: pointer;
+}
+
+/* ── Back Button ──────────────────────────────────────────────── */
+.lwp-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 1rem;
+}
+
+.lwp-btn-back:hover {
+  background: var(--lwp-surface-alt);
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+/* ── Change Encounter Button ──────────────────────────────────── */
+.lwp-btn-change-enc {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-ink-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-change-enc:hover {
+  background: var(--lwp-primary-light);
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+.lwp-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--lwp-ink-900);
+  line-height: 1.4;
+}
+
+.lwp-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lwp-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-meta-item svg {
+  opacity: 0.7;
+}
+
+.lwp-card-check {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--lwp-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ── Alert ──────────────────────────────────────────────────── */
+.lwp-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--lwp-radius-md);
+  margin-bottom: 1rem;
+}
+
+.lwp-alert.error {
+  background: var(--lwp-danger-light);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+}
+
+.lwp-alert.error svg {
+  color: var(--lwp-danger);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.lwp-alert strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.lwp-alert p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.lwp-btn-retry {
+  margin-left: auto;
+  padding: 0.35rem 0.75rem;
+  background: var(--lwp-danger);
+  border: none;
+  border-radius: var(--lwp-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.lwp-btn-retry:hover {
+  opacity: 0.9;
+}
+
+/* ── Loading ────────────────────────────────────────────────── */
+.lwp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+}
+
+.lwp-loading p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--lwp-ink-500);
+}
+
+/* ── Empty State ────────────────────────────────────────────── */
+.lwp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.lwp-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.6;
+}
+
+.lwp-empty h4 {
+  margin: 0 0 0.5rem;
+  font-family: var(--lwp-font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--lwp-ink-900);
+}
+
+.lwp-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--lwp-ink-500);
+  max-width: 320px;
+}
+
+/* ── Skip Row ───────────────────────────────────────────────── */
+.lwp-skip-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--lwp-border-light);
+  margin-top: 1rem;
+}
+
+/* ── Upload Summary ─────────────────────────────────────────── */
+.lwp-upload-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lwp-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--lwp-primary-light);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--lwp-primary-dark);
+}
+
+.lwp-summary-chip svg {
+  opacity: 0.8;
+}
+
+.lwp-summary-chip.procedure {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--lwp-secondary);
+}
+
+/* ── Dropzone ───────────────────────────────────────────────── */
+.lwp-dropzone {
+  border: 2px dashed var(--lwp-border);
+  border-radius: var(--lwp-radius-lg);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.25rem;
+  background: var(--lwp-surface-alt);
+}
+
+.lwp-dropzone:hover {
+  border-color: var(--lwp-primary);
+  background: rgba(31, 157, 149, 0.02);
+}
+
+.lwp-dropzone.active {
+  border-color: var(--lwp-primary);
+  background: var(--lwp-primary-light);
+  border-style: solid;
+}
+
+.lwp-dropzone.has-files {
+  padding: 1.25rem;
+}
+
+.lwp-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lwp-dropzone-icon {
+  color: var(--lwp-ink-400);
+  margin-bottom: 0.5rem;
+}
+
+.lwp-dropzone-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--lwp-ink-700);
+}
+
+.lwp-dropzone-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--lwp-ink-500);
+}
+
+/* ── Files List ─────────────────────────────────────────────── */
+.lwp-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lwp-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+}
+
+.lwp-file-icon {
+  color: var(--lwp-primary);
+  flex-shrink: 0;
+}
+
+.lwp-file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lwp-file-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--lwp-ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lwp-file-size {
+  font-size: 0.75rem;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-file-remove {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lwp-surface-alt);
+  border: none;
+  border-radius: 50%;
+  color: var(--lwp-ink-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.lwp-file-remove:hover {
+  background: var(--lwp-danger-light);
+  color: var(--lwp-danger);
+}
+
+/* ── Remarks ────────────────────────────────────────────────── */
+.lwp-remarks {
+  margin-bottom: 1.25rem;
+}
+
+.lwp-remarks label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lwp-ink-700);
+  margin-bottom: 0.5rem;
+}
+
+.lwp-remarks label svg {
+  color: var(--lwp-ink-400);
+}
+
+.lwp-remarks textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-family: var(--lwp-font-sans);
+  font-size: 0.9rem;
+  color: var(--lwp-ink-700);
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.lwp-remarks textarea:focus {
+  outline: none;
+  border-color: var(--lwp-primary);
+  box-shadow: 0 0 0 3px rgba(31, 157, 149, 0.1);
+}
+
+.lwp-remarks textarea::placeholder {
+  color: var(--lwp-ink-400);
+}
+
+/* ── Upload Button ──────────────────────────────────────────── */
+.lwp-btn-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--lwp-primary) 0%,
+    var(--lwp-primary-dark) 100%
+  );
+  border: none;
+  border-radius: var(--lwp-radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lwp-btn-upload:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(31, 157, 149, 0.35);
+}
+
+.lwp-btn-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Results ─────────────────────────────────────────────────── */
+.lwp-results {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--lwp-success-light);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--lwp-radius-lg);
+}
+
+.lwp-results-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.lwp-results-header svg {
+  color: var(--lwp-success);
+}
+
+.lwp-results-header h4 {
+  margin: 0;
+  font-family: var(--lwp-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lwp-success);
+}
+
+.lwp-result-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--lwp-surface);
+  border-radius: var(--lwp-radius-md);
+  margin-bottom: 0.5rem;
+}
+
+.lwp-result-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lwp-primary-light);
+  border-radius: var(--lwp-radius-md);
+  color: var(--lwp-primary);
+  flex-shrink: 0;
+}
+
+.lwp-result-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lwp-result-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--lwp-ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lwp-result-key {
+  font-size: 0.78rem;
+  color: var(--lwp-ink-500);
+}
+
+.lwp-result-key code {
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  background: var(--lwp-surface-alt);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  color: var(--lwp-primary);
+}
+
+.lwp-result-time {
+  font-size: 0.75rem;
+  color: var(--lwp-ink-400);
+}
+
+.lwp-btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--lwp-primary);
+  border-radius: var(--lwp-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.lwp-btn-view:hover {
+  background: var(--lwp-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* ── Reset Button ───────────────────────────────────────────── */
+.lwp-btn-reset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--lwp-surface);
+  border: 1px solid var(--lwp-border);
+  border-radius: var(--lwp-radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--lwp-ink-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lwp-btn-reset:hover {
+  background: var(--lwp-surface-alt);
+  border-color: var(--lwp-primary);
+  color: var(--lwp-primary);
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.lwp-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lwp-spin 0.7s linear infinite;
+}
+
+.lwp-spinner.large {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.lwp-spinner.white {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+}
+
+@keyframes lwp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .lwp-header {
+    flex-wrap: wrap;
+  }
+
+  .lwp-header-text {
+    order: 1;
+    flex-basis: calc(100% - 64px);
+  }
+
+  .lwp-btn-change {
+    order: 2;
+    flex-basis: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .lwp-context-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .lwp-encounter-badge {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .lwp-steps {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 1rem;
+  }
+
+  .lwp-step-info {
+    display: none;
+  }
+
+  .lwp-step-line {
+    width: 24px;
+    margin: 0 0.35rem;
+  }
+
+  .lwp-step-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lwp-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .lwp-container {
+    padding: 0;
+  }
+
+  .lwp-step-content {
+    padding: 1rem;
+  }
+
+  .lwp-btn-upload {
+    padding: 0.75rem 1rem;
+  }
+
+  .lwp-result-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .lwp-btn-view {
+    align-self: flex-start;
+  }
+}

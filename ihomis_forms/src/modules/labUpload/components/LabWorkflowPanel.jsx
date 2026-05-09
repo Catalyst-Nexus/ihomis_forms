@@ -15,9 +15,7 @@
 import PropTypes from "prop-types";
 import { useCallback, useRef, useState } from "react";
 import { useLabUploadWorkflow } from "../hooks/useLabUploadWorkflow.js";
-import {
-  LAB_UPLOAD_API_TOKEN,
-} from "../labUploadConfig.js";
+import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 import "./LabWorkflowPanel.css";
 
 const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
@@ -25,33 +23,29 @@ const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
 function WorkflowStepIndicator({ currentStep }) {
   const stepIndex = STEP_ORDER.indexOf(currentStep);
   const steps = [
-    { key: "encounter", label: "Encounter" },
-    { key: "order", label: "Order" },
-    { key: "procedure", label: "Procedure" },
-    { key: "upload", label: "Upload" },
+    { key: "encounter", label: "Encounter", icon: "🏥" },
+    { key: "order", label: "Order", icon: "📋" },
+    { key: "procedure", label: "Procedure", icon: "💉" },
+    { key: "upload", label: "Upload", icon: "📤" },
   ];
 
   return (
-    <div className="workflow-step-indicator">
+    <div className="lwp-steps">
       {steps.map((step, idx) => {
         const isCompleted = idx < stepIndex;
         const isActive = idx === stepIndex;
-        const isLast = idx === steps.length - 1;
 
         return (
-          <span key={step.key} className="step-wrapper">
-            <div
-              className={`step-badge ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}
-            >
-              {isCompleted ? "✓" : idx + 1}
+          <div key={step.key} className={`lwp-step ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}>
+            <div className="lwp-step-icon">
+              {isCompleted ? "✓" : step.icon}
             </div>
-            <span className={`step-label ${isActive ? "active" : ""}`}>
-              {step.label}
-            </span>
-            {!isLast && (
-              <div className={`step-connector ${isCompleted ? "completed" : ""}`} />
-            )}
-          </span>
+            <div className="lwp-step-info">
+              <span className="lwp-step-number">Step {idx + 1}</span>
+              <span className="lwp-step-label">{step.label}</span>
+            </div>
+            {idx < steps.length - 1 && <div className={`lwp-step-line ${isCompleted ? "completed" : ""}`} />}
+          </div>
         );
       })}
     </div>
@@ -63,26 +57,82 @@ WorkflowStepIndicator.propTypes = {
 };
 
 function OrderCard({ order, isSelected, onSelect }) {
+  // Get order type label
+  const getOrderTypeLabel = (code) => {
+    const types = {
+      'LAB': 'Laboratory',
+      'RAD': 'Radiology',
+      'MED': 'Medications',
+      'PROC': 'Procedure',
+      'SP': 'Supply',
+    };
+    return types[code] || code || 'Order';
+  };
+
+  // Get order status
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      'P': { label: 'Pending', class: 'pending' },
+      'D': { label: 'Done', class: 'done' },
+      'C': { label: 'Cancelled', class: 'cancelled' },
+      'IP': { label: 'In Progress', class: 'progress' },
+    };
+    return statusMap[status] || { label: status || 'Active', class: 'pending' };
+  };
+
+  const orderType = getOrderTypeLabel(order.ordcode);
+  const status = getStatusBadge(order.estatus);
+
   return (
     <div
-      className={`order-card ${isSelected ? "selected" : ""}`}
+      className={`lwp-card ${isSelected ? "selected" : ""}`}
       onClick={() => onSelect(order)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onSelect(order)}
     >
-      <div className="order-card-header">
-        <span className="order-code">{order.orcode}</span>
-        <span className="order-type-badge">{order.ordcode}</span>
-      </div>
-      <div className="order-card-body">
-        <p className="order-item">{order.oritem}</p>
-        <div className="order-meta">
-          <span>{order.ordate}</span>
-          <span>{order.ortime}</span>
+      <div className="lwp-card-accent" />
+      <div className="lwp-card-content">
+        <div className="lwp-card-header">
+          <span className="lwp-card-code">{order.orcode}</span>
+          <div className="lwp-card-badges">
+            <span className="lwp-card-badge type">{orderType}</span>
+            <span className={`lwp-card-badge status ${status.class}`}>{status.label}</span>
+          </div>
+        </div>
+        <p className="lwp-card-title">{order.oritem}</p>
+        {order.procdesc && order.procdesc !== order.oritem && (
+          <p className="lwp-card-desc">{order.procdesc}</p>
+        )}
+        <div className="lwp-card-meta">
+          <span className="lwp-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {order.ordate}
+          </span>
+          <span className="lwp-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {order.ortime}
+          </span>
+          {order.entryby && (
+            <span className="lwp-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              {order.entryby}
+            </span>
+          )}
         </div>
       </div>
-      {isSelected && <div className="order-selected-indicator">✓ Selected</div>}
+      {isSelected && <div className="lwp-card-check">✓</div>}
     </div>
   );
 }
@@ -96,26 +146,32 @@ OrderCard.propTypes = {
 function ProcedureCard({ procedure, isSelected, onSelect }) {
   return (
     <div
-      className={`procedure-card ${isSelected ? "selected" : ""}`}
+      className={`lwp-card ${isSelected ? "selected" : ""}`}
       onClick={() => onSelect(procedure)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onSelect(procedure)}
     >
-      <div className="procedure-card-header">
-        <span className="procedure-id">{procedure.procedureInstanceId}</span>
-        <span className="procedure-status">{procedure.procedureStatus}</span>
-      </div>
-      <div className="procedure-card-body">
-        <p className="procedure-desc">{procedure.procedureDescription}</p>
-        <div className="procedure-meta">
-          <span>{procedure.procdateFormatted || procedure.procedureDate}</span>
-          <span>{procedure.proctimeFormatted || procedure.procedureTime}</span>
+      <div className="lwp-card-accent procedure" />
+      <div className="lwp-card-content">
+        <div className="lwp-card-header">
+          <span className="lwp-card-code">{procedure.procedureInstanceId}</span>
+          <span className="lwp-card-badge success">{procedure.procedureStatus}</span>
+        </div>
+        <p className="lwp-card-title">{procedure.procedureDescription}</p>
+        <div className="lwp-card-meta">
+          <span className="lwp-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {procedure.procdateFormatted || procedure.procedureDate}
+          </span>
         </div>
       </div>
-      {isSelected && (
-        <div className="procedure-selected-indicator">✓ Selected</div>
-      )}
+      {isSelected && <div className="lwp-card-check">✓</div>}
     </div>
   );
 }
@@ -131,6 +187,7 @@ export default function LabWorkflowPanel({
   contextParams = {},
   onUploadComplete = null,
   onRequestPatientChange = null,
+  onRequestEncounterChange = null,
 }) {
   const {
     selectedOrder,
@@ -141,10 +198,6 @@ export default function LabWorkflowPanel({
     ordersLoading,
     ordersError,
     fetchOrdersForEncounter,
-    procedures,
-    proceduresLoading,
-    proceduresError,
-    fetchProceduresForOrder,
     uploadResults,
     uploading,
     workflowError,
@@ -159,8 +212,91 @@ export default function LabWorkflowPanel({
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
+  
+  // ── Order selection state (two-level) ───────────────────────
+  const [selectedOrcode, setSelectedOrcode] = useState(null);
+  
+  // Get unique ORCODEs from orders
+  const getOrcodes = () => {
+    const orcodes = {};
+    orders.forEach(order => {
+      const orcode = order.orcode || 'UNKNOWN';
+      if (!orcodes[orcode]) {
+        orcodes[orcode] = {
+          orcode,
+          oritem: order.oritem || orcode,
+          ordate: order.ordate || '',
+          entryby: order.entryby || '',
+          count: 0,
+          procedures: []
+        };
+      }
+      orcodes[orcode].count++;
+      // Add procedure details
+      orcodes[orcode].procedures.push({
+        proccode: order.proccode || '',
+        procdesc: order.procdesc || order.oritem || '',
+        docointkey: order.docointkey,
+        estatus: order.estatus || '',
+        ortime: order.ortime || '',
+        entryby: order.entryby || '',
+      });
+    });
+    return Object.values(orcodes);
+  };
+  
+  // Get selected ORCODE details
+  const selectedOrcodeDetails = selectedOrcode 
+    ? getOrcodes().find(o => o.orcode === selectedOrcode)
+    : null;
+  
+  // Helper function to get status class
+  const getStatusClass = (status) => {
+    const statusMap = {
+      'P': 'pending',
+      'D': 'done',
+      'C': 'cancelled',
+      'IP': 'progress',
+    };
+    return statusMap[status] || 'pending';
+  };
 
   // ── Derived state ────────────────────────────────────────────
+  const procedureOptions = selectedOrder
+    ? [
+        {
+          procedureInstanceId:
+            selectedOrder.docointkey ||
+            selectedOrder.proccode ||
+            selectedOrder.orcode ||
+            "",
+          orcode: selectedOrder.orcode || "",
+          enccode: selectedOrder.enccode || enccode,
+          chrgcod: selectedOrder.proccode || "",
+          procedureDescription:
+            selectedOrder.procdesc ||
+            selectedOrder.oritem ||
+            selectedOrder.orcode ||
+            "Procedure",
+          procedureDate: selectedOrder.dodate || "",
+          procedureTime: selectedOrder.ortime || "",
+          procedureStatus: selectedOrder.estatus || "",
+          providerCode: selectedOrder.entryby || "",
+          enteredBy: selectedOrder.entryby || "",
+          procdateFormatted: selectedOrder.dodate || "",
+          proctimeFormatted: selectedOrder.ortime || "",
+          ordcode: selectedOrder.orcode || "",
+          oritem:
+            selectedOrder.procdesc ||
+            selectedOrder.oritem ||
+            selectedOrder.orcode ||
+            "",
+        },
+      ]
+    : [];
+  const proceduresLoading = false;
+  const proceduresError = null;
+
   const currentStep = selectedProcedure
     ? "upload"
     : selectedOrder
@@ -187,15 +323,8 @@ export default function LabWorkflowPanel({
     async (order) => {
       setSelectedOrder(order);
       setSelectedProcedure(null);
-      if (enccode && order?.orcode) {
-        try {
-          await fetchProceduresForOrder(enccode, order.orcode, { contextParams });
-        } catch {
-          // error handled by hook
-        }
-      }
     },
-    [enccode, fetchProceduresForOrder, setSelectedOrder, setSelectedProcedure, contextParams],
+    [setSelectedOrder, setSelectedProcedure],
   );
 
   // ── File selection ───────────────────────────────────────────
@@ -247,9 +376,11 @@ export default function LabWorkflowPanel({
           file,
           contextParams: {
             ...contextParams,
-            hpercode: contextParams?.hpercode || patient?.contextParams?.hpercode,
+            hpercode:
+              contextParams?.hpercode || patient?.contextParams?.hpercode,
             enccode,
             orcode: selectedOrder?.orcode,
+            proccode: selectedOrder?.proccode || selectedProcedure?.chrgcod,
             procedureInstanceId: selectedProcedure?.procedureInstanceId,
             user: LAB_UPLOAD_API_TOKEN ? "system" : "",
           },
@@ -290,27 +421,67 @@ export default function LabWorkflowPanel({
   };
 
   return (
-    <div className="lab-workflow-panel">
+    <div className="lwp-container">
       {/* Header */}
-      <div className="workflow-header">
-        <h2 className="workflow-title">Lab Result Upload</h2>
+      <div className="lwp-header">
+        <div className="lwp-header-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div className="lwp-header-text">
+          <h2>Lab Result Upload</h2>
+          <p>Upload and manage laboratory PDF results</p>
+        </div>
         <button
           type="button"
-          className="btn-change-patient"
+          className="lwp-btn-change"
           onClick={onRequestPatientChange}
         >
-          ← Change Patient
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Change Patient
         </button>
+        {onRequestEncounterChange && (
+          <button
+            type="button"
+            className="lwp-btn-change lwp-btn-change-enc"
+            onClick={onRequestEncounterChange}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Change Encounter
+          </button>
+        )}
       </div>
 
-      {/* Patient / Encounter summary */}
-      <div className="workflow-context-summary">
-        <span className="context-chip patient">
-          👤 {patient?.contextParams?.patlast || patient?.rawData?.patlast || "—"}
-        </span>
-        <span className="context-chip encounter">
-          🏥 Encounter: {enccode}
-        </span>
+      {/* Patient Context Bar */}
+      <div className="lwp-context-bar">
+        <div className="lwp-patient-info">
+          <div className="lwp-patient-avatar">
+            {(patient?.contextParams?.patlast || patient?.rawData?.patlast || "?")[0].toUpperCase()}
+          </div>
+          <div className="lwp-patient-details">
+            <span className="lwp-patient-name">
+              {patient?.contextParams?.patlast || patient?.rawData?.patlast || "—"}{", "}
+              {patient?.contextParams?.patfirst || patient?.rawData?.patfirst || ""}
+            </span>
+            <span className="lwp-patient-id">HCI: {contextParams?.hpercode || "—"}</span>
+          </div>
+        </div>
+        <div className="lwp-encounter-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          Encounter: <strong>{enccode || "—"}</strong>
+        </div>
       </div>
 
       {/* Step indicator */}
@@ -318,131 +489,300 @@ export default function LabWorkflowPanel({
 
       {/* ── Step: Order Selection ─────────────────────────────── */}
       {currentStep === "order" && (
-        <div className="workflow-step order-step">
-          <div className="step-header">
-            <h3>Select Order</h3>
+        <div className="lwp-step-content">
+          <div className="lwp-step-header">
+            <div className="lwp-step-title-group">
+              <span className="lwp-step-icon-sm">📋</span>
+              <div>
+                <h3>Select Laboratory Order</h3>
+                <p>Choose the laboratory order to attach results to</p>
+              </div>
+            </div>
             <button
               type="button"
-              className="btn-fetch-orders"
+              className="lwp-btn-primary"
               onClick={handleFetchOrders}
               disabled={ordersLoading || !enccode}
             >
-              {ordersLoading ? "Loading..." : "Load Orders"}
+              {ordersLoading ? (
+                <>
+                  <span className="lwp-spinner" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  Load Orders
+                </>
+              )}
             </button>
           </div>
 
           {ordersError && (
-            <div className="step-error">
-              ⚠️ {ordersError}
-              <button
-                type="button"
-                className="btn-retry"
-                onClick={handleFetchOrders}
-              >
+            <div className="lwp-alert error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div>
+                <strong>Error loading orders</strong>
+                <p>{ordersError}</p>
+              </div>
+              <button type="button" className="lwp-btn-retry" onClick={handleFetchOrders}>
                 Retry
               </button>
             </div>
           )}
 
           {ordersLoading && (
-            <div className="step-loading">
-              <span className="spinner" />
-              Loading orders...
+            <div className="lwp-loading">
+              <span className="lwp-spinner large" />
+              <p>Fetching laboratory orders...</p>
             </div>
           )}
 
           {!ordersLoading && orders.length === 0 && !ordersError && (
-            <div className="step-empty">
-              No orders found for this encounter.
-              <br />
-              Click &quot;Load Orders&quot; to search.
+            <div className="lwp-empty">
+              <div className="lwp-empty-icon">📋</div>
+              <h4>No Orders Found</h4>
+              <p>No laboratory orders found for this encounter. Click Load Orders to search again.</p>
             </div>
           )}
 
           {orders.length > 0 && (
-            <div className="order-list">
-              {orders.map((order) => (
-                <OrderCard
-                  key={order.orcode}
-                  order={order}
-                  isSelected={selectedOrder?.orcode === order.orcode}
-                  onSelect={handleSelectOrder}
-                />
-              ))}
-            </div>
+            <>
+              {!selectedOrcode ? (
+                <>
+                  {/* ORCODE Selection - First Level */}
+                  <p className="lwp-section-label">Select an Order Request:</p>
+                  <div className="lwp-card-grid">
+                    {getOrcodes().map((orcodeGroup) => (
+                      <div
+                        key={orcodeGroup.orcode}
+                        className="lwp-card lwp-card-clickable"
+                        onClick={() => setSelectedOrcode(orcodeGroup.orcode)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === "Enter" && setSelectedOrcode(orcodeGroup.orcode)}
+                      >
+                        <div className="lwp-card-accent" />
+                        <div className="lwp-card-content">
+                          <div className="lwp-card-header">
+                            <span className="lwp-card-code">{orcodeGroup.orcode}</span>
+                            <span className="lwp-card-badge">{orcodeGroup.count} procedure(s)</span>
+                          </div>
+                          <p className="lwp-card-title">{orcodeGroup.oritem}</p>
+                          <div className="lwp-card-meta">
+                            {orcodeGroup.ordate && (
+                              <span className="lwp-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                  <line x1="16" y1="2" x2="16" y2="6"/>
+                                  <line x1="8" y1="2" x2="8" y2="6"/>
+                                  <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {orcodeGroup.ordate}
+                              </span>
+                            )}
+                            {orcodeGroup.entryby && (
+                              <span className="lwp-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                  <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                {orcodeGroup.entryby}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="lwp-card-arrow">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Procedure Selection - Second Level */}
+                  <button
+                    type="button"
+                    className="lwp-btn-back"
+                    onClick={() => setSelectedOrcode(null)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Back to Order Requests
+                  </button>
+                  
+                  <div className="lwp-selection-summary">
+                    <span className="lwp-selection-label">Order Request:</span>
+                    <span className="lwp-selection-value">{selectedOrcodeDetails?.oritem} ({selectedOrcode})</span>
+                  </div>
+                  
+                  <p className="lwp-section-label">Select a Procedure:</p>
+                  <div className="lwp-card-grid">
+                    {selectedOrcodeDetails?.procedures.map((proc, idx) => (
+                      <div
+                        key={proc.docointkey || idx}
+                        className={`lwp-card ${selectedOrder?.docointkey === proc.docointkey ? "selected" : ""}`}
+                        onClick={() => {
+                          // Create full order object from procedure
+                          const fullOrder = orders.find(o => o.docointkey === proc.docointkey) || {
+                            ...proc,
+                            orcode: selectedOrcode,
+                            enccode: contextParams?.enccode || '',
+                          };
+                          handleSelectOrder(fullOrder);
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const fullOrder = orders.find(o => o.docointkey === proc.docointkey) || {
+                              ...proc,
+                              orcode: selectedOrcode,
+                              enccode: contextParams?.enccode || '',
+                            };
+                            handleSelectOrder(fullOrder);
+                          }
+                        }}
+                      >
+                        <div className="lwp-card-accent" />
+                        <div className="lwp-card-content">
+                          <div className="lwp-card-header">
+                            <span className="lwp-card-code">{proc.proccode || 'N/A'}</span>
+                            <span className={`lwp-card-badge status ${getStatusClass(proc.estatus)}`}>
+                              {proc.estatus || 'Active'}
+                            </span>
+                          </div>
+                          <p className="lwp-card-title">{proc.procdesc}</p>
+                          <div className="lwp-card-meta">
+                            {proc.ortime && (
+                              <span className="lwp-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <circle cx="12" cy="12" r="10"/>
+                                  <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                {proc.ortime}
+                              </span>
+                            )}
+                            {proc.entryby && (
+                              <span className="lwp-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                  <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                {proc.entryby}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {selectedOrder?.docointkey === proc.docointkey && (
+                          <div className="lwp-card-check">✓</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
       )}
 
       {/* ── Step: Procedure Selection ─────────────────────────── */}
       {currentStep === "procedure" && (
-        <div className="workflow-step procedure-step">
-          <div className="step-header">
-            <h3>Select Procedure</h3>
+        <div className="lwp-step-content">
+          <div className="lwp-step-header">
+            <div className="lwp-step-title-group">
+              <span className="lwp-step-icon-sm">💉</span>
+              <div>
+                <h3>Select Procedure</h3>
+                <p>Choose a procedure or skip to continue</p>
+              </div>
+            </div>
             <button
               type="button"
-              className="btn-back"
+              className="lwp-btn-secondary"
               onClick={() => {
                 setSelectedOrder(null);
                 setSelectedProcedure(null);
               }}
             >
-              ← Back to Orders
+              ← Back
             </button>
           </div>
 
-          <div className="selected-order-badge">
-            Selected: {selectedOrder?.oritem} ({selectedOrder?.orcode})
+          <div className="lwp-selection-summary">
+            <span className="lwp-selection-label">Selected Order:</span>
+            <span className="lwp-selection-value">
+              {selectedOrder?.oritem} ({selectedOrder?.orcode})
+            </span>
           </div>
 
           {proceduresError && (
-            <div className="step-error">
-              ⚠️ {proceduresError}
+            <div className="lwp-alert error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              {proceduresError}
             </div>
           )}
 
           {proceduresLoading && (
-            <div className="step-loading">
-              <span className="spinner" />
-              Loading procedures...
+            <div className="lwp-loading">
+              <span className="lwp-spinner large" />
+              <p>Loading procedures...</p>
             </div>
           )}
 
-          {!proceduresLoading && procedures.length === 0 && !proceduresError && (
-            <div className="step-empty">
-              No procedures found for this order.
-              <br />
-              You can proceed without selecting a procedure.
-              <button
-                type="button"
-                className="btn-skip-procedure"
-                onClick={() => setSelectedProcedure(null)}
-              >
-                Continue without procedure →
-              </button>
-            </div>
-          )}
+          {!proceduresLoading &&
+            procedureOptions.length === 0 &&
+            !proceduresError && (
+              <div className="lwp-empty">
+                <div className="lwp-empty-icon">💉</div>
+                <h4>No Procedures Found</h4>
+                <p>You can proceed without selecting a specific procedure.</p>
+              </div>
+            )}
 
-          {procedures.length > 0 && (
-            <div className="procedure-list">
-              {procedures.map((proc) => (
+          {procedureOptions.length > 0 && (
+            <div className="lwp-card-grid">
+              {procedureOptions.map((proc) => (
                 <ProcedureCard
                   key={proc.procedureInstanceId}
                   procedure={proc}
-                  isSelected={selectedProcedure?.procedureInstanceId === proc.procedureInstanceId}
+                  isSelected={
+                    selectedProcedure?.procedureInstanceId ===
+                    proc.procedureInstanceId
+                  }
                   onSelect={setSelectedProcedure}
                 />
               ))}
             </div>
           )}
 
-          <div className="procedure-skip-row">
+          <div className="lwp-skip-row">
             <button
               type="button"
-              className="btn-skip-procedure"
+              className="lwp-btn-skip"
               onClick={() => setSelectedProcedure(null)}
             >
-              Skip / Continue without procedure →
+              Skip Procedure
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -450,41 +790,56 @@ export default function LabWorkflowPanel({
 
       {/* ── Step: Upload ─────────────────────────────────────── */}
       {currentStep === "upload" && (
-        <div className="workflow-step upload-step">
-          <div className="step-header">
-            <h3>Upload Lab Result</h3>
+        <div className="lwp-step-content">
+          <div className="lwp-step-header">
+            <div className="lwp-step-title-group">
+              <span className="lwp-step-icon-sm">📤</span>
+              <div>
+                <h3>Upload Lab Result</h3>
+                <p>Drop your PDF file or click to browse</p>
+              </div>
+            </div>
             <button
               type="button"
-              className="btn-back"
+              className="lwp-btn-secondary"
               onClick={() => setSelectedProcedure(null)}
             >
               ← Back
             </button>
           </div>
 
-          <div className="upload-context-summary">
+          <div className="lwp-upload-summary">
             {selectedOrder && (
-              <span className="context-chip">
-                📋 Order: {selectedOrder.oritem}
-              </span>
+              <div className="lwp-summary-chip">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                {selectedOrder.oritem}
+              </div>
             )}
             {selectedProcedure && (
-              <span className="context-chip">
-                💉 Procedure: {selectedProcedure.procedureDescription}
-              </span>
+              <div className="lwp-summary-chip procedure">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                {selectedProcedure.procedureDescription}
+              </div>
             )}
           </div>
 
           {/* File drop zone */}
           <div
-            className={`file-drop-zone ${dragActive ? "drag-active" : ""} ${selectedFiles.length > 0 ? "has-files" : ""}`}
+            className={`lwp-dropzone ${dragActive ? "active" : ""} ${selectedFiles.length > 0 ? "has-files" : ""}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+            onKeyDown={(e) =>
+              e.key === "Enter" && fileInputRef.current?.click()
+            }
           >
             <input
               ref={fileInputRef}
@@ -496,27 +851,44 @@ export default function LabWorkflowPanel({
             />
 
             {selectedFiles.length === 0 ? (
-              <div className="drop-zone-empty">
-                <span className="drop-icon">📄</span>
-                <p>Drop PDF file(s) here or click to browse</p>
+              <div className="lwp-dropzone-content">
+                <div className="lwp-dropzone-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <p className="lwp-dropzone-title">Drop PDF files here</p>
+                <p className="lwp-dropzone-subtitle">or click to browse from your computer</p>
               </div>
             ) : (
-              <div className="selected-files-list">
+              <div className="lwp-files-list">
                 {selectedFiles.map((file, idx) => (
-                  <div key={idx} className="selected-file-item">
-                    <span className="file-name">{file.name}</span>
-                    <span className="file-size">
-                      ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                    </span>
+                  <div key={idx} className="lwp-file-item">
+                    <div className="lwp-file-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                    </div>
+                    <div className="lwp-file-info">
+                      <span className="lwp-file-name">{file.name}</span>
+                      <span className="lwp-file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
                     <button
                       type="button"
-                      className="btn-remove-file"
+                      className="lwp-file-remove"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveFile(idx);
                       }}
                     >
-                      ✕
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
                     </button>
                   </div>
                 ))}
@@ -525,60 +897,101 @@ export default function LabWorkflowPanel({
           </div>
 
           {/* Remarks */}
-          <div className="upload-remarks">
-            <label htmlFor="remarks">Remarks (optional):</label>
+          <div className="lwp-remarks">
+            <label htmlFor="remarks">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Notes (optional)
+            </label>
             <textarea
               id="remarks"
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
-              placeholder="Enter any remarks about this upload..."
+              placeholder="Add any additional notes about this upload..."
               rows={2}
             />
           </div>
 
           {/* Upload error */}
           {(uploadError || workflowError) && (
-            <div className="upload-error">
-              ⚠️ {uploadError || workflowError}
+            <div className="lwp-alert error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              {uploadError || workflowError}
             </div>
           )}
 
           {/* Upload button */}
           <button
             type="button"
-            className="btn-upload-submit"
+            className="lwp-btn-upload"
             onClick={handleUploadSubmit}
-            disabled={uploadSubmitting || uploading || selectedFiles.length === 0}
+            disabled={
+              uploadSubmitting || uploading || selectedFiles.length === 0
+            }
           >
-            {uploadSubmitting || uploading
-              ? "Uploading..."
-              : `Upload ${selectedFiles.length > 0 ? `(${selectedFiles.length} file(s))` : ""}`}
+            {uploadSubmitting || uploading ? (
+              <>
+                <span className="lwp-spinner white" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Upload {selectedFiles.length > 0 ? `(${selectedFiles.length} file${selectedFiles.length > 1 ? "s" : ""})` : ""}
+              </>
+            )}
           </button>
 
           {/* Uploaded results */}
           {uploadResults.length > 0 && (
-            <div className="upload-results">
-              <h4>Uploaded Results</h4>
+            <div className="lwp-results">
+              <div className="lwp-results-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <h4>Upload Successful!</h4>
+              </div>
               {uploadResults.map((result, idx) => (
-                <div key={idx} className="upload-result-item">
-                  <div className="result-item-header">
-                    <span className="result-file-name">{result.fileName}</span>
-                    <span className="result-docointkey">
-                      Docointkey: <strong>{result.docointkey}</strong>
+                <div key={idx} className="lwp-result-item">
+                  <div className="lwp-result-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </div>
+                  <div className="lwp-result-info">
+                    <span className="lwp-result-name">{result.fileName}</span>
+                    <span className="lwp-result-key">
+                      Docointkey: <code>{result.docointkey}</code>
+                    </span>
+                    <span className="lwp-result-time">
+                      Uploaded: {new Date(result.submittedAt).toLocaleString()}
                     </span>
                   </div>
-                  <div className="result-item-url">
-                    <a
-                      href={result.uploadedPdfUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View PDF ↗
-                    </a>
-                  </div>
-                  <div className="result-item-time">
-                    Uploaded: {new Date(result.submittedAt).toLocaleString()}
-                  </div>
+                  <a
+                    href={result.uploadedPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lwp-btn-view"
+                  >
+                    View PDF
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                  </a>
                 </div>
               ))}
             </div>
@@ -588,9 +1001,13 @@ export default function LabWorkflowPanel({
           {uploadResults.length > 0 && (
             <button
               type="button"
-              className="btn-reset-workflow"
+              className="lwp-btn-reset"
               onClick={handleReset}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+              </svg>
               Start New Upload
             </button>
           )}
@@ -605,4 +1022,5 @@ LabWorkflowPanel.propTypes = {
   contextParams: PropTypes.object,
   onUploadComplete: PropTypes.func,
   onRequestPatientChange: PropTypes.func,
+  onRequestEncounterChange: PropTypes.func,
 };
