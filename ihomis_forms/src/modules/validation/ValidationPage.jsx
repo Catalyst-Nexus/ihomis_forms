@@ -1,7 +1,11 @@
 import PropTypes from "prop-types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useFormValidation } from "./hooks/useFormValidation.js";
-import { ValidationModal } from "./components/ValidationModal.jsx";
+import {
+  buildMissingByForm,
+  buildScopedValidationSummary,
+  getFieldLabel,
+} from "./validationScope.js";
 import "./Validation.css";
 
 function SummaryCard({ label, value, tone = "default" }) {
@@ -56,13 +60,20 @@ function getPatientInitials(label) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
-  const [showValidationModal, setShowValidationModal] = useState(false);
-  const [proceedAction, setProceedAction] = useState(null);
-
+function ValidationPage({ selectedPatient, selectedForms, onProceed, onBackToForms, onChangePatient }) {
   const { enccode, loading, error, summary, refresh } = useFormValidation({
     selectedPatient,
   });
+
+  const scopedSummary = useMemo(
+    () => buildScopedValidationSummary(summary, selectedForms),
+    [summary, selectedForms],
+  );
+
+  const missingByForm = useMemo(
+    () => buildMissingByForm(summary, selectedForms),
+    [summary, selectedForms],
+  );
 
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
@@ -76,32 +87,22 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
 
   const statusTone = loading
     ? "loading"
-    : summary.hasIssues
+    : scopedSummary.hasIssues
       ? "attention"
       : "ready";
   const statusLabel = loading
     ? "Loading"
-    : summary.hasIssues
+    : scopedSummary.hasIssues
       ? "Needs attention"
       : "Ready";
 
   const handleProceedClick = () => {
-    // Show validation modal before proceeding
-    setProceedAction(onProceed);
-    setShowValidationModal(true);
-  };
-
-  const handleModalProceed = () => {
-    setShowValidationModal(false);
-    if (proceedAction) {
-      proceedAction();
+    if (onProceed) {
+      onProceed({
+        canProceed: !scopedSummary.hasIssues,
+        selectedForms,
+      });
     }
-    setProceedAction(null);
-  };
-
-  const handleModalClose = () => {
-    setShowValidationModal(false);
-    setProceedAction(null);
   };
 
   return (
@@ -179,13 +180,28 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
                 Change patient
               </button>
             ) : null}
+            {onBackToForms ? (
+              <button
+                type="button"
+                className="validation-btn validation-btn--ghost"
+                onClick={onBackToForms}
+                disabled={loading}
+              >
+                Back to Forms
+              </button>
+            ) : null}
             <button
               type="button"
               className="validation-btn validation-btn--primary"
               onClick={handleProceedClick}
-              disabled={!selectedPatient || loading}
+              disabled={!selectedPatient || loading || scopedSummary.hasIssues}
+              title={
+                scopedSummary.hasIssues
+                  ? "Complete missing data before proceeding"
+                  : "Proceed to forms"
+              }
             >
-              Proceed to Forms
+              Continue to Generate
             </button>
           </div>
         </section>
@@ -194,18 +210,18 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
           <SummaryCard label="Form Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
           <SummaryCard 
             label="Admission Form" 
-            value={summary.admissionComplete ? "✓ Complete" : "✗ Incomplete"}
-            tone={summary.admissionComplete ? "default" : "alert"}
+            value={scopedSummary.admissionComplete ? "✓ Complete" : "✗ Incomplete"}
+            tone={scopedSummary.admissionComplete ? "default" : "alert"}
           />
           <SummaryCard 
             label="Discharge Form" 
-            value={summary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"}
-            tone={summary.dischargeComplete ? "default" : "alert"}
+            value={scopedSummary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"}
+            tone={scopedSummary.dischargeComplete ? "default" : "alert"}
           />
           <SummaryCard 
             label="Missing Fields" 
-            value={summary.allMissing.length} 
-            tone={summary.allMissing.length > 0 ? "alert" : "default"}
+            value={scopedSummary.allMissing.length} 
+            tone={scopedSummary.allMissing.length > 0 ? "alert" : "default"}
           />
         </section>
 
@@ -219,16 +235,16 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
           <div className="validation-loading">
             Loading form validation status...
           </div>
-        ) : summary.allMissing.length > 0 ? (
+        ) : scopedSummary.allMissing.length > 0 ? (
           <section className="validation-panel">
             <h2 className="validation-panel-title">Missing form fields</h2>
             <div className="validation-step-list">
-              {summary.allMissing.map((field) => (
+              {scopedSummary.allMissing.map((field) => (
                 <span
                   key={field}
                   className="validation-pill validation-pill--missing"
                 >
-                  {field}
+                  {getFieldLabel(field)}
                 </span>
               ))}
             </div>
@@ -241,17 +257,27 @@ function ValidationPage({ selectedPatient, onProceed, onChangePatient }) {
             ✓ All forms are complete and ready to proceed.
           </div>
         )}
-        {/* Validation Modal */}
-        <ValidationModal
-          isOpen={showValidationModal}
-          enccode={enccode}
-          admissionMissing={summary.admissionMissing}
-          dischargeMissing={summary.dischargeMissing}
-          admissionComplete={summary.admissionComplete}
-          dischargeComplete={summary.dischargeComplete}
-          onClose={handleModalClose}
-          onProceed={handleModalProceed}
-        />
+
+        {missingByForm.length > 0 ? (
+          <section className="validation-panel">
+            <h2 className="validation-panel-title">Missing data by form</h2>
+            {missingByForm.map((entry) => (
+              <div key={entry.formName} className="validation-panel">
+                <h3 className="validation-section-label">{entry.formName}</h3>
+                <div className="validation-step-list">
+                  {entry.allMissing.map((field) => (
+                    <span
+                      key={`${entry.formName}-${field}`}
+                      className="validation-pill validation-pill--missing"
+                    >
+                      {getFieldLabel(field)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        ) : null}
       </main>
     </div>
   );
@@ -265,7 +291,12 @@ ValidationPage.propTypes = {
     rawData: PropTypes.object,
     contextParams: PropTypes.object,
   }),
+  selectedForms: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object,
+  ]),
   onProceed: PropTypes.func.isRequired,
+  onBackToForms: PropTypes.func,
   onChangePatient: PropTypes.func,
 };
 

@@ -51,6 +51,7 @@ export function ValidationModal({
   dischargeMissing = [],
   admissionComplete = false,
   dischargeComplete = false,
+  missingByForm = [],
   onClose,
   onProceed,
 }) {
@@ -159,6 +160,33 @@ export function ValidationModal({
             )}
           </section>
 
+          {missingByForm.length > 0 && (
+            <section className="validation-modal__section">
+              <div className="validation-modal__section-header">
+                <div className="validation-modal__section-title">
+                  <span>Selected Forms With Missing Data</span>
+                </div>
+              </div>
+              <div className="validation-modal__missing-fields">
+                {missingByForm.map((entry) => (
+                  <div key={entry.formName} className="validation-modal__field-item">
+                    <div>
+                      <strong>{entry.formName}</strong>
+                    </div>
+                    <ul className="validation-modal__field-list">
+                      {entry.allMissing.map((field) => (
+                        <li key={`${entry.formName}-${field}`}>
+                          <span className="validation-modal__field-icon">•</span>
+                          {getFieldSection(field)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {allMissing.length > 0 && (
             <div className="validation-modal__warning">
               <AlertCircle size={18} />
@@ -201,6 +229,14 @@ ValidationModal.propTypes = {
   dischargeMissing: PropTypes.arrayOf(PropTypes.string),
   admissionComplete: PropTypes.bool,
   dischargeComplete: PropTypes.bool,
+  missingByForm: PropTypes.arrayOf(
+    PropTypes.shape({
+      formName: PropTypes.string,
+      admissionMissing: PropTypes.arrayOf(PropTypes.string),
+      dischargeMissing: PropTypes.arrayOf(PropTypes.string),
+      allMissing: PropTypes.arrayOf(PropTypes.string),
+    }),
+  ),
   onClose: PropTypes.func.isRequired,
   onProceed: PropTypes.func.isRequired,
 };

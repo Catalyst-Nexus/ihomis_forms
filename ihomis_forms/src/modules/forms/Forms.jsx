@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
 import DNRForm from "./DNRForm";
@@ -525,6 +525,12 @@ export default function Forms({
   isDarkMode,
   setIsDarkMode,
   selectedPatient = null,
+  // Optional: initial selected forms (array or Set) applied when component mounts
+  initialSelectedForms = null,
+  // If true and initialSelectedForms provided, auto-open the first selected form
+  autoOpen = false,
+  // Optional callback invoked before generating selected forms: (selectedFormsArray) => void
+  onBeforeGenerate = null,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
@@ -560,6 +566,18 @@ export default function Forms({
       setSelectedForms(new Set(filteredForms));
     }
   };
+
+  // Apply initial selection when provided from parent (e.g., after validation)
+  useEffect(() => {
+    if (initialSelectedForms) {
+      const setValue = initialSelectedForms instanceof Set ? initialSelectedForms : new Set(initialSelectedForms);
+      setSelectedForms(setValue);
+      if (autoOpen && setValue.size > 0) {
+        setOpenForm(Array.from(setValue)[0]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedForms]);
 
   const getHeaderConfig = (formName) => {
     const normalizedName = formName || "";
@@ -1071,7 +1089,13 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={() => setOpenForm(Array.from(selectedForms)[0])}
+            onClick={() => {
+              if (typeof onBeforeGenerate === "function") {
+                onBeforeGenerate(Array.from(selectedForms));
+                return;
+              }
+              setOpenForm(Array.from(selectedForms)[0]);
+            }}
           >
             Generate Selected Forms ({selectedForms.size})
           </button>
@@ -1101,7 +1125,13 @@ export default function Forms({
               <tr
                 key={index}
                 className="form-row"
-                onClick={() => setOpenForm(form)}
+                onClick={() => {
+                  if (typeof onBeforeGenerate === "function") {
+                    onBeforeGenerate([form]);
+                    return;
+                  }
+                  setOpenForm(form);
+                }}
               >
                 <td
                   className="checkbox-col"
@@ -1145,4 +1175,7 @@ Forms.propTypes = {
     id: PropTypes.string,
     contextParams: PropTypes.object,
   }),
+  initialSelectedForms: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  autoOpen: PropTypes.bool,
+  onBeforeGenerate: PropTypes.func,
 };
