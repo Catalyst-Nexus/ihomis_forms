@@ -505,13 +505,81 @@ export default function Tagging({
 
     if (insertErr) { push(`Error: ${insertErr.message}`, "error"); return; }
 
-    // ── Step 7: Sync local state from DB ───────────
+    // ── Step 7: Initialize workflow_routing for the first user ────────────
+    // When the first user is tagged, we need to set up workflow_routing for all steps
+    if (newOrder === 1 && steps.length > 0) {
+      await initializeWorkflowRouting(trackingIdInt, pendingUser);
+    }
+
+    // ── Step 8: Sync local state from DB ───────────
     await fetchAllData();
 
     const uLabel = users.find((u) => u.id === pendingUser)?.label ?? pendingUser;
     push(`Tagged ${uLabel} as #${newOrder} — ${tagCfg(newOrder).label}`);
     setPendingUser("");
     onAccessChanged?.();
+  }
+
+  // ── Initialize workflow_routing table ────────────────────────────────────────
+  // When first user is tagged, create routing entries for all steps and activate the first step
+  async function initializeWorkflowRouting(trackingIdInt, firstUserId) {
+    // Fetch steps if not available locally
+    let stepsToUse = steps;
+    if (!stepsToUse || stepsToUse.length === 0) {
+      const { data: fetchedSteps } = await supabase
+        .from("tracking_sequence")
+        .select("id, description, sort_order")
+        .order("sort_order", { ascending: true });
+      stepsToUse = fetchedSteps || [];
+    }
+    
+    if (!stepsToUse.length) {
+      console.error("No workflow steps found in tracking_sequence table");
+      return;
+    }
+
+    // Check if routing rows already exist
+    const { data: existingRouting } = await supabase
+      .from("workflow_routing")
+      .select("seq_id")
+      .eq("tracking_id", trackingIdInt);
+
+    if (existingRouting && existingRouting.length > 0) {
+      // Routing already initialized, just ensure first step is active
+      const firstStepId = stepsToUse[0]?.id;
+      if (firstStepId) {
+        const firstStepExists = existingRouting.some(r => r.seq_id === firstStepId);
+        if (firstStepExists) {
+          await supabase
+            .from("workflow_routing")
+            .update({
+              status: "active",
+              assigned_to: firstUserId
+            })
+            .eq("tracking_id", trackingIdInt)
+            .eq("seq_id", firstStepId);
+        }
+      }
+      return;
+    }
+
+    // Create routing entries for all steps
+    const routingEntries = stepsToUse.map((step, index) => ({
+      tracking_id: trackingIdInt,
+      seq_id: step.id,
+      status: index === 0 ? "active" : "pending", // First step is active
+      assigned_to: index === 0 ? firstUserId : null,
+    }));
+
+    const { error: routingErr } = await supabase
+      .from("workflow_routing")
+      .insert(routingEntries);
+
+    if (routingErr) {
+      console.error("Error initializing workflow_routing:", routingErr.message);
+    } else {
+      console.log("Workflow routing initialized for tracking_id:", trackingIdInt, "with first user:", firstUserId);
+    }
   }
 
   async function handleRemoveUser(rowId, userId, tagOrder) {
@@ -574,8 +642,50 @@ export default function Tagging({
       .insert({ user_id: userId, seq_id: step.id })
       .select("id").single();
 
+    if (e) { 
+      setSaving((p) => ({ ...p, [step.key]: false }));
+      push(`Error: ${e.message}`, "error"); 
+      return; 
+    }
+
+    // IMPORTANT: Update workflow_routing to set this step as "active" for this user
+    // This ensures the user can see and process this step in their queue
+    const trackingIdInt = parseInt(selectedRecordId, 10);
+    if (trackingIdInt && !isNaN(trackingIdInt)) {
+      // Check if routing entry exists
+      const { data: existingRouting } = await supabase
+        .from("workflow_routing")
+        .select("id, status")
+        .eq("tracking_id", trackingIdInt)
+        .eq("seq_id", step.id)
+        .maybeSingle();
+      
+      if (existingRouting) {
+        // Update existing entry to be active for this user
+        if (existingRouting.status !== "done") {
+          await supabase
+            .from("workflow_routing")
+            .update({ 
+              status: "active",
+              assigned_to: userId
+            })
+            .eq("tracking_id", trackingIdInt)
+            .eq("seq_id", step.id);
+        }
+      } else {
+        // Create new routing entry
+        await supabase
+          .from("workflow_routing")
+          .insert({ 
+            tracking_id: trackingIdInt,
+            seq_id: step.id,
+            status: "active",
+            assigned_to: userId
+          });
+      }
+    }
+
     setSaving((p) => ({ ...p, [step.key]: false }));
-    if (e) { push(`Error: ${e.message}`, "error"); return; }
 
     const uLabel = users.find((u) => u.id === userId)?.label ?? userId;
     const newAssignment = {
