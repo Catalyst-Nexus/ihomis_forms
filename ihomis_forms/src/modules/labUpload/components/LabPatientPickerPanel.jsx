@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import EncounterSelectionModal from "./EncounterSelectionModal.jsx";
 
 function getInitials(displayName) {
@@ -220,12 +221,17 @@ function LabPatientPickerPanel({
   onConfirmEncounter,
   onRetryEncounters,
 }) {
+  const navigate = useNavigate();
   const hasSelection = Boolean(selectedPatientId);
+
+  const handleGoToTracker = () => {
+    navigate("/tracking");
+  };
 
   return (
     <>
       <section className="lab-panel pk-panel" aria-label="Patient selection">
-        {/* Header */}
+        {/* Redesigned Header */}
         <div className="pk-header">
           <div className="pk-header-icon" aria-hidden="true">
             <svg
@@ -248,39 +254,53 @@ function LabPatientPickerPanel({
             <h2 className="pk-header-title">{title}</h2>
             <p className="pk-header-sub">{subtitle}</p>
           </div>
-          {hasSelection && (
-            <div className="pk-header-actions">
-              <button
-                type="button"
-                className="pk-confirm-btn pk-confirm-btn--header"
-                onClick={onConfirmSelection}
+          <div className="pk-header-actions">
+            <button
+              type="button"
+              className="pk-action-btn secondary"
+              onClick={handleGoToTracker}
+            >
+              <svg
+                viewBox="0 0 16 16"
+                width="14"
+                height="14"
+                fill="currentColor"
+                aria-hidden="true"
               >
-                <svg
-                  viewBox="0 0 20 20"
-                  width="15"
-                  height="15"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10 9.414l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0 0-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {confirmLabel}
-              </button>
-              {onSecondaryAction && secondaryActionLabel ? (
+                <path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0ZM2 3v9.5h12V3H2Zm0 2.25h12V6H2v-.75Zm1.5 2.5a.75.75 0 0 0 0 1.5h2a.75.75 0 0 0 0-1.5h-2Zm0 2.5a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" />
+              </svg>
+              Chart Tracker
+            </button>
+            {hasSelection && (
+              <>
+                {onSecondaryAction && secondaryActionLabel ? (
+                  <button
+                    type="button"
+                    className="pk-action-btn secondary"
+                    onClick={onSecondaryAction}
+                  >
+                    {secondaryActionLabel}
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  className="pk-confirm-btn pk-confirm-btn--header pk-confirm-btn--secondary"
-                  onClick={onSecondaryAction}
+                  className="pk-action-btn primary"
+                  onClick={onConfirmSelection}
                 >
-                  {secondaryActionLabel}
+                  {confirmLabel}
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                  </svg>
                 </button>
-              ) : null}
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Search */}
@@ -412,7 +432,7 @@ function LabPatientPickerPanel({
               <button
                 type="button"
                 className="pk-empty-clear"
-                onClick={() => onSearchTermChange("")}
+              onClick={() => onSearchTermChange("")}
               >
                 Clear search
               </button>
@@ -420,7 +440,7 @@ function LabPatientPickerPanel({
           </div>
         )}
 
-        {/* Footer — hint only, button moved to header */}
+        {/* Footer — hint only */}
         <div className="pk-footer">
           <p className="pk-footer-hint">
             {selectedPatientId

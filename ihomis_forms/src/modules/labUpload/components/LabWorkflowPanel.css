@@ -1,71 +1,40 @@
 /**
- * LabWorkflowPanel Styles
- * Redesigned professional UI with consistent class naming (lwp- prefix)
+ * LabWorkflowPanel.css
+ * Professional Hospital-Grade Design for Lab Workflow
  */
-
-/* ── CSS Variables ─────────────────────────────────────────── */
-.lwp-container {
-  --lwp-primary: #1f9d95;
-  --lwp-primary-dark: #1b7f79;
-  --lwp-primary-light: rgba(31, 157, 149, 0.1);
-  --lwp-secondary: #6366f1;
-  --lwp-success: #10b981;
-  --lwp-success-light: rgba(16, 185, 129, 0.1);
-  --lwp-warning: #f59e0b;
-  --lwp-warning-light: rgba(245, 158, 11, 0.1);
-  --lwp-danger: #ef4444;
-  --lwp-danger-light: rgba(239, 68, 68, 0.1);
-  --lwp-ink-900: #0f172a;
-  --lwp-ink-700: #334155;
-  --lwp-ink-500: #64748b;
-  --lwp-ink-400: #94a3b8;
-  --lwp-surface: #ffffff;
-  --lwp-surface-alt: #f8fafc;
-  --lwp-border: #e2e8f0;
-  --lwp-border-light: #f1f5f9;
-  --lwp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --lwp-shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --lwp-shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --lwp-radius-sm: 6px;
-  --lwp-radius-md: 10px;
-  --lwp-radius-lg: 14px;
-  --lwp-radius-xl: 20px;
-  --lwp-font-sans:
-    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --lwp-font-display: "Space Grotesk", var(--lwp-font-sans);
-}
 
 /* ── Container ──────────────────────────────────────────────── */
 .lwp-container {
-  font-family: var(--lwp-font-sans);
-  color: var(--lwp-ink-700);
+  font-family: var(--hospital-font);
+  color: var(--hospital-gray-700);
   max-width: 1000px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
 .lwp-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-lg);
-  margin-bottom: 1rem;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-200);
+  border-radius: var(--hospital-radius-lg);
+  box-shadow: var(--hospital-shadow-sm);
 }
 
 .lwp-header-icon {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: var(--lwp-primary-light);
-  border-radius: var(--lwp-radius-md);
-  color: var(--lwp-primary);
+  background: var(--hospital-primary-light);
+  border-radius: var(--hospital-radius-md);
+  color: var(--hospital-primary);
   flex-shrink: 0;
 }
 
@@ -75,37 +44,37 @@
 
 .lwp-header-text h2 {
   margin: 0;
-  font-family: var(--lwp-font-display);
-  font-size: 1.35rem;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
 }
 
 .lwp-header-text p {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: var(--lwp-ink-500);
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--hospital-gray-500);
 }
 
 .lwp-btn-change {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: var(--lwp-surface-alt);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--lwp-ink-700);
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hospital-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-change:hover {
-  background: var(--lwp-surface);
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
+  background: var(--hospital-gray-50);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
 }
 
 /* ── Context Bar ────────────────────────────────────────────── */
@@ -113,67 +82,73 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f0fdfb 0%, #ecfdf5 100%);
-  border: 1px solid rgba(31, 157, 149, 0.15);
-  border-radius: var(--lwp-radius-lg);
-  margin-bottom: 1.25rem;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--hospital-primary-light);
+  border: 1px solid rgba(13, 115, 119, 0.2);
+  border-radius: var(--hospital-radius-lg);
 }
 
 .lwp-patient-info {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .lwp-patient-avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--lwp-primary);
-  color: #fff;
+  background: var(--hospital-primary);
+  color: var(--hospital-white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .lwp-patient-details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .lwp-patient-name {
   font-weight: 600;
-  color: var(--lwp-ink-900);
-  font-size: 0.95rem;
+  color: var(--hospital-gray-900);
+  font-size: 15px;
 }
 
 .lwp-patient-id {
-  font-size: 0.78rem;
-  color: var(--lwp-ink-500);
-  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  font-size: 12px;
+  color: var(--hospital-gray-600);
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
 }
 
-.lwp-encounter-badge {
+.lwp-context-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lwp-context-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
-  background: var(--lwp-surface);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
-  color: var(--lwp-ink-700);
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-200);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--hospital-gray-700);
 }
 
-.lwp-encounter-badge svg {
-  color: var(--lwp-secondary);
-}
-
-.lwp-encounter-badge strong {
-  color: var(--lwp-ink-900);
-  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+.lwp-context-chip strong {
+  color: var(--hospital-gray-900);
+  font-weight: 600;
 }
 
 /* ── Steps Indicator ─────────────────────────────────────────── */
@@ -182,17 +157,17 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 1.25rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-lg);
-  margin-bottom: 1.25rem;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f9fdfb 0%, #ffffff 100%);
+  border: 1px solid rgba(13, 115, 119, 0.15);
+  border-radius: var(--hospital-radius-lg);
+  box-shadow: 0 4px 12px rgba(13, 115, 119, 0.06);
 }
 
 .lwp-step {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
   position: relative;
 }
 
@@ -200,26 +175,26 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--lwp-surface-alt);
-  border: 2px solid var(--lwp-border);
+  background: var(--hospital-gray-100);
+  border: 2px solid var(--hospital-gray-300);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 16px;
   transition: all 0.2s ease;
 }
 
 .lwp-step.active .lwp-step-icon {
-  background: var(--lwp-primary);
-  border-color: var(--lwp-primary);
-  color: #fff;
-  box-shadow: 0 0 0 4px rgba(31, 157, 149, 0.2);
+  background: var(--hospital-primary);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-white);
+  box-shadow: 0 0 0 4px rgba(13, 115, 119, 0.15);
 }
 
 .lwp-step.completed .lwp-step-icon {
-  background: var(--lwp-success);
-  border-color: var(--lwp-success);
-  color: #fff;
+  background: var(--hospital-success);
+  border-color: var(--hospital-success);
+  color: var(--hospital-white);
 }
 
 .lwp-step-info {
@@ -228,206 +203,231 @@
 }
 
 .lwp-step-number {
-  font-size: 0.7rem;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--lwp-ink-400);
+  letter-spacing: 0.5px;
+  color: var(--hospital-gray-400);
 }
 
 .lwp-step.active .lwp-step-number {
-  color: var(--lwp-primary);
+  color: var(--hospital-primary);
 }
 
 .lwp-step.completed .lwp-step-number {
-  color: var(--lwp-success);
+  color: var(--hospital-success);
 }
 
 .lwp-step-label {
-  font-size: 0.9rem;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--lwp-ink-700);
+  color: var(--hospital-gray-700);
 }
 
 .lwp-step.active .lwp-step-label {
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
 }
 
 .lwp-step-line {
   width: 48px;
   height: 2px;
-  background: var(--lwp-border);
-  margin: 0 0.75rem;
+  background: var(--hospital-gray-200);
+  margin: 0 12px;
   transition: background 0.3s ease;
 }
 
 .lwp-step-line.completed {
-  background: var(--lwp-success);
+  background: var(--hospital-success);
 }
 
 /* ── Step Content ───────────────────────────────────────────── */
 .lwp-step-content {
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-lg);
-  padding: 1.5rem;
+  background: var(--hospital-white);
+  border: 1px solid rgba(13, 115, 119, 0.15);
+  border-radius: var(--hospital-radius-lg);
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(13, 115, 119, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.lwp-step-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--hospital-primary) 0%, #56ccbd 100%);
 }
 
 .lwp-step-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
+  margin-bottom: 24px;
+  gap: 16px;
 }
 
 .lwp-step-title-group {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .lwp-step-icon-sm {
-  font-size: 1.5rem;
-  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--hospital-primary-light);
+  color: var(--hospital-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .lwp-step-title-group h3 {
   margin: 0;
-  font-family: var(--lwp-font-display);
-  font-size: 1.2rem;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
 }
 
 .lwp-step-title-group p {
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-  color: var(--lwp-ink-500);
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--hospital-gray-500);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────── */
 .lwp-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  background: var(--lwp-primary);
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--hospital-primary);
   border: none;
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.9rem;
+  border-radius: var(--hospital-radius-md);
+  font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--hospital-white);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-primary:hover:not(:disabled) {
-  background: var(--lwp-primary-dark);
+  background: var(--hospital-primary-hover);
   transform: translateY(-1px);
-  box-shadow: var(--lwp-shadow-md);
+  box-shadow: var(--hospital-shadow-md);
 }
 
 .lwp-btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .lwp-btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.65rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--lwp-ink-700);
+  color: var(--hospital-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-secondary:hover {
-  background: var(--lwp-surface-alt);
-  border-color: var(--lwp-ink-400);
+  background: var(--hospital-gray-50);
+  border-color: var(--hospital-gray-400);
 }
 
 .lwp-btn-skip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 1rem;
+  gap: 6px;
+  padding: 10px 16px;
   background: transparent;
-  border: 1px dashed var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
+  border: 1px dashed var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--lwp-ink-500);
+  color: var(--hospital-gray-500);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-skip:hover {
-  background: var(--lwp-surface-alt);
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
+  background: var(--hospital-gray-50);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
 }
 
 /* ── Selection Summary ──────────────────────────────────────── */
 .lwp-selection-summary {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--lwp-primary-light);
-  border-radius: var(--lwp-radius-md);
-  margin-bottom: 1.25rem;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--hospital-primary-light);
+  border-radius: var(--hospital-radius-md);
+  margin-bottom: 20px;
 }
 
 .lwp-selection-label {
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--lwp-ink-500);
+  color: var(--hospital-gray-600);
 }
 
 .lwp-selection-value {
-  font-size: 0.9rem;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
 }
 
 /* ── Card Grid ──────────────────────────────────────────────── */
 .lwp-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .lwp-card {
   position: relative;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  padding: 1rem;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-200);
+  border-radius: var(--hospital-radius-md);
+  padding: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   overflow: hidden;
+  width: clamp(360px, 68%, 720px);
+  min-height: 96px;
+  display: flex;
+  align-items: center;
 }
 
 .lwp-card:hover {
-  border-color: var(--lwp-primary);
-  box-shadow: var(--lwp-shadow-sm);
+  border-color: var(--hospital-primary);
+  box-shadow: var(--hospital-shadow-sm);
 }
 
 .lwp-card.selected {
-  border-color: var(--lwp-primary);
-  background: linear-gradient(
-    135deg,
-    rgba(31, 157, 149, 0.03) 0%,
-    rgba(31, 157, 149, 0.08) 100%
-  );
+  border-color: var(--hospital-primary);
+  background: var(--hospital-primary-light);
+  box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.1);
 }
 
 .lwp-card-accent {
@@ -436,154 +436,158 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: var(--lwp-border);
+  background: var(--hospital-gray-200);
   transition: background 0.2s ease;
 }
 
 .lwp-card.selected .lwp-card-accent {
-  background: var(--lwp-primary);
+  background: var(--hospital-primary);
 }
 
 .lwp-card-accent.procedure {
-  background: var(--lwp-secondary);
+  background: var(--hospital-accent);
 }
 
 .lwp-card.selected .lwp-card-accent.procedure {
-  background: var(--lwp-secondary);
+  background: var(--hospital-accent);
 }
 
 .lwp-card-content {
-  padding-left: 0.75rem;
+  padding-left: 12px;
 }
 
 .lwp-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .lwp-card-code {
-  font-family: "SF Mono", "Fira Code", Consolas, monospace;
-  font-size: 0.75rem;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--lwp-ink-500);
-}
-
-.lwp-card-badge {
-  display: inline-flex;
-  padding: 0.2rem 0.5rem;
-  background: var(--lwp-surface-alt);
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--lwp-ink-600);
-  text-transform: uppercase;
+  color: var(--hospital-gray-600);
 }
 
 .lwp-card-badges {
   display: flex;
-  gap: 0.4rem;
+  gap: 8px;
   flex-wrap: wrap;
+}
+
+.lwp-card-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  background: var(--hospital-gray-100);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hospital-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .lwp-card-badge.type {
-  background: var(--lwp-primary-light);
-  color: var(--lwp-primary-dark);
+  background: var(--hospital-primary-light);
+  color: var(--hospital-primary);
 }
 
 .lwp-card-badge.status {
-  background: var(--lwp-surface-alt);
-  color: var(--lwp-ink-600);
+  background: var(--hospital-gray-100);
+  color: var(--hospital-gray-600);
 }
 
 .lwp-card-badge.status.pending {
-  background: var(--lwp-warning-light);
-  color: #b45309;
+  background: var(--hospital-warning-light);
+  color: var(--hospital-warning);
 }
 
 .lwp-card-badge.status.done {
-  background: var(--lwp-success-light);
-  color: var(--lwp-success);
+  background: var(--hospital-success-light);
+  color: var(--hospital-success);
 }
 
 .lwp-card-badge.status.cancelled {
-  background: var(--lwp-danger-light);
-  color: var(--lwp-danger);
+  background: var(--hospital-danger-light);
+  color: var(--hospital-danger);
 }
 
 .lwp-card-badge.status.progress {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--lwp-secondary);
+  background: var(--hospital-accent-light);
+  color: var(--hospital-accent);
 }
 
 .lwp-card-badge.success {
-  background: var(--lwp-success-light);
-  color: var(--lwp-success);
+  background: var(--hospital-success-light);
+  color: var(--hospital-success);
 }
 
-.lwp-card-desc {
-  margin: 0.25rem 0 0;
-  font-size: 0.82rem;
-  color: var(--lwp-ink-500);
+.lwp-card-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--hospital-gray-900);
   line-height: 1.4;
 }
 
-/* ── Filter Tabs ──────────────────────────────────────────────── */
-.lwp-filter-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--lwp-border-light);
+.lwp-card-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--hospital-gray-500);
+  line-height: 1.5;
 }
 
-.lwp-filter-tab {
+.lwp-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.lwp-meta-item {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--lwp-ink-600);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--hospital-gray-500);
 }
 
-.lwp-filter-tab:hover {
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
+.lwp-meta-item svg {
+  opacity: 0.6;
+  width: 14px;
+  height: 14px;
 }
 
-.lwp-filter-tab.active {
-  background: var(--lwp-primary);
-  border-color: var(--lwp-primary);
-  color: #fff;
+.lwp-card-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--hospital-primary);
+  color: var(--hospital-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-/* ── Section Label ────────────────────────────────────────────── */
-.lwp-section-label {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--lwp-ink-700);
-}
-
-/* ── Card Arrow ───────────────────────────────────────────────── */
 .lwp-card-arrow {
   position: absolute;
-  right: 1rem;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--lwp-ink-400);
+  color: var(--hospital-gray-400);
   transition: all 0.2s ease;
 }
 
 .lwp-card:hover .lwp-card-arrow {
-  color: var(--lwp-primary);
+  color: var(--hospital-primary);
   transform: translateY(-50%) translateX(3px);
 }
 
@@ -591,139 +595,143 @@
   cursor: pointer;
 }
 
+/* ── Filter Tabs ──────────────────────────────────────────────── */
+.lwp-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hospital-gray-200);
+}
+
+.lwp-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--hospital-gray-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lwp-filter-tab:hover {
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
+}
+
+.lwp-filter-tab.active {
+  background: var(--hospital-primary);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-white);
+}
+
+/* ── Section Label ────────────────────────────────────────────── */
+.lwp-section-label {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--hospital-gray-700);
+}
+
 /* ── Back Button ──────────────────────────────────────────────── */
 .lwp-btn-back {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--lwp-ink-700);
+  color: var(--hospital-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
+  font-family: inherit;
 }
 
 .lwp-btn-back:hover {
-  background: var(--lwp-surface-alt);
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
+  background: var(--hospital-gray-50);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
 }
 
-/* ── Change Encounter Button ──────────────────────────────────── */
 .lwp-btn-change-enc {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--lwp-ink-700);
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hospital-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-change-enc:hover {
-  background: var(--lwp-primary-light);
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
-}
-
-.lwp-card-title {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--lwp-ink-900);
-  line-height: 1.4;
-}
-
-.lwp-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.lwp-meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--lwp-ink-500);
-}
-
-.lwp-meta-item svg {
-  opacity: 0.7;
-}
-
-.lwp-card-check {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--lwp-primary);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  background: var(--hospital-primary-light);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
 }
 
 /* ── Alert ──────────────────────────────────────────────────── */
 .lwp-alert {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-radius: var(--lwp-radius-md);
-  margin-bottom: 1rem;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--hospital-radius-md);
+  margin-bottom: 16px;
 }
 
 .lwp-alert.error {
-  background: var(--lwp-danger-light);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #b91c1c;
+  background: var(--hospital-danger-light);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: var(--hospital-danger);
 }
 
 .lwp-alert.error svg {
-  color: var(--lwp-danger);
   flex-shrink: 0;
-  margin-top: 0.1rem;
+  margin-top: 2px;
 }
 
 .lwp-alert strong {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.15rem;
+  margin-bottom: 4px;
+  color: var(--hospital-gray-900);
 }
 
 .lwp-alert p {
   margin: 0;
-  font-size: 0.85rem;
-  opacity: 0.9;
+  font-size: 14px;
+  color: var(--hospital-gray-700);
 }
 
 .lwp-btn-retry {
   margin-left: auto;
-  padding: 0.35rem 0.75rem;
-  background: var(--lwp-danger);
+  padding: 6px 12px;
+  background: var(--hospital-danger);
   border: none;
-  border-radius: var(--lwp-radius-sm);
-  font-size: 0.8rem;
+  border-radius: var(--hospital-radius-sm);
+  font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--hospital-white);
   cursor: pointer;
   transition: opacity 0.15s;
   flex-shrink: 0;
+  font-family: inherit;
 }
 
 .lwp-btn-retry:hover {
@@ -736,14 +744,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
-  gap: 1rem;
+  padding: 48px 24px;
+  gap: 16px;
 }
 
 .lwp-loading p {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--lwp-ink-500);
+  font-size: 14px;
+  color: var(--hospital-gray-500);
 }
 
 /* ── Empty State ────────────────────────────────────────────── */
@@ -752,28 +760,33 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  padding: 48px 24px;
   text-align: center;
 }
 
 .lwp-empty-icon {
-  font-size: 3rem;
-  margin-bottom: 0.75rem;
-  opacity: 0.6;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--hospital-gray-100);
+  color: var(--hospital-gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
 }
 
 .lwp-empty h4 {
-  margin: 0 0 0.5rem;
-  font-family: var(--lwp-font-display);
-  font-size: 1.1rem;
+  margin: 0 0 8px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
 }
 
 .lwp-empty p {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--lwp-ink-500);
+  font-size: 14px;
+  color: var(--hospital-gray-500);
   max-width: 320px;
 }
 
@@ -781,30 +794,35 @@
 .lwp-skip-row {
   display: flex;
   justify-content: center;
-  padding-top: 1rem;
-  border-top: 1px solid var(--lwp-border-light);
-  margin-top: 1rem;
+  padding-top: 20px;
+  border-top: 1px solid var(--hospital-gray-200);
+  margin-top: 16px;
 }
 
-/* ── Upload Summary ─────────────────────────────────────────── */
-.lwp-upload-summary {
+.\/\/
+  ──
+  Upload
+  Summary
+  ───────────────────────────────────────────
+  .lwp-upload-summary {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  gap: 12px;
+  margin-bottom: 20px;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
 .lwp-summary-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  background: var(--lwp-primary-light);
-  border-radius: 999px;
-  font-size: 0.85rem;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--hospital-primary-light);
+  border-radius: 20px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--lwp-primary-dark);
+  color: var(--hospital-primary);
 }
 
 .lwp-summary-chip svg {
@@ -812,81 +830,133 @@
 }
 
 .lwp-summary-chip.procedure {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--lwp-secondary);
+  background: var(--hospital-accent-light);
+  color: var(--hospital-accent);
+}
+
+/* ── Selection Summary ──────────────────────────────────────── */
+.lwp-selection-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--hospital-gray-50);
+  border-left: 3px solid var(--hospital-primary);
+  border-radius: var(--hospital-radius-md);
+  margin-bottom: 12px;
+}
+
+.lwp-selection-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hospital-gray-600);
+}
+
+.lwp-selection-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--hospital-gray-900);
+}
+
+/* ── Docointkey Display ─────────────────────────────────────── */
+.lwp-docointkey-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--hospital-gray-50);
+  border-left: 3px solid var(--hospital-success);
+  border-radius: var(--hospital-radius-md);
+}
+
+.lwp-docointkey-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hospital-gray-600);
+}
+
+.lwp-docointkey-code {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--hospital-success);
+  background: var(--hospital-white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--hospital-success-light);
 }
 
 /* ── Dropzone ───────────────────────────────────────────────── */
 .lwp-dropzone {
-  border: 2px dashed var(--lwp-border);
-  border-radius: var(--lwp-radius-lg);
-  padding: 2.5rem 2rem;
+  border: 2px dashed var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-lg);
+  padding: 40px 32px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 1.25rem;
-  background: var(--lwp-surface-alt);
+  margin-bottom: 20px;
+  background: var(--hospital-gray-50);
 }
 
 .lwp-dropzone:hover {
-  border-color: var(--lwp-primary);
-  background: rgba(31, 157, 149, 0.02);
+  border-color: var(--hospital-primary);
+  background: var(--hospital-primary-light);
 }
 
 .lwp-dropzone.active {
-  border-color: var(--lwp-primary);
-  background: var(--lwp-primary-light);
+  border-color: var(--hospital-primary);
+  background: var(--hospital-primary-light);
   border-style: solid;
 }
 
 .lwp-dropzone.has-files {
-  padding: 1.25rem;
+  padding: 20px;
 }
 
 .lwp-dropzone-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .lwp-dropzone-icon {
-  color: var(--lwp-ink-400);
-  margin-bottom: 0.5rem;
+  color: var(--hospital-gray-400);
+  margin-bottom: 8px;
 }
 
 .lwp-dropzone-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--lwp-ink-700);
+  color: var(--hospital-gray-800);
 }
 
 .lwp-dropzone-subtitle {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--lwp-ink-500);
+  font-size: 14px;
+  color: var(--hospital-gray-500);
 }
 
 /* ── Files List ─────────────────────────────────────────────── */
 .lwp-files-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
 .lwp-file-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-200);
+  border-radius: var(--hospital-radius-md);
 }
 
 .lwp-file-icon {
-  color: var(--lwp-primary);
+  color: var(--hospital-primary);
   flex-shrink: 0;
 }
 
@@ -898,17 +968,17 @@
 }
 
 .lwp-file-name {
-  font-size: 0.9rem;
+  font-size: 14px;
   font-weight: 500;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .lwp-file-size {
-  font-size: 0.75rem;
-  color: var(--lwp-ink-500);
+  font-size: 12px;
+  color: var(--hospital-gray-500);
 }
 
 .lwp-file-remove {
@@ -917,60 +987,61 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--lwp-surface-alt);
+  background: var(--hospital-gray-100);
   border: none;
   border-radius: 50%;
-  color: var(--lwp-ink-500);
+  color: var(--hospital-gray-500);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .lwp-file-remove:hover {
-  background: var(--lwp-danger-light);
-  color: var(--lwp-danger);
+  background: var(--hospital-danger-light);
+  color: var(--hospital-danger);
 }
 
 /* ── Remarks ────────────────────────────────────────────────── */
 .lwp-remarks {
-  margin-bottom: 1.25rem;
+  margin-bottom: 20px;
 }
 
 .lwp-remarks label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--lwp-ink-700);
-  margin-bottom: 0.5rem;
+  color: var(--hospital-gray-700);
+  margin-bottom: 8px;
 }
 
 .lwp-remarks label svg {
-  color: var(--lwp-ink-400);
+  color: var(--hospital-gray-400);
 }
 
 .lwp-remarks textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-family: var(--lwp-font-sans);
-  font-size: 0.9rem;
-  color: var(--lwp-ink-700);
+  padding: 12px 16px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--hospital-gray-700);
   resize: vertical;
+  min-height: 100px;
   transition: border-color 0.15s;
 }
 
 .lwp-remarks textarea:focus {
   outline: none;
-  border-color: var(--lwp-primary);
-  box-shadow: 0 0 0 3px rgba(31, 157, 149, 0.1);
+  border-color: var(--hospital-primary);
+  box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.1);
 }
 
 .lwp-remarks textarea::placeholder {
-  color: var(--lwp-ink-400);
+  color: var(--hospital-gray-400);
 }
 
 /* ── Upload Button ──────────────────────────────────────────── */
@@ -978,72 +1049,72 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 10px;
   width: 100%;
-  padding: 0.9rem 1.5rem;
+  padding: 14px 24px;
   background: linear-gradient(
     135deg,
-    var(--lwp-primary) 0%,
-    var(--lwp-primary-dark) 100%
+    var(--hospital-primary) 0%,
+    var(--hospital-primary-dark) 100%
   );
   border: none;
-  border-radius: var(--lwp-radius-md);
-  font-size: 1rem;
+  border-radius: var(--hospital-radius-md);
+  font-size: 15px;
   font-weight: 600;
-  color: #fff;
+  color: var(--hospital-white);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-upload:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(31, 157, 149, 0.35);
+  box-shadow: 0 4px 12px rgba(13, 115, 119, 0.3);
 }
 
 .lwp-btn-upload:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 /* ── Results ─────────────────────────────────────────────────── */
 .lwp-results {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  background: var(--lwp-success-light);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: var(--lwp-radius-lg);
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--hospital-success-light);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  border-radius: var(--hospital-radius-lg);
 }
 
 .lwp-results-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(5, 150, 105, 0.15);
 }
 
 .lwp-results-header svg {
-  color: var(--lwp-success);
+  color: var(--hospital-success);
 }
 
 .lwp-results-header h4 {
   margin: 0;
-  font-family: var(--lwp-font-display);
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--lwp-success);
+  color: var(--hospital-success);
 }
 
 .lwp-result-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--lwp-surface);
-  border-radius: var(--lwp-radius-md);
-  margin-bottom: 0.5rem;
+  gap: 16px;
+  padding: 16px;
+  background: var(--hospital-white);
+  border-radius: var(--hospital-radius-md);
+  margin-bottom: 10px;
 }
 
 .lwp-result-icon {
@@ -1052,9 +1123,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--lwp-primary-light);
-  border-radius: var(--lwp-radius-md);
-  color: var(--lwp-primary);
+  background: var(--hospital-primary-light);
+  border-radius: var(--hospital-radius-md);
+  color: var(--hospital-primary);
   flex-shrink: 0;
 }
 
@@ -1063,53 +1134,54 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 4px;
 }
 
 .lwp-result-name {
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--lwp-ink-900);
+  color: var(--hospital-gray-900);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .lwp-result-key {
-  font-size: 0.78rem;
-  color: var(--lwp-ink-500);
+  font-size: 12px;
+  color: var(--hospital-gray-500);
 }
 
 .lwp-result-key code {
-  font-family: "SF Mono", "Fira Code", Consolas, monospace;
-  background: var(--lwp-surface-alt);
-  padding: 0.1rem 0.35rem;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  background: var(--hospital-gray-100);
+  padding: 2px 6px;
   border-radius: 4px;
-  color: var(--lwp-primary);
+  color: var(--hospital-primary);
 }
 
 .lwp-result-time {
-  font-size: 0.75rem;
-  color: var(--lwp-ink-400);
+  font-size: 12px;
+  color: var(--hospital-gray-400);
 }
 
 .lwp-btn-view {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  background: var(--lwp-primary);
-  border-radius: var(--lwp-radius-sm);
-  font-size: 0.8rem;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--hospital-primary);
+  border-radius: var(--hospital-radius-sm);
+  font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--hospital-white);
   text-decoration: none;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  font-family: inherit;
 }
 
 .lwp-btn-view:hover {
-  background: var(--lwp-primary-dark);
+  background: var(--hospital-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -1118,24 +1190,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--lwp-surface);
-  border: 1px solid var(--lwp-border);
-  border-radius: var(--lwp-radius-md);
-  font-size: 0.9rem;
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-md);
+  font-size: 14px;
   font-weight: 500;
-  color: var(--lwp-ink-700);
+  color: var(--hospital-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .lwp-btn-reset:hover {
-  background: var(--lwp-surface-alt);
-  border-color: var(--lwp-primary);
-  color: var(--lwp-primary);
+  background: var(--hospital-gray-50);
+  border-color: var(--hospital-primary);
+  color: var(--hospital-primary);
 }
 
 /* ── Spinner ─────────────────────────────────────────────────── */
@@ -1144,20 +1217,20 @@
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: var(--hospital-white);
   border-radius: 50%;
   animation: lwp-spin 0.7s linear infinite;
 }
 
 .lwp-spinner.large {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-width: 3px;
 }
 
-.lwp-spinner.white {
-  border-color: rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+.lwp-spinner.primary {
+  border-color: rgba(13, 115, 119, 0.2);
+  border-top-color: var(--hospital-primary);
 }
 
 @keyframes lwp-spin {
@@ -1181,24 +1254,23 @@
     order: 2;
     flex-basis: 100%;
     justify-content: center;
-    margin-top: 0.5rem;
+    margin-top: 8px;
   }
 
   .lwp-context-bar {
     flex-direction: column;
-    gap: 0.75rem;
     align-items: flex-start;
   }
 
-  .lwp-encounter-badge {
-    align-self: stretch;
-    justify-content: center;
+  .lwp-context-meta {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .lwp-steps {
     overflow-x: auto;
     justify-content: flex-start;
-    padding: 1rem;
+    padding: 16px;
   }
 
   .lwp-step-info {
@@ -1207,7 +1279,7 @@
 
   .lwp-step-line {
     width: 24px;
-    margin: 0 0.35rem;
+    margin: 0 6px;
   }
 
   .lwp-step-header {
@@ -1226,17 +1298,17 @@
   }
 
   .lwp-step-content {
-    padding: 1rem;
+    padding: 16px;
   }
 
   .lwp-btn-upload {
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
   }
 
   .lwp-result-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 12px;
   }
 
   .lwp-btn-view {

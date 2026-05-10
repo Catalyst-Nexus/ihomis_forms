@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import { Navigate, Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/components/LabUploadModule.jsx";
 import PdfPreviewPage from "./modules/labUpload/pages/PdfPreviewPage.jsx";
 import { PdfPreviewProvider } from "./lib/PdfPreviewContext.jsx";
@@ -41,7 +48,7 @@ const modules = [
 
 // ── Page keys ─────────────────────────────────────────────────────────────────
 const LANDING_PAGE = {
-  USER_PICKER: "user-picker", // ← new: identity gate
+  USER_PICKER: "user-picker",
   PATIENT_SELECTION: "patient-selection",
   MODULE_NAVIGATOR: "module-navigator",
   TRACKING: "tracking",
@@ -86,32 +93,26 @@ function usePatientTrackingData() {
   return { patientPicker, trackingRows };
 }
 
-// ── Sub-pages (unchanged from your original) ─────────────────────────────────
+// ── Patient Selection Page ──────────────────────────────────────────────────
 function PatientSelectionPage({
   patientPicker,
   onConfirmSelection,
-  onOpenTracking,
   onConfirmEncounter,
 }) {
-  // Handle patient selection - open encounter modal
   const handleSelectPatient = (patient) => {
-    // Check if patient has an hpercode that could have multiple encounters
     const hpercode =
       patient?.rawData?.hpercode ||
       patient?.contextParams?.hpercode ||
       patient?.id ||
       "";
 
-    // Open encounter modal for any patient with an hpercode
     if (hpercode) {
       patientPicker.openEncounterModalForPatient(patient);
     } else {
-      // Fallback: just select the patient directly
       patientPicker.selectPatient(patient);
     }
   };
 
-  // Handle confirmation with encounter selected
   const handleConfirmSelection = () => {
     if (patientPicker.selectedEncounter) {
       patientPicker.confirmEncounterSelection();
@@ -124,23 +125,31 @@ function PatientSelectionPage({
 
   return (
     <div className="app-landing-page">
-      <div
-        className="app-landing-ambient app-landing-ambient-a"
-        aria-hidden="true"
-      />
-      <div
-        className="app-landing-ambient app-landing-ambient-b"
-        aria-hidden="true"
-      />
       <main className="app-landing-shell">
-        <section className="app-landing-hero">
-          <p className="app-landing-kicker">IHOMIS Forms</p>
-          <h1>Select Patient</h1>
-          <p>
-            Choose and confirm a patient first. After that, you will proceed to
-            the Module Navigator page.
-          </p>
-        </section>
+        {/* Header - Matching lab workflow style */}
+        <header className="app-landing-header">
+          <div className="app-header-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <div className="app-header-text">
+            <h2>Select Patient</h2>
+            <p>Choose and confirm a patient first.</p>
+          </div>
+        </header>
+
+        {/* Patient Picker */}
         <section className="app-patient-picker" aria-label="Patient picker">
           <LabPatientPickerPanel
             patients={patientPicker.patients}
@@ -159,9 +168,6 @@ function PatientSelectionPage({
             title="Select Patient Before Continuing"
             subtitle="Choose the patient record first, then continue to Module Navigator."
             confirmLabel="Continue to Module Navigator"
-            secondaryActionLabel="Tracking System"
-            onSecondaryAction={onOpenTracking}
-            // Encounter modal props
             showEncounterModal={patientPicker.showEncounterModal}
             patientForEncounterSelection={
               patientPicker.patientForEncounterSelection
@@ -189,10 +195,10 @@ function PatientSelectionPage({
 PatientSelectionPage.propTypes = {
   patientPicker: PropTypes.object.isRequired,
   onConfirmSelection: PropTypes.func.isRequired,
-  onOpenTracking: PropTypes.func.isRequired,
   onConfirmEncounter: PropTypes.func.isRequired,
 };
 
+// ── Module Navigator Page ────────────────────────────────────────────────────
 function ModuleNavigatorPage({
   selectedPatient,
   modulesList,
@@ -201,20 +207,28 @@ function ModuleNavigatorPage({
 }) {
   return (
     <div className="app-landing-page">
-      <div
-        className="app-landing-ambient app-landing-ambient-a"
-        aria-hidden="true"
-      />
-      <div
-        className="app-landing-ambient app-landing-ambient-b"
-        aria-hidden="true"
-      />
       <main className="app-landing-shell">
-        <section className="app-landing-hero">
-          <p className="app-landing-kicker">IHOMIS Forms</p>
-          <h1>Module Navigator</h1>
-          <p>Choose which module to open for the selected patient.</p>
-        </section>
+        {/* Header - Matching lab workflow style */}
+        <header className="app-landing-header">
+          <div className="app-header-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <polyline points="22 3 13.46 13.46 2 2 2 22 22 22" />
+            </svg>
+          </div>
+          <div className="app-header-text">
+            <h2>Module Navigator</h2>
+            <p>Choose which module to open for the selected patient.</p>
+          </div>
+        </header>
+
+        {/* Selected Patient */}
         <section
           className="app-selected-patient-panel"
           aria-label="Selected patient"
@@ -227,6 +241,8 @@ function ModuleNavigatorPage({
             />
           </div>
         </section>
+
+        {/* Module Grid */}
         <section className="app-module-grid" aria-label="Available modules">
           {modulesList.map((moduleItem) => (
             <article key={moduleItem.id} className="app-module-card">
@@ -264,6 +280,7 @@ ModuleNavigatorPage.propTypes = {
   onOpenModule: PropTypes.func.isRequired,
 };
 
+// ── Route Components ─────────────────────────────────────────────────────────
 function TaggingRoute() {
   const navigate = useNavigate();
   const { currentUserId, currentUserName, setUser } = useUserSession();
@@ -327,38 +344,51 @@ function TrackingRoute() {
 // ════════════════════════════════════════════════════════════════════════════
 function AppShell() {
   const navigate = useNavigate();
-  // ── User session (identity, no login system) ──────────────────────────────
+  const location = useLocation();
   const { currentUserId, currentUserName, setUser, clearUser } =
     useUserSession();
 
-  // ── App routing ───────────────────────────────────────────────────────────
   const [activeModuleId, setActiveModuleId] = useState(null);
+  const [
+    returnModuleIdAfterEncounterChange,
+    setReturnModuleIdAfterEncounterChange,
+  ] = useState(null);
   const [landingPage, setLandingPage] = useState(LANDING_PAGE.USER_PICKER);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // ── Access version: bump after any tag write to re-mount Tracking ─────────
   const [accessVersion, setAccessVersion] = useState(0);
   const handleAccessChanged = useCallback(
     () => setAccessVersion((v) => v + 1),
     [],
   );
 
-  // ── Patient picker ────────────────────────────────────────────────────────
   const { patientPicker, trackingRows } = usePatientTrackingData();
 
   const hasConfirmedPatient = Boolean(
     patientPicker.selectionConfirmed && patientPicker.selectedPatient,
   );
 
-  // ── trackingRows derived from patientPicker ───────────────────────────────
-  // ── Once user session is set, move to patient selection if not yet there ──
   useEffect(() => {
+    // Restore active module if navigation state includes it (e.g., returning from /preview)
+    if (
+      location?.pathname === "/" &&
+      !activeModuleId &&
+      location.state?.activeModuleId
+    ) {
+      setActiveModuleId(location.state.activeModuleId);
+    }
+
     if (currentUserId && landingPage === LANDING_PAGE.USER_PICKER) {
       setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
     }
-  }, [currentUserId, landingPage]);
+  }, [
+    currentUserId,
+    landingPage,
+    activeModuleId,
+    location?.pathname,
+    location.state?.activeModuleId,
+  ]);
 
-  // ── Guard: if patient is deselected, bounce back ──────────────────────────
   useEffect(() => {
     if (
       !hasConfirmedPatient &&
@@ -370,7 +400,6 @@ function AppShell() {
     }
   }, [hasConfirmedPatient, landingPage]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const activeModule = useMemo(
     () => modules.find((m) => m.id === activeModuleId) || null,
     [activeModuleId],
@@ -378,6 +407,7 @@ function AppShell() {
 
   function handleOpenModule(moduleId) {
     if (!hasConfirmedPatient) return;
+    setReturnModuleIdAfterEncounterChange(null);
     setActiveModuleId(moduleId);
   }
 
@@ -388,16 +418,16 @@ function AppShell() {
     }
   }
 
-  function handleOpenTrackingFromSelection() {
-    const patient = patientPicker.selectedPatient;
-    if (patient) {
-      patientPicker.openEncounterModalForPatient(patient);
-    }
-  }
-
-  // Called by PatientSelectionPage when the encounter modal is confirmed (with enccode now set)
   function handleEncounterConfirmed() {
     patientPicker.confirmEncounterSelection();
+
+    if (returnModuleIdAfterEncounterChange) {
+      setActiveModuleId(returnModuleIdAfterEncounterChange);
+      setReturnModuleIdAfterEncounterChange(null);
+      setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
+      return;
+    }
+
     setLandingPage(LANDING_PAGE.MODULE_NAVIGATOR);
   }
 
@@ -416,6 +446,7 @@ function AppShell() {
 
   function handleBackToLanding() {
     setActiveModuleId(null);
+    setReturnModuleIdAfterEncounterChange(null);
     setLandingPage(
       hasConfirmedPatient
         ? LANDING_PAGE.MODULE_NAVIGATOR
@@ -425,21 +456,30 @@ function AppShell() {
 
   function handleRequestPatientChange() {
     setActiveModuleId(null);
+    setReturnModuleIdAfterEncounterChange(null);
     patientPicker.reopenSelection();
     setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
   }
 
-  // ── Switch user: clear session → return to UserPicker ────────────────────
+  function handleRequestEncounterChange() {
+    setReturnModuleIdAfterEncounterChange(activeModuleId);
+    setActiveModuleId(null);
+
+    const currentPatient = patientPicker.selectedPatient;
+    if (currentPatient) {
+      patientPicker.openEncounterModalForPatient(currentPatient);
+    }
+
+    setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+  }
+
   function handleSwitchUser() {
     clearUser();
     setLandingPage(LANDING_PAGE.USER_PICKER);
     setActiveModuleId(null);
+    setReturnModuleIdAfterEncounterChange(null);
     patientPicker.reopenSelection();
   }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // ── Render tree ───────────────────────────────────────────────────────────
-  // ══════════════════════════════════════════════════════════════════════════
 
   // 1. No user session yet → UserPicker
   if (!currentUserId || landingPage === LANDING_PAGE.USER_PICKER) {
@@ -467,6 +507,16 @@ function AppShell() {
             className="app-back-button"
             onClick={handleBackToLanding}
           >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
             Back to Landing
           </button>
           <strong>
@@ -481,6 +531,7 @@ function AppShell() {
             selectedPatient={patientPicker.selectedPatient}
             selectedContextParams={patientPicker.activeContextParams}
             onRequestPatientChange={handleRequestPatientChange}
+            onRequestEncounterChange={handleRequestEncounterChange}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
           />
@@ -540,7 +591,6 @@ function AppShell() {
     <PatientSelectionPage
       patientPicker={patientPicker}
       onConfirmSelection={handleConfirmPatientSelection}
-      onOpenTracking={handleOpenTrackingFromSelection}
       onConfirmEncounter={handleEncounterConfirmed}
     />
   );
@@ -549,14 +599,21 @@ function AppShell() {
 // ── PDF Preview Route ────────────────────────────────────────────────────────
 function PreviewRoute() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const previewFile = location.state?.previewFile || null;
   const previewUrl = searchParams.get("url") || "";
   const previewToken = searchParams.get("token") || LAB_UPLOAD_API_TOKEN || "";
 
   return (
     <PdfPreviewPage
+      previewFile={previewFile}
       previewUrl={previewUrl}
       previewToken={previewToken}
-      onBack={() => window.close()}
+      onBack={() => {
+        const from = location.state?.from || "/";
+        navigate(from, { replace: true });
+      }}
     />
   );
 }
