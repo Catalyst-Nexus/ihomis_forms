@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../tracking/hooks/supabaseClient.js";
 import {
   Search, X, Calendar, RefreshCw,
-  CheckCircle2, Clock, ArrowRight, ChevronRight
+  CheckCircle2, Clock, ArrowRight, ChevronRight, User
 } from "lucide-react";
 import "./tracking.css";
 
@@ -71,6 +71,26 @@ function fmt(iso) {
   return new Date(iso).toLocaleString("en-PH", { dateStyle: "short", timeStyle: "short" });
 }
 
+// Format date for readable display (e.g., "May 10, 2026")
+function fmtDate(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-PH", { 
+    month: "short", 
+    day: "numeric", 
+    year: "numeric" 
+  });
+}
+
+// Format time for readable display (e.g., "10:37 PM")
+function fmtTime(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleTimeString("en-PH", { 
+    hour: "2-digit", 
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
 function getNextStepKey(stepKey) {
   const idx = STEPS.findIndex(s => s.key === stepKey);
   if (idx === -1 || idx >= STEPS.length - 1) return null;
@@ -121,22 +141,31 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
 
         <div className="modal-header">
           <div className="modal-header-info">
-            <span className="modal-step-pill">{stepLabel}</span>
-            <h3 className="modal-patient">{row.patientName}</h3>
+            <span className="modal-step-pill">
+              <Clock size={11}/>
+              {stepLabel}
+            </span>
+            <h3 className="modal-patient">
+              <User size={20} style={{marginRight: '6px', opacity: 0.6}}/>
+              {row.patientName}
+            </h3>
             <p className="modal-patient-sub">{row.hospitalNo} · {row.admittedDate}</p>
           </div>
-          <button className="modal-x-btn" onClick={() => onClose(null)}><X size={16}/></button>
+          <button className="modal-x-btn" onClick={() => onClose(null)}><X size={18}/></button>
         </div>
 
         {history.length > 0 && (
           <div className="modal-history">
-            <p className="modal-section-title">📋 Workflow History</p>
+            <p className="modal-section-title">
+              <CheckCircle2 size={12}/>
+              Workflow History
+            </p>
             <div className="modal-timeline">
               {history.map(([key, log]) => {
                 const step = STEPS.find(s => s.key === key);
                 return (
                   <div key={key} className="timeline-row">
-                    <CheckCircle2 size={13} className="tl-icon-done"/>
+                    <CheckCircle2 size={15} className="tl-icon-done"/>
                     <div className="tl-content">
                       <span className="tl-step">{step?.label ?? key}</span>
                       <span className="tl-who">{log.completed_by} · {fmt(log.completed_at)}</span>
@@ -146,7 +175,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
                 );
               })}
               <div className="timeline-row timeline-row--current">
-                <Clock size={13} className="tl-icon-current"/>
+                <Clock size={15} className="tl-icon-current"/>
                 <div className="tl-content">
                   <span className="tl-step">{stepLabel} <em>(you are here)</em></span>
                   <span className="tl-who">{currentUserName}</span>
@@ -162,8 +191,8 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           </label>
           <textarea
             className="modal-textarea"
-            rows={3}
-            placeholder="Type your remarks or notes…"
+            rows={4}
+            placeholder="Type your remarks or notes for this step…"
             value={remarks}
             onChange={e => setRemarks(e.target.value)}
             autoFocus
@@ -171,10 +200,10 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
         </div>
 
         <div className="modal-pass-section">
-          <p className="modal-section-title">
-            <ArrowRight size={13}/>
+          <p className="modal-pass-title">
+            <ArrowRight size={14}/>
             {nextStepKey
-              ? <> Mark Done &amp; Pass to <strong>{nextStepLabel}</strong> user</>
+              ? <> Mark Done & Pass to <strong>{nextStepLabel}</strong> user</>
               : <> Mark Done (last step)</>
             }
           </p>
@@ -226,7 +255,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           >
             {saving
               ? "Saving…"
-              : <><CheckCircle2 size={13}/> Done &amp; Pass →</>
+              : <><CheckCircle2 size={14}/> Done & Pass</>
             }
           </button>
         </div>
@@ -458,15 +487,25 @@ const reloadDb = useCallback(async () => {
   const paginatedRows = filteredRows.slice((currentPage-1)*ROWS_PER_PAGE, currentPage*ROWS_PER_PAGE);
 
   // ── Cell state — DB-ONLY, no API step resolution ─────────────────────────
-function getCellState(row, stepKey) {
+function getCellState(row, stepKey, allUsers) {
   const wfLog = row._stepLogs?.[stepKey];
 
   // ── Done ────────────────────────────────────────────────────────────────
   if (wfLog?.status === "done") {
+    // Resolve full user name from allUsers
+    const completedById = wfLog.completed_by;
+    const completedByUser = allUsers.find(
+      u => String(u.user_id) === String(completedById) ||
+           String(u.username).toLowerCase() === String(completedById).toLowerCase() ||
+           String(u.full_name).toLowerCase() === String(completedById).toLowerCase()
+    );
+    const displayName = completedByUser?.full_name ?? completedByUser?.username ?? completedById ?? "";
+    
     return {
       status:   "done",
       value:    wfLog.remarks || "Done",
-      meta:     `${wfLog.completed_by ?? ""} · ${fmt(wfLog.completed_at)}`,
+      userName: displayName,
+      meta:     `${fmtDate(wfLog.completed_at)} · ${fmtTime(wfLog.completed_at)}`,
       canClick: false,
       log:      wfLog,
     };
@@ -768,14 +807,14 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
 
         {/* Legend */}
         <div className="tracking-legend">
-          <span className="leg"><span className="leg-dot leg-done"/><CheckCircle2 size={11}/> Done</span>
-          <span className="leg"><span className="leg-dot leg-active"/><Clock size={11}/> Active – click to process</span>
+          <span className="leg"><span className="leg-dot leg-done"/>Done</span>
+          <span className="leg"><span className="leg-dot leg-active"/>Active – click to process</span>
           <span className="leg"><span className="leg-dot leg-empty"/> Pending</span>
           <span className="leg leg-hint">
             {isSuperUser
-              ? "⚡ Super User — click any step cell to process"
+              ? "Super User — click any step cell to process"
               : myAssignedStepKeys.size > 0
-              ? `✏️ You can process: ${[...myAssignedStepKeys].map(k=>STEPS.find(s=>s.key===k)?.label).join(", ")}`
+              ? `You can process: ${[...myAssignedStepKeys].map(k=>STEPS.find(s=>s.key===k)?.label).join(", ")}`
               : "👁 View only — no step assigned"}
           </span>
         </div>
@@ -823,7 +862,7 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                     <td className="tracking-td-name">{row.patientName}</td>
 
                     {STEPS.map(step => {
-                      const cell      = getCellState(row, step.key);
+                      const cell      = getCellState(row, step.key, allUsers);
                       const clickable = cell.canClick;
                       return (
                         <td
@@ -841,8 +880,18 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                             {cell.status === "done" && (
                               <>
                                 <CheckCircle2 size={12} className="wf-icon-done"/>
-                                <span className="wf-val">{cell.value.length > 16 ? cell.value.slice(0,16)+"…" : cell.value}</span>
-                                <span className="wf-meta">{cell.meta}</span>
+                                {cell.userName && (
+                                  <div className="wf-user-info">
+                                    <span className="wf-user-name">{cell.userName}</span>
+                                    <span className="wf-meta-date">{cell.meta}</span>
+                                  </div>
+                                )}
+                                {!cell.userName && (
+                                  <>
+                                    <span className="wf-val">{cell.value.length > 16 ? cell.value.slice(0,16)+"…" : cell.value}</span>
+                                    <span className="wf-meta">{cell.meta}</span>
+                                  </>
+                                )}
                               </>
                             )}
                             {cell.status === "active" && (
@@ -858,7 +907,7 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                             {(cell.status === "empty" || cell.status === "pending") && (
                               clickable
                                 ? <span className="wf-val wf-val-open">+ Add</span>
-                                : <span className="wf-val wf-val-dash">—</span>
+                                : <span className="wf-val wf-val-dash">Not Yet</span>
                             )}
                           </div>
                         </td>

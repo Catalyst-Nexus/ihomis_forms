@@ -73,17 +73,17 @@ function AccessDenied({ userName, onSwitchUser, onBack }) {
             padding:        "2.5rem 3rem",
             maxWidth:       "480px",
           }}>
-            <span style={{ fontSize: "2.5rem" }}>🔒</span>
-            <h2 style={{ margin: 0, color: "#8a4f0b", fontSize: "1.2rem" }}>
+            <span style={{ fontSize: "2.5rem", fontFamily: "inherit" }}>🔒</span>
+            <h2 style={{ margin: 0, color: "#8a4f0b", fontSize: "1.2rem", fontFamily: "inherit" }}>
               No Access Yet
             </h2>
-            <p style={{ margin: 0, color: "#7a5c2e", fontSize: ".95rem", lineHeight: 1.6 }}>
+            <p style={{ margin: 0, color: "#7a5c2e", fontSize: ".95rem", lineHeight: 1.6, fontFamily: "inherit" }}>
               You do not have any assigned steps yet.
               Please wait for the first tagged user to assign steps to your account
               before you can access the tagging panel.
             </p>
-            <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem" }}>
-              Logged in as: <strong style={{ color: "#8a4f0b" }}>{userName?.toUpperCase()}</strong>
+            <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem", fontFamily: "inherit" }}>
+              Logged in as: <strong style={{ color: "#8a4f0b", fontFamily: "inherit" }}>{userName?.toUpperCase()}</strong>
             </p>
             <button
               className="tg-btn tg-btn--primary"
@@ -698,24 +698,31 @@ export default function Tagging({
       </div>
 
       <main className="tg-shell">
-        <header className="tg-header">
-          <div className="tg-header-text">
-            <h1>Agusan del Norte Provincial Health Office</h1>
-            <p>CHART Tagging System</p>
-          </div>
+        {/* Header - Same style as tracking */}
+        <header className="tg-title-box">
+          <h1>Agusan del Norte Provincial Health Office</h1>
+          <p>CHART Tagging System</p>
           {taggingUserName && (
-            <div className="tg-session-pill">
-              <span className="tg-session-dot" />
-              {taggingUserName}
-            </div>
+            <small>
+              Viewing as: <strong>{taggingUserName?.toUpperCase()}</strong>
+              {taggedUsers.find(t => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
+                <span className="badge-super">1ST TAG USER</span>
+              )}
+              {" · "}
+              <button type="button" className="tg-switch-user-link" onClick={handleSwitchUser}>
+                Switch user
+              </button>
+            </small>
           )}
         </header>
 
         <nav className="tg-nav">
+          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>
+            ← Back to Tracking
+          </button>
           <button className="tg-btn tg-btn--ghost" onClick={handleSwitchUser}>
             ← Switch User
           </button>
-        
         </nav>
 
         <div className="tg-panel">
@@ -771,8 +778,8 @@ export default function Tagging({
                             #{tu.tagOrder}
                           </span>
                           <span className="tg-user-name">
-                            {uName}
-                            {isCurrent && tu.tagOrder === 1 && <span style={{ marginLeft: ".5rem", fontSize: ".75rem", opacity: .7 }}>(you)</span>}
+                            {uName.toUpperCase()}
+                            {isCurrent && tu.tagOrder === 1 && <span style={{ marginLeft: ".5rem", fontSize: ".75rem", opacity: .7 }}></span>}
                           </span>
                           <span className="tg-user-role">{cfg.label}</span>
                           {tu.tagOrder === 1
@@ -899,7 +906,7 @@ export default function Tagging({
                                           className="tg-step-badge" 
                                           style={{ background: cfg?.bg, color: cfg?.color }}
                                         >
-                                          {assignment.userName}
+                                          {assignment.userName.toUpperCase()}
                                         </span>
                                         <button
                                           className="tg-remove-assign-btn"
@@ -1017,7 +1024,7 @@ export default function Tagging({
                               >
                                 #{tu.tagOrder}
                               </span>
-                              <strong className="tg-summary-name">{uName}</strong>
+                              <strong className="tg-summary-name">{uName.toUpperCase()}</strong>
                             </div>
                             <span className="tg-summary-role" style={{ color: cfg.color }}>
                               {cfg.label}
