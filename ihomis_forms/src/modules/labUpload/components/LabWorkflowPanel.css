@@ -1718,6 +1718,173 @@
   overflow: auto;
 }
 
+/* ── Preview File Selector Dropdown ──────────────────────────── */
+.lwp-preview-select {
+  flex: 1;
+  min-width: 150px;
+  max-width: 300px;
+  padding: 8px 36px 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--lwp-gray-700);
+  background: var(--lwp-white);
+  border: 1px solid var(--lwp-gray-300);
+  border-radius: var(--lwp-radius-sm);
+  cursor: pointer;
+  transition: all var(--lwp-transition-fast);
+  margin: 0 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.lwp-preview-select:hover {
+  border-color: var(--lwp-primary);
+}
+
+.lwp-preview-select:focus {
+  outline: none;
+  border-color: var(--lwp-primary);
+  box-shadow: var(--lwp-shadow-focus);
+}
+
+/* ── Preview Fullscreen Button ────────────────────────────────── */
+.lwp-preview-fullscreen-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--lwp-primary);
+  background: var(--lwp-white);
+  border: 1px solid var(--lwp-gray-200);
+  border-radius: var(--lwp-radius-md);
+  cursor: pointer;
+  transition: all var(--lwp-transition-fast);
+  flex-shrink: 0;
+}
+
+.lwp-preview-fullscreen-btn:hover {
+  background: var(--lwp-primary);
+  color: var(--lwp-white);
+  border-color: var(--lwp-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+}
+
+.lwp-preview-fullscreen-btn:active {
+  transform: translateY(0);
+}
+
+.lwp-preview-fullscreen-btn svg {
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.lwp-preview-fullscreen-btn:hover svg {
+  color: var(--lwp-white);
+}
+
+/* ── Fullscreen Loading Overlay ──────────────────────────────── */
+.lwp-fullscreen-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border-radius: inherit;
+}
+
+.lwp-fullscreen-loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.lwp-fullscreen-loading-spinner span {
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(
+    180deg,
+    var(--lwp-primary) 0%,
+    var(--lwp-primary-muted) 100%
+  );
+  border-radius: 2px;
+  animation: lwp-wave 1.2s ease-in-out infinite;
+}
+
+.lwp-fullscreen-loading-spinner span:nth-child(1) { animation-delay: 0s; height: 16px; }
+.lwp-fullscreen-loading-spinner span:nth-child(2) { animation-delay: 0.1s; height: 24px; }
+.lwp-fullscreen-loading-spinner span:nth-child(3) { animation-delay: 0.2s; height: 32px; }
+.lwp-fullscreen-loading-spinner span:nth-child(4) { animation-delay: 0.3s; height: 20px; }
+.lwp-fullscreen-loading-spinner span:nth-child(5) { animation-delay: 0.4s; height: 28px; }
+
+@keyframes lwp-wave {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+.lwp-fullscreen-loading p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lwp-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Fullscreen Preview Modal ────────────────────────────────── */
+/* Note: The actual fullscreen preview is handled by PdfCanvasPreview component */
+/* This modal is for additional wrapper styling if needed */
+.lwp-fullscreen-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  pointer-events: none;
+}
+
+.lwp-fullscreen-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lwp-fullscreen-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .lwp-header {
@@ -1824,146 +1991,3 @@
   }
 }
 
-/* ── Fullscreen PDF Preview Modal ────────────────────────────── */
-.lwp-fullscreen-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lwp-fullscreen-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(4px);
-}
-
-.lwp-fullscreen-content {
-  position: relative;
-  z-index: 1;
-  width: 95vw;
-  height: 95vh;
-  max-width: 1400px;
-  background: var(--lwp-white);
-  border-radius: var(--lwp-radius-xl);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: lwp-modal-enter 0.2s ease-out;
-}
-
-@keyframes lwp-modal-enter {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.lwp-fullscreen-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  background: var(--lwp-gray-50);
-  border-bottom: 1px solid var(--lwp-gray-200);
-  flex-shrink: 0;
-}
-
-.lwp-fullscreen-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--lwp-gray-800);
-}
-
-.lwp-fullscreen-title svg {
-  color: var(--lwp-primary);
-}
-
-.lwp-fullscreen-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.lwp-fullscreen-hint {
-  font-size: 12px;
-  color: var(--lwp-gray-500);
-  padding: 6px 12px;
-  background: var(--lwp-gray-100);
-  border-radius: var(--lwp-radius-md);
-}
-
-.lwp-fullscreen-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: var(--lwp-white);
-  border: 1px solid var(--lwp-gray-200);
-  border-radius: var(--lwp-radius-md);
-  color: var(--lwp-gray-600);
-  cursor: pointer;
-  transition: all var(--lwp-transition-fast);
-}
-
-.lwp-fullscreen-close:hover {
-  background: var(--lwp-danger-light);
-  border-color: var(--lwp-danger);
-  color: var(--lwp-danger);
-}
-
-.lwp-fullscreen-body {
-  flex: 1;
-  overflow: auto;
-  padding: 0;
-  background: var(--lwp-gray-100);
-}
-
-.lwp-fullscreen-body .pdf-canvas-preview {
-  height: 100%;
-  min-height: calc(95vh - 80px);
-}
-
-/* ── Preview Fullscreen Button ──────────────────────────────── */
-.lwp-preview-fullscreen-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: var(--lwp-primary);
-  color: white;
-  border: none;
-  border-radius: var(--lwp-radius-md);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--lwp-transition-fast);
-  margin-left: auto;
-}
-
-.lwp-preview-fullscreen-btn:hover {
-  background: var(--lwp-primary-hover);
-  transform: translateY(-1px);
-}
-
-.lwp-preview-fullscreen-btn svg {
-  color: white;
-}

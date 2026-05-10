@@ -337,6 +337,8 @@ export default function LabWorkflowPanel({
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
   const [queueStatus, setQueueStatus] = useState({ type: "", message: "" });
   const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
+  const [isFullscreenLoading, setIsFullscreenLoading] = useState(false);
+  const [selectedPreviewIndex, setSelectedPreviewIndex] = useState(0);
 
   // ── Order selection state (two-level) ───────────────────────
   const [selectedOrcode, setSelectedOrcode] = useState(null);
@@ -1279,13 +1281,31 @@ export default function LabWorkflowPanel({
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  <span>Preview: {resultFiles[0]?.name}</span>
+                  <span>Preview</span>
+                  {resultFiles.length > 1 && (
+                    <select
+                      className="lwp-preview-select"
+                      value={selectedPreviewIndex}
+                      onChange={(e) => setSelectedPreviewIndex(Number(e.target.value))}
+                    >
+                      {resultFiles.map((file, idx) => (
+                        <option key={idx} value={idx}>
+                          {idx + 1}. {file.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <button
                     type="button"
                     className="lwp-preview-fullscreen-btn"
-                    onClick={() => setIsFullscreenPreview(true)}
+                    onClick={() => {
+                      setIsFullscreenLoading(true);
+                      setIsFullscreenPreview(true);
+                    }}
                     title="Open fullscreen preview"
                   >
+                    {" "}
+                    Fullscreen
                     <svg
                       width="16"
                       height="16"
@@ -1296,12 +1316,11 @@ export default function LabWorkflowPanel({
                     >
                       <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                     </svg>
-                    Fullscreen
                   </button>
                 </div>
                 <div className="lwp-preview-content">
                   <PdfCanvasPreview
-                    file={resultFiles[0]}
+                    file={resultFiles[selectedPreviewIndex]}
                     token={LAB_UPLOAD_API_TOKEN}
                   />
                 </div>
@@ -1316,49 +1335,29 @@ export default function LabWorkflowPanel({
                   onClick={() => setIsFullscreenPreview(false)}
                 />
                 <div className="lwp-fullscreen-content">
-                  <div className="lwp-fullscreen-header">
-                    <span className="lwp-fullscreen-title">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                      </svg>
-                      {resultFiles[0]?.name}
-                    </span>
-                    <div className="lwp-fullscreen-actions">
-                      <span className="lwp-fullscreen-hint">
-                        Press ESC to close
-                      </span>
-                      <button
-                        type="button"
-                        className="lwp-fullscreen-close"
-                        onClick={() => setIsFullscreenPreview(false)}
-                        title="Close fullscreen"
-                      >
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
+                  {/* Loading overlay */}
+                  {isFullscreenLoading && (
+                    <div className="lwp-fullscreen-loading">
+                      <div className="lwp-fullscreen-loading-spinner">
+                        <span />
+                        <span />
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                      <p>Opening preview...</p>
                     </div>
-                  </div>
+                  )}
                   <div className="lwp-fullscreen-body">
                     <PdfCanvasPreview
-                      file={resultFiles[0]}
+                      file={resultFiles[selectedPreviewIndex]}
                       token={LAB_UPLOAD_API_TOKEN}
+                      fullscreen={true}
+                      onCloseFullscreen={() => {
+                        setIsFullscreenPreview(false);
+                        setIsFullscreenLoading(false);
+                      }}
+                      onRenderStart={() => setIsFullscreenLoading(false)}
                     />
                   </div>
                 </div>

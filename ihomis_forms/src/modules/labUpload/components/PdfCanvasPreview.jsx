@@ -13,7 +13,6 @@ function getErrorMessage(error) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-
   return "Unable to render this PDF preview.";
 }
 
@@ -41,13 +40,23 @@ function PdfCanvasPreview({
   const renderTaskRef = useRef(null);
   const lastMeasuredWidthRef = useRef(0);
 
+  // Per-document persistence (page/zoom)
+  // Key derived from filename + size for stability across order changes.
+  const docKey = file
+    ? `${file.name}::${file.size}`
+    : url
+      ? `url::${url}`
+      : "unknown";
+
+  const savedViewRef = useRef({});
+
   const hasSource = Boolean(file || url);
   const isPreviewLoading = loadingDocument || renderingPage;
   const showPreloader =
     !errorMessage && (loadingDocument || (!hasRenderedPage && renderingPage));
   const loadingLabel = fullscreen
-    ? "Preparing full screen PDF preview..."
-    : "Preparing PDF review...";
+    ? "Preparing full screen preview..."
+    : "Loading document...";
 
   // Keyboard shortcuts for fullscreen
   useEffect(() => {
@@ -65,10 +74,10 @@ function PdfCanvasPreview({
         setPageNumber((p) => Math.min(p + 1, pageCount || 1));
       } else if (event.key === "+" || event.key === "=") {
         event.preventDefault();
-        setZoom((z) => Math.min(z + 0.25, 3));
+        setZoom((z) => Math.min(z + 0.25, 2));
       } else if (event.key === "-") {
         event.preventDefault();
-        setZoom((z) => Math.max(z - 0.25, 0.25));
+        setZoom((z) => Math.max(z - 0.25, 0.5));
       } else if (event.key === "Escape") {
         event.preventDefault();
         onCloseFullscreen?.();
@@ -79,39 +88,70 @@ function PdfCanvasPreview({
     return () => window.removeEventListener("keydown", handleKey);
   }, [fullscreen, onCloseFullscreen, pageCount]);
 
-  // Track container width in both embedded and fullscreen modes.
+  // Hide page scrollbar when fullscreen is active
+  useEffect(() => {
+    if (fullscreen) {
+      // Save original overflow and hide scrollbar
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      
+      return () => {
+        // Restore original overflow
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+    return undefined;
+  }, [fullscreen]);
+
+  // Track container width
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
 
     const applyWidth = (nextWidth) => {
       if (nextWidth <= 0) return;
-
-      // Ignore sub-pixel / tiny layout jitter to avoid render loops.
-      if (Math.abs(nextWidth - lastMeasuredWidthRef.current) < 2) {
-        return;
-      }
-
+      if (Math.abs(nextWidth - lastMeasuredWidthRef.current) < 2) return;
       lastMeasuredWidthRef.current = nextWidth;
       setContainerWidth(nextWidth);
     };
 
     const measure = () => {
-      const width = Math.floor(container.getBoundingClientRect().width);
-      applyWidth(width);
+      // In fullscreen, measure the parent scrollable area
+      // In embedded mode, measure the container
+      const target = fullscreen 
+        ? container.closest(".lab-fs-body") || container.parentElement
+        : container;
+      
+      if (target) {
+        const width = Math.floor(target.getBoundingClientRect().width);
+        applyWidth(width);
+      }
     };
 
     measure();
-
-    // Run one more measure on next frame after layout settles.
     const rafId = requestAnimationFrame(measure);
 
-    const observer = new ResizeObserver(([entry]) => {
-      const width = Math.floor(entry.contentRect.width);
-      applyWidth(width);
+    const observer = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        const target = fullscreen 
+          ? container.closest(".lab-fs-body") || container.parentElement
+          : container;
+        
+        if (entry.target === target || entry.target.contains(target)) {
+          const width = Math.floor(entry.contentRect.width);
+          applyWidth(width);
+        }
+      });
     });
 
-    observer.observe(container);
+    // Observe the appropriate parent element in fullscreen
+    const observeTarget = fullscreen 
+      ? container.closest(".lab-fs-body") || container.parentElement
+      : container;
+    
+    if (observeTarget) {
+      observer.observe(observeTarget);
+    }
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -119,6 +159,7 @@ function PdfCanvasPreview({
     };
   }, [fullscreen]);
 
+  // Load PDF document
   useEffect(() => {
     let isActive = true;
     let loadingTask = null;
@@ -168,34 +209,40 @@ function PdfCanvasPreview({
         }
 
         setPdfDocument((previousDocument) => {
-          if (previousDocument) {
-            previousDocument.destroy();
-          }
+          if (previousDocument) previousDocument.destroy();
           return nextPdfDocument;
         });
         setPageCount(nextPdfDocument.numPages);
-        setPageNumber(1);
+
+        // Restore per-document page/zoom (if saved)
+        const saved = savedViewRef.current?.[docKey];
+        const restoredPage = saved?.pageNumber || 1;
+        const restoredZoom = saved?.zoom || 1;
+
+        setPageNumber(
+          Math.min(
+            Math.max(restoredPage, 1),
+            nextPdfDocument.numPages || restoredPage || 1,
+          ),
+        );
+        setZoom(Math.max(restoredZoom, 0.5));
+
         setDocReady(true);
       } catch (error) {
-        if (!isActive || error?.name === "AbortError") {
-          return;
-        }
+        if (!isActive || error?.name === "AbortError") return;
 
         setPdfDocument((previousDocument) => {
-          if (previousDocument) {
-            previousDocument.destroy();
-          }
+          if (previousDocument) previousDocument.destroy();
           return null;
         });
         setPageCount(0);
         setPageNumber(1);
+        setZoom(1);
         setDocReady(false);
         setHasRenderedPage(false);
         setErrorMessage(getErrorMessage(error));
       } finally {
-        if (isActive) {
-          setLoadingDocument(false);
-        }
+        if (isActive) setLoadingDocument(false);
       }
     }
 
@@ -204,22 +251,29 @@ function PdfCanvasPreview({
     return () => {
       isActive = false;
       controller.abort();
-
-      if (loadingTask) {
-        loadingTask.destroy();
-      }
+      if (loadingTask) loadingTask.destroy();
     };
-  }, [file, hasSource, token, url]);
+  }, [file, hasSource, token, url, docKey]);
 
+  // Cleanup on unmount
   useEffect(
     () => () => {
-      if (pdfDocument) {
-        pdfDocument.destroy();
-      }
+      if (pdfDocument) pdfDocument.destroy();
     },
     [pdfDocument],
   );
 
+  // Persist view state per document (page/zoom)
+  useEffect(() => {
+    if (!docKey) return;
+    savedViewRef.current[docKey] = {
+      pageNumber,
+      zoom,
+      updatedAt: Date.now(),
+    };
+  }, [docKey, pageNumber, zoom]);
+
+  // Render page
   useEffect(() => {
     if (!pdfDocument || !canvasRef.current || !containerWidth || !docReady) {
       return undefined;
@@ -229,16 +283,12 @@ function PdfCanvasPreview({
 
     function cancelCurrentRenderTask() {
       const currentRenderTask = renderTaskRef.current;
-      if (!currentRenderTask) {
-        return;
-      }
-
+      if (!currentRenderTask) return;
       renderTaskRef.current = null;
-
       try {
         currentRenderTask.cancel();
       } catch {
-        // Ignore cancel errors and continue with a new render task.
+        // Ignore cancel errors
       }
     }
 
@@ -253,12 +303,14 @@ function PdfCanvasPreview({
         cancelCurrentRenderTask();
 
         const page = await pdfDocument.getPage(pageNumber);
-
         if (cancelled) return;
 
         const baseViewport = page.getViewport({ scale: 1 });
-        const rawScale = containerWidth / baseViewport.width;
-        const scale = Math.max(rawScale * zoom, 0.1);
+        // Use containerWidth with padding to prevent edge-to-edge display
+        const usableWidth = containerWidth - 48; // 24px padding on each side
+        const rawScale = usableWidth / baseViewport.width;
+        // Clamp scale: 50% to 200% of fit-to-container
+        const scale = Math.max(Math.min(rawScale * zoom, rawScale * 2), rawScale * 0.5);
         const viewport = page.getViewport({ scale });
 
         const context = canvas.getContext("2d");
@@ -280,9 +332,7 @@ function PdfCanvasPreview({
           renderTaskRef.current = null;
         }
 
-        if (!cancelled) {
-          setHasRenderedPage(true);
-        }
+        if (!cancelled) setHasRenderedPage(true);
       } catch (error) {
         if (error?.name === "RenderingCancelledException") return;
         if (!cancelled) {
@@ -302,7 +352,7 @@ function PdfCanvasPreview({
     };
   }, [containerWidth, pageNumber, pdfDocument, zoom, docReady]);
 
-  // Scroll management: when page changes, scroll canvas stage to top
+  // Scroll management
   useEffect(() => {
     if (!pdfDocument || !containerRef.current) return undefined;
 
@@ -310,9 +360,7 @@ function PdfCanvasPreview({
       ? containerRef.current.closest(".lab-fs-body")
       : containerRef.current;
 
-    if (scrollContainer) {
-      scrollContainer.scrollTop = 0;
-    }
+    if (scrollContainer) scrollContainer.scrollTop = 0;
 
     return undefined;
   }, [fullscreen, pageNumber, pdfDocument]);
@@ -332,18 +380,16 @@ function PdfCanvasPreview({
 
   return (
     <div
-      className={`lab-pdf-renderer ${
-        fullscreen ? "lab-pdf-renderer-fullscreen" : ""
-      }`}
+      className={`lab-pdf-renderer ${fullscreen ? "lab-pdf-renderer-fullscreen" : ""}`}
     >
+      {/* Fullscreen Header Bar */}
       {fullscreen && (
         <div className="lab-fs-bar" role="toolbar" aria-label="PDF controls">
-          {/* Left — icon + PDF label */}
           <div className="lab-fs-bar-left">
             <svg
               className="lab-fs-icon"
-              width="15"
-              height="15"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -356,41 +402,40 @@ function PdfCanvasPreview({
               <polyline points="14,2 14,8 20,8" />
               <line x1="16" y1="13" x2="8" y2="13" />
               <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10,9 9,9 8,9" />
             </svg>
-            <span className="lab-fs-bar-title">PDF Preview</span>
-            {pageCount ? (
+            <span className="lab-fs-bar-title">Document Preview</span>
+            {pageCount > 0 && (
               <span className="lab-fs-page-label">
-                Page {pageNumber} / {pageCount}
+                Page {pageNumber} of {pageCount}
               </span>
-            ) : null}
+            )}
           </div>
 
-          {/* Center — navigation */}
           <div className="lab-fs-bar-center">
+            {/* Previous Button */}
             <button
               type="button"
               className="lab-fs-btn"
               onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
               disabled={isPreviewLoading || pageNumber <= 1}
-              title="Previous page (←)"
+              title="Previous page"
               aria-label="Previous page"
             >
               <svg
-                width="13"
-                height="13"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.5"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                aria-hidden="true"
               >
                 <polyline points="15,18 9,12 15,6" />
               </svg>
             </button>
 
+            {/* Page Jump */}
             <form
               onSubmit={handleJumpSubmit}
               className="lab-fs-jump"
@@ -406,9 +451,13 @@ function PdfCanvasPreview({
                 className="lab-fs-jump-input"
                 aria-label="Page number"
               />
-              <span className="lab-fs-jump-total">/ {pageCount || "—"}</span>
+              <span className="lab-fs-jump-sep" aria-hidden="true">
+                /
+              </span>
+              <span className="lab-fs-jump-total">{pageCount || "—"}</span>
             </form>
 
+            {/* Next Button */}
             <button
               type="button"
               className="lab-fs-btn"
@@ -416,19 +465,18 @@ function PdfCanvasPreview({
                 setPageNumber((p) => Math.min(p + 1, pageCount || 1))
               }
               disabled={isPreviewLoading || pageNumber >= pageCount}
-              title="Next page (→)"
+              title="Next page"
               aria-label="Next page"
             >
               <svg
-                width="13"
-                height="13"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.5"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                aria-hidden="true"
               >
                 <polyline points="9,18 15,12 9,6" />
               </svg>
@@ -436,13 +484,13 @@ function PdfCanvasPreview({
 
             <div className="lab-fs-sep" aria-hidden="true" />
 
-            {/* Zoom group — pill-style cluster */}
+            {/* Zoom Controls */}
             <div className="lab-fs-zoom-group" role="group" aria-label="Zoom">
               <button
                 type="button"
                 className="lab-fs-btn"
-                onClick={() => setZoom((z) => Math.max(z - 0.25, 0.25))}
-                title="Zoom out (-)"
+                onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
+                title="Zoom out"
                 aria-label="Zoom out"
               >
                 <svg
@@ -451,10 +499,9 @@ function PdfCanvasPreview({
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  aria-hidden="true"
                 >
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -470,8 +517,8 @@ function PdfCanvasPreview({
               <button
                 type="button"
                 className="lab-fs-btn"
-                onClick={() => setZoom((z) => Math.min(z + 0.25, 3))}
-                title="Zoom in (+)"
+                onClick={() => setZoom((z) => Math.min(z + 0.25, 2))}
+                title="Zoom in"
                 aria-label="Zoom in"
               >
                 <svg
@@ -480,10 +527,9 @@ function PdfCanvasPreview({
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  aria-hidden="true"
                 >
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -494,7 +540,6 @@ function PdfCanvasPreview({
             </div>
           </div>
 
-          {/* Right — close */}
           <div className="lab-fs-bar-right">
             <button
               type="button"
@@ -503,31 +548,53 @@ function PdfCanvasPreview({
               aria-label="Close fullscreen preview"
             >
               <svg
-                width="11"
-                height="11"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.5"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                aria-hidden="true"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
-              Close
+              <span>Close</span>
             </button>
           </div>
         </div>
       )}
 
+      {/* Fullscreen Body */}
       {fullscreen ? (
         <div className="lab-fs-body">
-          <div className="lab-fs-canvas-wrap" ref={containerRef}>
-            <div className="lab-pdf-canvas-stage lab-pdf-canvas-stage-fs">
+          <div className="lab-fs-canvas-wrap">
+            <div
+              className="lab-pdf-canvas-stage lab-pdf-canvas-stage-fs"
+              ref={containerRef}
+            >
               {errorMessage ? (
-                <p className="lab-pdf-error">{errorMessage}</p>
+                <div className="lab-pdf-error" role="alert">
+                  <div className="lab-pdf-error-icon">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <div className="lab-pdf-error-title">Render Error</div>
+                  <div className="lab-pdf-error-message">{errorMessage}</div>
+                </div>
               ) : (
                 <canvas
                   className={`lab-pdf-canvas ${showPreloader ? "lab-pdf-canvas-loading" : "lab-pdf-canvas-ready"}`}
@@ -540,10 +607,13 @@ function PdfCanvasPreview({
                 aria-live="polite"
                 aria-hidden={!showPreloader}
               >
-                <span
-                  className="lab-pdf-preloader-spinner"
-                  aria-hidden="true"
-                />
+                <div className="lab-pdf-preloader-spinner">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <p>{loadingLabel}</p>
               </div>
             </div>
@@ -551,33 +621,195 @@ function PdfCanvasPreview({
         </div>
       ) : (
         <>
-          <div className="lab-pdf-toolbar">
-            <button
-              type="button"
-              onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
-              disabled={isPreviewLoading || pageNumber <= 1}
-            >
-              Previous
-            </button>
-            <span>
-              {pageCount
-                ? `Page ${pageNumber} of ${pageCount}`
-                : "Loading pages..."}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                setPageNumber((p) => Math.min(p + 1, pageCount || 1))
-              }
-              disabled={isPreviewLoading || pageNumber >= pageCount}
-            >
-              Next
-            </button>
+          {/* Embedded Header Bar */}
+          <div className="lab-pdf-header">
+            <div className="lab-pdf-header-left">
+              <div className="lab-pdf-icon">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14,2 14,8 20,8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+              </div>
+              <div className="lab-pdf-header-info">
+                <span className="lab-pdf-header-title">Lab Result</span>
+                <span className="lab-pdf-header-subtitle">
+                  {pageCount > 0
+                    ? `${pageCount} page${pageCount > 1 ? "s" : ""}`
+                    : "Document preview"}
+                </span>
+              </div>
+            </div>
+
+            <div className="lab-pdf-header-center">
+              {/* Navigation Controls */}
+              <nav className="lab-pdf-nav" aria-label="Page navigation">
+                <button
+                  type="button"
+                  className="lab-pdf-nav-btn"
+                  onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
+                  disabled={isPreviewLoading || pageNumber <= 1}
+                  aria-label="Previous page"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="15,18 9,12 15,6" />
+                  </svg>
+                </button>
+
+                <div className="lab-pdf-nav-divider" aria-hidden="true" />
+
+                <div className="lab-pdf-page-indicator">
+                  <span className="lab-pdf-page-current">{pageNumber}</span>
+                  <span className="lab-pdf-page-total">
+                    / {pageCount || "—"}
+                  </span>
+                </div>
+
+                <div className="lab-pdf-nav-divider" aria-hidden="true" />
+
+                <button
+                  type="button"
+                  className="lab-pdf-nav-btn"
+                  onClick={() =>
+                    setPageNumber((p) => Math.min(p + 1, pageCount || 1))
+                  }
+                  disabled={isPreviewLoading || pageNumber >= pageCount}
+                  aria-label="Next page"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9,18 15,12 9,6" />
+                  </svg>
+                </button>
+              </nav>
+
+              {/* Zoom Controls */}
+              <div
+                className="lab-pdf-zoom"
+                role="group"
+                aria-label="Zoom controls"
+              >
+                <button
+                  type="button"
+                  className="lab-pdf-zoom-btn"
+                  onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
+                  aria-label="Zoom out"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </button>
+                <span className="lab-pdf-zoom-value">
+                  {Math.round(zoom * 100)}%
+                </span>
+                <button
+                  type="button"
+                  className="lab-pdf-zoom-btn"
+                  onClick={() => setZoom((z) => Math.min(z + 0.25, 2))}
+                  aria-label="Zoom in"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="11" y1="8" x2="11" y2="14" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="lab-pdf-header-right">
+              {pageCount > 0 && (
+                <span className="lab-pdf-status success">
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20,6 9,17 4,12" />
+                  </svg>
+                  Ready
+                </span>
+              )}
+            </div>
           </div>
+
+          {/* Canvas Container */}
           <div className="lab-pdf-canvas-shell" ref={containerRef}>
             <div className="lab-pdf-canvas-stage">
               {errorMessage ? (
-                <p className="lab-pdf-error">{errorMessage}</p>
+                <div className="lab-pdf-error" role="alert">
+                  <div className="lab-pdf-error-icon">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <div className="lab-pdf-error-title">Render Error</div>
+                  <div className="lab-pdf-error-message">{errorMessage}</div>
+                </div>
               ) : (
                 <canvas
                   className={`lab-pdf-canvas ${showPreloader ? "lab-pdf-canvas-loading" : "lab-pdf-canvas-ready"}`}
@@ -585,15 +817,18 @@ function PdfCanvasPreview({
                 />
               )}
               <div
-                className={`lab-pdf-preloader ${fullscreen ? "lab-pdf-preloader-fullscreen" : ""} ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
+                className={`lab-pdf-preloader ${showPreloader ? "lab-pdf-preloader-visible" : ""}`}
                 role="status"
                 aria-live="polite"
                 aria-hidden={!showPreloader}
               >
-                <span
-                  className="lab-pdf-preloader-spinner"
-                  aria-hidden="true"
-                />
+                <div className="lab-pdf-preloader-spinner">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <p>{loadingLabel}</p>
               </div>
             </div>

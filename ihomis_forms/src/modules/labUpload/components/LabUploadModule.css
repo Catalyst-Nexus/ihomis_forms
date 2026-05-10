@@ -856,35 +856,6 @@
   border-bottom: 1px solid var(--lum-border);
 }
 
-.lum-upload-preview-panel .lum-pdf-wrap {
-  flex: 1;
-  overflow: auto;
-  background: #f1f5f9;
-  border-radius: var(--lum-radius-sm);
-  min-height: 400px;
-}
-
-.lum-upload-preview-panel .lum-empty-preview {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--lum-text-muted);
-  background: #f8fafc;
-  border-radius: var(--lum-radius-sm);
-  min-height: 400px;
-}
-
-.lum-upload-preview-panel .lum-empty-preview svg {
-  opacity: 0.4;
-  margin-bottom: 0.75rem;
-}
-
-.lum-upload-preview-panel .lum-empty-preview p {
-  margin: 0;
-  font-size: 0.875rem;
-}
 
 /* Upload Item Active State */
 .lum-upload-item {
