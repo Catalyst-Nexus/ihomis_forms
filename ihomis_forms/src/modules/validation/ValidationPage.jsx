@@ -60,11 +60,19 @@ function getPatientInitials(label) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
-  const { enccode, loading, error, summary, refresh, validationData } = useFormValidation({
-    selectedPatient,
-    enccode: enccodeOverride || undefined,
-  });
+function ValidationPage({
+  selectedPatient,
+  enccode: enccodeOverride,
+  selectedForms,
+  onProceed,
+  onBackToForms,
+  onChangePatient,
+}) {
+  const { enccode, loading, error, summary, refresh, validationData } =
+    useFormValidation({
+      selectedPatient,
+      enccode: enccodeOverride || undefined,
+    });
 
   const scopedSummary = useMemo(
     () => buildScopedValidationSummary(summary, selectedForms),
@@ -120,128 +128,104 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         aria-hidden="true"
       />
       <main className="validation-layout">
-        <section className="validation-hero-wrap">
-          <div className="validation-hero">
-            <div className="validation-hero-left">
-              <div className="validation-hero-eyebrow">
-                <span className="validation-hero-system">Forms validation</span>
-                <span
-                  className={`validation-hero-status validation-hero-status--${statusTone}`}
-                >
-                  <span className="validation-hero-status-dot" />
-                  {statusLabel}
-                </span>
-              </div>
-              <h1 className="validation-hero-title">
-                CHART Tracking checklist
-              </h1>
-              <p className="validation-hero-sub">
-                Review missing form fields before generating patient forms.
-              </p>
-              <div className="validation-hero-meta">
-                <span>Validation endpoint: /api/validation</span>
-                {resolvedEnccode ? (
-                  <span>Resolved ENCCODE: {resolvedEnccode}</span>
-                ) : null}
-              </div>
+        {/* Header Section */}
+        <div className="validation-header">
+          <div className="validation-header-content">
+            <div className="validation-header-meta">
+              <span className="validation-header-label">Patient Forms</span>
+              <span
+                className={`validation-header-status validation-header-status--${statusTone}`}
+              >
+                <span className="validation-header-status-dot" />
+                {statusLabel}
+              </span>
             </div>
-
-            <div className="validation-hero-right">
-              <div className="validation-hero-patient">
-                <div className="validation-hero-avatar" aria-hidden="true">
-                  {patientInitials}
-                </div>
-                <div className="validation-hero-patient-info">
-                  <span className="validation-hero-patient-label">
-                    Selected Patient
-                  </span>
-                  <span className="validation-hero-patient-name">
-                    {patientLabel.name}
-                  </span>
-                  <span className="validation-hero-patient-meta">
-                    HPER {patientLabel.hpercode || "N/A"}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <h1 className="validation-header-title">
+              Patient Form Verification
+            </h1>
+            <p className="validation-header-desc">
+              Verify all required form fields are complete before proceeding to
+              generate patient documents.
+            </p>
           </div>
 
-          <div className="validation-actions">
-            <button
-              type="button"
-              className="validation-btn validation-btn--ghost"
-              onClick={refresh}
-              disabled={loading}
-            >
-              Refresh
-            </button>
+          {/* Patient Card */}
+          <div className="validation-patient-card">
+            <div className="validation-patient-avatar" aria-hidden="true">
+              {patientInitials}
+            </div>
+            <div className="validation-patient-details">
+              <span className="validation-patient-title">Selected Patient</span>
+              <span className="validation-patient-name">
+                {patientLabel.name}
+              </span>
+              <span className="validation-patient-id">
+                HPER {patientLabel.hpercode || "N/A"}
+              </span>
+            </div>
             {onChangePatient ? (
               <button
                 type="button"
-                className="validation-btn validation-btn--ghost"
+                className="validation-patient-change"
                 onClick={onChangePatient}
+                title="Change patient"
               >
-                Change patient
+                ✎
               </button>
             ) : null}
-            {onBackToForms ? (
-              <button
-                type="button"
-                className="validation-btn validation-btn--ghost"
-                onClick={onBackToForms}
-                disabled={loading}
-              >
-                Back to Forms
-              </button>
-            ) : null}
-            <button
-              type="button"
-              className="validation-btn validation-btn--primary"
-              onClick={handleProceedClick}
-              disabled={!selectedPatient || loading || scopedSummary.hasIssues}
-              title={
-                scopedSummary.hasIssues
-                  ? "Complete missing data before proceeding"
-                  : "Proceed to forms"
-              }
-            >
-              Continue to Generate
-            </button>
           </div>
-        </section>
+        </div>
 
+        {/* Summary Cards Grid */}
         <section className="validation-summary">
-          <SummaryCard label="Form Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
-          <SummaryCard 
-            label="Admission Form" 
-            value={scopedSummary.admissionComplete ? "✓ Complete" : "✗ Incomplete"}
+          <SummaryCard
+            label="Form Status"
+            value={statusLabel}
+            tone={statusTone === "ready" ? "default" : "alert"}
+          />
+          <SummaryCard
+            label="Admission Form"
+            value={
+              scopedSummary.admissionComplete ? "✓ Complete" : "✗ Incomplete"
+            }
             tone={scopedSummary.admissionComplete ? "default" : "alert"}
           />
-          <SummaryCard 
-            label="Discharge Form" 
-            value={scopedSummary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"}
+          <SummaryCard
+            label="Discharge Form"
+            value={
+              scopedSummary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"
+            }
             tone={scopedSummary.dischargeComplete ? "default" : "alert"}
           />
-          <SummaryCard 
-            label="Missing Fields" 
-            value={scopedSummary.allMissing.length} 
+          <SummaryCard
+            label="Missing Fields"
+            value={scopedSummary.allMissing.length}
             tone={scopedSummary.allMissing.length > 0 ? "alert" : "default"}
           />
         </section>
 
+        {/* Error Message */}
         {error ? (
           <div className="validation-message validation-message--error">
-            {error}
+            <span className="validation-message-icon">⚠</span>
+            <span className="validation-message-text">{error}</span>
           </div>
         ) : null}
 
+        {/* Content Section */}
         {loading ? (
-          <div className="validation-loading">
-            Loading form validation status...
+          <div className="validation-loading-container">
+            <div className="validation-loading-spinner"></div>
+            <p className="validation-loading-text">Validating form data...</p>
           </div>
         ) : scopedSummary.allMissing.length > 0 ? (
-          <section className="validation-panel">
-            <h2 className="validation-panel-title">Missing form fields</h2>
+          <section className="validation-issues-panel">
+            <div className="validation-issues-header">
+              <h2 className="validation-issues-title">Missing Form Fields</h2>
+              <span className="validation-issues-badge">
+                {scopedSummary.allMissing.length}
+              </span>
+            </div>
             <div className="validation-step-list">
               {scopedSummary.allMissing.map((field) => (
                 <span
@@ -252,36 +236,85 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                 </span>
               ))}
             </div>
-            <p className="validation-helper-text">
-              Complete all missing fields in the forms before proceeding.
+            <p className="validation-issues-note">
+              Please complete all highlighted fields before proceeding to form
+              generation.
             </p>
           </section>
         ) : (
-          <div className="validation-empty">
-            ✓ All forms are complete and ready to proceed.
+          <div className="validation-complete-panel">
+            <div className="validation-complete-icon">✓</div>
+            <p className="validation-complete-text">
+              All forms are complete and ready to proceed.
+            </p>
           </div>
         )}
 
+        {/* Missing By Form Section */}
         {missingByForm.length > 0 ? (
-          <section className="validation-panel">
-            <h2 className="validation-panel-title">Missing data by form</h2>
-            {missingByForm.map((entry) => (
-              <div key={entry.formName} className="validation-panel">
-                <h3 className="validation-section-label">{entry.formName}</h3>
-                <div className="validation-step-list">
-                  {entry.allMissing.map((field) => (
-                    <span
-                      key={`${entry.formName}-${field}`}
-                      className="validation-pill validation-pill--missing"
-                    >
-                      {getFieldLabel(field)}
-                    </span>
-                  ))}
+          <section className="validation-breakdown-panel">
+            <h2 className="validation-breakdown-title">Missing Data by Form</h2>
+            <div className="validation-form-list">
+              {missingByForm.map((entry) => (
+                <div key={entry.formName} className="validation-form-item">
+                  <h3 className="validation-form-name">{entry.formName}</h3>
+                  <div className="validation-step-list">
+                    {entry.allMissing.map((field) => (
+                      <span
+                        key={`${entry.formName}-${field}`}
+                        className="validation-pill validation-pill--missing"
+                      >
+                        {getFieldLabel(field)}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </section>
         ) : null}
+
+        {/* Debug Info */}
+        {resolvedEnccode ? (
+          <div className="validation-debug-info">
+            <small>Resolved ENCCODE: {resolvedEnccode}</small>
+          </div>
+        ) : null}
+
+        {/* Action Buttons */}
+        <div className="validation-footer">
+          <button
+            type="button"
+            className="validation-btn validation-btn--ghost"
+            onClick={refresh}
+            disabled={loading}
+          >
+            Refresh
+          </button>
+          {onBackToForms ? (
+            <button
+              type="button"
+              className="validation-btn validation-btn--ghost"
+              onClick={onBackToForms}
+              disabled={loading}
+            >
+              Back to Forms
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="validation-btn validation-btn--primary"
+            onClick={handleProceedClick}
+            disabled={!selectedPatient || loading || scopedSummary.hasIssues}
+            title={
+              scopedSummary.hasIssues
+                ? "Complete missing data before proceeding"
+                : "Proceed to form generation"
+            }
+          >
+            Continue to Generate
+          </button>
+        </div>
       </main>
     </div>
   );
@@ -296,10 +329,7 @@ ValidationPage.propTypes = {
     contextParams: PropTypes.object,
   }),
   enccode: PropTypes.string,
-  selectedForms: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object,
-  ]),
+  selectedForms: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   onProceed: PropTypes.func.isRequired,
   onBackToForms: PropTypes.func,
   onChangePatient: PropTypes.func,
