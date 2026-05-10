@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import "./DischargePlanReferralSlip.css";
 
 export default function DischargePlanReferralSlip({ patientName, patientData }) {
-  const name        = patientName             || "BAYSA , BABY BOY";
-  const hospitalNo  = patientData?.hospitalNo || "000000000021041";
-  const department  = patientData?.department || "NEWBORN";
-  const sex         = patientData?.sex        || "M";
-  const age         = patientData?.age        || "1 hour(s)";
-  const address     = patientData?.address    || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
+  const name        = patientName             || "";
+  const hospitalNo  = patientData?.hospitalNo || "";
+  const department  = patientData?.department || "";
+  const sex         = patientData?.sex        || "";
+  const age         = patientData?.age        || "";
+  const address     = patientData?.address    || "";
 
   const { admissionDate, generatedOn } = useMemo(() => {
     const now = new Date();

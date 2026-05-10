@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import "./CertificateOfNoVacancy.css";
 
 export default function CertificateOfNoVacancy({ patientName, patientData }) {
-	const name  = patientName          || "BAYSA , BABY BOY";
-	const ward  = patientData?.ward    || "OB GYNE - OB 2 - BED 03 - NB";
+	const name  = patientName          || "";
+	const ward  = patientData?.ward    || "";
 
 	const { dayStr, monthYear, generatedOn } = useMemo(() => {
 		const now = new Date();

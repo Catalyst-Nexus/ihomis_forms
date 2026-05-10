@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import "./tracking.css";
 import { supabase } from "../tracking/hooks/supabaseClient.js";
-import { useTagAccess } from "../tracking/hooks/useTagAccess.js";
-import { Search, X, Calendar } from "lucide-react";
+import {
+  Search, X, Calendar, RefreshCw,
+  CheckCircle2, Clock, ArrowRight, ChevronRight
+} from "lucide-react";
+import "./tracking.css";
 
 // ── Safe date helpers ─────────────────────────────────────────────────────────
 function safeIso(raw) {
@@ -36,22 +39,219 @@ const API_FIELD_MAP = {
   acpn: ["acpm", "acpn"],
 };
 
-function matchApiField(stepDescription = "") {
-  const desc = stepDescription.toLowerCase();
-  for (const [field, keywords] of Object.entries(API_FIELD_MAP)) {
-    if (keywords.some((k) => desc.includes(k))) return field;
-  }
-  return null;
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function parseApiStatus(raw = "") {
+  const lower = raw.toLowerCase();
+  if (lower.includes("not yet") || lower.includes("no phic")) return { done: false };
+  return { done: true, label: raw };
 }
 
 function extractAdmittedDate(encoCode = "") {
-  const value = String(encoCode);
-  const m = value.match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
+  const m = String(encoCode).match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
   if (!m) return "—";
   return m[2] ? `${m[1]} ${m[2]}` : m[1];
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+function calculateRemainingDays(dischargedDate) {
+  if (!dischargedDate || dischargedDate === "—") return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = new Date(dischargedDate);
+  if (isNaN(d.getTime())) return null;
+  return 60 - Math.floor((today - d) / 86400000);
+}
+
+function fmt(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("en-PH", { dateStyle: "short", timeStyle: "short" });
+}
+
+function getApiValueForStep(apiRow, stepKey) {
+  const keywords = API_FIELD_MAP[stepKey] ?? [];
+  for (const kw of keywords) {
+    for (const [field, val] of Object.entries(apiRow ?? {})) {
+      if (field.toLowerCase().includes(kw) && val) return String(val);
+    }
+  }
+  return null;
+}
+
+function getNextStepKey(stepKey) {
+  const idx = STEPS.findIndex(s => s.key === stepKey);
+  if (idx === -1 || idx >= STEPS.length - 1) return null;
+  return STEPS[idx + 1].key;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ProcessModal — click a cell → opens this
+// ─────────────────────────────────────────────────────────────────────────────
+function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
+  const {
+    row, stepKey, stepLabel, existingLog,
+    currentUserId, currentUserName,
+  } = ctx;
+
+  const [remarks,  setRemarks]  = useState(existingLog?.remarks ?? "");
+  const [nextUser, setNextUser] = useState("");
+  const [saving,   setSaving]   = useState(false);
+
+  // Workflow history — steps marked done
+  const history = Object.entries(row._stepLogs ?? {})
+    .filter(([, l]) => l.status === "done")
+    .sort(([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at));
+
+  // Only show users assigned to the NEXT step
+  const nextStepKey   = getNextStepKey(stepKey);
+  const nextStepLabel = STEPS.find(s => s.key === nextStepKey)?.label ?? "next step";
+  const eligibleUsers = nextStepKey
+    ? (stepKeyToUsers[nextStepKey] ?? []).filter(u => u.user_id !== currentUserId)
+    : [];
+
+  async function handleDoneAndPass() {
+    if (nextStepKey && !nextUser) return;
+    setSaving(true);
+    await onSave({ row, stepKey, remarks, markDone: true, nextUserId: nextUser || null });
+    setSaving(false);
+    onClose();
+  }
+
+  async function handleSaveOnly() {
+    setSaving(true);
+    await onSave({ row, stepKey, remarks, markDone: false });
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="modal-header">
+          <div className="modal-header-info">
+            <span className="modal-step-pill">{stepLabel}</span>
+            <h3 className="modal-patient">{row.patientName}</h3>
+            <p className="modal-patient-sub">{row.hospitalNo} · {row.admittedDate}</p>
+          </div>
+          <button className="modal-x-btn" onClick={onClose}><X size={16}/></button>
+        </div>
+
+        {/* Workflow history */}
+        {history.length > 0 && (
+          <div className="modal-history">
+            <p className="modal-section-title">📋 Workflow History</p>
+            <div className="modal-timeline">
+              {history.map(([key, log]) => {
+                const step = STEPS.find(s => s.key === key);
+                return (
+                  <div key={key} className="timeline-row">
+                    <CheckCircle2 size={13} className="tl-icon-done"/>
+                    <div className="tl-content">
+                      <span className="tl-step">{step?.label ?? key}</span>
+                      <span className="tl-who">{log.completed_by} · {fmt(log.completed_at)}</span>
+                      {log.remarks && <p className="tl-remarks">"{log.remarks}"</p>}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* Current step */}
+              <div className="timeline-row timeline-row--current">
+                <Clock size={13} className="tl-icon-current"/>
+                <div className="tl-content">
+                  <span className="tl-step">{stepLabel} <em>(you are here)</em></span>
+                  <span className="tl-who">{currentUserName}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Remarks */}
+        <div className="modal-body">
+          <label className="modal-field-label">
+            Remarks for <strong>{stepLabel}</strong>
+          </label>
+          <textarea
+            className="modal-textarea"
+            rows={3}
+            placeholder="Type your remarks or notes…"
+            value={remarks}
+            onChange={e => setRemarks(e.target.value)}
+            autoFocus
+          />
+        </div>
+
+        {/* Pass to next user */}
+        <div className="modal-pass-section">
+          <p className="modal-section-title">
+            <ArrowRight size={13}/>
+            {nextStepKey
+              ? <> Mark Done &amp; Pass to <strong>{nextStepLabel}</strong> user</>
+              : <> Mark Done (last step)</>
+            }
+          </p>
+
+          {nextStepKey ? (
+            eligibleUsers.length > 0 ? (
+              <>
+                <select
+                  className="modal-select"
+                  value={nextUser}
+                  onChange={e => setNextUser(e.target.value)}
+                >
+                  <option value="">— Choose who handles {nextStepLabel} —</option>
+                  {eligibleUsers.map(u => (
+                    <option key={u.user_id} value={u.user_id}>
+                      {u.full_name ?? u.username}
+                    </option>
+                  ))}
+                </select>
+                <p className="modal-pass-hint">
+                  Only users assigned to <strong>{nextStepLabel}</strong> are listed.
+                </p>
+              </>
+            ) : (
+              <p className="modal-pass-hint modal-pass-hint--warn">
+                ⚠️ No users are assigned to <strong>{nextStepLabel}</strong> yet.
+                You can still save remarks below.
+              </p>
+            )
+          ) : (
+            <p className="modal-pass-hint">
+              This is the last step in the workflow. No handoff needed.
+            </p>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="modal-footer">
+          <button className="mbtn mbtn--ghost" onClick={onClose} disabled={saving}>
+            Cancel
+          </button>
+          <button className="mbtn mbtn--outline" onClick={handleSaveOnly} disabled={saving}>
+            Save Remarks Only
+          </button>
+          <button
+            className="mbtn mbtn--primary"
+            onClick={handleDoneAndPass}
+            disabled={saving || (nextStepKey && eligibleUsers.length > 0 && !nextUser)}
+            title={nextStepKey && !nextUser ? "Select a user first" : ""}
+          >
+            {saving
+              ? "Saving…"
+              : <><CheckCircle2 size={13}/> Done &amp; Pass →</>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Component
+// ─────────────────────────────────────────────────────────────────────────────
 export default function Tracking({
   onBackToModuleNavigator,
   currentUserId, // ← from useUserSession
@@ -74,7 +274,11 @@ export default function Tracking({
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState("");
 
+  const [loadingApi,  setLoadingApi]  = useState(false);
+  const [syncing,     setSyncing]     = useState(false);
+  const [error,       setError]       = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [modal,       setModal]       = useState(null);
   const ROWS_PER_PAGE = 10;
 
   // ── Access control ────────────────────────────────────────────────────────
@@ -88,18 +292,65 @@ export default function Tracking({
 
   // ── 1. Load steps ──────────────────────────────────────────────────────────
   useEffect(() => {
+    if (!currentUserId) return;
     (async () => {
-      const { data, error: err } = await supabase
+      // tracking_sequence → seqId → stepKey map
+      const { data: seqs } = await supabase
         .from("tracking_sequence")
-        .select("id, description, sort_order")
+        .select("id, description")
         .order("sort_order", { ascending: true });
-      if (!err && data?.length) {
-        setSteps(data.map((r) => ({ id: r.id, label: r.description })));
+
+      const map = {};
+      for (const s of seqs ?? []) {
+        const desc = s.description.toLowerCase();
+        for (const [key, kws] of Object.entries(API_FIELD_MAP)) {
+          if (kws.some(kw => desc.includes(kw))) { map[s.id] = key; break; }
+        }
+      }
+      setSeqToKey(map);
+
+      // All active users
+      const { data: users } = await supabase
+        .from("users").select("user_id, username, full_name").eq("active", true);
+      setAllUsers(users ?? []);
+
+      // Build stepKey → users[] map from ALL user_seq_assignment rows
+      const { data: allAssignments } = await supabase
+        .from("user_seq_assignment").select("user_id, seq_id");
+
+      const skToUsers = {};
+      for (const stepKey of Object.keys(API_FIELD_MAP)) {
+        skToUsers[stepKey] = [];
+      }
+      for (const assignment of allAssignments ?? []) {
+        const sk   = map[assignment.seq_id];
+        if (!sk) continue;
+        const user = (users ?? []).find(u => u.user_id === assignment.user_id);
+        if (user && !skToUsers[sk].some(u => u.user_id === user.user_id)) {
+          skToUsers[sk].push(user);
+        }
+      }
+      setStepKeyToUsers(skToUsers);
+
+      // Is current user a super user? (tag_order === 1)
+      const { data: myTA } = await supabase
+        .from("tracking_user_assignment")
+        .select("tag_order").eq("user_id", currentUserId);
+      const isSuper = (myTA ?? []).some(a => a.tag_order === 1);
+      setIsSuperUser(isSuper);
+
+      // My assigned step keys (for non-super users)
+      if (!isSuper) {
+        const { data: mySeqs } = await supabase
+          .from("user_seq_assignment").select("seq_id").eq("user_id", currentUserId);
+        setMyAssignedStepKeys(new Set(
+          (mySeqs ?? []).map(r => map[r.seq_id]).filter(Boolean)
+        ));
       }
     })();
-  }, []);
+  }, [currentUserId]);
 
-  // ── 2. Fetch API ───────────────────────────────────────────────────────────
+  // ── Fetch API ────────────────────────────────────────────────────────────
   const fetchApi = useCallback(async () => {
     const url = import.meta.env.VITE_CHART_TRACKING;
     if (!url) {
@@ -129,13 +380,13 @@ export default function Tracking({
     fetchApi();
   }, [fetchApi]);
 
-  // ── 3. Sync API → Supabase ─────────────────────────────────────────────────
+  // ── Sync API → tracking table ────────────────────────────────────────────
   useEffect(() => {
-    if (!apiRows.length || !steps.length) return;
+    if (!apiRows.length) return;
     let cancelled = false;
     (async () => {
       setSyncing(true);
-      for (const apiRow of apiRows) {
+      for (const r of apiRows) {
         if (cancelled) break;
         const encoCode = apiRow.enccode ?? apiRow.tracking_encocode;
         if (!encoCode) continue;
@@ -206,13 +457,14 @@ export default function Tracking({
       .from("tracking_log")
       .select("id, tracking_id, seq_id, done_by, done_at, remarks")
       .in("tracking_id", ids);
-    const logMap = {};
-    for (const log of logData ?? []) {
-      if (!logMap[log.tracking_id]) logMap[log.tracking_id] = {};
-      logMap[log.tracking_id][log.seq_id] = log;
+
+    const lm = {};
+    for (const l of logs ?? []) {
+      if (!lm[l.tracking_id]) lm[l.tracking_id] = {};
+      lm[l.tracking_id][l.step_key] = l;
     }
-    setLogs(logMap);
-    setDbRows(trackingData);
+    setWfLogs(lm);
+    setDbRows(rows);
   }, []);
 
   useEffect(() => {
@@ -237,7 +489,7 @@ export default function Tracking({
     });
   }, [apiRows, dbRows]);
 
-  // ── 6. Filter rows — include access control ────────────────────────────────
+  // ── Filter + sort ────────────────────────────────────────────────────────
   const filteredRows = useMemo(() => {
     return mergedRows.filter((r) => {
       // ── Access gate: only show records this user is tagged on ──────────────
@@ -278,27 +530,57 @@ export default function Tracking({
     startIndex + ROWS_PER_PAGE,
   );
 
-  // ── 8. Step status ─────────────────────────────────────────────────────────
-  function getStepStatus(row, seqId, stepLabel) {
-    if (row.id !== null && logs[row.id]?.[seqId]) {
-      const log = logs[row.id][seqId];
-      const remarks = log.remarks ? String(log.remarks) : "";
-      const doneAt = log.done_at ? String(log.done_at) : "";
-      let value = remarks || doneAt || "—";
-      if (remarks && doneAt && !remarks.includes(doneAt)) {
-        value = `${remarks} (${doneAt})`;
+  // ── Cell state ───────────────────────────────────────────────────────────
+  function getCellState(row, stepKey) {
+    const wfLog  = row._stepLogs?.[stepKey];
+    const apiRaw = getApiValueForStep(row._apiRow, stepKey);
+    const apiOk  = apiRaw ? parseApiStatus(apiRaw).done : false;
+
+    // ── Already logged in DB ───────────────────────────────────────────────
+    if (wfLog) {
+      if (wfLog.status === "done") {
+        return {
+          status:   "done",
+          value:    wfLog.remarks || "Done",
+          meta:     `${wfLog.completed_by ?? ""} · ${fmt(wfLog.completed_at)}`,
+          canClick: false,
+          log:      wfLog,
+        };
       }
-      return { done: true, value, title: value };
+      // 'active' or 'pending' in DB — editable if authorised
+      const canEdit = isSuperUser || myAssignedStepKeys.has(stepKey);
+      return { status: "active", value: "", meta: "", canClick: canEdit, log: wfLog };
     }
 
-    const apiField = matchApiField(stepLabel);
-    if (apiField && row._apiRow?.[apiField] != null) {
-      const rawValue = String(row._apiRow[apiField]);
-      const parsed = parseApiStatus(rawValue);
-      return { done: parsed.done, value: rawValue, title: rawValue };
+    // ── Completed via API (no DB log yet) ──────────────────────────────────
+    if (apiOk) {
+      return { status: "done", value: apiRaw.slice(0, 24), meta: "API", canClick: false, log: null };
     }
 
-    return { done: false, value: "—", title: "" };
+    // ── No DB log exists yet ───────────────────────────────────────────────
+    // Super users can click any undone cell immediately
+    if (isSuperUser) {
+      return { status: "active", value: "", meta: "", canClick: true, log: null };
+    }
+
+    // Regular users: must be assigned to this step
+    if (!myAssignedStepKeys.has(stepKey)) {
+      return { status: "pending", value: "", meta: "", canClick: false, log: null };
+    }
+
+    // Regular users: all previous steps must be done first
+    const stepIndex       = STEPS.findIndex(s => s.key === stepKey);
+    const allPreviousDone = STEPS.slice(0, stepIndex).every(prevStep => {
+      const prevLog    = row._stepLogs?.[prevStep.key];
+      if (prevLog) return prevLog.status === "done";
+      const prevApiRaw = getApiValueForStep(row._apiRow, prevStep.key);
+      return prevApiRaw ? parseApiStatus(prevApiRaw).done : false;
+    });
+
+    if (allPreviousDone || stepIndex === 0) {
+      return { status: "active", value: "", meta: "", canClick: true, log: null };
+    }
+    return { status: "pending", value: "", meta: "", canClick: false, log: null };
   }
 
   const taggableRows = filteredRows.filter((r) => r.id !== null);
@@ -326,22 +608,40 @@ export default function Tracking({
     return steps.filter((s) => ids.has(s.id));
   }, [accessMap, currentUserId, steps]);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+      if (existing?.id) {
+        await supabase.from("workflow_step_log").update(activePayload).eq("id", existing.id);
+      } else {
+        await supabase.from("workflow_step_log").insert(activePayload);
+      }
+    }
+
+    await reloadDb();
+  }
+
+  const isLoading = loadingApi || syncing;
+
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="tracking-page">
       <main className="tracking-shell">
+
+        {/* Header */}
         <header className="tracking-title-box">
           <h1>Agusan del Norte Provincial Health Office</h1>
           <p>CHART Tracking System</p>
           {currentUserName && (
             <small>
               Viewing as: <strong>{currentUserName}</strong>
+              {isSuperUser
+                ? <span className="badge-super">SUPER USER</span>
+                : myAssignedStepKeys.size > 0
+                ? <span className="badge-assigned">
+                    {[...myAssignedStepKeys].map(k => STEPS.find(s=>s.key===k)?.label).join(", ")}
+                  </span>
+                : null
+              }
               {" · "}
-              <button
-                type="button"
-                className="tracking-switch-user-link"
-                onClick={onSwitchUser}
-              >
+              <button type="button" className="tracking-switch-user-link" onClick={onSwitchUser}>
                 Switch user
               </button>
             </small>
@@ -359,8 +659,8 @@ export default function Tracking({
             >
               <option value="">All Encounters</option>
               <option value="ADM">Admitted (ADM)</option>
-              <option value="ER">Emergency Room (ER)</option>
-              <option value="OPD">Out-Patient Department (OPD)</option>
+              <option value="ER">Emergency (ER)</option>
+              <option value="OPD">Out-Patient (OPD)</option>
             </select>
           </div>
           <div className="tracking-filter-row tracking-filter-row--search">
@@ -392,7 +692,6 @@ export default function Tracking({
               </button>
             )}
           </div>
-
           <div className="tracking-filter-row tracking-filter-row--search">
             <input
               type="text"
@@ -456,10 +755,24 @@ export default function Tracking({
 
         {error && <p className="tracking-error">{error}</p>}
 
+        {/* Legend */}
+        <div className="tracking-legend">
+          <span className="leg"><span className="leg-dot leg-done"/><CheckCircle2 size={11}/> Done</span>
+          <span className="leg"><span className="leg-dot leg-active"/><Clock size={11}/> Active – click to process</span>
+          <span className="leg"><span className="leg-dot leg-empty"/> Pending</span>
+          <span className="leg leg-hint">
+            {isSuperUser
+              ? "⚡ Super User — click any step cell to process"
+              : myAssignedStepKeys.size > 0
+              ? `✏️ You can process: ${[...myAssignedStepKeys].map(k=>STEPS.find(s=>s.key===k)?.label).join(", ")}`
+              : "👁 View only — no step assigned"}
+          </span>
+        </div>
+
         <div className="tracking-status-bar">
           {isLoading
             ? "⏳ Syncing records from API…"
-            : `${filteredRows.length} record${filteredRows.length !== 1 ? "s" : ""} visible · ${visibleSteps.length} of ${steps.length} steps shown`}
+            : `${filteredRows.length} record${filteredRows.length!==1?"s":""}  ·  Page ${currentPage} of ${totalPages || 1}`}
         </div>
 
         {/* Table */}
@@ -471,11 +784,10 @@ export default function Tracking({
                 <th>Hospital No.</th>
                 <th>Encounter</th>
                 <th>Admitted Date</th>
-                <th>Discharged Date</th>
+                <th>Discharged</th>
+                <th>Days Left</th>
                 <th>Patient Name</th>
-                {visibleSteps.map((step) => (
-                  <th key={step.id}>{step.label}</th>
-                ))}
+                {STEPS.map(s => <th key={s.key} className="th-step">{s.label}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -502,8 +814,8 @@ export default function Tracking({
               ) : (
                 paginatedRows.map((row, index) => (
                   <tr key={row.encoCode}>
-                    <td>{startIndex + index + 1}</td>
-                    <td>{row.hospitalNo}</td>
+                    <td>{(currentPage-1)*ROWS_PER_PAGE + idx + 1}</td>
+                    <td className="td-mono">{row.hospitalNo}</td>
                     <td>
                       <span
                         className={`tracking-badge tracking-badge--${row.encounterType.toLowerCase()}`}
@@ -511,8 +823,11 @@ export default function Tracking({
                         {row.encounterType || "—"}
                       </span>
                     </td>
-                    <td>{row.admittedDate}</td>
-                    <td>{row.dischargedDate}</td>
+                    <td className="td-mono">{row.admittedDate}</td>
+                    <td className="td-mono">{row.dischargedDate}</td>
+                    <td className={row.remainingDays !== null && row.remainingDays <= 10 ? "td-urgent" : ""}>
+                      {row.remainingDays != null ? `${row.remainingDays}d` : "—"}
+                    </td>
                     <td className="tracking-td-name">{row.patientName}</td>
                     {visibleSteps.map((step) => {
                       // Cell-level gate: hide cells this user can't see
@@ -553,12 +868,13 @@ export default function Tracking({
                     })}
                   </tr>
                 ))
-              )}
+              }
             </tbody>
           </table>
         </div>
 
-        {filteredRows.length > 0 && (
+        {/* Pagination */}
+        {totalPages > 1 && (
           <div className="tracking-pagination">
             <button
               type="button"
@@ -582,6 +898,16 @@ export default function Tracking({
           </div>
         )}
       </main>
+
+      {/* Modal */}
+      {modal && (
+        <ProcessModal
+          ctx={modal}
+          stepKeyToUsers={stepKeyToUsers}
+          onClose={() => setModal(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

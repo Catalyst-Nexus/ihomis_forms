@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./ConsentToSurgery.css";
 
 export default function ConsentToSurgery({ patientName, patientData }) {
-  const name = patientName || "BAYSA , BABY BOY";
+  const name = patientName || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

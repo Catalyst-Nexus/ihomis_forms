@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./RefusalToTreatment.css";
 
 export default function RefusalToTreatment({ patientName, patientData }) {
-	const name = patientName || "BAYSA , BABY BOY";
+	const name = patientName || "";
 
 	const { dateTimeStr, generatedOn } = useMemo(() => {
 		const now = new Date();
