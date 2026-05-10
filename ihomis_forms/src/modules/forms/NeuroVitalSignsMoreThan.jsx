@@ -1,67 +1,95 @@
-import './NeuroVitalSignsMoreThan.css';
+/**
+ * NeuroVitalSignsMoreThan - Converted to CSS Module
+ * 
+ * FIX: Removed global style injection that was causing layout conflicts
+ * FIX: Now uses CSS Module for scoped styling
+ * FIX: Added proper props support (was hardcoded)
+ */
 
-const chartPlaceholderSrc = 'src/modules/forms/img/NEURO VITAL SIGNS STATUS.png';
+import { useMemo } from 'react';
+import styles from './NeuroVitalSignsMoreThan.module.css';
 
-const patientFields = [
-  { label: 'Case Number:', value: 'ADM-2026-010651' },
-  { label: 'Hospital No.', value: '00000000021041' },
-];
+const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
+  const caseNum = patientData?.caseNum || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const name = patientName || "";
+  const room = patientData?.room || "";
+  const age = patientData?.age || "";
+  const date = patientData?.date || "";
 
-const NeuroVitalSignsLessThan = () => {
+  const patientFields = [
+    { label: 'Case Number:', value: caseNum },
+    { label: 'Hospital No.', value: hospitalNo },
+  ];
+
+  const { generatedOn, generatedBy } = useMemo(() => {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const timeStr = now.toLocaleTimeString("en-US", {
+      hour: "2-digit", minute: "2-digit", hour12: true,
+    }).toLowerCase();
+    return {
+      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
+      generatedBy: "TCP T. TCP"
+    };
+  }, []);
+
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <section className="form-intro" aria-label="Form title and patient details">
-          <div className="patient-meta patient-meta-grid">
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">{patientFields[0].label}</span>
-              <span className="meta-value meta-value-inline">{patientFields[0].value}</span>
+    <div className={styles.container}>
+      <div className={styles.page}>
+        
+        <section className={styles.formIntro} aria-label="Form title and patient details">
+          <div className={`${styles.patientMeta} ${styles.patientMetaGrid}`}>
+            
+            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
+              <span className={styles.metaLabel}>{patientFields[0].label}</span>
+              <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{patientFields[0].value}</span>
             </div>
 
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">{patientFields[1].label}</span>
-              <span className="meta-value meta-value-inline">{patientFields[1].value}</span>
+            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
+              <span className={styles.metaLabel}>{patientFields[1].label}</span>
+              <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{patientFields[1].value}</span>
             </div>
 
-            <div className="meta-row meta-row-split">
-              <div className="meta-left-block">
-                <span className="meta-label">NAME OF PATIENT:</span>
-                <span className="meta-value meta-value-name">FELISELDA, CIAN REIN BAYSA</span>
+            <div className={`${styles.metaRow} ${styles.metaRowSplit}`}>
+              <div className={styles.metaLeftBlock}>
+                <span className={styles.metaLabel}>NAME OF PATIENT:</span>
+                <span className={`${styles.metaValue} ${styles.metaValueName}`}>{name}</span>
               </div>
-              <div className="meta-right-block meta-right-physician">
-                <span className="meta-label">PHYSICIAN:</span>
-                <span className="meta-line-fill" />
+              <div className={`${styles.metaRightBlock} ${styles.metaRightPhysician}`}>
+                <span className={styles.metaLabel}>PHYSICIAN:</span>
+                <span className={styles.metaLineFill} />
               </div>
             </div>
 
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">Room: OB GYNE - OB 2 - BED 03 - NB</span>
+            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
+              <span className={styles.metaLabel}>Room: {room}</span>
             </div>
 
-            <div className="meta-row meta-row-split meta-row-age-date">
-              <div className="meta-left-block">
-                <span className="meta-label">Age:</span>
-                <span className="meta-value meta-value-inline">1 hour(s)</span>
+            <div className={`${styles.metaRow} ${styles.metaRowSplit} ${styles.metaRowAgeDate}`}>
+              <div className={styles.metaLeftBlock}>
+                <span className={styles.metaLabel}>Age:</span>
+                <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{age}</span>
               </div>
-              <div className="meta-right-block meta-right-physician">
-                <span className="meta-label">Date: April 21, 2026</span>
-             
+              <div className={`${styles.metaRightBlock} ${styles.metaRightPhysician}`}>
+                <span className={styles.metaLabel}>Date: {date}</span>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="chart-section" aria-label="Neuro vital signs chart image">
+        <section className={styles.chartSection} aria-label="Neuro vital signs chart image">
           <img
-            className="chart-image"
-            src={chartPlaceholderSrc}
+            className={styles.chartImage}
+            src="/neuro-vital-signs-more-than-chart-placeholder.svg"
             alt="Neuro vital signs status chart placeholder"
           />
         </section>
-        <div className="form-footer"> Generated by: TCP T. TCP on April 22, 2026</div>
+        
+        <div className={styles.formFooter}>Generated by: {generatedBy} on {generatedOn}</div>
       </div>
     </div>
   );
 };
 
-export default NeuroVitalSignsLessThan;
+export default NeuroVitalSignsMoreThan;
