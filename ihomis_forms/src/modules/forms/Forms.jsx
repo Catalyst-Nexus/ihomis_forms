@@ -55,9 +55,9 @@ import ChestTubeThoracostomy from "./ChestTubeThoracostomy";
 import BallardScore from "./BallardScore";
 import NeuroVitalSignsLessThan from "./NeuroVitalSignsLessThan";
 import NeuroVitalSignsMoreThan from "./NeuroVitalSignsMoreThan";
-// import Neurologic from "./Neurologic";
-// import Partograph from "./Partograph";
-// import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
+import Neurologic from "./Neurologic";
+import Partograph from "./Partograph";
+import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
 // import Lubchenco from "./Lubchenco";
 // import AnesthesiaRecord from "./AnesthesiaRecord";
 // import ChildImmunizationRecord from "./ChildImmunizationRecord";
@@ -127,9 +127,9 @@ const COMPONENT_MAP = {
   BallardScore,
   NeuroVitalSignsLessThan,
   NeuroVitalSignsMoreThan,
-  // Neurologic,
-  // Partograph,
-  // PostAnesthesiaSheet,
+  Neurologic,
+  Partograph,
+  PostAnesthesiaSheet,
   // Lubchenco,
   // import AnesthesiaRecord from "./AnesthesiaRecord",
   // import ChildImmunizationRecord from "./ChildImmunizationRecord",

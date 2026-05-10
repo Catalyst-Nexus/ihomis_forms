@@ -7,6 +7,7 @@
  */
 
 import { useMemo } from 'react';
+import chartPlaceholderSrc from './img/NEURO VITAL SIGNS STATUS.png';
 import styles from './NeuroVitalSignsMoreThan.module.css';
 
 const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
@@ -81,7 +82,7 @@ const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
         <section className={styles.chartSection} aria-label="Neuro vital signs chart image">
           <img
             className={styles.chartImage}
-            src="/neuro-vital-signs-more-than-chart-placeholder.svg"
+            src={chartPlaceholderSrc}
             alt="Neuro vital signs status chart placeholder"
           />
         </section>

@@ -1,0 +1,145 @@
+/* CSS Module - Scoped to PostAnesthesiaSheet */
+/* NO global selectors */
+
+/* Page */
+.page {
+  width: 210mm;
+  height: 297mm;
+  background: #fff;
+  padding: 5mm 10mm 5mm;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3mm;
+  line-height: 1.15;
+  color: #000;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4mm;
+  margin-bottom: 1mm;
+}
+
+/* PACU Panel */
+.pacuPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1mm;
+  font-size: 2.95mm;
+  line-height: 1;
+}
+
+.pacuRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4mm;
+}
+
+.pacuRowTop {
+  justify-content: space-between;
+}
+
+.pacuRowPatient {
+  justify-content: space-between;
+  gap: 5mm;
+}
+
+.pacuRowProcedure {
+  justify-content: space-between;
+  gap: 5mm;
+}
+
+.pacuRowSurgeon {
+  justify-content: space-between;
+  gap: 5mm;
+}
+
+.pacuRowAnesthesia {
+  justify-content: space-between;
+  gap: 5mm;
+}
+
+.pacuCell {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1mm;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.pacuCellCenter {
+  justify-content: center;
+}
+
+.pacuCellRight {
+  justify-content: flex-end;
+}
+
+.pacuLabel {
+  font-weight: 700;
+  font-size: 2.95mm;
+}
+
+.pacuValue {
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: 2.95mm;
+}
+
+.pacuCheck {
+  font-size: 2.95mm;
+}
+
+/* Chart Section */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chartImage {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+  border: 0;
+}
+
+/* Form Footer */
+.formFooter {
+  flex-shrink: 0;
+  padding-top: 1mm;
+  border-top: 0.25mm solid #111;
+  text-align: right;
+  font-size: 6pt;
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* SCOPED PRINT RULES */
+@media print {
+  .page {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 5mm 10mm 5mm !important;
+    box-shadow: none !important;
+  }
+
+  .chartSection {
+    overflow: hidden !important;
+  }
+
+  .chartImage {
+    max-height: calc(297mm - 40mm) !important;
+  }
+}
