@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import LabWorkflowPanel from "./LabWorkflowPanel.jsx";
 import {
@@ -33,7 +33,7 @@ function LabUploadModule({
   const [historyError, setHistoryError] = useState("");
   const [historyFiles, setHistoryFiles] = useState([]);
   const [historyCount, setHistoryCount] = useState(0);
-  const [historyLoadedForHpercode, setHistoryLoadedForHpercode] = useState("");
+  const historyRefreshRequestRef = useRef(0);
 
   const patientName = useMemo(() => {
     const lastName =
@@ -130,6 +130,117 @@ function LabUploadModule({
   const selectedEnccode =
     contextParams?.enccode || selectedContextParams?.enccode || "";
 
+  const fetchUploadedPdfHistory = useCallback(
+    async ({ includeFiles = false } = {}) => {
+      const requestId = historyRefreshRequestRef.current + 1;
+      historyRefreshRequestRef.current = requestId;
+
+      if (!selectedPatientHpercode || !selectedEnccode) {
+        if (historyRefreshRequestRef.current === requestId) {
+          setHistoryCount(0);
+          if (includeFiles) {
+            setHistoryFiles([]);
+            setCurrentPage(1);
+            setHistoryError("");
+          }
+        }
+        return [];
+      }
+
+      const selectedEnccodeRaw = String(selectedEnccode || "").trim();
+      const matchEnccode = (value) => {
+        if (!value) return false;
+
+        try {
+          const decoded = decodeURIComponent(String(value));
+          return (
+            decoded.trim() === selectedEnccodeRaw ||
+            String(value).trim() === selectedEnccodeRaw
+          );
+        } catch {
+          return String(value).trim() === selectedEnccodeRaw;
+        }
+      };
+
+      const applyResponse = (responseData) => {
+        if (historyRefreshRequestRef.current !== requestId) {
+          return [];
+        }
+
+        const rawFiles = Array.isArray(responseData) ? responseData : [];
+        const filteredFiles = rawFiles.filter(
+          (file) =>
+            matchEnccode(file?.enccode) ||
+            matchEnccode(file?.encounter_code) ||
+            matchEnccode(file?.enccode_raw),
+        );
+
+        setHistoryCount(filteredFiles.length);
+
+        if (includeFiles) {
+          setHistoryFiles(filteredFiles);
+          setCurrentPage(1);
+          setHistoryError("");
+        }
+
+        return filteredFiles;
+      };
+
+      try {
+        const response = await fetchPatientUploadedFiles({
+          hpercode: selectedPatientHpercode,
+          enccode: selectedEnccodeRaw,
+          token: LAB_UPLOAD_API_TOKEN,
+        });
+
+        return applyResponse(response.data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+
+        if (
+          /supabase(?:\s+is)?\s+not\s+configured|route not found|request failed with status\s+500|\b404\b|\b500\b/i.test(
+            message,
+          )
+        ) {
+          try {
+            const fallbackResponse = await fetchPatientUploadedFilesSupabase({
+              hpercode: selectedPatientHpercode,
+              enccode: selectedEnccodeRaw,
+            });
+
+            return applyResponse(fallbackResponse.data);
+          } catch {
+            if (historyRefreshRequestRef.current === requestId) {
+              setHistoryCount(0);
+              if (includeFiles) {
+                setHistoryFiles([]);
+                setCurrentPage(1);
+              }
+            }
+
+            return [];
+          }
+        }
+
+        if (historyRefreshRequestRef.current === requestId) {
+          setHistoryCount(0);
+          if (includeFiles) {
+            setHistoryFiles([]);
+            setCurrentPage(1);
+          }
+        }
+
+        return [];
+      }
+    },
+    [selectedEnccode, selectedPatientHpercode],
+  );
+
+  const refreshUploadedPdfCount = useCallback(async () => {
+    const files = await fetchUploadedPdfHistory({ includeFiles: false });
+    return files.length;
+  }, [fetchUploadedPdfHistory]);
+
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -138,166 +249,58 @@ function LabUploadModule({
 
     setIsHistoryModalOpen(true);
 
-    if (
-      historyLoadedForHpercode === selectedPatientHpercode &&
-      historyFiles.length
-    ) {
-      return;
-    }
-
     setHistoryLoading(true);
     setHistoryError("");
 
-    // Require an encounter selection: only show uploads for the chosen encounter
-    const selectedEnccodeRaw =
-      contextParams?.enccode || selectedContextParams?.enccode || "";
-    const selectedEnccode = String(selectedEnccodeRaw || "").trim();
-    if (!selectedEnccode) {
-      setHistoryFiles([]);
-      setHistoryCount(0);
-      setHistoryError(
-        "Please select an encounter to view uploaded PDFs for that encounter.",
-      );
-      setHistoryLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetchPatientUploadedFiles({
-        hpercode: selectedPatientHpercode,
-        enccode: contextParams?.enccode || null,
-        token: LAB_UPLOAD_API_TOKEN,
-      });
-
-      // Ensure only files that match the selected encounter are shown
-      const rawFiles = Array.isArray(response.data) ? response.data : [];
-      const matchEnccode = (v) => {
-        if (!v) return false;
-        try {
-          // handle encoded or raw values
-          const decoded = decodeURIComponent(String(v));
-          return (
-            decoded.trim() === selectedEnccode ||
-            String(v).trim() === selectedEnccode
-          );
-        } catch {
-          return String(v).trim() === selectedEnccode;
-        }
-      };
-
-      const filtered = rawFiles.filter(
-        (f) =>
-          matchEnccode(f.enccode) ||
-          matchEnccode(f.encounter_code) ||
-          matchEnccode(f.enccode_raw),
-      );
-
-      setHistoryFiles(filtered);
-      setHistoryCount(filtered.length);
-      setCurrentPage(1);
-      setHistoryLoadedForHpercode(selectedPatientHpercode);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "";
-
-      if (
-        /supabase(?:\s+is)?\s+not\s+configured|route not found|request failed with status\s+500|\b404\b|\b500\b/i.test(
-          message,
-        )
-      ) {
-        try {
-          const fallbackResponse = await fetchPatientUploadedFilesSupabase({
-            hpercode: selectedPatientHpercode,
-            enccode: contextParams?.enccode || null,
-          });
-
-          // Apply same encounter-only filtering to Supabase fallback
-          const rawFilesFb = Array.isArray(fallbackResponse.data)
-            ? fallbackResponse.data
-            : [];
-          const filteredFb = rawFilesFb.filter(
-            (f) =>
-              (f &&
-                (function (v) {
-                  if (!v) return false;
-                  try {
-                    return (
-                      decodeURIComponent(String(v)).trim() ===
-                        selectedEnccode || String(v).trim() === selectedEnccode
-                    );
-                  } catch {
-                    return String(v).trim() === selectedEnccode;
-                  }
-                })(f.enccode)) ||
-              (f &&
-                (function (v) {
-                  if (!v) return false;
-                  try {
-                    return (
-                      decodeURIComponent(String(v)).trim() ===
-                        selectedEnccode || String(v).trim() === selectedEnccode
-                    );
-                  } catch {
-                    return String(v).trim() === selectedEnccode;
-                  }
-                })(f.encounter_code)) ||
-              (f &&
-                (function (v) {
-                  if (!v) return false;
-                  try {
-                    return (
-                      decodeURIComponent(String(v)).trim() ===
-                        selectedEnccode || String(v).trim() === selectedEnccode
-                    );
-                  } catch {
-                    return String(v).trim() === selectedEnccode;
-                  }
-                })(f.enccode_raw)),
-          );
-
-          setHistoryFiles(filteredFb);
-          setHistoryCount(filteredFb.length);
-          setCurrentPage(1);
-          setHistoryLoadedForHpercode(selectedPatientHpercode);
-          setHistoryError("");
-          return;
-        } catch (fallbackError) {
-          setHistoryFiles([]);
-          setHistoryCount(0);
-          setHistoryError(
-            fallbackError instanceof Error
-              ? fallbackError.message
-              : "Unable to load uploaded PDFs.",
-          );
-          return;
-        }
-      }
-
-      setHistoryFiles([]);
-      setHistoryCount(0);
-      setHistoryError(message || "Unable to load uploaded PDFs.");
+      await fetchUploadedPdfHistory({ includeFiles: true });
     } finally {
       setHistoryLoading(false);
     }
-  }, [
-    contextParams?.enccode,
-    selectedContextParams?.enccode,
-    historyFiles.length,
-    historyLoadedForHpercode,
-    selectedPatientHpercode,
-  ]);
+  }, [fetchUploadedPdfHistory, selectedPatientHpercode]);
 
   const closeHistoryModal = useCallback(() => {
     setIsHistoryModalOpen(false);
   }, []);
 
   useEffect(() => {
-    // Reset loaded history when the selected patient changes.
+    // Reset loaded history when the selected patient or encounter changes.
     setHistoryFiles([]);
     setHistoryCount(0);
     setHistoryError("");
-    setHistoryLoadedForHpercode("");
     setIsHistoryModalOpen(false);
-  }, [selectedPatientHpercode]);
+  }, [selectedPatientHpercode, selectedEnccode]);
+
+  useEffect(() => {
+    refreshUploadedPdfCount();
+  }, [refreshUploadedPdfCount]);
+
+  useEffect(() => {
+    if (!isHistoryModalOpen) {
+      return undefined;
+    }
+
+    let isActive = true;
+    const refreshHistory = async () => {
+      if (!isActive) return;
+      setHistoryLoading(true);
+      try {
+        await fetchUploadedPdfHistory({ includeFiles: true });
+      } finally {
+        if (isActive) {
+          setHistoryLoading(false);
+        }
+      }
+    };
+
+    refreshHistory();
+    const intervalId = window.setInterval(refreshHistory, 60000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, [fetchUploadedPdfHistory, isHistoryModalOpen]);
 
   useEffect(() => {
     if (!isHistoryModalOpen) return undefined;
@@ -347,8 +350,7 @@ function LabUploadModule({
   });
 
   function handleUploadComplete(result) {
-    // Upload completion is handled inline in the lab workflow.
-    // Keep this callback to preserve the existing prop contract.
+    refreshUploadedPdfCount();
     return result;
   }
 
