@@ -18,6 +18,11 @@ const FIELD_LABELS = {
   physicalExam: "Physical Examination",
   systemReview: "System Review",
   courseWard: "Course in Ward",
+  pharmacyClearance: "Pharmacy Clearance",
+  csrClearance: "CSR Clearance",
+  laboratoryClearance: "Laboratory Clearance",
+  radiologyClearance: "Radiology Clearance",
+  newbornClearance: "Newborn Clearance",
   dischargeOrder: "Discharge Order",
   finalDiagnosis: "Final Diagnosis",
   icdCode: "ICD Code",
@@ -102,6 +107,26 @@ const VALIDATION_CHECKS = {
     label: "Course in Ward",
     message: "Hcrsward must exist for the encounter.",
   },
+  pharmacyClearance: {
+    label: "Pharmacy Clearance",
+    message: "ClearanceController::Pharmacy must be empty.",
+  },
+  csrClearance: {
+    label: "CSR Clearance",
+    message: "ClearanceController::CSR must be empty.",
+  },
+  laboratoryClearance: {
+    label: "Laboratory Clearance",
+    message: "ClearanceController::Laboratory must be empty.",
+  },
+  radiologyClearance: {
+    label: "Radiology Clearance",
+    message: "ClearanceController::Radiology must be empty.",
+  },
+  newbornClearance: {
+    label: "Newborn Clearance",
+    message: "ClearanceController::Newborn must be empty.",
+  },
   dischargeOrder: {
     label: "Discharge Order",
     message: "ADM encounters require Hdocord with orcode = DISCH.",
@@ -148,18 +173,24 @@ const REQUIREMENT_GROUPS = {
   ],
   obCore: ["historyOB", "prenatal"],
   dischargeCore: ["dischargeOrder", "finalDiagnosis", "icdCode", "courseInWard"],
+  clearanceCore: [
+    "pharmacyClearance",
+    "csrClearance",
+    "laboratoryClearance",
+    "radiologyClearance",
+    "newbornClearance",
+  ],
   phicCore: ["phic"],
 };
 
 const FORM_REQUIREMENT_RULES = [
   {
     test: /discharge against medical advice|dama|discharge plan|medical abstract/i,
-    groups: ["admissionCore", "dischargeCore"],
+    groups: ["admissionCore", "dischargeCore", "clearanceCore"],
     label: "Discharge validation",
   },
   {
-    test:
-      /family planning|newborn|apgar|ballard|lubchenco|phototherapy|otoacoustic|child immunization|commitment to breastfeeding|partograph|pagtugot/i,
+    test: /ballard|apgar|aldrete|newborn|baby|neonate|maternal|obstetric|prenatal|antenatal/i,
     groups: ["admissionCore", "obCore"],
     label: "OB and prenatal validation",
   },
@@ -237,6 +268,11 @@ function getValidationSnapshot(validationData = {}) {
     systemReview: Boolean(validations.admission?.systemReview),
     courseWard: Boolean(validations.admission?.courseWard),
     dischargeOrder: Boolean(validations.discharge?.order),
+    pharmacyClearance: Boolean(validations.discharge?.clearances?.pharmacy),
+    csrClearance: Boolean(validations.discharge?.clearances?.csr),
+    laboratoryClearance: Boolean(validations.discharge?.clearances?.laboratory),
+    radiologyClearance: Boolean(validations.discharge?.clearances?.radiology),
+    newbornClearance: Boolean(validations.discharge?.clearances?.newborn),
     finalDiagnosis: Boolean(validations.discharge?.finalDiagnosis),
     icdCode: Boolean(validations.discharge?.icdCode),
     courseInWard: Boolean(validations.discharge?.courseInWard),
@@ -355,6 +391,12 @@ export function buildScopedValidationSummary(validationData, selectedForms) {
       }
 
       if (REQUIREMENT_GROUPS.dischargeCore.includes(check.id)) {
+        if (!dischargeMissing.includes(check.id)) {
+          dischargeMissing.push(check.id);
+        }
+      }
+
+      if (REQUIREMENT_GROUPS.clearanceCore.includes(check.id)) {
         if (!dischargeMissing.includes(check.id)) {
           dischargeMissing.push(check.id);
         }
