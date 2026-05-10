@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useMemo } from "react";
 import { useFormValidation } from "./hooks/useFormValidation.js";
 import {
-  buildMissingByForm,
+  buildFormValidationBreakdown,
   buildScopedValidationSummary,
   getFieldLabel,
 } from "./validationScope.js";
@@ -61,20 +61,37 @@ function getPatientInitials(label) {
 }
 
 function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
-  const { enccode, loading, error, summary, refresh, validationData } = useFormValidation({
+  const { enccode, loading, error, refresh, validationData } = useFormValidation({
     selectedPatient,
     enccode: enccodeOverride || undefined,
   });
 
   const scopedSummary = useMemo(
-    () => buildScopedValidationSummary(summary, selectedForms),
-    [summary, selectedForms],
+    () => buildScopedValidationSummary(validationData, selectedForms),
+    [validationData, selectedForms],
   );
 
-  const missingByForm = useMemo(
-    () => buildMissingByForm(summary, selectedForms),
-    [summary, selectedForms],
+  const validationBreakdown = useMemo(
+    () => buildFormValidationBreakdown(validationData, selectedForms),
+    [validationData, selectedForms],
   );
+
+  const validationStats = useMemo(() => {
+    const totalForms = validationBreakdown.length;
+    const blockedForms = validationBreakdown.filter((entry) => entry.hasIssues).length;
+    const readyForms = totalForms - blockedForms;
+    const blockingChecks = validationBreakdown.reduce(
+      (count, entry) => count + entry.missingChecks.length,
+      0,
+    );
+
+    return {
+      totalForms,
+      blockedForms,
+      readyForms,
+      blockingChecks,
+    };
+  }, [validationBreakdown]);
 
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
@@ -212,20 +229,20 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
 
         <section className="validation-summary">
           <SummaryCard label="Form Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
-          <SummaryCard 
-            label="Admission Form" 
-            value={scopedSummary.admissionComplete ? "✓ Complete" : "✗ Incomplete"}
-            tone={scopedSummary.admissionComplete ? "default" : "alert"}
+          <SummaryCard
+            label="Selected Forms"
+            value={validationStats.totalForms}
+            tone={validationStats.totalForms > 0 ? "default" : "alert"}
           />
-          <SummaryCard 
-            label="Discharge Form" 
-            value={scopedSummary.dischargeComplete ? "✓ Complete" : "✗ Incomplete"}
-            tone={scopedSummary.dischargeComplete ? "default" : "alert"}
+          <SummaryCard
+            label="Ready Forms"
+            value={validationStats.readyForms}
+            tone={validationStats.readyForms === validationStats.totalForms ? "default" : "alert"}
           />
-          <SummaryCard 
-            label="Missing Fields" 
-            value={scopedSummary.allMissing.length} 
-            tone={scopedSummary.allMissing.length > 0 ? "alert" : "default"}
+          <SummaryCard
+            label="Blocking Checks"
+            value={validationStats.blockingChecks}
+            tone={validationStats.blockingChecks > 0 ? "alert" : "default"}
           />
         </section>
 
@@ -239,22 +256,44 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           <div className="validation-loading">
             Loading form validation status...
           </div>
-        ) : scopedSummary.allMissing.length > 0 ? (
+        ) : validationBreakdown.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Missing form fields</h2>
-            <div className="validation-step-list">
-              {scopedSummary.allMissing.map((field) => (
-                <span
-                  key={field}
-                  className="validation-pill validation-pill--missing"
+            <h2 className="validation-panel-title">Validation by selected form</h2>
+            <p className="validation-helper-text">
+              The page uses the backend encounter validation checks and shows the exact requirements for each selected form.
+            </p>
+            <div className="validation-form-grid">
+              {validationBreakdown.map((entry) => (
+                <article
+                  key={entry.formName}
+                  className={`validation-form-card ${entry.hasIssues ? "validation-form-card--alert" : ""}`}
                 >
-                  {getFieldLabel(field)}
-                </span>
+                  <div className="validation-form-card__header">
+                    <div>
+                      <h3 className="validation-section-label">{entry.formName}</h3>
+                      <p className="validation-helper-text">{entry.label}</p>
+                    </div>
+                    <span className={`validation-badge ${entry.hasIssues ? "validation-badge--unknown" : "validation-badge--adm"}`}>
+                      {entry.hasIssues ? "Needs attention" : "Validated"}
+                    </span>
+                  </div>
+
+                  <div className="validation-step-list">
+                    {entry.checks.map((check) => (
+                      <div
+                        key={check.id}
+                        className={`validation-check-row ${check.passed ? "validation-check-row--pass" : "validation-check-row--fail"}`}
+                      >
+                        <div className="validation-check-row__title">{check.label}</div>
+                        <div className="validation-check-row__message">
+                          {check.passed ? "Backend validation passed." : check.message}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
               ))}
             </div>
-            <p className="validation-helper-text">
-              Complete all missing fields in the forms before proceeding.
-            </p>
           </section>
         ) : (
           <div className="validation-empty">
@@ -262,24 +301,16 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           </div>
         )}
 
-        {missingByForm.length > 0 ? (
+        {validationBreakdown.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Missing data by form</h2>
-            {missingByForm.map((entry) => (
-              <div key={entry.formName} className="validation-panel">
-                <h3 className="validation-section-label">{entry.formName}</h3>
-                <div className="validation-step-list">
-                  {entry.allMissing.map((field) => (
-                    <span
-                      key={`${entry.formName}-${field}`}
-                      className="validation-pill validation-pill--missing"
-                    >
-                      {getFieldLabel(field)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+            <h2 className="validation-panel-title">Validation requirement legend</h2>
+            <div className="validation-step-list">
+              {validationBreakdown.flatMap((entry) => entry.checks).map((check) => (
+                <span key={`${check.id}-${check.label}`} className="validation-pill validation-pill--missing">
+                  {getFieldLabel(check.id)}
+                </span>
+              ))}
+            </div>
           </section>
         ) : null}
       </main>
