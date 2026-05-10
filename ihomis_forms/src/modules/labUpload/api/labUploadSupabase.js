@@ -67,7 +67,7 @@ async function resolveFileUrl({ bucket, path }) {
   };
 }
 
-async function uploadLabResult({ file, contextParams, patient, remarks }) {
+export async function uploadLabResult({ file, contextParams, patient, remarks }) {
   if (!isConfigured()) {
     throw new Error(
       "Supabase is not configured. Set VITE_SUPABASE_LAB_RESULTS_BUCKET and VITE_SUPABASE_LAB_RESULTS_TABLE.",
@@ -110,8 +110,17 @@ async function uploadLabResult({ file, contextParams, patient, remarks }) {
   });
 
   const insertPayload = {
-    patient_id: patientId || null,
-    encounter_code: encounterCode || null,
+    hpercode: patientId || null,
+    enccode: encounterCode || null,
+    orcode: normalizedContextParams.orcode || null,
+    proccode:
+      normalizedContextParams.proccode ||
+      normalizedContextParams.procedureInstanceId ||
+      null,
+    procedure_instance_id:
+      normalizedContextParams.procedureInstanceId ||
+      normalizedContextParams.docointkey ||
+      null,
     docointkey: docointkey || null,
     file_name: file.name,
     file_url: url,

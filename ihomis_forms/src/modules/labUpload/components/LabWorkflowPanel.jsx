@@ -16,6 +16,8 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLabUploadWorkflow } from "../hooks/useLabUploadWorkflow.js";
 import usePdfQueue from "../hooks/usePdfQueue.js";
+import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
+import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 import "./LabWorkflowPanel.css";
 
 const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
@@ -322,6 +324,7 @@ export default function LabWorkflowPanel({
   const [remarks, setRemarks] = useState("");
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
   const [queueStatus, setQueueStatus] = useState({ type: "", message: "" });
+  const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
 
   // ── Order selection state (two-level) ───────────────────────
   const [selectedOrcode, setSelectedOrcode] = useState(null);
@@ -1030,7 +1033,8 @@ export default function LabWorkflowPanel({
       )}
 
       {currentStep === "upload" && (
-        <div className="lwp-step-content">
+        <div className="lwp-step-content lwp-upload-step">
+          {/* Step Header */}
           <div className="lwp-step-header">
             <div className="lwp-step-title-group">
               <span className="lwp-step-icon-sm">
@@ -1059,79 +1063,251 @@ export default function LabWorkflowPanel({
               className="lwp-btn-secondary"
               onClick={() => setSelectedOrder(null)}
             >
-              ← Back
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back
             </button>
           </div>
 
-          <div className="lwp-upload-summary">
-            <div className="lwp-selection-summary">
-              <span className="lwp-selection-label">Order Request:</span>
-              <span className="lwp-selection-value">
-                {selectedOrder?.oritem} ({selectedOrder?.orcode})
-              </span>
+          {/* Order & Patient Info Cards */}
+          <div className="lwp-upload-info-grid">
+            {/* Order Info Card */}
+            <div className="lwp-info-card">
+              <div className="lwp-info-card-header">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <span>Order Details</span>
+              </div>
+              <div className="lwp-info-card-body">
+                <div className="lwp-info-row">
+                  <span className="lwp-info-label">Order Code</span>
+                  <span className="lwp-info-value lwp-info-code">
+                    {selectedOrder?.orcode || "—"}
+                  </span>
+                </div>
+                <div className="lwp-info-row">
+                  <span className="lwp-info-label">Order Item</span>
+                  <span className="lwp-info-value">
+                    {selectedOrder?.oritem || "—"}
+                  </span>
+                </div>
+                <div className="lwp-info-row">
+                  <span className="lwp-info-label">Procedure</span>
+                  <span className="lwp-info-value">
+                    {selectedOrder?.procdesc || selectedOrder?.oritem || "—"}
+                  </span>
+                </div>
+                <div className="lwp-info-row">
+                  <span className="lwp-info-label">Status</span>
+                  <span
+                    className={`lwp-info-badge ${getStatusClass(selectedOrder?.estatus)}`}
+                  >
+                    {selectedOrder?.estatus || "Pending"}
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Docointkey Card */}
             {selectedOrder?.docointkey && (
-              <div className="lwp-docointkey-display">
-                <span className="lwp-docointkey-label">Docointkey:</span>
-                <code className="lwp-docointkey-code">
-                  {selectedOrder.docointkey}
-                </code>
+              <div className="lwp-info-card lwp-info-card-accent">
+                <div className="lwp-info-card-header">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                  </svg>
+                  <span>Document Key</span>
+                </div>
+                <div className="lwp-info-card-body">
+                  <div className="lwp-info-row lwp-info-row-full">
+                    <span className="lwp-info-label">Docointkey</span>
+                    <code className="lwp-info-key">
+                      {selectedOrder.docointkey}
+                    </code>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* File drop zone */}
-          <div
-            className={`lwp-dropzone ${isDragActive ? "active" : ""} ${resultFiles.length > 0 ? "has-files" : ""}`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={() => fileInputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) =>
-              e.key === "Enter" && fileInputRef.current?.click()
-            }
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf,.pdf"
-              multiple
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
+          {/* Main Upload Area */}
+          <div className="lwp-upload-main">
+            {/* File drop zone */}
+            <div
+              className={`lwp-dropzone ${isDragActive ? "active" : ""} ${resultFiles.length > 0 ? "has-files" : ""}`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) =>
+                e.key === "Enter" && fileInputRef.current?.click()
+              }
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                multiple
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
 
-            {resultFiles.length === 0 ? (
-              <div className="lwp-dropzone-content">
-                <div className="lwp-dropzone-icon">
+              {resultFiles.length === 0 ? (
+                <div className="lwp-dropzone-content">
+                  <div className="lwp-dropzone-icon">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="12" y1="18" x2="12" y2="12" />
+                      <line x1="9" y1="15" x2="15" y2="15" />
+                    </svg>
+                  </div>
+                  <p className="lwp-dropzone-title">Drop PDF files here</p>
+                  <p className="lwp-dropzone-subtitle">
+                    or click to browse from your computer
+                  </p>
+                  <span className="lwp-dropzone-hint">
+                    PDF files only, max 25MB
+                  </span>
+                </div>
+              ) : (
+                <div className="lwp-files-list">
+                  {resultFiles.map((file, idx) => (
+                    <div key={idx} className="lwp-file-item">
+                      <div className="lwp-file-icon">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                      </div>
+                      <div className="lwp-file-info">
+                        <span className="lwp-file-name">{file.name}</span>
+                        <span className="lwp-file-size">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="lwp-file-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFile(idx);
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Inline PDF Preview */}
+            {resultFiles.length > 0 && (
+              <div className="lwp-preview-panel">
+                <div className="lwp-preview-header">
                   <svg
-                    width="48"
-                    height="48"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                   >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="12" y1="18" x2="12" y2="12" />
-                    <line x1="9" y1="15" x2="15" y2="15" />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
                   </svg>
+                  <span>Preview: {resultFiles[0]?.name}</span>
+                  <button
+                    type="button"
+                    className="lwp-preview-fullscreen-btn"
+                    onClick={() => setIsFullscreenPreview(true)}
+                    title="Open fullscreen preview"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                    </svg>
+                    Fullscreen
+                  </button>
                 </div>
-                <p className="lwp-dropzone-title">Drop PDF files here</p>
-                <p className="lwp-dropzone-subtitle">
-                  or click to browse from your computer
-                </p>
+                <div className="lwp-preview-content">
+                  <PdfCanvasPreview
+                    file={resultFiles[0]}
+                    token={LAB_UPLOAD_API_TOKEN}
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="lwp-files-list">
-                {resultFiles.map((file, idx) => (
-                  <div key={idx} className="lwp-file-item">
-                    <div className="lwp-file-icon">
+            )}
+
+            {/* Fullscreen PDF Preview Modal */}
+            {isFullscreenPreview && resultFiles.length > 0 && (
+              <div className="lwp-fullscreen-modal">
+                <div
+                  className="lwp-fullscreen-overlay"
+                  onClick={() => setIsFullscreenPreview(false)}
+                />
+                <div className="lwp-fullscreen-content">
+                  <div className="lwp-fullscreen-header">
+                    <span className="lwp-fullscreen-title">
                       <svg
-                        width="24"
-                        height="24"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -1140,35 +1316,39 @@ export default function LabWorkflowPanel({
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <polyline points="14 2 14 8 20 8" />
                       </svg>
-                    </div>
-                    <div className="lwp-file-info">
-                      <span className="lwp-file-name">{file.name}</span>
-                      <span className="lwp-file-size">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      {resultFiles[0]?.name}
+                    </span>
+                    <div className="lwp-fullscreen-actions">
+                      <span className="lwp-fullscreen-hint">
+                        Press ESC to close
                       </span>
-                    </div>
-                    <button
-                      type="button"
-                      className="lwp-file-remove"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveFile(idx);
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
+                      <button
+                        type="button"
+                        className="lwp-fullscreen-close"
+                        onClick={() => setIsFullscreenPreview(false)}
+                        title="Close fullscreen"
                       >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                ))}
+                  <div className="lwp-fullscreen-body">
+                    <PdfCanvasPreview
+                      file={resultFiles[0]}
+                      token={LAB_UPLOAD_API_TOKEN}
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

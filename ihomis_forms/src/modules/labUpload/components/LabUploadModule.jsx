@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { useNavigate, useLocation } from "react-router-dom";
 import LabWorkflowPanel from "./LabWorkflowPanel.jsx";
 import {
   LAB_UPLOAD_API_TOKEN,
@@ -16,9 +15,6 @@ function LabUploadModule({
   onRequestPatientChange,
   onRequestEncounterChange,
 }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const contextParams = useMemo(
     () => ({
       ...(selectedPatient?.contextParams || {}),
@@ -122,26 +118,16 @@ function LabUploadModule({
   });
 
   function handleUploadComplete(result) {
-    if (result?.uploadedPdfUrl) {
-      const searchParams = new URLSearchParams({
-        url: result.uploadedPdfUrl,
-        token: LAB_UPLOAD_API_TOKEN,
-      });
-      navigate(`/preview?${searchParams.toString()}`, {
-        state: { from: location.pathname, activeModuleId: "lab-upload" },
-      });
-    }
+    // Upload completion is handled inline in the lab workflow.
+    // Keep this callback to preserve the existing prop contract.
+    return result;
   }
 
-  function handlePreviewFile(file) {
-    if (!file) return;
-    navigate("/preview", {
-      state: {
-        previewFile: file,
-        from: location.pathname,
-        activeModuleId: "lab-upload",
-      },
-    });
+  // Preview is now handled inline in LabWorkflowPanel using PdfCanvasPreview
+  // This function is kept for prop compatibility
+  function handlePreviewFile() {
+    // File preview is now handled inline in LabWorkflowPanel
+    // No navigation needed - the preview is shown within the upload step
   }
 
   function handleRequestPatientChange() {

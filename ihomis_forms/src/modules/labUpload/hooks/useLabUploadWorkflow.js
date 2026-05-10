@@ -31,6 +31,10 @@ import {
   fetchEncounterOrders,
   uploadMappedLabResult,
 } from "../api/labUploadApi.js";
+import {
+  canUseSupabaseUploads,
+  uploadLabResult as uploadLabResultToSupabase,
+} from "../api/labUploadSupabase.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 
@@ -114,13 +118,59 @@ export function useLabUploadWorkflow() {
             null,
         };
 
-        const result = await uploadMappedLabResult({
-          file,
-          contextParams: enrichedContextParams,
-          patient,
-          remarks,
-          token,
-        });
+        let result;
+
+        try {
+          result = await uploadMappedLabResult({
+            file,
+            contextParams: enrichedContextParams,
+            patient,
+            remarks,
+            token,
+          });
+        } catch (uploadError) {
+          const message =
+            uploadError instanceof Error ? uploadError.message : "";
+          const shouldFallbackToSupabase =
+            canUseSupabaseUploads() &&
+            (/route not found/i.test(message) ||
+              /supabase is not configured/i.test(message) ||
+              /404/.test(message) ||
+              /server error:\s*5\d\d/i.test(message) ||
+              /not found/i.test(message));
+
+          if (!shouldFallbackToSupabase) {
+            throw uploadError;
+          }
+
+          const supabaseResult = await uploadLabResultToSupabase({
+            file,
+            contextParams: enrichedContextParams,
+            patient,
+            remarks,
+          });
+
+          result = {
+            ok: true,
+            docointkey: enrichedContextParams.docointkey || null,
+            uploadedPdfUrl: supabaseResult.uploadedPdfUrl,
+            fileName: file.name,
+            fileSize: file.size,
+            patientId:
+              enrichedContextParams.hpercode ||
+              patient?.rawData?.hpercode ||
+              patient?.contextParams?.hpercode ||
+              null,
+            encounterCode: enrichedContextParams.enccode || null,
+            orderCode: enrichedContextParams.orcode || null,
+            procedureInstanceId:
+              enrichedContextParams.docointkey ||
+              enrichedContextParams.procedureInstanceId ||
+              null,
+            message:
+              "Lab result uploaded successfully via Supabase fallback.",
+          };
+        }
 
         setUploadResults((prev) => [
           ...prev,
