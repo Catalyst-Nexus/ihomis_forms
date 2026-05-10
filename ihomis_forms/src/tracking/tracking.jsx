@@ -880,18 +880,17 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                             {cell.status === "done" && (
                               <>
                                 <CheckCircle2 size={12} className="wf-icon-done"/>
-                                {cell.userName && (
-                                  <div className="wf-user-info">
+                                <div className="wf-user-info">
+                                  {cell.userName && (
                                     <span className="wf-user-name">{cell.userName}</span>
+                                  )}
+                                  {cell.meta && (
                                     <span className="wf-meta-date">{cell.meta}</span>
-                                  </div>
-                                )}
-                                {!cell.userName && (
-                                  <>
-                                    <span className="wf-val">{cell.value.length > 16 ? cell.value.slice(0,16)+"…" : cell.value}</span>
-                                    <span className="wf-meta">{cell.meta}</span>
-                                  </>
-                                )}
+                                  )}
+                                  {cell.value && (
+                                    <span className="wf-remarks">{cell.value.length > 16 ? cell.value.slice(0,16)+"…" : cell.value}</span>
+                                  )}
+                                </div>
                               </>
                             )}
                             {cell.status === "active" && (

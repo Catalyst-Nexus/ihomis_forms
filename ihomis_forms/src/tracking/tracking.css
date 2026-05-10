@@ -466,6 +466,23 @@
   display: block;
 }
 
+/* Remarks in Done Cells */
+.wf-remarks {
+  font-size: .6rem;
+  color: #5a8a8f;
+  font-style: italic;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  display: block;
+  margin-top: 2px;
+  padding: 2px 4px;
+  background: rgba(16,54,63,.04);
+  border-radius: 3px;
+}
+
 /* Active Pulse Ring */
 .wf-pulse-ring {
   position: absolute;
