@@ -643,6 +643,7 @@
   line-height: 1.4;
 }
 
+/* ── Patient Uploads Modal ────────────────────────────────────── */
 .lab-history-modal {
   position: fixed;
   inset: 0;
@@ -650,19 +651,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
-  background: rgba(15, 23, 42, 0.58);
-  backdrop-filter: blur(4px);
+  padding: 1rem;
+  background:
+    radial-gradient(circle at top, rgba(13, 115, 119, 0.18), transparent 34%),
+    rgba(15, 23, 42, 0.64);
+  backdrop-filter: blur(10px);
 }
 
 .lab-history-modal__panel {
   width: min(96vw, 1180px);
-  max-height: 90vh;
+  max-height: min(92vh, 980px);
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.3);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.98) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: calc(var(--hospital-radius-lg) + 4px);
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.26),
+    0 2px 8px rgba(15, 23, 42, 0.08);
   overflow: hidden;
 }
 
@@ -671,95 +681,345 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--hospital-gray-200);
-  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  padding: 1rem 1.1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(13, 115, 119, 0.12) 0%,
+    rgba(255, 255, 255, 0.94) 52%,
+    rgba(239, 246, 255, 0.9) 100%
+  );
+  border-bottom: 1px solid rgba(13, 115, 119, 0.14);
+}
+
+.lab-history-modal__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.lab-history-modal__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hospital-white);
+  border-radius: var(--hospital-radius-md);
+  color: var(--hospital-primary);
+  box-shadow: var(--hospital-shadow-xs);
+  flex-shrink: 0;
+}
+
+.lab-history-modal__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lab-history-modal__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
 }
 
 .lab-history-modal__eyebrow {
-  margin: 0 0 0.25rem;
-  font-size: 0.75rem;
+  margin: 0;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--hospital-primary);
 }
 
-.lab-history-modal__header h2 {
+.lab-history-modal__title {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--hospital-gray-900);
+  line-height: 1.15;
 }
 
-.lab-history-modal__subtitle {
-  margin: 0.35rem 0 0;
-  color: var(--hospital-gray-500);
-  font-size: 0.95rem;
+.lab-history-modal__patient-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+  flex-wrap: wrap;
+}
+
+.lab-history-modal__patient-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hospital-gray-700);
+}
+
+.lab-history-modal__patient-separator {
+  color: var(--hospital-gray-400);
+  font-size: 0.75rem;
+}
+
+.lab-history-modal__patient-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--hospital-gray-600);
+  padding: 0.15rem 0.5rem;
+  background: var(--hospital-white);
+  border-radius: var(--hospital-radius-sm);
+  border: 1px solid var(--hospital-gray-200);
+}
+
+.lab-history-modal__patient-code code {
+  font-family: var(--hospital-font);
+  font-weight: 600;
+  color: var(--hospital-primary);
 }
 
 .lab-history-modal__header-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
 .lab-history-modal__close {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--hospital-gray-300);
-  border-radius: 9999px;
-  background: #fff;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hospital-gray-200);
+  border-radius: var(--hospital-radius-sm);
+  background: var(--hospital-white);
   color: var(--hospital-gray-500);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .lab-history-modal__close:hover {
   background: var(--hospital-gray-50);
   color: var(--hospital-gray-900);
-  border-color: var(--hospital-gray-400);
+  border-color: var(--hospital-gray-300);
+}
+
+.lab-history-modal__close svg {
+  width: 14px;
+  height: 14px;
 }
 
 .lab-history-modal__body {
-  padding: 1rem 1.5rem 1.5rem;
-  overflow: auto;
+  flex: 1;
+  padding: 0.95rem;
+  overflow-y: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.96) 0%,
+    rgba(241, 245, 249, 0.98) 100%
+  );
+}
+
+.lab-history-modal__toolbar {
+  display: none; /* hidden per UI request: remove documents row */
+}
+
+.lab-history-modal__toolbar-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.lab-history-modal__toolbar-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--hospital-primary-light);
+  color: var(--hospital-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--hospital-radius-sm);
+}
+
+.lab-history-modal__toolbar-count svg {
+  width: 12px;
+  height: 12px;
+}
+
+.lab-history-modal__toolbar-label {
+  font-size: 0.8rem;
+  color: var(--hospital-gray-600);
 }
 
 .lab-history-modal__state {
-  min-height: 12rem;
+  min-height: 9rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  border: 1px dashed var(--hospital-gray-300);
-  border-radius: 16px;
-  color: var(--hospital-gray-500);
-  background: var(--hospital-gray-50);
+  gap: 0.5rem;
+  padding: 1.4rem 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.28);
+  border-radius: calc(var(--hospital-radius-md) + 2px);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
   text-align: center;
 }
 
+.lab-history-modal__state-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hospital-gray-100);
+  border-radius: 50%;
+  color: var(--hospital-gray-400);
+}
+
+.lab-history-modal__state-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lab-history-modal__state--empty .lab-history-modal__state-icon {
+  background: var(--hospital-primary-light);
+  color: var(--hospital-primary);
+}
+
+.lab-history-modal__state-message {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--hospital-gray-600);
+}
+
+.lab-history-modal__state-description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--hospital-gray-400);
+}
+
 .lab-history-modal__state--error {
+  border-color: rgba(239, 68, 68, 0.24);
+  background: linear-gradient(
+    180deg,
+    rgba(254, 242, 242, 0.96) 0%,
+    rgba(255, 255, 255, 0.96) 100%
+  );
+}
+
+.lab-history-modal__state--error .lab-history-modal__state-icon {
+  background: var(--hospital-danger-light);
   color: var(--hospital-danger);
-  background: #fef2f2;
-  border-color: #fecaca;
+}
+
+.lab-history-modal__state--error .lab-history-modal__state-message {
+  color: var(--hospital-danger);
+}
+
+.lab-history-modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lab-history-modal__spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--hospital-gray-200);
+  border-top-color: var(--hospital-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lab-history-modal__loading-text {
+  font-size: 0.8rem;
+  color: var(--hospital-gray-500);
+  font-weight: 500;
+}
+
+/* Pagination */
+.lab-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  padding: 0.65rem 0.8rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: calc(var(--hospital-radius-md) + 2px);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    0 10px 24px rgba(15, 23, 42, 0.04);
+  flex-wrap: wrap;
+}
+
+.lab-history-pagination__info {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--hospital-gray-600);
+  padding: 0 0.35rem;
+}
+
+.lab-history-pagination__select {
+  padding: 0.35rem 0.5rem;
+  background: var(--hospital-white);
+  border: 1px solid var(--hospital-gray-300);
+  border-radius: var(--hospital-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--hospital-gray-700);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.lab-history-pagination__select:hover {
+  border-color: var(--hospital-primary);
 }
 
 .lab-history-list {
   display: grid;
-  gap: 0.875rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.75rem;
+  align-items: start;
 }
 
 .lab-history-item {
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: 0.875rem;
-  padding: 1rem;
-  border: 1px solid var(--hospital-gray-200);
-  border-radius: 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-  box-shadow: var(--hospital-shadow-sm);
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: calc(var(--hospital-radius-md) + 2px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.98) 100%
+  );
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.lab-history-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13, 115, 119, 0.22);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
 
 .lab-history-item__icon {
@@ -768,9 +1028,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: var(--hospital-primary-light);
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    var(--hospital-primary-light) 0%,
+    rgba(209, 250, 229, 0.7) 100%
+  );
   color: var(--hospital-primary);
+}
+
+.lab-history-item__icon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .lab-history-item__content {
@@ -781,46 +1050,61 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .lab-history-item__topline h3 {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   color: var(--hospital-gray-900);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .lab-history-item__link {
   flex-shrink: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(13, 115, 119, 0.18);
+  background: rgba(230, 244, 244, 0.72);
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--hospital-primary);
   text-decoration: none;
 }
 
 .lab-history-item__link:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  background: rgba(230, 244, 244, 0.95);
+}
+
+.lab-history-item__link svg {
+  width: 12px;
+  height: 12px;
 }
 
 .lab-history-item__meta-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem 1rem;
-  margin-top: 0.875rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 0.75rem;
+  margin-top: 0.7rem;
 }
 
 .lab-history-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
 
 .lab-history-meta__label {
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -829,90 +1113,98 @@
 
 .lab-history-meta__value {
   color: var(--hospital-gray-800);
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   word-break: break-word;
 }
 
 .lab-history-meta__code {
-  display: inline-flex;
-  width: fit-content;
+  display: block;
+  width: 100%;
   max-width: 100%;
-  padding: 0.35rem 0.55rem;
-  border-radius: 8px;
-  background: var(--hospital-gray-50);
-  border: 1px solid var(--hospital-gray-200);
+  padding: 0.18rem 0.45rem;
+  border-radius: 0.45rem;
+  background: rgba(241, 245, 249, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  font-size: 0.72rem;
+  font-family: monospace;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-@media (max-width: 860px) {
-  .lab-hero {
+.lab-history-item__content {
+  min-width: 0;
+}
+
+.lab-history-item__content > * + * {
+  margin-top: 0.1rem;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .lab-history-modal__panel {
+    width: min(98vw, 960px);
+  }
+
+  .lab-history-list {
     grid-template-columns: 1fr;
   }
 
-  .lab-hero-right {
-    min-width: unset;
-    max-width: unset;
-  }
-
-  .lab-hero-patient {
-    border-left: none;
-    border-top: 1px solid rgba(13, 115, 119, 0.12);
-    padding: 16px clamp(1.4rem, 2.5vw, 2rem);
-  }
-
-  .lab-hero-no-patient {
-    border-left: none;
-    border-top: 1px solid rgba(13, 115, 119, 0.12);
-    padding: 20px;
-  }
-
-  .lab-hero-summary-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .lab-history-item__meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
-  .lab-hero-summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .lab-hero-patient-avatar {
-    font-size: clamp(20px, 8vw, 32px);
-    width: clamp(40px, 12vw, 56px);
-    height: clamp(40px, 12vw, 56px);
-  }
-
-  .lab-hero-patient-name {
-    font-size: clamp(13px, 3vw, 15px);
-  }
-
-  .lab-hero-summary-value {
-    font-size: clamp(11px, 2.5vw, 12px);
-  }
-
+@media (max-width: 640px) {
   .lab-history-modal {
-    padding: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .lab-history-modal__panel {
+    width: 100%;
+    max-height: calc(100vh - 1rem);
   }
 
   .lab-history-modal__header {
+    padding: 0.85rem 0.8rem;
     flex-direction: column;
+  }
+
+  .lab-history-modal__header-left {
+    width: 100%;
   }
 
   .lab-history-modal__header-actions {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: space-between;
   }
 
   .lab-history-item {
     grid-template-columns: 1fr;
   }
 
+  .lab-history-item__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
   .lab-history-item__topline {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .lab-history-item__topline h3 {
     white-space: normal;
+  }
+
+  .lab-history-modal__toolbar,
+  .lab-history-pagination {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .lab-history-item__meta-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

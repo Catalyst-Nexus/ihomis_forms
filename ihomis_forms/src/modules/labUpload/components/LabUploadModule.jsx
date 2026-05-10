@@ -589,16 +589,52 @@ function LabUploadModule({
             className="lab-history-modal__panel"
             onClick={(event) => event.stopPropagation()}
           >
+            {/* Header */}
             <div className="lab-history-modal__header">
-              <div>
-                <p className="lab-history-modal__eyebrow">Patient Uploads</p>
-                <h2 id="lab-history-title">Uploaded PDFs and docointkeys</h2>
-                <p className="lab-history-modal__subtitle">
-                  {patientName} · HCI {selectedPatientHpercode || "—"}
-                </p>
-                <p className="lab-history-modal__encounter">
-                  Selected Encounter: <strong>{selectedEnccode || "—"}</strong>
-                </p>
+              <div className="lab-history-modal__header-left">
+                <div className="lab-history-modal__icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="15" y2="17" />
+                  </svg>
+                </div>
+                <div className="lab-history-modal__title-group">
+                  <p className="lab-history-modal__eyebrow">Patient Uploads</p>
+                  <h2
+                    id="lab-history-title"
+                    className="lab-history-modal__title"
+                  >
+                    Uploaded PDFs
+                  </h2>
+                  <div className="lab-history-modal__patient-info">
+                    <span className="lab-history-modal__patient-name">
+                      {patientName}
+                    </span>
+                    <span className="lab-history-modal__patient-separator">
+                      ·
+                    </span>
+                    <span className="lab-history-modal__patient-code">
+                      HCI <code>{selectedPatientHpercode || "—"}</code>
+                    </span>
+                    <span className="lab-history-modal__patient-separator">
+                      ·
+                    </span>
+                    <span className="lab-history-modal__patient-code">
+                      Enc <code>{selectedEnccode || "—"}</code>
+                    </span>
+                  </div>
+                </div>
               </div>
               <div className="lab-history-modal__header-actions">
                 <button
@@ -606,36 +642,109 @@ function LabUploadModule({
                   className="lab-action-btn secondary"
                   onClick={openHistoryModal}
                   disabled={historyLoading}
+                  style={{ padding: "0.375rem 0.75rem", fontSize: "0.75rem" }}
                 >
-                  {historyLoading ? "Refreshing..." : "Refresh"}
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                  </svg>
+                  {historyLoading ? "Loading..." : "Refresh"}
                 </button>
                 <button
                   type="button"
                   className="lab-history-modal__close"
                   onClick={closeHistoryModal}
-                  aria-label="Close uploaded PDF history"
+                  aria-label="Close"
                 >
-                  ✕
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
                 </button>
               </div>
             </div>
 
+            {/* Body */}
             <div className="lab-history-modal__body">
+              {/* documents toolbar removed per request */}
+
+              {/* States */}
               {historyLoading ? (
                 <div className="lab-history-modal__state">
-                  <span className="spinner" />
-                  Loading uploaded PDFs...
+                  <div className="lab-history-modal__loading">
+                    <div className="lab-history-modal__spinner" />
+                    <p className="lab-history-modal__loading-text">
+                      Loading...
+                    </p>
+                  </div>
                 </div>
               ) : historyError ? (
                 <div className="lab-history-modal__state lab-history-modal__state--error">
-                  {historyError}
+                  <div className="lab-history-modal__state-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <p className="lab-history-modal__state-message">Error</p>
+                  <p className="lab-history-modal__state-description">
+                    {historyError}
+                  </p>
                 </div>
               ) : historyFiles.length === 0 ? (
-                <div className="lab-history-modal__state">
-                  No uploaded PDFs found for this patient.
+                <div className="lab-history-modal__state lab-history-modal__state--empty">
+                  <div className="lab-history-modal__state-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="9" y1="15" x2="15" y2="15" />
+                    </svg>
+                  </div>
+                  <p className="lab-history-modal__state-message">No uploads</p>
+                  <p className="lab-history-modal__state-description">
+                    No PDFs uploaded for this patient yet.
+                  </p>
                 </div>
               ) : (
-                <div className="lab-history-list">
+                <>
+                  {/* Pagination */}
                   {historyFiles.length > pageSize && (
                     <div className="lab-history-pagination">
                       <button
@@ -645,12 +754,28 @@ function LabUploadModule({
                           setCurrentPage((p) => Math.max(1, p - 1))
                         }
                         disabled={currentPage === 1}
+                        style={{
+                          padding: "0.35rem 0.6rem",
+                          fontSize: "0.7rem",
+                        }}
                       >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="15 18 9 12 15 6" />
+                        </svg>
                         Prev
                       </button>
-                      <div className="lab-history-pagination__info">
-                        Page {currentPage} of {totalPages}
-                      </div>
+                      <span className="lab-history-pagination__info">
+                        {currentPage}/{totalPages}
+                      </span>
                       <button
                         type="button"
                         className="lab-action-btn secondary"
@@ -658,16 +783,32 @@ function LabUploadModule({
                           setCurrentPage((p) => Math.min(totalPages, p + 1))
                         }
                         disabled={currentPage >= totalPages}
+                        style={{
+                          padding: "0.35rem 0.6rem",
+                          fontSize: "0.7rem",
+                        }}
                       >
                         Next
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
                       </button>
                       <select
                         value={pageSize}
                         onChange={(e) => {
-                          const next = Number(e.target.value) || 10;
-                          setPageSize(next);
+                          setPageSize(Number(e.target.value) || 10);
                           setCurrentPage(1);
                         }}
+                        className="lab-history-pagination__select"
                       >
                         <option value={5}>5</option>
                         <option value={10}>10</option>
@@ -675,132 +816,140 @@ function LabUploadModule({
                       </select>
                     </div>
                   )}
-                  {pagedFiles.map((file, index) => {
-                    const docointkey =
-                      file.docointkey || file.procedure_instance_id || "—";
-                    const orderCode = file.orcode || file.order_code || "—";
-                    const remarks =
-                      file.remarks || file.note || file.comment || "—";
-                    const procedureCode =
-                      file.proccode || file.procedure_code || "—";
-                    const encounterCodeValue =
-                      file.enccode || file.encounter_code || "—";
-                    const uploadedAt =
-                      file.created_at ||
-                      file.submittedAt ||
-                      file.uploaded_at ||
-                      "";
 
-                    return (
-                      <article
-                        key={`${docointkey}-${index}`}
-                        className="lab-history-item"
-                      >
-                        <div
-                          className="lab-history-item__icon"
-                          aria-hidden="true"
+                  {/* File List */}
+                  <div className="lab-history-list">
+                    {pagedFiles.map((file, index) => {
+                      const docointkey =
+                        file.docointkey || file.procedure_instance_id || "—";
+                      const orderCode = file.orcode || file.order_code || "—";
+                      const remarks =
+                        file.remarks || file.note || file.comment || "—";
+                      const procedureCode =
+                        file.proccode || file.procedure_code || "—";
+                      const uploadedAt =
+                        file.created_at ||
+                        file.submittedAt ||
+                        file.uploaded_at ||
+                        "";
+
+                      return (
+                        <article
+                          key={`${docointkey}-${index}`}
+                          className="lab-history-item"
                         >
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                          <div
+                            className="lab-history-item__icon"
+                            aria-hidden="true"
                           >
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="9" y1="13" x2="15" y2="13" />
-                            <line x1="9" y1="17" x2="15" y2="17" />
-                          </svg>
-                        </div>
-
-                        <div className="lab-history-item__content">
-                          <div className="lab-history-item__topline">
-                            <h3>
-                              {formatReadableValue(
-                                file.file_name || file.fileName,
-                              )}
-                            </h3>
-                            <a
-                              href={file.file_url || file.uploadedPdfUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="lab-history-item__link"
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             >
-                              Open PDF
-                            </a>
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                              <polyline points="14 2 14 8 20 8" />
+                              <line x1="9" y1="13" x2="15" y2="13" />
+                              <line x1="9" y1="17" x2="15" y2="17" />
+                            </svg>
                           </div>
 
-                          <div className="lab-history-item__meta-grid">
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                docointkey
-                              </span>
-                              <code className="lab-history-meta__value lab-history-meta__code">
-                                {formatReadableValue(docointkey)}
-                              </code>
-                            </div>
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                Order
-                              </span>
-                              <span className="lab-history-meta__value">
-                                {formatReadableValue(orderCode)}
-                              </span>
-                            </div>
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                Procedure
-                              </span>
-                              <span className="lab-history-meta__value">
-                                {formatReadableValue(procedureCode)}
-                              </span>
-                            </div>
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                Encounter
-                              </span>
-                              <span className="lab-history-meta__value">
-                                {formatReadableValue(encounterCodeValue)}
-                              </span>
-                            </div>
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                Uploaded
-                              </span>
-                              <span className="lab-history-meta__value">
-                                {formatHistoryDate(uploadedAt)}
-                              </span>
-                            </div>
-                            <div className="lab-history-meta">
-                              <span className="lab-history-meta__label">
-                                Uploaded By
-                              </span>
-                              <span className="lab-history-meta__value">
+                          <div className="lab-history-item__content">
+                            <div className="lab-history-item__topline">
+                              <h3>
                                 {formatReadableValue(
-                                  file.uploaded_by ||
-                                    file.uploadedBy ||
-                                    file.source,
+                                  file.file_name || file.fileName,
                                 )}
-                              </span>
+                              </h3>
+                              <a
+                                href={file.file_url || file.uploadedPdfUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="lab-history-item__link"
+                              >
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                  <polyline points="15 3 21 3 21 9" />
+                                  <line x1="10" y1="14" x2="21" y2="3" />
+                                </svg>
+                                Open
+                              </a>
                             </div>
-                            <div className="lab-history-meta lab-history-meta--remarks">
-                              <span className="lab-history-meta__label">
-                                Remarks
-                              </span>
-                              <span className="lab-history-meta__value">
-                                {formatReadableValue(remarks)}
-                              </span>
+
+                            <div className="lab-history-item__meta-grid">
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  docointkey
+                                </span>
+                                <code className="lab-history-meta__code">
+                                  {formatReadableValue(docointkey)}
+                                </code>
+                              </div>
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  Order
+                                </span>
+                                <span className="lab-history-meta__value">
+                                  {formatReadableValue(orderCode)}
+                                </span>
+                              </div>
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  Procedure
+                                </span>
+                                <span className="lab-history-meta__value">
+                                  {formatReadableValue(procedureCode)}
+                                </span>
+                              </div>
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  Uploaded
+                                </span>
+                                <span className="lab-history-meta__value">
+                                  {formatHistoryDate(uploadedAt)}
+                                </span>
+                              </div>
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  Uploaded By
+                                </span>
+                                <span className="lab-history-meta__value">
+                                  {formatReadableValue(
+                                    file.uploaded_by ||
+                                      file.uploadedBy ||
+                                      file.source,
+                                  )}
+                                </span>
+                              </div>
+                              <div className="lab-history-meta">
+                                <span className="lab-history-meta__label">
+                                  Remarks
+                                </span>
+                                <span className="lab-history-meta__value">
+                                  {formatReadableValue(remarks)}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
           </div>

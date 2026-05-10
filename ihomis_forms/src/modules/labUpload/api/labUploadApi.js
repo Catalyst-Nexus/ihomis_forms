@@ -973,10 +973,9 @@ export async function fetchEncounterOrders({
     throw new Error("enccode is required to fetch encounter orders.");
   }
 
-  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    "",
-  );
+  const baseUrl = String(
+    apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "",
+  ).replace(/\/+$/, "");
   // Replace /patients suffix with empty to get base API URL
   // Double-encode the enccode since it may contain special chars like / and :
   const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
@@ -1023,7 +1022,7 @@ export async function fetchEncounterOrders({
 
   // Extract full enccode from response (backend returns enccodeFull)
   const fullEnccode = data?.enccodeFull || data?.enccode || trimmedEnccode;
-  
+
   return {
     ok: data?.ok ?? true,
     enccode: trimmedEnccode,
@@ -1032,8 +1031,8 @@ export async function fetchEncounterOrders({
     count: rawOrders.length,
     data: rawOrders.map((order) => ({
       orcode: order.orcode,
-      enccode: order.enccode,  // Full hdocord enccode
-      enccodeShort: trimmedEnccode,  // Short henctr enccode for reference
+      enccode: order.enccode, // Full hdocord enccode
+      enccodeShort: trimmedEnccode, // Short henctr enccode for reference
       ordcode: order.ordcode,
       oritem: order.oritem,
       ordate: order.ordate || order.ordates,
@@ -1074,13 +1073,14 @@ export async function fetchOrderProcedures({
   const trimmedOrcode = String(orcode || "").trim();
 
   if (!trimmedEnccode || !trimmedOrcode) {
-    throw new Error("Both enccode and orcode are required to fetch procedures.");
+    throw new Error(
+      "Both enccode and orcode are required to fetch procedures.",
+    );
   }
 
-  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    "",
-  );
+  const baseUrl = String(
+    apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "",
+  ).replace(/\/+$/, "");
   // Double-encode both enccode and orcode since they may contain special chars
   const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
   const encodedOrcode = encodeURIComponent(encodeURIComponent(trimmedOrcode));
@@ -1186,20 +1186,19 @@ export async function fetchPatientUploadedFiles({
     throw new Error("hpercode is required to fetch patient uploaded files.");
   }
 
-  const baseUrl = String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    ""
-  ).replace(/\/patients$/, "");
+  const baseUrl = String(LAB_UPLOAD_PATIENT_SEARCH_URL || "")
+    .replace(/\/+$/, "")
+    .replace(/\/patients$/, "");
 
   if (!baseUrl) {
     throw new Error(
-      "Lab upload API URL is not configured. Set VITE_LAB_PATIENT_SEARCH_URL."
+      "Lab upload API URL is not configured. Set VITE_LAB_PATIENT_SEARCH_URL.",
     );
   }
 
   const requestUrl = buildRequestUrl(
     `${baseUrl}/patients/${encodeURIComponent(trimmedHpercode)}/uploaded-files`,
-    enccode ? { enccode } : {}
+    enccode ? { enccode } : {},
   );
 
   const headers = {};
@@ -1238,7 +1237,9 @@ export async function uploadMappedLabResult({
 }) {
   const resolvedUploadUrl =
     uploadUrl ||
-    `${String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(/\/+$/, "").replace(/\/patients$/, "")}/lab-results`;
+    `${String(LAB_UPLOAD_PATIENT_SEARCH_URL || "")
+      .replace(/\/+$/, "")
+      .replace(/\/patients$/, "")}/lab-results`;
 
   if (!file) {
     throw new Error("A PDF file is required for lab result upload.");
@@ -1268,7 +1269,10 @@ export async function uploadMappedLabResult({
     formData.append("proccode", normalizedContextParams.proccode);
   }
   if (normalizedContextParams.procedureInstanceId) {
-    formData.append("procedureInstanceId", normalizedContextParams.procedureInstanceId);
+    formData.append(
+      "procedureInstanceId",
+      normalizedContextParams.procedureInstanceId,
+    );
   }
   if (normalizedContextParams.docointkey) {
     formData.append("docointkey", normalizedContextParams.docointkey);
