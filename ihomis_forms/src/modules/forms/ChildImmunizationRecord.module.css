@@ -1,0 +1,88 @@
+/* CSS Module - Scoped to ChildImmunizationRecord */
+/* NO global selectors */
+
+/* Container */
+.container {
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+}
+
+/* A4 PAGE - exactly fit content */
+.page {
+  width: 186mm;
+  height: 256mm;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.9mm;
+  color: #000;
+  line-height: 1.1;
+  overflow: hidden;
+}
+
+/* IDENTICAL IMAGE CONTAINERS */
+.chartSection {
+  width: 100%;
+  height: 120mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* IDENTICAL IMAGE RENDERING */
+.chartImage {
+  width: 100%;
+  height: 120mm;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* FOOTER */
+.footer {
+  height: 6mm;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  padding: 1mm 0;
+  border-top: 0.25mm solid #111;
+  text-align: right;
+  font-size: 6pt;
+  font-style: italic;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+/* PRINT FIXES */
+@media print {
+  .page {
+    width: 186mm !important;
+    height: 256mm !important;
+    overflow: hidden !important;
+  }
+
+  .chartSection {
+    height: 120mm !important;
+    overflow: hidden !important;
+  }
+
+  .chartImage {
+    width: 100% !important;
+    height: 120mm !important;
+    object-fit: contain !important;
+  }
+
+  .footer {
+    height: 6mm !important;
+    flex-shrink: 0 !important;
+  }
+}
