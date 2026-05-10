@@ -1,0 +1,193 @@
+/* CSS Module - Scoped to Lubchenco */
+/* NO global selectors */
+
+/* Root Container */
+.root {
+  width: 100%;
+  background: #fff;
+}
+
+/* Page */
+.page {
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  background: #fff;
+  padding: 6mm 12mm 5mm;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.9mm;
+  color: #000;
+  line-height: 1.15;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* Header Section */
+.header {
+  flex-shrink: 0;
+  margin-bottom: 1mm;
+}
+
+.caseNumber {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  font-size: 2.9mm;
+  margin-bottom: 1.5mm;
+}
+
+.caseLabel {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.caseValue {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* Table */
+.table {
+  border: 0.35mm solid #000;
+  background: #fff;
+  margin-bottom: 1mm;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 0.35mm solid #000;
+}
+
+.tableRow:last-child {
+  border-bottom: 0;
+}
+
+.tableCell {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  min-height: 7.5mm;
+  padding: 0.7mm 1.2mm;
+  font-size: 2.9mm;
+  border-right: 0.35mm solid #000;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tableCell:last-child {
+  border-right: 0;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.value {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 2.75mm;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1mm;
+}
+
+/* Chart Section */
+.chartSection {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 238mm;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.chartImage {
+  width: 100%;
+  height: auto;
+  max-height: 238mm;
+  display: block;
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* Signature */
+.signature {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5mm;
+  margin-top: 3mm;
+  font-size: 2.9mm;
+  height: 12mm;
+  justify-content: flex-end;
+}
+
+.signatureLine {
+  width: 55mm;
+  height: 0;
+  border-bottom: 0.35mm solid #000;
+}
+
+.signatureLabel {
+  font-weight: 700;
+  font-size: 2.9mm;
+  text-align: center;
+  width: 55mm;
+}
+
+/* Footer */
+.footer {
+  flex-shrink: 0;
+  border-top: 1.5px solid #000;
+  padding-top: 1px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+  height: 6mm;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* SCOPED PRINT RULES */
+@media print {
+  .page {
+    width: 210mm !important;
+    height: 297mm !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+  }
+
+  .chartSection {
+    overflow: hidden !important;
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 238mm !important;
+    height: auto !important;
+  }
+
+  .chartImage {
+    max-height: 238mm !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  .signature {
+    height: 12mm !important;
+  }
+
+  .footer {
+    height: 6mm !important;
+  }
+}
