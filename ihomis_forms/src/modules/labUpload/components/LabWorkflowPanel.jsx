@@ -20,6 +20,18 @@ import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 import "./LabWorkflowPanel.css";
 
+// Shared status mapping helper used across this component
+function getStatusInfo(status) {
+  const statusMap = {
+    P: { label: "Pending", class: "pending" },
+    D: { label: "Done", class: "done" },
+    C: { label: "Cancelled", class: "cancelled" },
+    IP: { label: "In Progress", class: "progress" },
+    S: { label: "Signed", class: "done" },
+  };
+  return statusMap[status] || { label: status || "Pending", class: "pending" };
+}
+
 const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
 
 function WorkflowStepIndicator({ currentStep }) {
@@ -410,17 +422,6 @@ export default function LabWorkflowPanel({
   const selectedOrcodeDetails = selectedOrcode
     ? getOrcodes().find((o) => o.orcode === selectedOrcode)
     : null;
-
-  // Helper function to get status class
-  const getStatusClass = (status) => {
-    const statusMap = {
-      P: "pending",
-      D: "done",
-      C: "cancelled",
-      IP: "progress",
-    };
-    return statusMap[status] || "pending";
-  };
 
   const currentStep = selectedOrder
     ? "upload"
@@ -914,11 +915,17 @@ export default function LabWorkflowPanel({
                             <span className="lwp-card-code">
                               {proc.proccode || "N/A"}
                             </span>
-                            <span
-                              className={`lwp-card-badge status ${getStatusClass(proc.estatus)}`}
-                            >
-                              {proc.estatus || "Active"}
-                            </span>
+                            {(() => {
+                              const s = getStatusInfo(proc.estatus);
+                              return (
+                                <span
+                                  className={`lwp-card-badge status ${s.class}`}
+                                  title={proc.estatus || s.label}
+                                >
+                                  {s.label}
+                                </span>
+                              );
+                            })()}
                           </div>
                           <p className="lwp-card-title">{proc.procdesc}</p>
                           <div className="lwp-card-meta">
@@ -1116,11 +1123,17 @@ export default function LabWorkflowPanel({
                 </div>
                 <div className="lwp-info-row">
                   <span className="lwp-info-label">Status</span>
-                  <span
-                    className={`lwp-info-badge ${getStatusClass(selectedOrder?.estatus)}`}
-                  >
-                    {selectedOrder?.estatus || "Pending"}
-                  </span>
+                  {(() => {
+                    const s = getStatusInfo(selectedOrder?.estatus);
+                    return (
+                      <span
+                        className={`lwp-info-badge ${s.class}`}
+                        title={selectedOrder?.estatus || s.label}
+                      >
+                        {s.label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

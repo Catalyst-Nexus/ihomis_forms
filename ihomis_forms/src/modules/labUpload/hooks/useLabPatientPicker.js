@@ -366,21 +366,30 @@ function useLabPatientPicker({
 
     const patient = patientForEncounterSelection;
 
-    // Update the patient's context with the selected encounter
-    patient.contextParams = {
-      ...(patient.contextParams || {}),
-      enccode: selectedEncounter.enccode,
-      enc: selectedEncounter.enccode,
-      encdates: selectedEncounter.encdates || "",
-      toa: selectedEncounter.toa || "",
-      tod: selectedEncounter.tod || "",
-      fhud: selectedEncounter.fhud || patient.contextParams?.fhud || "",
+    // Create a new patient object with updated context to avoid in-place mutation
+    const updatedPatient = {
+      ...patient,
+      contextParams: {
+        ...(patient.contextParams || {}),
+        enccode: selectedEncounter.enccode,
+        enc: selectedEncounter.enccode,
+        encdates: selectedEncounter.encdates || "",
+        toa: selectedEncounter.toa || "",
+        tod: selectedEncounter.tod || "",
+        fhud: selectedEncounter.fhud || patient.contextParams?.fhud || "",
+      },
+      selectedEncounter,
     };
-    patient.selectedEncounter = selectedEncounter;
+
+    // Replace the patient in the patients list immutably so React notices the change
+    setPatients((prev) =>
+      prev.map((p) => (p.id === updatedPatient.id ? updatedPatient : p)),
+    );
 
     closeEncounterModal();
+    // Ensure selectionConfirmed and selectedPatientId are set so activeContextParams updates
     setSelectionConfirmed(true);
-    setSelectedPatientId(patient.id);
+    setSelectedPatientId(updatedPatient.id);
   }
 
   return {

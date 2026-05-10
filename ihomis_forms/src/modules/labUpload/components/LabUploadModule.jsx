@@ -1,11 +1,15 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import LabWorkflowPanel from "./LabWorkflowPanel.jsx";
 import {
   LAB_UPLOAD_API_TOKEN,
   LAB_UPLOAD_CONTEXT_URL,
 } from "../labUploadConfig.js";
-import { canUseSupabaseUploads } from "../api/labUploadSupabase.js";
+import {
+  canUseSupabaseUploads,
+  fetchPatientUploadedFilesSupabase,
+} from "../api/labUploadSupabase.js";
+import { fetchPatientUploadedFiles } from "../api/labUploadApi.js";
 import useLabRequestContext from "../hooks/useLabRequestContext.js";
 import "../LabUploadModule.css";
 
@@ -24,6 +28,12 @@ function LabUploadModule({
   );
 
   const hasSupabaseUpload = canUseSupabaseUploads();
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+  const [historyFiles, setHistoryFiles] = useState([]);
+  const [historyCount, setHistoryCount] = useState(0);
+  const [historyLoadedForHpercode, setHistoryLoadedForHpercode] = useState("");
 
   const patientName = useMemo(() => {
     const lastName =
@@ -110,6 +120,225 @@ function LabUploadModule({
 
   const patientAge =
     selectedPatient?.contextParams?.age || selectedPatient?.rawData?.age || "—";
+
+  const selectedPatientHpercode =
+    selectedPatient?.contextParams?.hpercode ||
+    selectedPatient?.rawData?.hpercode ||
+    selectedPatient?.id ||
+    "";
+
+  const selectedEnccode =
+    contextParams?.enccode || selectedContextParams?.enccode || "";
+
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const openHistoryModal = useCallback(async () => {
+    if (!selectedPatientHpercode) return;
+
+    setIsHistoryModalOpen(true);
+
+    if (
+      historyLoadedForHpercode === selectedPatientHpercode &&
+      historyFiles.length
+    ) {
+      return;
+    }
+
+    setHistoryLoading(true);
+    setHistoryError("");
+
+    // Require an encounter selection: only show uploads for the chosen encounter
+    const selectedEnccodeRaw =
+      contextParams?.enccode || selectedContextParams?.enccode || "";
+    const selectedEnccode = String(selectedEnccodeRaw || "").trim();
+    if (!selectedEnccode) {
+      setHistoryFiles([]);
+      setHistoryCount(0);
+      setHistoryError(
+        "Please select an encounter to view uploaded PDFs for that encounter.",
+      );
+      setHistoryLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetchPatientUploadedFiles({
+        hpercode: selectedPatientHpercode,
+        enccode: contextParams?.enccode || null,
+        token: LAB_UPLOAD_API_TOKEN,
+      });
+
+      // Ensure only files that match the selected encounter are shown
+      const rawFiles = Array.isArray(response.data) ? response.data : [];
+      const matchEnccode = (v) => {
+        if (!v) return false;
+        try {
+          // handle encoded or raw values
+          const decoded = decodeURIComponent(String(v));
+          return (
+            decoded.trim() === selectedEnccode ||
+            String(v).trim() === selectedEnccode
+          );
+        } catch {
+          return String(v).trim() === selectedEnccode;
+        }
+      };
+
+      const filtered = rawFiles.filter(
+        (f) =>
+          matchEnccode(f.enccode) ||
+          matchEnccode(f.encounter_code) ||
+          matchEnccode(f.enccode_raw),
+      );
+
+      setHistoryFiles(filtered);
+      setHistoryCount(filtered.length);
+      setCurrentPage(1);
+      setHistoryLoadedForHpercode(selectedPatientHpercode);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+
+      if (
+        /supabase(?:\s+is)?\s+not\s+configured|route not found|request failed with status\s+500|\b404\b|\b500\b/i.test(
+          message,
+        )
+      ) {
+        try {
+          const fallbackResponse = await fetchPatientUploadedFilesSupabase({
+            hpercode: selectedPatientHpercode,
+            enccode: contextParams?.enccode || null,
+          });
+
+          // Apply same encounter-only filtering to Supabase fallback
+          const rawFilesFb = Array.isArray(fallbackResponse.data)
+            ? fallbackResponse.data
+            : [];
+          const filteredFb = rawFilesFb.filter(
+            (f) =>
+              (f &&
+                (function (v) {
+                  if (!v) return false;
+                  try {
+                    return (
+                      decodeURIComponent(String(v)).trim() ===
+                        selectedEnccode || String(v).trim() === selectedEnccode
+                    );
+                  } catch {
+                    return String(v).trim() === selectedEnccode;
+                  }
+                })(f.enccode)) ||
+              (f &&
+                (function (v) {
+                  if (!v) return false;
+                  try {
+                    return (
+                      decodeURIComponent(String(v)).trim() ===
+                        selectedEnccode || String(v).trim() === selectedEnccode
+                    );
+                  } catch {
+                    return String(v).trim() === selectedEnccode;
+                  }
+                })(f.encounter_code)) ||
+              (f &&
+                (function (v) {
+                  if (!v) return false;
+                  try {
+                    return (
+                      decodeURIComponent(String(v)).trim() ===
+                        selectedEnccode || String(v).trim() === selectedEnccode
+                    );
+                  } catch {
+                    return String(v).trim() === selectedEnccode;
+                  }
+                })(f.enccode_raw)),
+          );
+
+          setHistoryFiles(filteredFb);
+          setHistoryCount(filteredFb.length);
+          setCurrentPage(1);
+          setHistoryLoadedForHpercode(selectedPatientHpercode);
+          setHistoryError("");
+          return;
+        } catch (fallbackError) {
+          setHistoryFiles([]);
+          setHistoryCount(0);
+          setHistoryError(
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : "Unable to load uploaded PDFs.",
+          );
+          return;
+        }
+      }
+
+      setHistoryFiles([]);
+      setHistoryCount(0);
+      setHistoryError(message || "Unable to load uploaded PDFs.");
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [
+    contextParams?.enccode,
+    selectedContextParams?.enccode,
+    historyFiles.length,
+    historyLoadedForHpercode,
+    selectedPatientHpercode,
+  ]);
+
+  const closeHistoryModal = useCallback(() => {
+    setIsHistoryModalOpen(false);
+  }, []);
+
+  useEffect(() => {
+    // Reset loaded history when the selected patient changes.
+    setHistoryFiles([]);
+    setHistoryCount(0);
+    setHistoryError("");
+    setHistoryLoadedForHpercode("");
+    setIsHistoryModalOpen(false);
+  }, [selectedPatientHpercode]);
+
+  useEffect(() => {
+    if (!isHistoryModalOpen) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeHistoryModal();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [closeHistoryModal, isHistoryModalOpen]);
+
+  const formatHistoryDate = (value) => {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(date);
+  };
+
+  const formatReadableValue = (value) => {
+    const text = String(value || "").trim();
+    return text || "—";
+  };
+
+  const totalPages = Math.max(1, Math.ceil(historyFiles.length / pageSize));
+  const pagedFiles = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return historyFiles.slice(start, start + pageSize);
+  }, [historyFiles, currentPage, pageSize]);
 
   useLabRequestContext({
     contextUrl: LAB_UPLOAD_CONTEXT_URL,
@@ -225,6 +454,32 @@ function LabUploadModule({
                     </svg>
                     Change Encounter
                   </button>
+                  <button
+                    type="button"
+                    className="lab-action-btn secondary lab-action-btn--history"
+                    onClick={openHistoryModal}
+                    disabled={!selectedPatientHpercode}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <path d="M8 13h2" />
+                      <path d="M8 17h8" />
+                    </svg>
+                    Uploaded PDFs
+                    <span className="lab-action-btn__count">
+                      {historyCount}
+                    </span>
+                  </button>
                 </div>
               )}
             </div>
@@ -319,6 +574,236 @@ function LabUploadModule({
           />
         </section>
       </main>
+
+      {isHistoryModalOpen && (
+        <div
+          className="lab-history-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="lab-history-title"
+          onClick={closeHistoryModal}
+        >
+          <div
+            className="lab-history-modal__panel"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="lab-history-modal__header">
+              <div>
+                <p className="lab-history-modal__eyebrow">Patient Uploads</p>
+                <h2 id="lab-history-title">Uploaded PDFs and docointkeys</h2>
+                <p className="lab-history-modal__subtitle">
+                  {patientName} · HCI {selectedPatientHpercode || "—"}
+                </p>
+                <p className="lab-history-modal__encounter">
+                  Selected Encounter: <strong>{selectedEnccode || "—"}</strong>
+                </p>
+              </div>
+              <div className="lab-history-modal__header-actions">
+                <button
+                  type="button"
+                  className="lab-action-btn secondary"
+                  onClick={openHistoryModal}
+                  disabled={historyLoading}
+                >
+                  {historyLoading ? "Refreshing..." : "Refresh"}
+                </button>
+                <button
+                  type="button"
+                  className="lab-history-modal__close"
+                  onClick={closeHistoryModal}
+                  aria-label="Close uploaded PDF history"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="lab-history-modal__body">
+              {historyLoading ? (
+                <div className="lab-history-modal__state">
+                  <span className="spinner" />
+                  Loading uploaded PDFs...
+                </div>
+              ) : historyError ? (
+                <div className="lab-history-modal__state lab-history-modal__state--error">
+                  {historyError}
+                </div>
+              ) : historyFiles.length === 0 ? (
+                <div className="lab-history-modal__state">
+                  No uploaded PDFs found for this patient.
+                </div>
+              ) : (
+                <div className="lab-history-list">
+                  {historyFiles.length > pageSize && (
+                    <div className="lab-history-pagination">
+                      <button
+                        type="button"
+                        className="lab-action-btn secondary"
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(1, p - 1))
+                        }
+                        disabled={currentPage === 1}
+                      >
+                        Prev
+                      </button>
+                      <div className="lab-history-pagination__info">
+                        Page {currentPage} of {totalPages}
+                      </div>
+                      <button
+                        type="button"
+                        className="lab-action-btn secondary"
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage >= totalPages}
+                      >
+                        Next
+                      </button>
+                      <select
+                        value={pageSize}
+                        onChange={(e) => {
+                          const next = Number(e.target.value) || 10;
+                          setPageSize(next);
+                          setCurrentPage(1);
+                        }}
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                      </select>
+                    </div>
+                  )}
+                  {pagedFiles.map((file, index) => {
+                    const docointkey =
+                      file.docointkey || file.procedure_instance_id || "—";
+                    const orderCode = file.orcode || file.order_code || "—";
+                    const remarks =
+                      file.remarks || file.note || file.comment || "—";
+                    const procedureCode =
+                      file.proccode || file.procedure_code || "—";
+                    const encounterCodeValue =
+                      file.enccode || file.encounter_code || "—";
+                    const uploadedAt =
+                      file.created_at ||
+                      file.submittedAt ||
+                      file.uploaded_at ||
+                      "";
+
+                    return (
+                      <article
+                        key={`${docointkey}-${index}`}
+                        className="lab-history-item"
+                      >
+                        <div
+                          className="lab-history-item__icon"
+                          aria-hidden="true"
+                        >
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="9" y1="13" x2="15" y2="13" />
+                            <line x1="9" y1="17" x2="15" y2="17" />
+                          </svg>
+                        </div>
+
+                        <div className="lab-history-item__content">
+                          <div className="lab-history-item__topline">
+                            <h3>
+                              {formatReadableValue(
+                                file.file_name || file.fileName,
+                              )}
+                            </h3>
+                            <a
+                              href={file.file_url || file.uploadedPdfUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="lab-history-item__link"
+                            >
+                              Open PDF
+                            </a>
+                          </div>
+
+                          <div className="lab-history-item__meta-grid">
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                docointkey
+                              </span>
+                              <code className="lab-history-meta__value lab-history-meta__code">
+                                {formatReadableValue(docointkey)}
+                              </code>
+                            </div>
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                Order
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatReadableValue(orderCode)}
+                              </span>
+                            </div>
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                Procedure
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatReadableValue(procedureCode)}
+                              </span>
+                            </div>
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                Encounter
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatReadableValue(encounterCodeValue)}
+                              </span>
+                            </div>
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                Uploaded
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatHistoryDate(uploadedAt)}
+                              </span>
+                            </div>
+                            <div className="lab-history-meta">
+                              <span className="lab-history-meta__label">
+                                Uploaded By
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatReadableValue(
+                                  file.uploaded_by ||
+                                    file.uploadedBy ||
+                                    file.source,
+                                )}
+                              </span>
+                            </div>
+                            <div className="lab-history-meta lab-history-meta--remarks">
+                              <span className="lab-history-meta__label">
+                                Remarks
+                              </span>
+                              <span className="lab-history-meta__value">
+                                {formatReadableValue(remarks)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

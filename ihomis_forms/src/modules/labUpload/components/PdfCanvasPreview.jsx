@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
+import "./PdfCanvasPreview.css";
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const { getDocument } = pdfjsLib;

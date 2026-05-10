@@ -161,6 +161,49 @@ export async function uploadLabResult({
   };
 }
 
+export async function fetchPatientUploadedFilesSupabase({
+  hpercode,
+  enccode = null,
+}) {
+  if (!isConfigured()) {
+    throw new Error(
+      "Supabase is not configured. Set VITE_SUPABASE_LAB_RESULTS_BUCKET and VITE_SUPABASE_LAB_RESULTS_TABLE.",
+    );
+  }
+
+  const trimmedHpercode = String(hpercode || "").trim();
+  if (!trimmedHpercode) {
+    throw new Error("hpercode is required to fetch patient uploaded files.");
+  }
+
+  let query = supabase
+    .from(LAB_UPLOAD_SUPABASE_TABLE)
+    .select("*")
+    .eq("hpercode", trimmedHpercode)
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (enccode) {
+    query = query.eq("enccode", String(enccode).trim());
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    throw new Error(
+      error.message || "Unable to fetch uploaded PDFs from Supabase.",
+    );
+  }
+
+  return {
+    ok: true,
+    hpercode: trimmedHpercode,
+    enccode: enccode || null,
+    count: typeof count === "number" ? count : data?.length || 0,
+    data: data || [],
+  };
+}
+
 export function canUseSupabaseUploads() {
   return isConfigured();
 }
