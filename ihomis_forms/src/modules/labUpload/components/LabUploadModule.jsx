@@ -9,7 +9,6 @@ import {
   canUseSupabaseUploads,
   fetchPatientUploadedFilesSupabase,
 } from "../api/labUploadSupabase.js";
-import { fetchPatientUploadedFiles } from "../api/labUploadApi.js";
 import useLabRequestContext from "../hooks/useLabRequestContext.js";
 import "../LabUploadModule.css";
 
@@ -174,59 +173,37 @@ function LabUploadModule({
             matchEnccode(file?.encounter_code) ||
             matchEnccode(file?.enccode_raw),
         );
+        const visibleFiles =
+          filteredFiles.length > 0 ? filteredFiles : rawFiles;
 
-        setHistoryCount(filteredFiles.length);
+        setHistoryCount(visibleFiles.length);
 
         if (includeFiles) {
-          setHistoryFiles(filteredFiles);
+          setHistoryFiles(visibleFiles);
           setCurrentPage(1);
           setHistoryError("");
         }
 
-        return filteredFiles;
+        return visibleFiles;
       };
 
       try {
-        const response = await fetchPatientUploadedFiles({
+        // Fetch directly from Supabase in the frontend
+        const response = await fetchPatientUploadedFilesSupabase({
           hpercode: selectedPatientHpercode,
           enccode: selectedEnccodeRaw,
-          token: LAB_UPLOAD_API_TOKEN,
         });
 
         return applyResponse(response.data);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "";
-
-        if (
-          /supabase(?:\s+is)?\s+not\s+configured|route not found|request failed with status\s+500|\b404\b|\b500\b/i.test(
-            message,
-          )
-        ) {
-          try {
-            const fallbackResponse = await fetchPatientUploadedFilesSupabase({
-              hpercode: selectedPatientHpercode,
-              enccode: selectedEnccodeRaw,
-            });
-
-            return applyResponse(fallbackResponse.data);
-          } catch {
-            if (historyRefreshRequestRef.current === requestId) {
-              setHistoryCount(0);
-              if (includeFiles) {
-                setHistoryFiles([]);
-                setCurrentPage(1);
-              }
-            }
-
-            return [];
-          }
-        }
-
         if (historyRefreshRequestRef.current === requestId) {
           setHistoryCount(0);
           if (includeFiles) {
             setHistoryFiles([]);
             setCurrentPage(1);
+            setHistoryError(
+              error instanceof Error ? error.message : "Failed to load uploads",
+            );
           }
         }
 

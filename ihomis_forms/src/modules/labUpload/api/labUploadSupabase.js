@@ -2,8 +2,6 @@ import { supabase } from "../../../lib/supabaseClient.js";
 import {
   LAB_UPLOAD_SUPABASE_BUCKET,
   LAB_UPLOAD_SUPABASE_TABLE,
-  LAB_UPLOAD_SUPABASE_USE_SIGNED_URL,
-  LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL,
 } from "../labUploadConfig.js";
 import {
   getFileKey,
@@ -32,27 +30,6 @@ function buildStoragePath({ fileName, encounterCode, patientId }) {
 async function resolveFileUrl({ bucket, path }) {
   if (!supabase) {
     throw new Error("Supabase client is not configured.");
-  }
-
-  const ttlSeconds =
-    Number.isFinite(LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL) &&
-    LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL > 0
-      ? LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL
-      : 3600;
-
-  if (LAB_UPLOAD_SUPABASE_USE_SIGNED_URL) {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, ttlSeconds);
-
-    if (!error && data?.signedUrl) {
-      const expiresAt = new Date(Date.now() + ttlSeconds * 1000).toISOString();
-      return {
-        url: data.signedUrl,
-        isSigned: true,
-        expiresAt,
-      };
-    }
   }
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
@@ -109,7 +86,7 @@ export async function uploadLabResult({
     throw new Error(uploadError.message || "Unable to upload PDF to Supabase.");
   }
 
-  const { url, isSigned, expiresAt } = await resolveFileUrl({
+  const { url } = await resolveFileUrl({
     bucket: LAB_UPLOAD_SUPABASE_BUCKET,
     path: storagePath,
   });
@@ -135,8 +112,8 @@ export async function uploadLabResult({
     uploaded_by: uploadedBy || null,
     remarks: remarks?.trim() || null,
     source: "lab-upload",
-    is_signed_url: isSigned,
-    url_expires_at: expiresAt,
+    is_signed_url: false,
+    url_expires_at: null,
   };
 
   const { data, error: insertError } = await supabase
@@ -195,12 +172,35 @@ export async function fetchPatientUploadedFilesSupabase({
     );
   }
 
+  const normalizedData = (data || []).map((row) => {
+    const storagePath = String(row?.storage_path || "").trim();
+    let publicUrl = String(row?.file_url || "").trim();
+
+    if (supabase && LAB_UPLOAD_SUPABASE_BUCKET && storagePath) {
+      const { data: publicData } = supabase.storage
+        .from(LAB_UPLOAD_SUPABASE_BUCKET)
+        .getPublicUrl(storagePath);
+
+      if (publicData?.publicUrl) {
+        publicUrl = publicData.publicUrl;
+      }
+    }
+
+    return {
+      ...row,
+      file_url: publicUrl,
+      uploadedPdfUrl: publicUrl,
+      is_signed_url: false,
+      url_expires_at: null,
+    };
+  });
+
   return {
     ok: true,
     hpercode: trimmedHpercode,
     enccode: enccode || null,
-    count: typeof count === "number" ? count : data?.length || 0,
-    data: data || [],
+    count: typeof count === "number" ? count : normalizedData.length || 0,
+    data: normalizedData,
   };
 }
 

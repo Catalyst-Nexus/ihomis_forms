@@ -1286,7 +1286,9 @@ export default function LabWorkflowPanel({
                     <select
                       className="lwp-preview-select"
                       value={selectedPreviewIndex}
-                      onChange={(e) => setSelectedPreviewIndex(Number(e.target.value))}
+                      onChange={(e) =>
+                        setSelectedPreviewIndex(Number(e.target.value))
+                      }
                     >
                       {resultFiles.map((file, idx) => (
                         <option key={idx} value={idx}>

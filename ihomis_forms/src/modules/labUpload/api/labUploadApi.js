@@ -549,6 +549,7 @@ export async function fetchLatestEncounterForPatient({
 
   const response = await fetch(requestUrl, {
     method: "GET",
+    cache: "no-store",
     headers,
   });
 

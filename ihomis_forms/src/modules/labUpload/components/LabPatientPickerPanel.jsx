@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
 import EncounterSelectionModal from "./EncounterSelectionModal.jsx";
 
 function getInitials(displayName) {
@@ -201,15 +200,8 @@ function LabPatientPickerPanel({
   hasPreviousPage,
   onSearchTermChange,
   onSelectPatient,
-  onConfirmSelection,
   onNextPage,
   onPreviousPage,
-  title = "Select Patient Before Upload",
-  subtitle = "Choose whose laboratory result you are uploading.",
-  confirmLabel = "Continue to Lab Upload",
-  onSecondaryAction = null,
-  secondaryActionLabel = "",
-  // Encounter selection props
   showEncounterModal = false,
   patientForEncounterSelection = null,
   encounters = [],
@@ -221,88 +213,9 @@ function LabPatientPickerPanel({
   onConfirmEncounter,
   onRetryEncounters,
 }) {
-  const navigate = useNavigate();
-  const hasSelection = Boolean(selectedPatientId);
-
-  const handleGoToTracker = () => {
-    navigate("/tracking");
-  };
-
   return (
     <>
       <section className="lab-panel pk-panel" aria-label="Patient selection">
-        {/* Redesigned Header */}
-        <div className="pk-header">
-          <div className="pk-header-icon" aria-hidden="true">
-            <svg
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <div className="pk-header-text">
-            <h2 className="pk-header-title">{title}</h2>
-            <p className="pk-header-sub">{subtitle}</p>
-          </div>
-          <div className="pk-header-actions">
-            <button
-              type="button"
-              className="pk-action-btn secondary"
-              onClick={handleGoToTracker}
-            >
-              <svg
-                viewBox="0 0 16 16"
-                width="14"
-                height="14"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0ZM2 3v9.5h12V3H2Zm0 2.25h12V6H2v-.75Zm1.5 2.5a.75.75 0 0 0 0 1.5h2a.75.75 0 0 0 0-1.5h-2Zm0 2.5a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" />
-              </svg>
-              Chart Tracker
-            </button>
-            {hasSelection && (
-              <>
-                {onSecondaryAction && secondaryActionLabel ? (
-                  <button
-                    type="button"
-                    className="pk-action-btn secondary"
-                    onClick={onSecondaryAction}
-                  >
-                    {secondaryActionLabel}
-                  </button>
-                ) : null}
-                <button
-                  type="button"
-                  className="pk-action-btn primary"
-                  onClick={onConfirmSelection}
-                >
-                  {confirmLabel}
-                  <svg
-                    viewBox="0 0 16 16"
-                    width="14"
-                    height="14"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-                  </svg>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
         {/* Search */}
         <div className="pk-search-wrap">
           <label htmlFor="patientSearch" className="pk-search-label">
@@ -315,7 +228,7 @@ function LabPatientPickerPanel({
             >
               <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
             </svg>
-            Search patients
+            Find Patient Record
           </label>
           <div className="pk-search-box">
             <input
@@ -324,7 +237,7 @@ function LabPatientPickerPanel({
               className="pk-search-input"
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
-              placeholder="Name, encounter code, facility, or document key..."
+              placeholder="Search by name, hospital number, or encounter code..."
               aria-label="Search patients"
               autoComplete="off"
             />
@@ -496,15 +409,8 @@ LabPatientPickerPanel.propTypes = {
   hasPreviousPage: PropTypes.bool.isRequired,
   onSearchTermChange: PropTypes.func.isRequired,
   onSelectPatient: PropTypes.func.isRequired,
-  onConfirmSelection: PropTypes.func.isRequired,
   onNextPage: PropTypes.func.isRequired,
   onPreviousPage: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  subtitle: PropTypes.string,
-  confirmLabel: PropTypes.string,
-  onSecondaryAction: PropTypes.func,
-  secondaryActionLabel: PropTypes.string,
-  // Encounter selection props
   showEncounterModal: PropTypes.bool,
   patientForEncounterSelection: PropTypes.object,
   encounters: PropTypes.array,
