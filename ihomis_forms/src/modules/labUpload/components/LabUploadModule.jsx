@@ -123,13 +123,6 @@ function LabUploadModule({
     return result;
   }
 
-  // Preview is now handled inline in LabWorkflowPanel using PdfCanvasPreview
-  // This function is kept for prop compatibility
-  function handlePreviewFile() {
-    // File preview is now handled inline in LabWorkflowPanel
-    // No navigation needed - the preview is shown within the upload step
-  }
-
   function handleRequestPatientChange() {
     if (typeof onRequestPatientChange === "function") {
       onRequestPatientChange();
@@ -323,7 +316,6 @@ function LabUploadModule({
             onUploadComplete={handleUploadComplete}
             onRequestPatientChange={handleRequestPatientChange}
             onRequestEncounterChange={onRequestEncounterChange}
-            onPreviewFile={handlePreviewFile}
           />
         </section>
       </main>

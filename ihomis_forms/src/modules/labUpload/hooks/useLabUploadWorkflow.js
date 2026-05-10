@@ -167,8 +167,7 @@ export function useLabUploadWorkflow() {
               enrichedContextParams.docointkey ||
               enrichedContextParams.procedureInstanceId ||
               null,
-            message:
-              "Lab result uploaded successfully via Supabase fallback.",
+            message: "Lab result uploaded successfully via Supabase fallback.",
           };
         }
 

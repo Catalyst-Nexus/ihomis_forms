@@ -67,7 +67,12 @@ async function resolveFileUrl({ bucket, path }) {
   };
 }
 
-export async function uploadLabResult({ file, contextParams, patient, remarks }) {
+export async function uploadLabResult({
+  file,
+  contextParams,
+  patient,
+  remarks,
+}) {
   if (!isConfigured()) {
     throw new Error(
       "Supabase is not configured. Set VITE_SUPABASE_LAB_RESULTS_BUCKET and VITE_SUPABASE_LAB_RESULTS_TABLE.",
