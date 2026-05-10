@@ -7,7 +7,7 @@ import {
 import "./tracking.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WORKFLOW DEFINITION — fixed order, 8 columns
+// WORKFLOW DEFINITION — fixed order, 8 columns (purely DB-driven, no API steps)
 // ─────────────────────────────────────────────────────────────────────────────
 const STEPS = [
   { key: "phic",             label: "PHIC"             },
@@ -20,6 +20,7 @@ const STEPS = [
   { key: "acpn",             label: "ACPN"             },
 ];
 
+// Only used for DB bootstrap (seq description matching) — NOT for cell state
 const API_FIELD_MAP = {
   phic:             ["phic"],
   records_received: ["records received", "records_received"],
@@ -32,14 +33,25 @@ const API_FIELD_MAP = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helpers
+// Toast
 // ─────────────────────────────────────────────────────────────────────────────
-function parseApiStatus(raw = "") {
-  const lower = raw.toLowerCase();
-  if (lower.includes("not yet") || lower.includes("no phic")) return { done: false };
-  return { done: true, label: raw };
+function Toast({ message, type = "success", onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 3200);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div className={`toast toast--${type}`}>
+      {type === "success" ? <CheckCircle2 size={15}/> : "⚠️"}
+      <span>{message}</span>
+    </div>
+  );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 function extractAdmittedDate(encoCode = "") {
   const m = String(encoCode).match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
   if (!m) return "—";
@@ -59,16 +71,6 @@ function fmt(iso) {
   return new Date(iso).toLocaleString("en-PH", { dateStyle: "short", timeStyle: "short" });
 }
 
-function getApiValueForStep(apiRow, stepKey) {
-  const keywords = API_FIELD_MAP[stepKey] ?? [];
-  for (const kw of keywords) {
-    for (const [field, val] of Object.entries(apiRow ?? {})) {
-      if (field.toLowerCase().includes(kw) && val) return String(val);
-    }
-  }
-  return null;
-}
-
 function getNextStepKey(stepKey) {
   const idx = STEPS.findIndex(s => s.key === stepKey);
   if (idx === -1 || idx >= STEPS.length - 1) return null;
@@ -76,7 +78,7 @@ function getNextStepKey(stepKey) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ProcessModal — click a cell → opens this
+// ProcessModal
 // ─────────────────────────────────────────────────────────────────────────────
 function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
   const {
@@ -88,12 +90,10 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
   const [nextUser, setNextUser] = useState("");
   const [saving,   setSaving]   = useState(false);
 
-  // Workflow history — steps marked done
   const history = Object.entries(row._stepLogs ?? {})
     .filter(([, l]) => l.status === "done")
     .sort(([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at));
 
-  // Only show users assigned to the NEXT step
   const nextStepKey   = getNextStepKey(stepKey);
   const nextStepLabel = STEPS.find(s => s.key === nextStepKey)?.label ?? "next step";
   const eligibleUsers = nextStepKey
@@ -101,35 +101,33 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
     : [];
 
   async function handleDoneAndPass() {
-    if (nextStepKey && !nextUser) return;
+    if (nextStepKey && eligibleUsers.length > 0 && !nextUser) return;
     setSaving(true);
-    await onSave({ row, stepKey, remarks, markDone: true, nextUserId: nextUser || null });
+    const result = await onSave({ row, stepKey, remarks, markDone: true, nextUserId: nextUser || null });
     setSaving(false);
-    onClose();
+    onClose(result);
   }
 
   async function handleSaveOnly() {
     setSaving(true);
     await onSave({ row, stepKey, remarks, markDone: false });
     setSaving(false);
-    onClose();
+    onClose(null);
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={() => onClose(null)}>
       <div className="modal-card" onClick={e => e.stopPropagation()}>
 
-        {/* Header */}
         <div className="modal-header">
           <div className="modal-header-info">
             <span className="modal-step-pill">{stepLabel}</span>
             <h3 className="modal-patient">{row.patientName}</h3>
             <p className="modal-patient-sub">{row.hospitalNo} · {row.admittedDate}</p>
           </div>
-          <button className="modal-x-btn" onClick={onClose}><X size={16}/></button>
+          <button className="modal-x-btn" onClick={() => onClose(null)}><X size={16}/></button>
         </div>
 
-        {/* Workflow history */}
         {history.length > 0 && (
           <div className="modal-history">
             <p className="modal-section-title">📋 Workflow History</p>
@@ -147,7 +145,6 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
                   </div>
                 );
               })}
-              {/* Current step */}
               <div className="timeline-row timeline-row--current">
                 <Clock size={13} className="tl-icon-current"/>
                 <div className="tl-content">
@@ -159,7 +156,6 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           </div>
         )}
 
-        {/* Remarks */}
         <div className="modal-body">
           <label className="modal-field-label">
             Remarks for <strong>{stepLabel}</strong>
@@ -174,7 +170,6 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           />
         </div>
 
-        {/* Pass to next user */}
         <div className="modal-pass-section">
           <p className="modal-section-title">
             <ArrowRight size={13}/>
@@ -216,9 +211,8 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           )}
         </div>
 
-        {/* Footer */}
         <div className="modal-footer">
-          <button className="mbtn mbtn--ghost" onClick={onClose} disabled={saving}>
+          <button className="mbtn mbtn--ghost" onClick={() => onClose(null)} disabled={saving}>
             Cancel
           </button>
           <button className="mbtn mbtn--outline" onClick={handleSaveOnly} disabled={saving}>
@@ -263,7 +257,6 @@ export default function Tracking({
   const [myAssignedStepKeys, setMyAssignedStepKeys] = useState(new Set());
   const [isSuperUser,        setIsSuperUser]        = useState(false);
   const [seqToKey,           setSeqToKey]           = useState({});
-  // stepKey → array of user objects assigned to that step
   const [stepKeyToUsers,     setStepKeyToUsers]     = useState({});
 
   const [loadingApi,  setLoadingApi]  = useState(false);
@@ -271,13 +264,14 @@ export default function Tracking({
   const [error,       setError]       = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [modal,       setModal]       = useState(null);
+  // { message, type } | null
+  const [toast,       setToast]       = useState(null);
   const ROWS_PER_PAGE = 10;
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!currentUserId) return;
     (async () => {
-      // tracking_sequence → seqId → stepKey map
       const { data: seqs } = await supabase
         .from("tracking_sequence")
         .select("id, description")
@@ -292,19 +286,15 @@ export default function Tracking({
       }
       setSeqToKey(map);
 
-      // All active users
       const { data: users } = await supabase
         .from("users").select("user_id, username, full_name").eq("active", true);
       setAllUsers(users ?? []);
 
-      // Build stepKey → users[] map from ALL user_seq_assignment rows
       const { data: allAssignments } = await supabase
         .from("user_seq_assignment").select("user_id, seq_id");
 
       const skToUsers = {};
-      for (const stepKey of Object.keys(API_FIELD_MAP)) {
-        skToUsers[stepKey] = [];
-      }
+      for (const stepKey of Object.keys(API_FIELD_MAP)) skToUsers[stepKey] = [];
       for (const assignment of allAssignments ?? []) {
         const sk   = map[assignment.seq_id];
         if (!sk) continue;
@@ -315,14 +305,12 @@ export default function Tracking({
       }
       setStepKeyToUsers(skToUsers);
 
-      // Is current user a super user? (tag_order === 1)
       const { data: myTA } = await supabase
         .from("tracking_user_assignment")
         .select("tag_order").eq("user_id", currentUserId);
       const isSuper = (myTA ?? []).some(a => a.tag_order === 1);
       setIsSuperUser(isSuper);
 
-      // My assigned step keys (for non-super users)
       if (!isSuper) {
         const { data: mySeqs } = await supabase
           .from("user_seq_assignment").select("seq_id").eq("user_id", currentUserId);
@@ -333,7 +321,7 @@ export default function Tracking({
     })();
   }, [currentUserId]);
 
-  // ── Fetch API ────────────────────────────────────────────────────────────
+  // ── Fetch API (for patient demographics only) ────────────────────────────
   const fetchApi = useCallback(async () => {
     const url = import.meta.env.VITE_CHART_TRACKING;
     if (!url) { setError("VITE_CHART_TRACKING not configured."); return; }
@@ -349,55 +337,87 @@ export default function Tracking({
 
   useEffect(() => { fetchApi(); }, [fetchApi]);
 
-  // ── Sync API → tracking table ────────────────────────────────────────────
-  useEffect(() => {
-    if (!apiRows.length) return;
-    let cancelled = false;
-    (async () => {
-      setSyncing(true);
-      for (const r of apiRows) {
-        if (cancelled) break;
-        const enco = r.enccode ?? r.tracking_encocode;
-        if (!enco) continue;
-        await supabase.from("tracking").upsert(
-          { tracking_encocode: enco, encounter_type: r.encounter_type ?? "", is_current: true, created_by: String(r.patient_id ?? "") },
-          { onConflict: "tracking_encocode" }
-        );
-      }
-      if (!cancelled) { setSyncing(false); await reloadDb(); }
-    })();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiRows]);
+  // ── Sync API → tracking table (demographics only) ────────────────────────
+useEffect(() => {
+  if (!apiRows.length) return;
+  let cancelled = false;
+  (async () => {
+    setSyncing(true);
+    // Only sync first 100 rows, not all 23,621
+    const toSync = apiRows.slice(0, 100);
+    for (const r of toSync) {
+      if (cancelled) break;
+      const enco = r.enccode ?? r.tracking_encocode;
+      if (!enco) continue;
+      await supabase.from("tracking").upsert(
+        { tracking_encocode: enco, encounter_type: r.encounter_type ?? "", is_current: true, created_by: String(r.patient_id ?? "") },
+        { onConflict: "tracking_encocode" }
+      );
+    }
+    if (!cancelled) { setSyncing(false); await reloadDb(); }
+  })();
+  return () => { cancelled = true; };
+}, [apiRows]);
 
   // ── Reload DB + workflow logs ────────────────────────────────────────────
-  const reloadDb = useCallback(async () => {
-    const { data: rows } = await supabase
-      .from("tracking").select("id, tracking_encocode, encounter_type, date_created")
-      .order("date_created", { ascending: false });
-    if (!rows?.length) { setDbRows([]); setWfLogs({}); return; }
+  // Splits array into chunks of `size` to keep URLs short (avoids CORS/414 on large .in() queries)
+  function chunkArray(arr, size) {
+    const out = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+  }
 
-    const ids = rows.map(r => r.id);
-    const { data: logs } = await supabase
+const reloadDb = useCallback(async () => {
+  if (!apiRows.length) { setDbRows([]); setWfLogs({}); return; }
+
+  // Only get encocodes visible on current page
+  const pageEncocodes = apiRows
+    .map(r => r.enccode ?? r.tracking_encocode ?? "")
+    .filter(Boolean)
+    .slice(0, 500); // max 500 at a time
+
+  // Fetch in small sequential batches, not all at once
+  const allTrackingRows = [];
+  for (let i = 0; i < pageEncocodes.length; i += 20) {
+    const chunk = pageEncocodes.slice(i, i + 20);
+    const { data } = await supabase
+      .from("tracking")
+      .select("id, tracking_encocode, encounter_type, date_created")
+      .in("tracking_encocode", chunk);
+    if (data) allTrackingRows.push(...data);
+  }
+
+  if (!allTrackingRows.length) { setDbRows([]); setWfLogs({}); return; }
+
+  const ids = allTrackingRows.map(r => r.id);
+  const allLogs = [];
+  for (let i = 0; i < ids.length; i += 50) {
+    const chunk = ids.slice(i, i + 50);
+    const { data } = await supabase
       .from("workflow_step_log")
       .select("id, tracking_id, step_key, status, remarks, completed_by, completed_at, assigned_to")
-      .in("tracking_id", ids);
+      .in("tracking_id", chunk);
+    if (data) allLogs.push(...data);
+  }
 
-    const lm = {};
-    for (const l of logs ?? []) {
-      if (!lm[l.tracking_id]) lm[l.tracking_id] = {};
-      lm[l.tracking_id][l.step_key] = l;
-    }
-    setWfLogs(lm);
-    setDbRows(rows);
-  }, []);
+  const lm = {};
+  for (const l of allLogs) {
+    if (!lm[l.tracking_id]) lm[l.tracking_id] = {};
+    lm[l.tracking_id][l.step_key] = l;
+  }
+  setWfLogs(lm);
+  setDbRows(allTrackingRows);
+}, [apiRows]);
 
   useEffect(() => { reloadDb(); }, [reloadDb]);
 
   // ── Merge ────────────────────────────────────────────────────────────────
   const mergedRows = useMemo(() => apiRows.map(apiRow => {
     const enco = apiRow.enccode ?? apiRow.tracking_encocode ?? "";
-    const db   = dbRows.find(r => r.tracking_encocode === enco);
+    const db = dbRows.find(r => r.tracking_encocode === enco);
+    if (apiRows.indexOf(apiRow) < 3) {
+    console.log("[merge] enco:", enco, "| db found:", db?.id ?? "NULL", "| dbRows sample:", dbRows.slice(0,2).map(r => r.tracking_encocode));
+  }
     const dis  = apiRow.discharged_date || "—";
     return {
       id:             db?.id ?? null,
@@ -437,58 +457,101 @@ export default function Tracking({
   const totalPages    = Math.ceil(filteredRows.length / ROWS_PER_PAGE);
   const paginatedRows = filteredRows.slice((currentPage-1)*ROWS_PER_PAGE, currentPage*ROWS_PER_PAGE);
 
-  // ── Cell state ───────────────────────────────────────────────────────────
-  function getCellState(row, stepKey) {
-    const wfLog  = row._stepLogs?.[stepKey];
-    const apiRaw = getApiValueForStep(row._apiRow, stepKey);
-    const apiOk  = apiRaw ? parseApiStatus(apiRaw).done : false;
+  // ── Cell state — DB-ONLY, no API step resolution ─────────────────────────
+function getCellState(row, stepKey) {
+  const wfLog = row._stepLogs?.[stepKey];
 
-    // ── Already logged in DB ───────────────────────────────────────────────
-    if (wfLog) {
-      if (wfLog.status === "done") {
-        return {
-          status:   "done",
-          value:    wfLog.remarks || "Done",
-          meta:     `${wfLog.completed_by ?? ""} · ${fmt(wfLog.completed_at)}`,
-          canClick: false,
-          log:      wfLog,
-        };
-      }
-      // 'active' or 'pending' in DB — editable if authorised
-      const canEdit = isSuperUser || myAssignedStepKeys.has(stepKey);
-      return { status: "active", value: "", meta: "", canClick: canEdit, log: wfLog };
-    }
+  // ── Done ────────────────────────────────────────────────────────────────
+  if (wfLog?.status === "done") {
+    return {
+      status:   "done",
+      value:    wfLog.remarks || "Done",
+      meta:     `${wfLog.completed_by ?? ""} · ${fmt(wfLog.completed_at)}`,
+      canClick: false,
+      log:      wfLog,
+    };
+  }
 
-    // ── Completed via API (no DB log yet) ──────────────────────────────────
-    if (apiOk) {
-      return { status: "done", value: apiRaw.slice(0, 24), meta: "API", canClick: false, log: null };
-    }
+  // ── Resolve current user across all possible stored formats ─────────────
+  const myUser = allUsers.find(
+    u => String(u.user_id) === String(currentUserId) ||
+         String(u.username).toLowerCase() === String(currentUserId).toLowerCase()
+  );
+  const myIds = new Set([
+    String(currentUserId).toLowerCase(),
+    String(currentUserName ?? "").toLowerCase(),
+    String(myUser?.user_id ?? "").toLowerCase(),
+    String(myUser?.username ?? "").toLowerCase(),
+    String(myUser?.full_name ?? "").toLowerCase(),
+  ].filter(Boolean));
 
-    // ── No DB log exists yet ───────────────────────────────────────────────
-    // Super users can click any undone cell immediately
-    if (isSuperUser) {
-      return { status: "active", value: "", meta: "", canClick: true, log: null };
-    }
+  const stepIndex = STEPS.findIndex(s => s.key === stepKey);
 
-    // Regular users: must be assigned to this step
-    if (!myAssignedStepKeys.has(stepKey)) {
+  // ── Check previous step is done (skip for first step) ───────────────────
+  const previousStepDone = stepIndex === 0 || (() => {
+    const prevStep = STEPS[stepIndex - 1];
+    return row._stepLogs?.[prevStep.key]?.status === "done";
+  })();
+
+  // ── Super user logic ─────────────────────────────────────────────────────
+  if (isSuperUser) {
+    if (!previousStepDone) {
       return { status: "pending", value: "", meta: "", canClick: false, log: null };
     }
+    // Active in DB
+    if (wfLog?.status === "active") {
+      const assignedTo = String(wfLog.assigned_to ?? "").toLowerCase().trim();
+      return {
+        status:   "active",
+        value:    "",
+        meta:     wfLog.assigned_to ? `Assigned to ${wfLog.assigned_to}` : "",
+        canClick: true,   // super user can always process
+        log:      wfLog,
+      };
+    }
+    // No log yet but prev is done — super user can initiate
+    return { status: "active", value: "", meta: "", canClick: true, log: null };
+  }
 
-    // Regular users: all previous steps must be done first
-    const stepIndex       = STEPS.findIndex(s => s.key === stepKey);
-    const allPreviousDone = STEPS.slice(0, stepIndex).every(prevStep => {
-      const prevLog    = row._stepLogs?.[prevStep.key];
-      if (prevLog) return prevLog.status === "done";
-      const prevApiRaw = getApiValueForStep(row._apiRow, prevStep.key);
-      return prevApiRaw ? parseApiStatus(prevApiRaw).done : false;
-    });
-
-    if (allPreviousDone || stepIndex === 0) {
-      return { status: "active", value: "", meta: "", canClick: true, log: null };
+  // ── Regular user logic ───────────────────────────────────────────────────
+  // Must be assigned to this step type at all
+  if (!myAssignedStepKeys.has(stepKey)) {
+    // Not their step — show state but never clickable
+    if (wfLog?.status === "active") {
+      return {
+        status:   "active",
+        value:    "",
+        meta:     wfLog.assigned_to ? `Assigned to ${wfLog.assigned_to}` : "Waiting",
+        canClick: false,
+        log:      wfLog,
+      };
     }
     return { status: "pending", value: "", meta: "", canClick: false, log: null };
   }
+
+  // Their step type — but only clickable if THIS specific row was passed to them
+  if (wfLog?.status === "active") {
+    const assignedTo = String(wfLog.assigned_to ?? "").toLowerCase().trim();
+    const isAssignedToMe = assignedTo !== "" && myIds.has(assignedTo);
+    return {
+      status:   "active",
+      value:    "",
+      meta:     isAssignedToMe
+        ? ""
+        : (wfLog.assigned_to ? `Assigned to ${wfLog.assigned_to}` : "Waiting"),
+      canClick: isAssignedToMe && previousStepDone,
+      log:      wfLog,
+    };
+  }
+
+  // No log yet — regular user can only initiate first step if assigned
+  // (subsequent steps require the row to be explicitly passed via handleSave)
+  if (stepIndex === 0 && previousStepDone) {
+    return { status: "active", value: "", meta: "", canClick: true, log: null };
+  }
+
+  return { status: "pending", value: "", meta: "", canClick: false, log: null };
+}
 
   // ── Open modal ───────────────────────────────────────────────────────────
   function openModal(row, stepKey, stepLabel, cell) {
@@ -496,46 +559,33 @@ export default function Tracking({
     setModal({ row, stepKey, stepLabel, existingLog: cell.log, currentUserId, currentUserName });
   }
 
-  // ── Ensure tracking row exists, returns trackingId ───────────────────────
+  // ── Ensure tracking row ──────────────────────────────────────────────────
   async function ensureTrackingRow(row) {
     if (row.id) return row.id;
-
     const { data: existing } = await supabase
-      .from("tracking")
-      .select("id")
-      .eq("tracking_encocode", row.encoCode)
-      .maybeSingle();
-
+      .from("tracking").select("id").eq("tracking_encocode", row.encoCode).maybeSingle();
     if (existing?.id) return existing.id;
-
     const { data: inserted } = await supabase
-      .from("tracking")
-      .insert({
+      .from("tracking").insert({
         tracking_encocode: row.encoCode,
         encounter_type:    row.encounterType ?? "",
         is_current:        true,
         created_by:        String(row.hospitalNo ?? ""),
-      })
-      .select("id")
-      .single();
-
+      }).select("id").single();
     return inserted?.id ?? null;
   }
+
+  
 
   // ── Save ─────────────────────────────────────────────────────────────────
   async function handleSave({ row, stepKey, remarks, markDone, nextUserId }) {
     const now = new Date().toISOString();
-
     const trackingId = await ensureTrackingRow(row);
-    if (!trackingId) {
-      console.error("Could not resolve tracking ID for", row.encoCode);
-      return;
-    }
-
+    if (!trackingId) { console.error("Could not resolve tracking ID for", row.encoCode); return null; }
+     
     const existing = row._stepLogs?.[stepKey];
 
     if (markDone) {
-      // Mark current step as done
       const donePayload = {
         tracking_id:  trackingId,
         step_key:     stepKey,
@@ -552,24 +602,19 @@ export default function Tracking({
         await supabase.from("workflow_step_log").insert(donePayload);
       }
 
-      // Activate the next sequential step for the chosen user
+      // Activate next step for chosen user — use upsert to avoid 409 Conflict
       const nextKey = getNextStepKey(stepKey);
       if (nextKey) {
-        const { data: nextEx } = await supabase
-          .from("workflow_step_log")
-          .select("id, status")
-          .eq("tracking_id", trackingId)
-          .eq("step_key", nextKey)
-          .maybeSingle();
-
-        const assignTo = nextUserId || currentUserId;
-
-        if (nextEx?.id) {
-          await supabase.from("workflow_step_log")
-            .update({ status: "active", assigned_to: assignTo })
-            .eq("id", nextEx.id);
-        } else {
-          await supabase.from("workflow_step_log").insert({
+      const resolvedUser = allUsers.find(
+  u => String(u.user_id) === String(nextUserId || currentUserId) ||
+       String(u.username).toLowerCase() === String(nextUserId || currentUserId).toLowerCase()
+);
+const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
+        // Single atomic upsert: if the row exists update it, otherwise insert it.
+        // Requires a unique constraint on (tracking_id, step_key) in your DB.
+        // If it doesn't exist yet, add it: CREATE UNIQUE INDEX ON workflow_step_log(tracking_id, step_key);
+        const { error: upsertErr } = await supabase.from("workflow_step_log").upsert(
+          {
             tracking_id:  trackingId,
             step_key:     nextKey,
             status:       "active",
@@ -577,27 +622,72 @@ export default function Tracking({
             remarks:      null,
             completed_by: null,
             completed_at: null,
-          });
+          },
+          { onConflict: "tracking_id,step_key", ignoreDuplicates: false }
+        );
+
+        // Fallback: if upsert fails (e.g. no unique constraint yet), try update then insert
+        if (upsertErr) {
+          const { data: nextEx } = await supabase
+            .from("workflow_step_log").select("id")
+            .eq("tracking_id", trackingId).eq("step_key", nextKey).maybeSingle();
+          if (nextEx?.id) {
+            await supabase.from("workflow_step_log")
+              .update({ status: "active", assigned_to: assignTo })
+              .eq("id", nextEx.id);
+          } else {
+            await supabase.from("workflow_step_log").insert({
+              tracking_id:  trackingId,
+              step_key:     nextKey,
+              status:       "active",
+              assigned_to:  assignTo,
+              remarks:      null,
+              completed_by: null,
+              completed_at: null,
+            });
+          }
         }
+
+        // Look up the name of the assigned user for the toast
+        const nextUserObj = allUsers.find(u => String(u.user_id) === String(assignTo));
+        const nextLabel   = STEPS.find(s => s.key === nextKey)?.label ?? nextKey;
+        await reloadDb();
+        return {
+          type:    "success",
+          message: `✅ "${STEPS.find(s=>s.key===stepKey)?.label}" marked done. Passed "${nextLabel}" to ${nextUserObj?.full_name ?? nextUserObj?.username ?? assignTo}.`,
+        };
+      } else {
+        await reloadDb();
+        return {
+          type:    "success",
+          message: `✅ "${STEPS.find(s=>s.key===stepKey)?.label}" completed — workflow finished for this record.`,
+        };
       }
     } else {
-      // Save remarks only — mark as active
+      // Save remarks only
       const activePayload = {
         tracking_id: trackingId,
         step_key:    stepKey,
         status:      "active",
         remarks:     remarks || null,
-        assigned_to: currentUserId,
+        assigned_to: String(currentUserId),
       };
-
       if (existing?.id) {
         await supabase.from("workflow_step_log").update(activePayload).eq("id", existing.id);
       } else {
         await supabase.from("workflow_step_log").insert(activePayload);
       }
+      await reloadDb();
+      return null;
     }
+  }
 
-    await reloadDb();
+  // ── Modal close — show toast if result ───────────────────────────────────
+  function handleModalClose(result) {
+    setModal(null);
+    if (result?.message) {
+      setToast({ message: result.message, type: result.type ?? "success" });
+    }
   }
 
   const isLoading = loadingApi || syncing;
@@ -606,6 +696,15 @@ export default function Tracking({
   return (
     <div className="tracking-page">
       <main className="tracking-shell">
+
+        {/* Toast */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onDone={() => setToast(null)}
+          />
+        )}
 
         {/* Header */}
         <header className="tracking-title-box">
@@ -787,7 +886,7 @@ export default function Tracking({
         <ProcessModal
           ctx={modal}
           stepKeyToUsers={stepKeyToUsers}
-          onClose={() => setModal(null)}
+          onClose={handleModalClose}
           onSave={handleSave}
         />
       )}
