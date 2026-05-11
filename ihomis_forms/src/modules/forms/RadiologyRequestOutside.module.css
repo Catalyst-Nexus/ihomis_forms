@@ -1,0 +1,210 @@
+/* RadiologyRequestOutside CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ─────────────────────────────────────────────────── */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ─── LABELS ───────────────────────────────────────────────── */
+.label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.value {
+  font-weight: normal;
+}
+
+/* ─── DATE ROW ────────────────────────────────────────────── */
+.dateRow {
+  font-size: 10pt;
+  margin-bottom: 2mm;
+}
+
+/* ─── INFO ROWS ───────────────────────────────────────────── */
+.infoRow {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+  flex-wrap: wrap;
+}
+
+.infoRowSpaced {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+/* ─── FIELD ───────────────────────────────────────────────── */
+.field {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  white-space: nowrap;
+}
+
+.patientGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+.patientRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;
+  align-items: baseline;
+}
+
+.fieldRight {
+  justify-self: end;
+}
+
+/* ─── AGE ROW ──────────────────────────────────────────────── */
+.ageRow {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+}
+
+/* ─── WARD ROW ────────────────────────────────────────────── */
+.wardRow {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+  font-size: 10pt;
+  align-items: baseline;
+}
+
+/* ─── HISTORY LABEL ───────────────────────────────────────── */
+.historyLabel {
+  font-weight: bold;
+  font-size: 10pt;
+  margin-bottom: 3mm;
+}
+
+/* ─── DIVIDER ─────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 2mm 0;
+}
+
+/* ─── TITLE ───────────────────────────────────────────────── */
+.title {
+  text-align: center;
+  font-size: 13pt;
+  font-weight: bold;
+  margin: 3mm 0 4mm 0;
+}
+
+/* ─── BLANK LINES ─────────────────────────────────────────── */
+.blankLine {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  height: 7mm;
+  margin-bottom: 2mm;
+}
+
+/* ─── SIGNATURE ROW ────────────────────────────────────────── */
+.sigRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 6mm;
+  margin-bottom: 1mm;
+}
+
+.sigLeft {
+  display: flex;
+  align-items: flex-end;
+  gap: 1mm;
+}
+
+.sigLineLeft {
+  border-bottom: 1px solid #000;
+  width: 55mm;
+  height: 5mm;
+}
+
+.sigSuffix {
+  font-size: 10pt;
+  white-space: nowrap;
+}
+
+.sigLineRight {
+  border-bottom: 1px solid #000;
+  width: 65mm;
+  height: 5mm;
+}
+
+/* ─── SIG LABELS ──────────────────────────────────────────── */
+.sigLabelsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10pt;
+}
+
+.sigLabelLeft {
+  width: 65mm;
+  text-align: center;
+}
+
+.sigLabelRight {
+  width: 65mm;
+  text-align: center;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────────── */
+.footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 12mm;
+  right: 12mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 8pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    height: auto;
+    overflow: visible;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: auto;
+    min-height: 0;
+  }
+}
