@@ -64,9 +64,9 @@ import ChildImmunizationRecord from "./ChildImmunizationRecord";
 import MIS from "./MIS";
 import TPRSheet from "./TPRSheet";
 import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
-// import RequestBloodCompatibility from "./RequestBloodCompatibility";
-// import RadiologyRequestOutside from "./RadiologyRequestOutside";
-// import PagtugotWaiver from "./PagtugotWaiver";
+import RequestBloodCompatibility from "./RequestBloodCompatibility";
+import RadiologyRequestOutside from "./RadiologyRequestOutside";
+import PagtugotWaiver from "./PagtugotWaiver";
 // import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
 // import MonitoringSheet from "./MonitoringSheet";
 // import MedicationSheet from "./MedicationSheet";
@@ -136,9 +136,9 @@ const COMPONENT_MAP = {
   MIS,
   TPRSheet,
   SurgicalSafetyChecklist,
-  // RequestBloodCompatibility,
-  // RadiologyRequestOutside,
-  // PagtugotWaiver,
+  RequestBloodCompatibility,
+  RadiologyRequestOutside,
+  PagtugotWaiver,
   // NewbornPersonalInfoSheet,
   // MonitoringSheet,
   // MedicationSheet,
