@@ -67,12 +67,12 @@ import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
 import RequestBloodCompatibility from "./RequestBloodCompatibility";
 import RadiologyRequestOutside from "./RadiologyRequestOutside";
 import PagtugotWaiver from "./PagtugotWaiver";
-// import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
-// import MonitoringSheet from "./MonitoringSheet";
-// import MedicationSheet from "./MedicationSheet";
-// import DoctorsOrderPedia from "./DoctorsOrderPedia";
-// import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
-// import AldreteScore from "./AldreteScore";
+import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
+import MonitoringSheet from "./MonitoringSheet";
+import MedicationSheet from "./MedicationSheet";
+import DoctorsOrderPedia from "./DoctorsOrderPedia";
+import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
+import AldreteScore from "./AldreteScore";
 
 // Component map for dynamic form rendering
 const COMPONENT_MAP = {
@@ -139,12 +139,12 @@ const COMPONENT_MAP = {
   RequestBloodCompatibility,
   RadiologyRequestOutside,
   PagtugotWaiver,
-  // NewbornPersonalInfoSheet,
-  // MonitoringSheet,
-  // MedicationSheet,
-  // DoctorsOrderPedia,
-  // AnimalBiteTreatmentRecord,
-  // AldreteScore,
+  NewbornPersonalInfoSheet,
+  MonitoringSheet,
+  MedicationSheet,
+  DoctorsOrderPedia,
+  AnimalBiteTreatmentRecord,
+  AldreteScore,
 };
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
