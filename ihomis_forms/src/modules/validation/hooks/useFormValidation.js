@@ -54,6 +54,44 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     import.meta.env.VITE_VALIDATION_API ||
     "http://localhost:3000/api/validation";
 
+  const fetchValidationEndpoint = useCallback(async (url, label) => {
+    try {
+      const response = await fetch(url);
+      let payload = null;
+
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          label,
+          status: response.status,
+          data: payload,
+          error: `${label}:${response.status}`,
+        };
+      }
+
+      return {
+        ok: true,
+        label,
+        status: response.status,
+        data: payload,
+      };
+    } catch {
+      return {
+        ok: false,
+        label,
+        status: 0,
+        data: null,
+        error: `${label}:network`,
+      };
+    }
+  }, []);
+
   const refresh = useCallback(async () => {
     if (!enccode) {
       setValidationData({ admission: null, discharge: null, details: null });
@@ -67,29 +105,38 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     try {
       const encodedEnccode = encodeURIComponent(enccode);
 
-      // Fetch all validation data in parallel
-      const [admissionRes, dischargeRes, detailsRes] = await Promise.all([
-        fetch(`${validationApiBase}/admission/${encodedEnccode}`),
-        fetch(`${validationApiBase}/discharge/${encodedEnccode}`),
-        fetch(`${validationApiBase}/details/${encodedEnccode}`),
+      // Fetch all validation payloads; keep successful ones even if one endpoint fails.
+      const [admissionResult, dischargeResult, detailsResult] = await Promise.all([
+        fetchValidationEndpoint(
+          `${validationApiBase}/admission/${encodedEnccode}`,
+          "admission",
+        ),
+        fetchValidationEndpoint(
+          `${validationApiBase}/discharge/${encodedEnccode}`,
+          "discharge",
+        ),
+        fetchValidationEndpoint(
+          `${validationApiBase}/details/${encodedEnccode}`,
+          "details",
+        ),
       ]);
 
-      if (!admissionRes.ok || !dischargeRes.ok || !detailsRes.ok) {
-        const failedStatuses = [
-          `admission:${admissionRes.status}`,
-          `discharge:${dischargeRes.status}`,
-          `details:${detailsRes.status}`,
-        ].join(", ");
+      const failedEndpoints = [admissionResult, dischargeResult, detailsResult]
+        .filter((result) => !result.ok)
+        .map((result) => result.error);
+
+      const admissionData = admissionResult.ok ? admissionResult.data : null;
+      const dischargeData = dischargeResult.ok ? dischargeResult.data : null;
+      const detailsData = detailsResult.ok ? detailsResult.data : null;
+
+      if (!admissionData && !dischargeData && !detailsData) {
+        const failureText = failedEndpoints.length
+          ? failedEndpoints.join(", ")
+          : "unknown";
         throw new Error(
-          `Failed to fetch validation data from server (${failedStatuses}).`,
+          `Failed to fetch validation data from server (${failureText}).`,
         );
       }
-
-      const [admissionData, dischargeData, detailsData] = await Promise.all([
-        admissionRes.json(),
-        dischargeRes.json(),
-        detailsRes.json(),
-      ]);
 
       setValidationData({
         admission: admissionData,
@@ -102,7 +149,7 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     } finally {
       setLoading(false);
     }
-  }, [enccode, validationApiBase]);
+  }, [enccode, validationApiBase, fetchValidationEndpoint]);
 
   useEffect(() => {
     refresh();
