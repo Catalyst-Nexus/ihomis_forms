@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { useMemo, useState, useEffect} from "react";
 import { useFormValidation } from "./hooks/useFormValidation.js";
+import { buildFallbackForms } from "../forms/formCatalog.js";
 import {
   buildFormValidationBreakdown,
   buildScopedValidationSummary,
@@ -63,6 +64,7 @@ function getPatientInitials(label) {
 function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
   const [formId, setFormId] = useState(null);
   const [formsLoading, setFormsLoading] = useState(false);
+  const fallbackForms = useMemo(() => buildFallbackForms(), []);
 
   // Resolve form ID by looking up the form name in the hospital_forms table
   useEffect(() => {
@@ -77,10 +79,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         const response = await fetch("/api/validation/forms");
         const data = await response.json();
 
-        if (!data.ok || !data.forms) {
-          setFormId(null);
-          return;
-        }
+        const loadedForms = data.ok && Array.isArray(data.forms) && data.forms.length > 0
+          ? data.forms
+          : fallbackForms;
 
         // Get the first selected form name
         const selectedFormName = Array.isArray(selectedForms)
@@ -93,7 +94,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         }
 
         // Find the matching form by description or component_name
-        const matchedForm = data.forms.find(
+        const matchedForm = loadedForms.find(
           (form) =>
             form.description === selectedFormName ||
             form.component_name === selectedFormName ||
@@ -103,14 +104,25 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         setFormId(matchedForm?.id || null);
       } catch (error) {
         console.error("Error resolving form ID:", error);
-        setFormId(null);
+        const selectedFormName = Array.isArray(selectedForms)
+          ? selectedForms[0]
+          : selectedForms?.description || selectedForms?.name;
+
+        const matchedFallback = fallbackForms.find(
+          (form) =>
+            form.description === selectedFormName ||
+            form.component_name === selectedFormName ||
+            form.description?.includes(selectedFormName),
+        );
+
+        setFormId(matchedFallback?.id || null);
       } finally {
         setFormsLoading(false);
       }
     };
 
     resolveFormId();
-  }, [selectedForms]);
+  }, [fallbackForms, selectedForms]);
 
   const { enccode, loading, error, refresh, validationData } = useFormValidation({
     selectedPatient,

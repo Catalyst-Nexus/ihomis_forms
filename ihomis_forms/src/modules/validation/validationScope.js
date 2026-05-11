@@ -421,3 +421,56 @@ export function buildValidationMessagesByForm(validationData, selectedForms) {
 export function getFieldLabel(field) {
   return FIELD_LABELS[field] || String(field || "");
 }
+
+// --- New: Helpers to merge server-driven validations with local scope ---
+
+/**
+ * Transform server-provided validation rows into UI-friendly check objects.
+ * Server validation rows are expected to have at least `id` and `description`.
+ */
+export function transformServerValidations(serverValidations = []) {
+  if (!Array.isArray(serverValidations)) return [];
+  return serverValidations.map((v) => ({
+    id: String(v.id),
+    label: v.description || getFieldLabel(v.id) || `Validation ${v.id}`,
+    message: v.hint || v.description || getFieldLabel(v.id) || '',
+    query: v.query || null,
+    mappingId: v.mappingId || null,
+    passed: null,
+  }));
+}
+
+/**
+ * Merge server checks into the same shape used by `buildFormValidationBreakdown`.
+ * - `serverValidations` is the array returned from the backend `/api/validation/form/:formId`
+ * - `results` is the runtime validation results object returned by the backend runner (optional)
+ */
+export function mergeServerValidations(serverValidations = [], results = null) {
+  const checks = transformServerValidations(serverValidations);
+  if (!results) return checks;
+
+  // Map passed state from runtime results: results is expected to include
+  // an array `results` with objects { validationId, success }
+  const resultMap = {};
+  if (Array.isArray(results.results)) {
+    results.results.forEach((r) => {
+      resultMap[String(r.validationId)] = Boolean(r.success);
+    });
+  }
+
+  return checks.map((c) => ({ ...c, passed: resultMap[c.id] ?? c.passed }));
+}
+
+/**
+ * Fetch form -> validation mappings from the backend.
+ * Backend route: GET `/api/validation/form/:formId` (returns validations array)
+ * Returns: { ok: true, formId, validations: [...] } or throws.
+ */
+export async function fetchFormValidations(formId) {
+  if (!formId) return null;
+  const resp = await fetch(`/api/validation/form/${encodeURIComponent(formId)}`);
+  if (!resp.ok) throw new Error(`Failed to load validations for form ${formId}: ${resp.statusText}`);
+  return resp.json();
+}
+
+// End new helpers

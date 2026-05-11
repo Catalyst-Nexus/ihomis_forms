@@ -90,32 +90,40 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode, formI
         throw new Error(payload?.error || "Validation API returned error");
       }
 
-      // Transform the results array into admission/discharge/details structure
-      const results = payload.results || [];
-      const admissionResults = results.filter(r => r.description?.toLowerCase().includes("admission") || r.description?.toLowerCase().includes("history") || r.description?.toLowerCase().includes("vital") || r.description?.toLowerCase().includes("bmi"));
-      const dischargeResults = results.filter(r => r.description?.toLowerCase().includes("discharge") || r.description?.toLowerCase().includes("order") || r.description?.toLowerCase().includes("diagnosis") || r.description?.toLowerCase().includes("icd"));
-      const detailsResults = results;
+      // Prefer the new backend shape, but keep compatibility with the old alias.
+      const results = payload.validations || payload.results || [];
+      const summary = payload.summary || {
+        total: results.length,
+        passed: results.filter((item) => item.success).length,
+        failed: results.filter((item) => !item.success).length,
+        allPassed: results.every((item) => item.success),
+        missing: results.filter((item) => !item.success).map((item) => item.description),
+      };
 
       setValidationData({
         admission: {
           ok: true,
           enccode,
-          isComplete: admissionResults.length > 0 && admissionResults.every(r => r.success),
-          details: Object.fromEntries(admissionResults.map(r => [r.description, r.success])),
-          missingFields: admissionResults.filter(r => !r.success).map(r => r.description),
+          isComplete: summary.allPassed,
+          details: Object.fromEntries(results.map((item) => [item.description, item.success])),
+          missingFields: summary.missing,
         },
         discharge: {
           ok: true,
           enccode,
-          isComplete: dischargeResults.length > 0 && dischargeResults.every(r => r.success),
-          details: Object.fromEntries(dischargeResults.map(r => [r.description, r.success])),
-          missingFields: dischargeResults.filter(r => !r.success).map(r => r.description),
+          isComplete: summary.allPassed,
+          details: Object.fromEntries(results.map((item) => [item.description, item.success])),
+          missingFields: summary.missing,
         },
         details: {
           ok: true,
           enccode,
-          validation: Object.fromEntries(detailsResults.map(r => [r.description, { success: r.success, rowCount: r.info?.rowCount || 0 }])),
-          results: detailsResults,
+          form: payload.form || null,
+          encounter: payload.encounter || null,
+          validationContext: payload.validationContext || null,
+          summary,
+          validation: Object.fromEntries(results.map((item) => [item.description, { success: item.success, rowCount: item.info?.rowCount || 0 }])),
+          results,
         },
       });
     } catch (err) {

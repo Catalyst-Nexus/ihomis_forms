@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import ValidationPage from "./ValidationPage.jsx";
+import { buildFallbackForms } from "../forms/formCatalog.js";
 import "./ValidationModule.css";
 
 function ValidationAdminPanel() {
@@ -16,6 +17,7 @@ function ValidationAdminPanel() {
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const fallbackForms = useMemo(() => buildFallbackForms(), []);
 
   const loadMappings = useCallback(async (formId) => {
     if (!formId) {
@@ -51,22 +53,29 @@ function ValidationAdminPanel() {
         const formsData = await formsResponse.json();
         const validationsData = await validationsResponse.json();
 
-        if (formsData.ok) {
-          setForms(formsData.forms || []);
-          setSelectedFormId((currentValue) => currentValue || String(formsData.forms?.[0]?.id || ""));
+        const loadedForms = formsData.ok && Array.isArray(formsData.forms) && formsData.forms.length > 0
+          ? formsData.forms
+          : fallbackForms;
+
+        if (loadedForms.length > 0) {
+          setForms(loadedForms);
+          setSelectedFormId((currentValue) => currentValue || String(loadedForms[0]?.id || ""));
         }
 
         if (validationsData.ok) {
-          setValidations(validationsData.validations || []);
-          setSelectedValidationId((currentValue) => currentValue || String(validationsData.validations?.[0]?.id || ""));
+          const loadedValidations = Array.isArray(validationsData.validations) ? validationsData.validations : [];
+          setValidations(loadedValidations);
+          setSelectedValidationId((currentValue) => currentValue || String(loadedValidations[0]?.id || ""));
         }
       } catch (error) {
+        setForms(fallbackForms);
+        setSelectedFormId((currentValue) => currentValue || String(fallbackForms[0]?.id || ""));
         setErrorMessage(error instanceof Error ? error.message : "Failed to load dropdown data.");
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [fallbackForms]);
 
   useEffect(() => {
     if (selectedFormId) {
