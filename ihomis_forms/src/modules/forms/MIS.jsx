@@ -13,7 +13,7 @@ export default function MISSafetyChecklist({ patientName, patientData = {} }) {
 	return (
 		<div className={styles.wrap}>
 			{/* ═══════════════ PAGE 1 ═══════════════ */}
-			<div className={styles.page}>
+			<div className={styles.pageP1}>
 				<div className={styles.main}>
 					{/* META SECTION (Standardized Header) */}
 					<div className={styles.metaSection}>
@@ -168,7 +168,7 @@ export default function MISSafetyChecklist({ patientName, patientData = {} }) {
 			</div>
 
 			{/* ═══════════════ PAGE 2 ═══════════════ */}
-			<div className={`${styles.page} ${styles.pageP2}`}>
+			<div className={styles.pageP2}>
 				<div className={styles.main}>
 					<div className={styles.section}>
 						<h2 className={styles.sectionTitle}>3. After Prep and Drape</h2>

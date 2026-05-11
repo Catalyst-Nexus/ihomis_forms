@@ -2,7 +2,7 @@
  * PrintRegistry Component
  * 
  * A wrapper component that maps selected form data to their React components.
- * Each form is sandboxed in a strict 210mm x 297mm container with FormSheetHeader.
+ * Handles both single-page and multi-page forms with proper A4 sandboxing.
  */
 
 import React from 'react';
@@ -83,6 +83,29 @@ import AldreteScore from '../modules/forms/AldreteScore';
 import ApgarScoring from '../modules/forms/ApgarScoring';
 
 /**
+ * MULTI-PAGE COMPONENTS
+ * Forms that have internal page breaks (Page 1, Page 2, etc.)
+ * These use FLUID containers instead of strict A4 lock.
+ */
+const MULTI_PAGE_COMPONENTS = [
+  'BloodRequestAdult',
+  'BloodRequestPediatric',
+  'BloodtransfusionSheet',
+  'BloodTransfusionSheet', // alias
+  'BloodTransfusionReactionRegistry',
+  'TPRSheet',
+  'MonitoringSheet',
+  'MedicationSheet',
+  'IntakeOutputSheet',
+  'KardexSheet',
+  'NursesNotes',
+  'Partograph',
+  'Neurologic',
+  'PostAnesthesiaSheet',
+  'MIS',
+];
+
+/**
  * Component Map
  */
 const COMPONENT_MAP = {
@@ -161,6 +184,13 @@ const COMPONENT_MAP = {
 };
 
 /**
+ * Check if a component is multi-page
+ */
+function isMultiPageComponent(componentName) {
+  return MULTI_PAGE_COMPONENTS.includes(componentName);
+}
+
+/**
  * Get component props based on component name
  */
 function getComponentProps(componentName, patientName, patientData) {
@@ -192,16 +222,25 @@ function getFormTitle(description) {
 
 /**
  * Single Form Page Container
- * Sandboxed container with FormSheetHeader and form component
+ * 
+ * For SINGLE-PAGE forms: Uses strict A4 container (297mm height)
+ * For MULTI-PAGE forms: Uses fluid container (height: auto) to allow natural page flow
  */
 function PrintPageContainer({ formConfig, patientName, patientData, isLast }) {
   const { component_name, description } = formConfig;
   const Component = COMPONENT_MAP[component_name];
   const formTitle = getFormTitle(description);
+  const isMultiPage = isMultiPageComponent(component_name);
+  
+  // Determine container class based on form type
+  let containerClass = isMultiPage ? styles.fluidPageBreak : styles.pageBreak;
+  if (isLast) {
+    containerClass = isMultiPage ? styles.fluidPageBreakLast : styles.pageBreakLast;
+  }
   
   if (!Component) {
     return (
-      <div className={isLast ? styles.pageBreakLast : styles.pageBreak}>
+      <div className={containerClass}>
         <p>Component not found: {component_name}</p>
       </div>
     );
@@ -210,15 +249,15 @@ function PrintPageContainer({ formConfig, patientName, patientData, isLast }) {
   const props = getComponentProps(component_name, patientName, patientData);
   
   return (
-    <div className={isLast ? styles.pageBreakLast : styles.pageBreak}>
-      {/* FormSheetHeader at the top */}
+    <div className={containerClass}>
+      {/* FormSheetHeader - only at top, not repeated for multi-page */}
       <FormSheetHeader 
         title={formTitle}
         formNo=""
         revised=""
       />
       
-      {/* Form Body - uses block flow, no extra wrappers */}
+      {/* Form Body */}
       <Component {...props} />
     </div>
   );
@@ -228,7 +267,7 @@ function PrintPageContainer({ formConfig, patientName, patientData, isLast }) {
  * PrintRegistry Component
  * 
  * Renders all selected forms for combined print output.
- * Each form is sandboxed in a strict 210mm x 297mm container.
+ * Multi-page forms get fluid containers, single-page forms get strict A4.
  */
 export default function PrintRegistry({ formConfigs = [], patientName = "", patientData = {} }) {
   if (!formConfigs || formConfigs.length === 0) {
@@ -250,4 +289,4 @@ export default function PrintRegistry({ formConfigs = [], patientName = "", pati
   );
 }
 
-export { COMPONENT_MAP };
+export { COMPONENT_MAP, MULTI_PAGE_COMPONENTS };
