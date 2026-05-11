@@ -178,7 +178,10 @@ export async function fetchPatientUploadedFilesSupabase({
   }
 
   if (procedureInstanceId) {
-    query = query.eq("procedure_instance_id", String(procedureInstanceId).trim());
+    query = query.eq(
+      "procedure_instance_id",
+      String(procedureInstanceId).trim(),
+    );
   }
 
   const { data, error, count } = await query;
@@ -247,7 +250,9 @@ export async function softDeleteLabResult(id) {
   }
 
   // If direct update fails (RLS issue), try RPC function with SECURITY DEFINER
-  const { error: rpcError } = await supabase.rpc("soft_delete_lab_result", { p_id: id });
+  const { error: rpcError } = await supabase.rpc("soft_delete_lab_result", {
+    p_id: id,
+  });
 
   if (rpcError) {
     throw new Error(`Delete failed: ${rpcError.message}`);
