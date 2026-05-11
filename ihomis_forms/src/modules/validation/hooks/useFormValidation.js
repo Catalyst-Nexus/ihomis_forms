@@ -29,8 +29,9 @@ function resolveEnccode(selectedPatient) {
 /**
  * Hook to validate forms using the backend API
  * Replaces chart tracking validation with API-based form validation
+ * Uses single POST /api/validation/run endpoint with formId and enccode
  */
-export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
+export function useFormValidation({ selectedPatient, enccode: propEnccode, formId }) {
   const [validationData, setValidationData] = useState({
     admission: null,
     discharge: null,
@@ -54,48 +55,10 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     import.meta.env.VITE_VALIDATION_API ||
     "http://localhost:3000/api/validation";
 
-  const fetchValidationEndpoint = useCallback(async (url, label) => {
-    try {
-      const response = await fetch(url);
-      let payload = null;
-
-      try {
-        payload = await response.json();
-      } catch {
-        payload = null;
-      }
-
-      if (!response.ok) {
-        return {
-          ok: false,
-          label,
-          status: response.status,
-          data: payload,
-          error: `${label}:${response.status}`,
-        };
-      }
-
-      return {
-        ok: true,
-        label,
-        status: response.status,
-        data: payload,
-      };
-    } catch {
-      return {
-        ok: false,
-        label,
-        status: 0,
-        data: null,
-        error: `${label}:network`,
-      };
-    }
-  }, []);
-
   const refresh = useCallback(async () => {
-    if (!enccode) {
+    if (!enccode || !formId) {
       setValidationData({ admission: null, discharge: null, details: null });
-      setError("No encounter code available for validation.");
+      setError(!enccode ? "No encounter code available for validation." : "No form ID provided.");
       return;
     }
 
@@ -103,45 +66,57 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     setError("");
 
     try {
-      const encodedEnccode = encodeURIComponent(enccode);
+      // Single endpoint: POST /api/validation/run
+      const response = await fetch(`${validationApiBase}/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formId: Number(formId), enccode }),
+      });
 
-      // Fetch all validation payloads; keep successful ones even if one endpoint fails.
-      const [admissionResult, dischargeResult, detailsResult] = await Promise.all([
-        fetchValidationEndpoint(
-          `${validationApiBase}/admission/${encodedEnccode}`,
-          "admission",
-        ),
-        fetchValidationEndpoint(
-          `${validationApiBase}/discharge/${encodedEnccode}`,
-          "discharge",
-        ),
-        fetchValidationEndpoint(
-          `${validationApiBase}/details/${encodedEnccode}`,
-          "details",
-        ),
-      ]);
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
 
-      const failedEndpoints = [admissionResult, dischargeResult, detailsResult]
-        .filter((result) => !result.ok)
-        .map((result) => result.error);
-
-      const admissionData = admissionResult.ok ? admissionResult.data : null;
-      const dischargeData = dischargeResult.ok ? dischargeResult.data : null;
-      const detailsData = detailsResult.ok ? detailsResult.data : null;
-
-      if (!admissionData && !dischargeData && !detailsData) {
-        const failureText = failedEndpoints.length
-          ? failedEndpoints.join(", ")
-          : "unknown";
+      if (!response.ok) {
         throw new Error(
-          `Failed to fetch validation data from server (${failureText}).`,
+          `Validation API error: ${response.status} (${payload?.error || "unknown"})`,
         );
       }
 
+      if (!payload?.ok) {
+        throw new Error(payload?.error || "Validation API returned error");
+      }
+
+      // Transform the results array into admission/discharge/details structure
+      const results = payload.results || [];
+      const admissionResults = results.filter(r => r.description?.toLowerCase().includes("admission") || r.description?.toLowerCase().includes("history") || r.description?.toLowerCase().includes("vital") || r.description?.toLowerCase().includes("bmi"));
+      const dischargeResults = results.filter(r => r.description?.toLowerCase().includes("discharge") || r.description?.toLowerCase().includes("order") || r.description?.toLowerCase().includes("diagnosis") || r.description?.toLowerCase().includes("icd"));
+      const detailsResults = results;
+
       setValidationData({
-        admission: admissionData,
-        discharge: dischargeData,
-        details: detailsData,
+        admission: {
+          ok: true,
+          enccode,
+          isComplete: admissionResults.length > 0 && admissionResults.every(r => r.success),
+          details: Object.fromEntries(admissionResults.map(r => [r.description, r.success])),
+          missingFields: admissionResults.filter(r => !r.success).map(r => r.description),
+        },
+        discharge: {
+          ok: true,
+          enccode,
+          isComplete: dischargeResults.length > 0 && dischargeResults.every(r => r.success),
+          details: Object.fromEntries(dischargeResults.map(r => [r.description, r.success])),
+          missingFields: dischargeResults.filter(r => !r.success).map(r => r.description),
+        },
+        details: {
+          ok: true,
+          enccode,
+          validation: Object.fromEntries(detailsResults.map(r => [r.description, { success: r.success, rowCount: r.info?.rowCount || 0 }])),
+          results: detailsResults,
+        },
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Validation failed.");
@@ -149,7 +124,7 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode }) {
     } finally {
       setLoading(false);
     }
-  }, [enccode, validationApiBase, fetchValidationEndpoint]);
+  }, [enccode, formId, validationApiBase]);
 
   useEffect(() => {
     refresh();

@@ -14,6 +14,7 @@ import {
 import Tracking from "./tracking/tracking.jsx";
 import Tagging from "./tracking/Tagging.jsx";
 import UserPicker from "./tracking/UserPicker.jsx";
+import ValidationModule from "./modules/validation/ValidationModule.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
 import { useUserSession } from "./tracking/hooks/useUserSession.js";
@@ -28,6 +29,13 @@ const modules = [
     description: "Search, select, and generate patient forms.",
     status: "Ready",
     Component: FormsModule,
+  },
+  {
+    id: "validation",
+    name: "Validations",
+    description: "Manage and run form validations.",
+    status: "Beta",
+    Component: ValidationModule,
   },
   {
     id: "lab-upload",

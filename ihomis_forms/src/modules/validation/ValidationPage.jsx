@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect} from "react";
 import { useFormValidation } from "./hooks/useFormValidation.js";
 import {
   buildFormValidationBreakdown,
@@ -61,9 +61,61 @@ function getPatientInitials(label) {
 }
 
 function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
+  const [formId, setFormId] = useState(null);
+  const [formsLoading, setFormsLoading] = useState(false);
+
+  // Resolve form ID by looking up the form name in the hospital_forms table
+  useEffect(() => {
+    const resolveFormId = async () => {
+      if (!selectedForms || selectedForms.length === 0) {
+        setFormId(null);
+        return;
+      }
+
+      try {
+        setFormsLoading(true);
+        const response = await fetch("/api/validation/forms");
+        const data = await response.json();
+
+        if (!data.ok || !data.forms) {
+          setFormId(null);
+          return;
+        }
+
+        // Get the first selected form name
+        const selectedFormName = Array.isArray(selectedForms)
+          ? selectedForms[0]
+          : selectedForms?.description || selectedForms?.name;
+
+        if (!selectedFormName) {
+          setFormId(null);
+          return;
+        }
+
+        // Find the matching form by description or component_name
+        const matchedForm = data.forms.find(
+          (form) =>
+            form.description === selectedFormName ||
+            form.component_name === selectedFormName ||
+            form.description?.includes(selectedFormName),
+        );
+
+        setFormId(matchedForm?.id || null);
+      } catch (error) {
+        console.error("Error resolving form ID:", error);
+        setFormId(null);
+      } finally {
+        setFormsLoading(false);
+      }
+    };
+
+    resolveFormId();
+  }, [selectedForms]);
+
   const { enccode, loading, error, refresh, validationData } = useFormValidation({
     selectedPatient,
     enccode: enccodeOverride || undefined,
+    formId,
   });
 
   const scopedSummary = useMemo(
@@ -117,12 +169,13 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   const resolvedEnccode =
     validationData?.details?.DEBUG_INFO?.resolvedEnccode || enccode;
 
-  const statusTone = loading
+  const isLoading = loading || formsLoading;
+  const statusTone = isLoading
     ? "loading"
     : scopedSummary.hasIssues
       ? "attention"
       : "ready";
-  const statusLabel = loading
+  const statusLabel = isLoading
     ? "Checking"
     : scopedSummary.hasIssues
       ? "Needs attention"
