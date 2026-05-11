@@ -39,17 +39,6 @@
   align-items: center;
 }
 
-/* ─── FOOTER ─────────────────────────────────────────────── */
-.footer {
-  margin-top: auto;
-  padding-top: 1.5mm;
-  border-top: 0.25mm solid #111;
-  text-align: right;
-  font-size: 6pt;
-  font-style: italic;
-  font-weight: bold;
-}
-
 /* ─── PRINT STYLES ─────────────────────────────────────────── */
 @media print {
   .container {

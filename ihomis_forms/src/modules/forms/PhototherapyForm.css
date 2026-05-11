@@ -100,16 +100,3 @@
 .pt-col-date  { width: 35%; }
 .pt-col-hours { width: 30%; }
 .pt-col-nod   { width: 35%; }
-
-.pt-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 12mm;
-  right: 12mm;
-  border-top: 1px solid #000;
-  padding-top: 1.5px;
-  font-size: 7pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

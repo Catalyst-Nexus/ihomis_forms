@@ -250,17 +250,3 @@
   border-top: 1px solid #000;
   margin-bottom: 1.5mm;
 }
-
-/* ── Footer ── */
-.dp-footer {
-  position: absolute;
-  bottom: 5mm;
-  left: 12mm;
-  right: 12mm;
-  border-top: 1px solid #000;
-  padding-top: 1.5px;
-  font-size: 7.5pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

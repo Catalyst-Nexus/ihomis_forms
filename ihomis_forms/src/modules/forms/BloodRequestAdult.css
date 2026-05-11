@@ -185,18 +185,6 @@
   line-height: 1.4;
 }
 
-/* ─── GENERATED TIMESTAMP ─────────────────────────────────── */
-.brf-generated {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.78rem;
-  font-style: italic;
-  color: #000;
-  flex-shrink: 0;
-}
-
 /* ─── PAGE 2 SPACER ───────────────────────────────────────── */
 .brf-page2-spacer {
   flex: 1;

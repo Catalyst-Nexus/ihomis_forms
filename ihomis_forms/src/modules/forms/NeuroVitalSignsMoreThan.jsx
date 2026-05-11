@@ -1,11 +1,3 @@
-/**
- * NeuroVitalSignsMoreThan - Converted to CSS Module
- * 
- * FIX: Removed global style injection that was causing layout conflicts
- * FIX: Now uses CSS Module for scoped styling
- * FIX: Added proper props support (was hardcoded)
- */
-
 import { useMemo } from 'react';
 import chartPlaceholderSrc from './img/NEURO VITAL SIGNS STATUS.png';
 import styles from './NeuroVitalSignsMoreThan.module.css';
@@ -18,77 +10,67 @@ const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
   const age = patientData?.age || "";
   const date = patientData?.date || "";
 
-  const patientFields = [
-    { label: 'Case Number:', value: caseNum },
-    { label: 'Hospital No.', value: hospitalNo },
-  ];
-
-  const { generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    return {
-      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
-      generatedBy: "TCP T. TCP"
-    };
-  }, []);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.wrap}>
       <div className={styles.page}>
-        
-        <section className={styles.formIntro} aria-label="Form title and patient details">
-          <div className={`${styles.patientMeta} ${styles.patientMetaGrid}`}>
-            
-            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
-              <span className={styles.metaLabel}>{patientFields[0].label}</span>
-              <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{patientFields[0].value}</span>
+        <div className={styles.main}>
+          
+          {/* Preserved spacer for hospital letterhead */}
+          <div className={styles.headerSpacer} aria-hidden="true" />
+
+          {/* META SECTION - Standardized Header */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNum}</span>
+              </span>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Hospital No.:</span>
+                <span>{hospitalNo}</span>
+              </span>
             </div>
 
-            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
-              <span className={styles.metaLabel}>{patientFields[1].label}</span>
-              <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{patientFields[1].value}</span>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>NAME OF PATIENT:</span>
+                <span>{name}</span>
+              </span>
+              <span className={styles.metaCell} style={{ width: '75mm' }}>
+                <span className={styles.label}>PHYSICIAN:</span>
+                <span className={styles.lineFill} />
+              </span>
             </div>
 
-            <div className={`${styles.metaRow} ${styles.metaRowSplit}`}>
-              <div className={styles.metaLeftBlock}>
-                <span className={styles.metaLabel}>NAME OF PATIENT:</span>
-                <span className={`${styles.metaValue} ${styles.metaValueName}`}>{name}</span>
-              </div>
-              <div className={`${styles.metaRightBlock} ${styles.metaRightPhysician}`}>
-                <span className={styles.metaLabel}>PHYSICIAN:</span>
-                <span className={styles.metaLineFill} />
-              </div>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Room:</span>
+                <span>{room}</span>
+              </span>
             </div>
 
-            <div className={`${styles.metaRow} ${styles.metaRowLeft}`}>
-              <span className={styles.metaLabel}>Room: {room}</span>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Age:</span>
+                <span>{age}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Date:</span>
+                <span>{date}</span>
+              </span>
             </div>
-
-            <div className={`${styles.metaRow} ${styles.metaRowSplit} ${styles.metaRowAgeDate}`}>
-              <div className={styles.metaLeftBlock}>
-                <span className={styles.metaLabel}>Age:</span>
-                <span className={`${styles.metaValue} ${styles.metaValueInline}`}>{age}</span>
-              </div>
-              <div className={`${styles.metaRightBlock} ${styles.metaRightPhysician}`}>
-                <span className={styles.metaLabel}>Date: {date}</span>
-              </div>
-            </div>
-
           </div>
-        </section>
 
-        <section className={styles.chartSection} aria-label="Neuro vital signs chart image">
-          <img
-            className={styles.chartImage}
-            src={chartPlaceholderSrc}
-            alt="Neuro vital signs status chart"
-          />
-        </section>
-        
-        <div className={styles.formFooter}>Generated by: {generatedBy} on {generatedOn}</div>
+          {/* CHART SECTION - Auto-scales to fill 1 page */}
+          <section className={styles.chartSection} aria-label="Neuro vital signs chart">
+            <img
+              src={chartPlaceholderSrc}
+              alt="Neuro vital signs status chart"
+              className={styles.chartImage}
+            />
+          </section>
+        </div>
       </div>
     </div>
   );

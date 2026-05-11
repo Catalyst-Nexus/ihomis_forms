@@ -1,145 +1,121 @@
-/* CSS Module - Scoped to PostAnesthesiaSheet */
-/* NO global selectors */
+/* PostAnesthesiaSheet CSS Module */
 
-/* Page */
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: block;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
 .page {
-  width: 210mm;
-  height: 297mm;
-  background: #fff;
-  padding: 5mm 10mm 5mm;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-sizing: border-box;
-  overflow: hidden;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  /* 0 top padding to align with global hospital header */
+  padding: 0mm 10mm 5mm 10mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 3mm;
-  line-height: 1.15;
+  font-size: 9pt;
+  line-height: 1.3;
   color: #000;
-}
-
-/* Header Section */
-.header {
+  background-color: #fff;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 1.4mm;
-  margin-bottom: 1mm;
+  min-height: 297mm;
 }
 
-/* PACU Panel */
-.pacuPanel {
+.main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.1mm;
-  font-size: 2.95mm;
-  line-height: 1;
 }
 
-.pacuRow {
+.headerSpacer {
+  height: 23mm; /* Calibrated for hospital letterhead */
+  flex-shrink: 0;
+}
+
+/* ─── META / HEADER SECTION ─── */
+.metaSection {
+  margin-bottom: 2mm;
+  width: 100%;
+}
+
+.metaRow {
   display: flex;
+  width: 100%;
+  margin-bottom: 3px;
   align-items: baseline;
-  gap: 4mm;
+  gap: 10px;
 }
 
-.pacuRowTop {
-  justify-content: space-between;
-}
-
-.pacuRowPatient {
-  justify-content: space-between;
-  gap: 5mm;
-}
-
-.pacuRowProcedure {
-  justify-content: space-between;
-  gap: 5mm;
-}
-
-.pacuRowSurgeon {
-  justify-content: space-between;
-  gap: 5mm;
-}
-
-.pacuRowAnesthesia {
-  justify-content: space-between;
-  gap: 5mm;
-}
-
-.pacuCell {
+.metaRowSpaceBetween {
   display: flex;
+  justify-content: space-between;
+  width: 100%;
   align-items: baseline;
-  gap: 1.1mm;
+  margin-bottom: 3px;
+  gap: 15px;
+}
+
+.metaCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
-  min-width: 0;
 }
 
-.pacuCellCenter {
-  justify-content: center;
-}
-
-.pacuCellRight {
-  justify-content: flex-end;
-}
-
-.pacuLabel {
+.label {
   font-weight: 700;
-  font-size: 2.95mm;
 }
 
-.pacuValue {
-  white-space: nowrap;
-  font-weight: 400;
-  font-size: 2.95mm;
+.lineFill {
+  display: inline-block;
+  flex: 1;
+  border-bottom: 1px solid #000;
+  height: 10pt;
+  min-width: 20px;
 }
 
-.pacuCheck {
-  font-size: 2.95mm;
-}
-
-/* Chart Section */
+/* ─── CHART SECTION ─── */
 .chartSection {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  flex: 1;
-  overflow: hidden;
+  margin-top: 1mm;
+  width: 100%;
+  flex: 1; /* Stretch to fill space between header and bottom */
+  min-height: 0; 
 }
 
 .chartImage {
   width: 100%;
-  height: auto;
-  max-height: 100%;
+  max-height: 100%; /* Fit within flex container */
   display: block;
-  object-fit: contain;
-  border: 0;
+  object-fit: contain; /* Maintain ratio while fitting exactly 1 page */
 }
 
-/* Form Footer */
-.formFooter {
-  flex-shrink: 0;
-  padding-top: 1mm;
-  border-top: 0.25mm solid #111;
-  text-align: right;
-  font-size: 6pt;
-  font-style: italic;
-  font-weight: bold;
-}
-
-/* SCOPED PRINT RULES */
+/* ─── PRINT ─── */
 @media print {
-  .page {
-    width: 210mm !important;
-    height: 297mm !important;
-    margin: 0 !important;
-    padding: 5mm 10mm 5mm !important;
-    box-shadow: none !important;
+  @page {
+    size: A4;
+    margin: 10mm;
   }
 
-  .chartSection {
-    overflow: hidden !important;
+  .wrap, .page, .main {
+    display: block !important; 
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    box-shadow: none;
   }
 
   .chartImage {
-    max-height: calc(297mm - 40mm) !important;
+    /* Critical constraint to prevent Chrome from page-breaking */
+    max-height: 200mm !important; 
   }
 }

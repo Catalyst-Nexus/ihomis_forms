@@ -1,161 +1,118 @@
-/* CSS Module - Scoped to NeuroVitalSignsMoreThan */
-/* NO global selectors */
+/* NeuroVitalSignsMoreThan CSS Module */
 
-.container {
-  width: 210mm;
-  height: 297mm;
-  margin: auto;
-  position: relative;
-  background: #fff;
-  overflow: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  box-sizing: border-box;
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: block;
 }
 
+/* ─── PAGE ────────────────────────────────────────────────── */
 .page {
   width: 100%;
-  height: 100%;
-  position: relative;
+  max-width: 210mm;
+  margin: 0 auto;
+  /* 0 top padding to align with global hospital header */
+  padding: 0mm 10mm 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 10.5mm 12mm 8mm;
-  color: #222;
-  font-size: 8pt;
-  line-height: 1.05;
-  box-sizing: border-box;
+  min-height: 297mm;
 }
 
-.headerSpace {
-  height: 27mm;
-  flex: 0 0 auto;
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.formIntro {
-  flex: 0 0 auto;
+.headerSpacer {
+  height: 23mm; /* Calibrated for hospital letterhead */
+  flex-shrink: 0;
 }
 
-.patientMeta {
+/* ─── META / HEADER SECTION ─── */
+.metaSection {
+  margin-bottom: 4mm;
   width: 100%;
-}
-
-.patientMetaGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-rows: min-content;
-  column-gap: 14mm;
-  row-gap: 1.2mm;
-  margin-bottom: 2.2mm;
 }
 
 .metaRow {
   display: flex;
-  align-items: flex-end;
-  min-height: 4.2mm;
+  width: 100%;
+  margin-bottom: 2px;
+  align-items: baseline;
 }
 
-.metaRowLeft {
-  grid-column: 1 / 2;
-}
-
-.metaLabel {
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.metaValueInline {
-  margin-left: 2.2mm;
-}
-
-.metaValue {
-  min-width: 0;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.metaValueName {
-  margin-left: 2mm;
-}
-
-.metaRowSplit {
-  grid-column: 1 / -1;
+.metaRowSpaceBetween {
   display: flex;
   justify-content: space-between;
-  gap: 8mm;
-  align-items: flex-end;
-}
-
-.metaRowAgeDate {
-  /* Additional styling for age/date row */
-}
-
-.metaLeftBlock {
-  display: flex;
-  align-items: flex-end;
-  white-space: nowrap;
-  flex: 1 1 auto;
-}
-
-.metaRightBlock {
-  display: flex;
-  align-items: flex-end;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-
-.metaRightPhysician {
-  min-width: 74mm;
-}
-
-.metaLineFill {
-  display: inline-block;
-  width: 58mm;
-  border-bottom: 0.25mm solid #222;
-  margin-left: 1.5mm;
-  transform: translateY(-0.3mm);
-}
-
-.chartSection {
   width: 100%;
-  margin-top: 1mm;
-  margin-bottom: 2mm;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.metaCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.label {
+  font-weight: 700;
+}
+
+.lineFill {
+  display: inline-block;
   flex: 1;
+  border-bottom: 1px solid #000;
+  height: 10pt;
+}
+
+/* ─── CHART SECTION ─── */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 2mm;
+  width: 100%;
+  flex: 1; /* Critical: pushes footer to the very bottom */
+  min-height: 0; 
 }
 
 .chartImage {
   width: 100%;
-  height: auto;
   max-height: 100%;
   display: block;
-  object-fit: fill;
-  border: 0;
+  object-fit: contain; /* Prevents stretching while filling 1 page */
 }
 
-.formFooter {
-  margin-top: auto;
-  padding-top: 1.5mm;
-  border-top: 0.25mm solid #111;
-  text-align: right;
-  font-size: 7.5pt;
-  font-style: italic;
-}
-
-/* SCOPED PRINT RULES */
+/* ─── PRINT ─── */
 @media print {
-  .container {
-    width: 210mm !important;
-    height: 297mm !important;
-    margin: 0 !important;
-    box-shadow: none !important;
+  @page {
+    size: A4;
+    margin: 10mm;
   }
-  
-  .page {
-    padding: 10.5mm 12mm 7.5mm !important;
-  }
-}
 
-@media screen {
-  .container {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
-    margin: 16px auto;
+  .wrap, .page, .main {
+    display: block !important; 
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    box-shadow: none;
+  }
+
+  .chartImage {
+    /* Ensures image doesn't overflow to page 2 */
+    max-height: 190mm !important; 
   }
 }

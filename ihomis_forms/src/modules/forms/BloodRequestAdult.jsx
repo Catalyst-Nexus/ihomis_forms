@@ -1,6 +1,17 @@
 import styles from "./BloodRequestAdult.module.css";
 
-export default function BloodRequestAdult() {
+export default function BloodRequestAdult({ patientName, patientData = {} }) {
+  const hospitalNo = patientData.hospitalNo || patientData.hospNo || "";
+  const name = patientName || patientData.patientName || "";
+  const sex = patientData.sex || "";
+  const age = patientData.age || "";
+  const caseNo = patientData.caseNo || patientData.caseNum || "";
+  const birthDate = patientData.birthDate || "";
+  const date = patientData.date || "";
+  const department = patientData.department || "";
+  const roomNo = patientData.roomNo || "";
+  const address = patientData.address || "";
+  const admittingImpression = patientData.admittingImpression || "";
   return (
     <div className={styles.wrap}>
 
@@ -10,53 +21,53 @@ export default function BloodRequestAdult() {
         <div className={styles.metaSection}>
           <div className={styles.metaRow}>
             <span className={styles.label}>Hospital No.:</span>
-            <span>00000000020971</span>
+            <span>{hospitalNo}</span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Patient Name:</span>
-              <span>MATILOS , EUGENIA MAMBA</span>
+              <span>{name}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "50px" }}>Sex:</span>
-              <span>F</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>Sex:</span>
+              <span>{sex}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "200px" }}>Age:</span>
-              <span>67 year(s)</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Age:</span>
+              <span>{age}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Case No.:</span>
-              <span>ADM-2026-010617</span>
+              <span>{caseNo}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "68px" }}>BirthDate:</span>
-              <span>January 11, 1959</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>BirthDate:</span>
+              <span>{birthDate}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "60px" }}>Date:</span>
-              <span>April 21, 2026</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Date:</span>
+              <span>{date}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Department:</span>
-              <span>MEDICAL</span>
+              <span>{department}</span>
             </span>
-            <span className={`${styles.metaCell} ${styles.metaCellRest}`}>
+            <span className={`${styles.metaCell} ${styles.metaCellRest}`} style={{ flex: 1, justifyContent: "flex-end" }}>
               <span className={styles.label}>Room No.:</span>
-              <span>ISOLATION - 6SAIS - BED 03</span>
+              <span>{roomNo}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={styles.label}>Address:</span>
-            <span>P-1, ALIBUID, BUENAVISTA, AGUSAN DEL NORTE</span>
+            <span>{address}</span>
           </div>
           <div className={styles.metaRow}>
             <span className={styles.label}>Admitting Impression/Clinical Diagnosis:</span>
-            <span>CAP-MR CHF, T/C ACS HPN STAGE 2</span>
+            <span>{admittingImpression}</span>
           </div>
         </div>
 
@@ -99,7 +110,7 @@ export default function BloodRequestAdult() {
             <strong>Active bleeding</strong> with at least one of the following:<br />
             a. Loss of over 15% blood volume.<br />
             b. Hb less than 9g/dl<br />
-            c. Blood pressure decrease over 20 &amp;, or less than 90mm Hg. Systolic
+            c. Blood pressure decrease over 20 &, or less than 90mm Hg. Systolic
           </span>
         </div>
         <div className={styles.itemRow}>
@@ -182,7 +193,7 @@ export default function BloodRequestAdult() {
         {/* NOTE RBC */}
         <div className={styles.noteBlock}>
           <p className={styles.noteTitle}>NOTE : Comments on RBC products:</p>
-          <p className={styles.noteItem}>1. Document pre and post-transfusion Hb&amp; Hct withing 24 hours</p>
+          <p className={styles.noteItem}>1. Document pre and post-transfusion Hb& Hct withing 24 hours</p>
           <p className={styles.noteItem}>2. Dose; Adults- give on a unit-to-unit basis</p>
           <p className={styles.noteItem}>Remember, 1 unit may suffice to alleviate symptoms of anemia</p>
           <p className={styles.noteItem}>Infants: 10ml/kg. BW</p>
@@ -204,12 +215,10 @@ export default function BloodRequestAdult() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.code}>[ ] P-1 :</span>
-          {/* <=  must be &lt;= in JSX */}
           <span>Prophylactic administration with count &lt;=10,000 and not due to TTP, ITP, HUS</span>
         </div>
         <div className={styles.itemRow}>
           <span className={styles.code}>[ ] P-2 :</span>
-          {/* [50,000 — the [ is fine but < would break; keeping as-is since original used [ not < */}
           <span>Active bleeding with count &lt;50,000</span>
         </div>
         <div className={styles.itemRow}>
@@ -249,7 +258,6 @@ export default function BloodRequestAdult() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.code}>[ ] C-1 :</span>
-          {/* < 100 — must escape < */}
           <span>Signicant hypofibrinogemi (&lt; 100 mg/dl)</span>
         </div>
         <div className={styles.itemRow}>
@@ -271,7 +279,6 @@ export default function BloodRequestAdult() {
         {/* FRESH FROZEN PLASMA */}
         <div className={styles.gapSm} />
         <div className={styles.compRow}>
-          <span className={styles.chk}>[ ]</span>
           <span>
             <strong>Fresh Frozen Plasma(approximate volume 200-250ml):</strong>{" "}
             Blood Type <span className={`${styles.line} ${styles.lineSm}`} />{" "}
@@ -280,7 +287,6 @@ export default function BloodRequestAdult() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.code}>[ ] F-1 :</span>
-          {/* > 1.5 — must escape > */}
           <span>PT or PTT &gt; 1.5 times mid-normal range within 8 hours of transfusion (PT &gt; 17secs. PTT &gt; 47 secs)</span>
         </div>
         <div className={styles.itemRow}>
@@ -343,9 +349,7 @@ export default function BloodRequestAdult() {
         </div>
 
         {/* RECEIVED BY */}
-        <div className={`${styles.gap} ${styles.gapTall}`} />
         <p className={styles.plainLabel}>Received by:</p>
-        <div className={`${styles.gap} ${styles.gapTall}`} />
         <div className={styles.sigRow}>
           <div className={styles.sigBlock}>
             <p className={styles.sigLabel}>(Blood Bank Staff)</p>
@@ -353,10 +357,6 @@ export default function BloodRequestAdult() {
           <div className={styles.sigBlock}>
             <p className={styles.sigLabel}>Date/Time</p>
           </div>
-        </div>
-
-        <div className={`${styles.footer} form-footer`}>
-          Generated by: TCP T. TCP on 2026-04-21 12:16 pm
         </div>
       </div>
 

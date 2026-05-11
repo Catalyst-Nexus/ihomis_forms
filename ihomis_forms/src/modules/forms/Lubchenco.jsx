@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import styles from './Lubchenco.module.css';
 import chartPlaceholderSrc from './img/lubchenco chart.png';
 
@@ -9,78 +8,60 @@ const Lubchenco = ({ patientName, patientData }) => {
   const dateOfBirth = patientData?.dateOfBirth || "";
   const timeOfBirth = patientData?.timeOfBirth || "";
 
-  const { generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    return {
-      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
-      generatedBy: "TCP T. TCP"
-    };
-  }, []);
   return (
-    <div className={styles.lubchencoRoot}>
-      <div className={styles.lubchencoPage}>
-        <br />
-        <section className={styles.lubchencoHeader} aria-label="Form title and patient details">
-          <div className={styles.lubchencoCaseNumber}>
-            <span className={styles.lubchencoCaseLabel}>Case Number:</span>
-            <span className={styles.lubchencoCaseValue}>{caseNum}</span>
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+
+          {/* ── META HEADER ── */}
+          <div className={styles.metaRowOutside}>
+            <span className={styles.label}>Case Number:</span>
+            <span className={styles.value}>{caseNum}</span>
           </div>
 
-          <div className={styles.lubchencoTable}>
-            <div className={styles.lubchencoTableRow}>
-              <div className={styles.lubchencoTableCell}>
-                <span className={styles.lubchencoLabel}>Name of Patient:</span>
-                <span className={styles.lubchencoValue}>{name}</span>
+          <div className={styles.tableBorder}>
+            <div className={styles.metaRow}>
+              <div className={styles.metaCellHalfWithBorder}>
+                <span className={styles.label}>Name of Patient:</span>
+                <span className={styles.value}>{name}</span>
               </div>
-              <div className={styles.lubchencoTableCell}>
-                <span className={styles.lubchencoLabel}>Hospital No.:</span>
-                <span className={styles.lubchencoValue}>{hospitalNo}</span>
+              <div className={styles.metaCellHalf}>
+                <span className={styles.label}>Hospital No.:</span>
+                <span className={styles.value}>{hospitalNo}</span>
               </div>
             </div>
-            <div className={styles.lubchencoTableRow}>
-              <div className={styles.lubchencoTableCell}>
-                <span className={styles.lubchencoLabel}>Date of Birth:</span>
-                <span className={styles.lubchencoValue}>{dateOfBirth}</span>
+            <div className={styles.metaRow}>
+              <div className={styles.metaCellHalfWithBorder}>
+                <span className={styles.label}>Date of Birth:</span>
+                <span className={styles.value}>{dateOfBirth}</span>
               </div>
-              <div className={styles.lubchencoTableCell}>
-                <span className={styles.lubchencoLabel}>Time of Birth:</span>
-                <span className={styles.lubchencoValue}>{timeOfBirth}</span>
+              <div className={styles.metaCellHalf}>
+                <span className={styles.label}>Time of Birth:</span>
+                <span className={styles.value}>{timeOfBirth}</span>
               </div>
             </div>
           </div>
 
-          <div className={styles.lubchencoSubtitle}>
+          <div className={styles.subtitle}>
             Classification of newborns (both sexes) by intrauterine growth and gestational age
           </div>
-        </section>
 
-        {/* ── CHART — fills all remaining vertical space ── */}
-        <section className={styles.lubchencoChartSection} aria-label="Lubchenco chart">
-          <img
-            src={chartPlaceholderSrc}
-            alt="Lubchenco growth chart"
-            className={styles.lubchencoChartImage}
-          />
-        </section>
+          {/* ── CHART ── */}
+          <section className={styles.chartSection} aria-label="Lubchenco chart">
+            <img
+              src={chartPlaceholderSrc}
+              alt="Lubchenco growth chart"
+              className={styles.chartImage}
+            />
+          </section>
 
-        {/* ── SIGNATURE ── */}
-        <br />
-        <br />
-        <br />
-        <div className={styles.lubchencoSignature}>
-          <div className={styles.lubchencoSignatureLine}></div>
-          <div className={styles.lubchencoSignatureLabel}>PEDIATRICIAN</div>
+          {/* ── SIGNATURE ── */}
+          <div className={styles.signatureWrap}>
+            <div className={styles.signatureLine}></div>
+            <div className={styles.signatureLabel}>PEDIATRICIAN</div>
+          </div>
+
         </div>
-
-        {/* ── FOOTER ── */}
-        <div className={styles.lubchencoFooter}>
-          Generated by: {generatedBy} on {generatedOn}
-        </div>
-
       </div>
     </div>
   );

@@ -173,14 +173,3 @@
   font-weight: bold;
   text-align: center;
 }
-
-/* ── Footer ── */
-.scs-footer {
-  margin-top: 2mm;
-  border-top: 1px solid #000;
-  padding-top: 1.5px;
-  font-size: 7pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

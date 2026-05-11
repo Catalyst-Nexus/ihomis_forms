@@ -20,40 +20,55 @@ export default function MonitoringSheet({ patientName, patientData }) {
   ];
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.headerRow1}>
-          <span className={styles.label}>Case Number:</span>
-          <span className={styles.value}>&nbsp;{caseNum}</span>
-        </div>
-        <div className={styles.headerRow2}>
-          <span className={styles.label}>Name of Patient:</span>
-          <span className={styles.value}>&nbsp;{name}</span>
-          <div className={styles.rightInfo}>
-            <span><span className={styles.label}>Age:</span>&nbsp;{age}</span>
-            <span><span className={styles.label}>Sex:</span>&nbsp;{sex}</span>
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+          
+          {/* META SECTION - Matches Reference Image Exactly */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNum}</span>
+              </span>
+            </div>
+            
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Name of Patient:</span>
+                <span>{name}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Age:</span>
+                <span>{age}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Sex:</span>
+                <span>{sex}</span>
+              </span>
+            </div>
           </div>
+
+          {/* ── Table ── */}
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                {columns.map((col, i) => (
+                  <th key={i} className={col.cls}>{col.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: ROWS }).map((_, i) => (
+                <tr key={i}>
+                  {columns.map((_, j) => <td key={j} />)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
         </div>
       </div>
-
-      {/* ── Table ── */}
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            {columns.map((col, i) => (
-              <th key={i} className={col.cls}>{col.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: ROWS }).map((_, i) => (
-            <tr key={i}>
-              {columns.map((_, j) => <td key={j} />)}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
     </div>
   );
 }

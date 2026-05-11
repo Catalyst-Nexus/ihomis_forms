@@ -133,20 +133,6 @@
   text-align: center;
 }
 
-/* ── Footer ── */
-.ios-footer {
-  position: absolute;
-  bottom: 8mm;
-  left: 10mm;
-  right: 10mm;
-  border-top: 1.5px solid #000;
-  padding-top: 2px;
-  font-size: 8pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}
-
 /* ── Print ── */
 @media print {
   .ios-page {

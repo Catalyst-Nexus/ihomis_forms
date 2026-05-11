@@ -1,6 +1,29 @@
 import styles from "./BloodRequestPediatric.module.css";
 
-export default function BloodRequestPediatric() {
+
+const formatDateOnly = () => {
+  const now = new Date();
+  return now.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  });
+};
+
+export default function BloodRequestPediatric({ patientName, patientData = {} }) {
+  // Dynamic Data Mappings
+  const hospitalNo = patientData.hospitalNo || patientData.hospNo || patientData.hospitalNumber || "";
+  const name = patientName || patientData.patientName || patientData.fullName || "";
+  const sex = patientData.sex || "";
+  const age = patientData.age || "";
+  const caseNum = patientData.caseNum || patientData.caseNo || "";
+  const birthDate = patientData.birthDate || patientData.birthdate || patientData.dob || "";
+  const requestDate = patientData.requestDate || patientData.date || formatDateOnly();
+  const department = patientData.department || patientData.service || "";
+  const roomNo = patientData.room || patientData.ward || "";
+  const address = patientData.address || patientData.completeAddress || "";
+  const impression = patientData.impression || patientData.diagnosis || patientData.clinicalDiagnosis || "";
+
   return (
     <div className={styles.wrap}>
 
@@ -10,53 +33,53 @@ export default function BloodRequestPediatric() {
         <div className={styles.metaSection}>
           <div className={styles.metaRow}>
             <span className={styles.label}>Hospital No.:</span>
-            <span>00000000020971</span>
+            <span>{hospitalNo}</span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Patient Name:</span>
-              <span>MATILOS , EUGENIA MAMBA</span>
+              <span>{name}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "50px" }}>Sex:</span>
-              <span>F</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>Sex:</span>
+              <span>{sex}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "200px" }}>Age:</span>
-              <span>67 year(s)</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Age:</span>
+              <span>{age}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Case No.:</span>
-              <span>ADM-2026-010617</span>
+              <span>{caseNum}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "68px" }}>BirthDate:</span>
-              <span>January 11, 1959</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>BirthDate:</span>
+              <span>{birthDate}</span>
             </span>
-            <span className={styles.metaCell}>
-              <span className={styles.label} style={{ marginLeft: "60px" }}>Date:</span>
-              <span>April 21, 2026</span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Date:</span>
+              <span>{requestDate}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
               <span className={styles.label}>Department:</span>
-              <span>MEDICAL</span>
+              <span>{department}</span>
             </span>
-            <span className={`${styles.metaCell} ${styles.metaCellRest}`}>
+            <span className={`${styles.metaCell} ${styles.metaCellRest}`} style={{ flex: 1, justifyContent: "flex-end" }}>
               <span className={styles.label}>Room No.:</span>
-              <span>ISOLATION - 6SAIS - BED 03</span>
+              <span>{roomNo}</span>
             </span>
           </div>
           <div className={styles.metaRow}>
             <span className={styles.label}>Address:</span>
-            <span>P-1, ALIBUJID, BUENAVISTA, AGUSAN DEL NORTE</span>
+            <span>{address}</span>
           </div>
           <div className={styles.metaRow}>
             <span className={styles.label}>Admitting Impression/Clinical Diagnosis:</span>
-            <span>CAP-MR CHF, T/C ACS HPN STAGE 2</span>
+            <span>{impression}</span>
           </div>
         </div>
 
@@ -121,12 +144,10 @@ export default function BloodRequestPediatric() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.chkIndent}>[ ]</span>
-          {/* > must be &gt; in JSX text */}
           <span>Hypovolemia form acute blood loss with signs of shock or anticipated blood loss of &gt;10%</span>
         </div>
         <div className={styles.itemRow}>
           <span className={styles.chkIndent}>[ ]</span>
-          {/* < must be &lt; in JSX text */}
           <span>Candidates for Major Surgery and hematocrit &lt; 30% (Neonatal &lt; 35%)</span>
         </div>
         <div className={styles.itemRow}>
@@ -139,7 +160,6 @@ export default function BloodRequestPediatric() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.chkIndent}>[ ]</span>
-          {/* >= must be &gt;= in JSX text */}
           <span>Neonates with phlebotomy lose &gt;= 5-10% of total blood volume.</span>
         </div>
         <div className={styles.itemRow}>
@@ -206,7 +226,6 @@ export default function BloodRequestPediatric() {
         </div>
         <div className={styles.itemRow}>
           <span className={styles.chkIndent}>[ ]</span>
-          {/* > 1 Blood Volume — escape > */}
           <span>Bleeding in exchange transfucion or massive transfusion (&gt; 1 Blood Volume)</span>
         </div>
 
@@ -240,10 +259,6 @@ export default function BloodRequestPediatric() {
           <span className={styles.chkIndent}>[ ]</span>
           <span>Other:<span className={`${styles.line} ${styles.lineFill}`} /></span>
         </div>
-
-        <div className="brp-footer">
-          Generated by: TCP T. TCP on {generatedOn}
-        </div>
       </div>
 
       {/* ═══════════════ PAGE 2 ═══════════════ */}
@@ -256,7 +271,7 @@ export default function BloodRequestPediatric() {
         <div className={styles.sigRow}>
           <div className={styles.sigBlock}>
             <div className={styles.sigLineWithMd}>
-              <span className={styles.sigMd} style={{ marginLeft: "300px" }}>M. D.</span>
+              <span className={styles.sigMd}>M. D.</span>
             </div>
             <p className={styles.sigLabel}>Signature over Printed Name of Physician</p>
           </div>
@@ -286,10 +301,6 @@ export default function BloodRequestPediatric() {
             <div className={styles.sigLineEmpty} />
             <p className={styles.sigLabel}>Date/Time</p>
           </div>
-        </div>
-
-        <div className={`${styles.footer} form-footer`}>
-          Generated by: TCP T. TCP on 2026-04-21 01:07 pm
         </div>
       </div>
 

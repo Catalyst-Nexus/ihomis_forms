@@ -1,0 +1,165 @@
+/* BloodTransfusionSheet CSS Module */
+/* NO global selectors */
+
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 297mm;
+}
+
+/* ─── META ────────────────────────────────────────────────── */
+.metaSection {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2mm; /* Tightened from 4mm */
+}
+
+.metaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; /* Tightened slightly */
+  flex: 1;
+}
+
+.metaItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.value {
+  font-weight: 500;
+}
+
+/* ─── LINES ───────────────────────────────────────────────── */
+.line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.lineMd {
+  width: 130px;
+}
+
+/* ─── TABLE ───────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 8pt;
+  margin-bottom: 2mm;
+}
+
+.table th,
+.table td {
+  border: 1px solid #000;
+  padding: 1px 4px; /* Tightened vertical padding */
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table th {
+  font-size: 7.5pt;
+  font-weight: 700;
+  background: transparent;
+  padding: 3px 4px;
+}
+
+.table tbody td {
+  height: 7.5mm; /* Reduced from 9.3mm to ensure all 23 rows fit perfectly with the hospital header */
+}
+
+/* COLUMN WIDTHS */
+.colBag      { width: 8%; }
+.colDate     { width: 12%; }
+.colBlood    { width: 16%; }
+.colType     { width: 7%; }
+.colSerial   { width: 9%; }
+.colExpiry   { width: 12%; }
+.colDateTime { width: 12%; }
+.colNurse    { width: 14%; }
+.colRemarks  { width: 10%; }
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: bold;
+  color: #000;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    box-shadow: none;
+  }
+
+  .metaSection {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .table {
+    font-size: 0.6rem;
+  }
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    box-shadow: none;
+  }
+
+  .table {
+    page-break-inside: avoid;
+  }
+
+  .footer {
+    position: static;
+    margin-top: auto;
+  }
+}

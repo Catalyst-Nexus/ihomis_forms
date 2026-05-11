@@ -10,21 +10,18 @@
 
 /* ─── PAGE ────────────────────────────────────────────────── */
 .page {
-  width: 210mm;
-  min-height: 297mm;
+  width: 100%;
+  max-width: 210mm;
   margin: 0 auto;
-  padding: 1.25rem 1.4rem 1.2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 0.88rem;
+  padding: 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt; /* Standardized to 10pt to fit page 1 content securely */
   line-height: 1.35;
-  color: var(--text-primary, #1a1a1a);
-  background-color: var(--bg-primary, #fff);
+  color: #000;
+  background-color: #fff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
 }
 
 /* ─── HEADER ──────────────────────────────────────────────── */
@@ -58,19 +55,19 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
+  width: 100%;
   gap: 4px;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
 .metaCell {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
-  margin-right: 1rem;
 }
 
 .metaCellWide {
-  min-width: 260px;
+  min-width: 280px;
 }
 
 .metaCellRest {
@@ -80,15 +77,14 @@
 .label {
   font-weight: 700;
   white-space: nowrap;
-  font-size: 9pt;
 }
 
 /* ─── INLINE ROWS ─────────────────────────────────────────── */
 .inlineRow {
   display: flex;
   align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 0.25rem;
+  gap: 5px;
+  margin-bottom: 1px;
 }
 
 .ml4  { margin-left: 0.25rem; }
@@ -113,24 +109,24 @@
 .lineFull { flex: 1; display: inline-block; }
 
 /* ─── GAPS ────────────────────────────────────────────────── */
-.gap     { height: 0.6rem; }
-.gapSm   { height: 0.3rem; }
-.gapTall { height: 1.8rem; }
+/* Compressed to keep Page 1 from spilling over */
+.gap     { height: 0.25rem; }
+.gapSm   { height: 0.15rem; }
+.gapTall { height: 0.35rem; }
 
 /* ─── SECTION HEADING ─────────────────────────────────────── */
 .sectionHeading {
   font-weight: 700;
-  margin: 0.3rem 0 0.25rem;
+  margin: 0 0 0.15rem 0;
   text-decoration: underline;
 }
 
 /* ─── COMPONENT ROWS ──────────────────────────────────────── */
 .compRow {
   display: flex;
-  flex-wrap: wrap;
   align-items: baseline;
   gap: 4px;
-  margin-bottom: 0.05rem;
+  margin-bottom: 0;
   flex-wrap: wrap;
 }
 
@@ -143,6 +139,7 @@
 .subheadingRow {
   padding-left: 1.2rem;
   margin-bottom: 0.05rem;
+  font-weight: 600;
 }
 
 /* ─── ITEM ROWS (sub-items with [ ] checkbox) ─────────────── */
@@ -150,9 +147,8 @@
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
-  font-size: 8.8pt;
-  margin-bottom: 0.08rem;
-  line-height: 1.3;
+  margin-bottom: 0;
+  padding-left: 0.5rem;
 }
 
 .chkIndent {
@@ -167,7 +163,7 @@
 
 /* ─── NOTE BLOCKS ─────────────────────────────────────────── */
 .noteBlock {
-  margin: 0.3rem 0 0.2rem 0;
+  margin: 0.2rem 0;
 }
 
 .noteTitle {
@@ -187,8 +183,9 @@
 
 .sigRow {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
   gap: 2rem;
-  margin-bottom: 0.4rem;
 }
 
 .sigBlock {
@@ -200,12 +197,13 @@
 
 .sigLineWithMd {
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
   justify-content: center;
+  align-items: flex-end;
   gap: 6px;
   border-bottom: 1px solid #000;
   padding-bottom: 2px;
+  width: 100%;
+  min-height: 1.6rem;
 }
 
 .sigLineEmpty {
@@ -224,8 +222,6 @@
   padding-top: 2px;
   text-align: center;
   margin-top: 2px;
-  border-top: 1px solid #333;
-  padding-top: 1px;
   width: 100%;
 }
 
@@ -233,34 +229,15 @@
 .remarksRow {
   display: flex;
   align-items: baseline;
-  gap: 0.3rem;
-  font-size: 9pt;
-  margin: 0.5rem 0;
+  gap: 8px;
 }
 
-/* ─── FOOTER ──────────────────────────────────────────────── */
-.footer {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.78rem;
-  font-style: italic;
-  font-weight: 600;
-  color: #000;
-  flex-shrink: 0;
-}
-
-/* ─── PAGE 2 specific ─────────────────────────────────────── */
-.pageP2 {
-  min-height: 297mm;
-}
-
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 760px) {
   .page {
     width: 100%;
     min-height: auto;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     padding: 0.75rem;
     box-shadow: none;
   }
@@ -268,12 +245,32 @@
   .metaCellWide {
     min-width: auto;
   }
-
-  .footer {
-    font-size: 0.68rem;
-  }
-
   .lineSig {
     width: 140px;
+  }
+}
+
+/* ─── PRINT ──────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .pageP2 {
+    page-break-before: always;
+    padding-top: 10mm;
+  }
+
+  .metaSection, .compRow, .itemRow, .noteBlock {
+    page-break-inside: avoid;
   }
 }

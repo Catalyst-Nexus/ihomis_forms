@@ -1,4 +1,4 @@
-import "./BloodTransfusionSheet.css";
+import styles from "./BloodTransfusionSheet.module.css";
 
 const formatGeneratedOn = (date = new Date()) => {
   const pad = (v) => String(v).padStart(2, "0");
@@ -23,97 +23,97 @@ export default function BloodTransfusionSheet({
   const age = patientData.age || "";
   const sex = patientData.sex || "";
   const hrn = patientData.hrn || "";
-  const generatedOn =
-    patientData.generatedOn || formatGeneratedOn();
+  const generatedOn = patientData.generatedOn || formatGeneratedOn();
 
   return (
-    <div className="bts-page">
-      <div className="bts-meta-grid">
-        <div className="bts-meta-col">
-          <div className="bts-meta-item bts-case-line">
-            <span className="bts-label">Case Number:</span>
-            {caseNum ? (
-              <span className="bts-value">{caseNum}</span>
-            ) : (
-              <span className="bts-line" />
-            )}
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        
+        {/* META HEADER */}
+        <div className={styles.metaSection}>
+          <div className={styles.metaCol}>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Case Number:</span>
+              {caseNum ? (
+                <span className={styles.value}>{caseNum}</span>
+              ) : (
+                <span className={`${styles.line} ${styles.lineMd}`} />
+              )}
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Hospital No.:</span>
+              <span>{hospitalNo}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Patient Name:</span>
+              <span>{name}</span>
+            </div>
           </div>
 
-          <div className="bts-meta-item">
-            <span className="bts-label">Hospital No.:</span>
-            <span>{hospitalNo}</span>
-          </div>
-
-          <div className="bts-meta-item">
-            <span className="bts-label">Patient Name:</span>
-            <span>{name}</span>
+          <div className={styles.metaCol}>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Ward:</span>
+              <span>{ward}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Age:</span>
+              <span>{age}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>Sex:</span>
+              <span>{sex}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.label}>HRN:</span>
+              {hrn ? (
+                <span>{hrn}</span>
+              ) : (
+                <span className={`${styles.line} ${styles.lineMd}`} />
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="bts-meta-col">
-          <div className="bts-meta-item">
-            <span className="bts-label">Ward:</span>
-            <span>{ward}</span>
-          </div>
-
-          <div className="bts-meta-item">
-            <span className="bts-label">Age:</span>
-            <span>{age}</span>
-          </div>
-
-          <div className="bts-meta-item">
-            <span className="bts-label">Sex:</span>
-            <span>{sex}</span>
-          </div>
-
-          <div className="bts-meta-item">
-            <span className="bts-label">HRN:</span>
-            {hrn ? (
-              <span>{hrn}</span>
-            ) : (
-              <span className="bts-line" />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* TABLE */}
-      <table className="bts-table">
-        <thead>
-          <tr>
-            <th className="bts-col-bag">BAG NO.</th>
-            <th className="bts-col-date">DATE & TIME STARTED</th>
-            <th className="bts-col-blood">BLOOD COMPONENT</th>
-            <th className="bts-col-type">BLD TYPE</th>
-            <th className="bts-col-serial">SERIAL NO.</th>
-            <th className="bts-col-expiry">EXPIRATION DATE</th>
-            <th className="bts-col-date-time">DATE & TIME CONSUMED</th>
-            <th className="bts-col-nurse">
-              NURSE'S NAME AND SIGNATURE
-            </th>
-            <th className="bts-col-remarks">REMARKS</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {Array.from({ length: 23 }).map((_, i) => (
-            <tr key={i}>
-              <td />
-              <td />
-              <td />
-              <td />
-              <td />
-              <td />
-              <td />
-              <td />
-              <td />
+        {/* TABLE */}
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.colBag}>BAG NO.</th>
+              <th className={styles.colDate}>DATE & TIME STARTED</th>
+              <th className={styles.colBlood}>BLOOD COMPONENT</th>
+              <th className={styles.colType}>BLD TYPE</th>
+              <th className={styles.colSerial}>SERIAL NO.</th>
+              <th className={styles.colExpiry}>EXPIRATION DATE</th>
+              <th className={styles.colDateTime}>DATE & TIME CONSUMED</th>
+              <th className={styles.colNurse}>
+                NURSE'S NAME AND SIGNATURE
+              </th>
+              <th className={styles.colRemarks}>REMARKS</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
 
-      <div className="bts-footer">
-        Generated by: TCP T. TCP on {generatedOn}
+          <tbody>
+            {Array.from({ length: 23 }).map((_, i) => (
+              <tr key={i}>
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* FOOTER */}
+        <div className={`${styles.footer} form-footer`}>
+          Generated by: TCP T. TCP on {generatedOn}
+        </div>
+        
       </div>
     </div>
   );

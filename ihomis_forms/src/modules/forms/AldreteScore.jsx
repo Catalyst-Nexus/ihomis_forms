@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo, Fragment } from "react";
 import styles from "./AldreteScore.module.css";
 
 export default function AldreteScore({ patientName, patientData }) {
@@ -67,24 +67,32 @@ export default function AldreteScore({ patientName, patientData }) {
 
   return (
     <div className={styles.page}>
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <div className={styles.headerGrid}>
-          <div className={styles.headerCell}>
-            <span className={styles.bold}>Case Number:</span>&nbsp;{caseNum}
-          </div>
-          <div className={styles.headerCell}>
-            <span className={styles.bold}>Age:</span>&nbsp;{age}
-          </div>
-          <div className={styles.headerCell}>
-            <span className={styles.bold}>Name of Patient:</span>&nbsp;{name}
-          </div>
-          <div className={styles.headerCell}>
-            <span className={styles.bold}>Sex:</span>&nbsp;{sex}
-          </div>
-          <div className={`${styles.headerCell} ${styles.headerCellFull}`}>
-            <span className={styles.bold}>ROOM:</span>&nbsp;{room}
-          </div>
+      
+      {/* ── Header (Standardized to Blood Request style) ── */}
+      <div className={styles.metaSection}>
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+            <span className={styles.label}>Name of Patient:</span>
+            <span>{name}</span>
+          </span>
+          <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+            <span className={styles.label}>Sex:</span>
+            <span>{sex}</span>
+          </span>
+          <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+            <span className={styles.label}>Age:</span>
+            <span>{age}</span>
+          </span>
+        </div>
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+            <span className={styles.label}>Case Number:</span>
+            <span>{caseNum}</span>
+          </span>
+          <span className={`${styles.metaCell} ${styles.metaCellRest}`} style={{ flex: 1, justifyContent: "flex-end" }}>
+            <span className={styles.label}>ROOM:</span>
+            <span>{room}</span>
+          </span>
         </div>
       </div>
 
@@ -101,9 +109,9 @@ export default function AldreteScore({ patientName, patientData }) {
         </thead>
         <tbody>
           {categories.map((cat, ci) => (
-            <>
+            <Fragment key={`cat-group-${ci}`}>
               {/* Category header row */}
-              <tr key={`cat-${ci}`} className={styles.catRow}>
+              <tr className={styles.catRow}>
                 <td colSpan={2}>{cat.name}</td>
               </tr>
               {/* Item rows */}
@@ -113,7 +121,7 @@ export default function AldreteScore({ patientName, patientData }) {
                   <td>{item.value}</td>
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
           {/* Total row */}
           <tr className={styles.totalRow}>
@@ -123,7 +131,7 @@ export default function AldreteScore({ patientName, patientData }) {
         </tbody>
       </table>
 
-      {/* ── Signature ── */}
+      {/* ── Signature (Standardized to Blood Request style) ── */}
       <div className={styles.sigSection}>
         <div className={styles.sigBlock}>
           <div className={styles.sigLine} />

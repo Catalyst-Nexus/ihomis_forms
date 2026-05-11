@@ -207,20 +207,6 @@
 	margin-bottom: 110mm;
 }
 
-/* Footer — screen */
-.blood-cancel-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 15mm;
-  right: 15mm;
-  border-top: 1.5px solid #000;
-  padding-top: 2px;
-  font-size: 8pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}
-
 .blood-cancel-print-root {
 	display: contents;
 }

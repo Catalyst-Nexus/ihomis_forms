@@ -140,23 +140,6 @@
   gap: 3px;
   font-size: 9.5pt;
 }
-
-/* ── footer ── */
-.rbs-footer {
-  flex-shrink: 0;
-}
-.rbs-footer-border {
-  border-top: 1px solid #000;
-  margin-bottom: 2px;
-}
-.rbs-footer-text {
-  font-size: 8pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-  color: #000;
-}
-
 @media print {
   .rbs-page {
     width: 210mm !important;
