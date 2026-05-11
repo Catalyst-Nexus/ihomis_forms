@@ -59,7 +59,7 @@ import Neurologic from "./Neurologic";
 import Partograph from "./Partograph";
 import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
 import Lubchenco from "./Lubchenco";
-// import AnesthesiaRecord from "./AnesthesiaRecord";
+import AnesthesiaRecord from "./AnesthesiaRecord";
 // import ChildImmunizationRecord from "./ChildImmunizationRecord";
 // import MIS from "./MIS";
 // import TPRSheet from "./TPRSheet";
@@ -131,7 +131,7 @@ const COMPONENT_MAP = {
   Partograph,
   PostAnesthesiaSheet,
   Lubchenco,
-  // import AnesthesiaRecord from "./AnesthesiaRecord",
+  AnesthesiaRecord,
   // import ChildImmunizationRecord from "./ChildImmunizationRecord",
   // import MIS from "./MIS",
   // TPRSheet,
