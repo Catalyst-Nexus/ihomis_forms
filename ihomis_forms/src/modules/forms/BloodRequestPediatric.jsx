@@ -1,6 +1,7 @@
 import styles from "./BloodRequestPediatric.module.css";
 
 export default function BloodRequestPediatric() {
+  const generatedOn = new Date().toLocaleString();
   return (
     <div className={styles.wrap}>
 
