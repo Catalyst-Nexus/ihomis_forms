@@ -3,9 +3,9 @@ import { useMemo, useState, useEffect} from "react";
 import { useFormValidation } from "./hooks/useFormValidation.js";
 import { buildFallbackForms } from "../forms/formCatalog.js";
 import {
-  buildFormValidationBreakdown,
-  buildScopedValidationSummary,
-  getFieldLabel,
+  buildValidationResults,
+  fetchFormValidations,
+  runEncounterValidations,
 } from "./validationScope.js";
 import "./Validation.css";
 
@@ -130,43 +130,86 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     formId,
   });
 
-  const scopedSummary = useMemo(
-    () => buildScopedValidationSummary(validationData, selectedForms),
-    [validationData, selectedForms],
-  );
+  const [serverValidations, setServerValidations] = useState([]);
 
-  const validationBreakdown = useMemo(
-    () => buildFormValidationBreakdown(validationData, selectedForms),
-    [validationData, selectedForms],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    async function loadServerValidations() {
+      if (!formId) {
+        setServerValidations([]);
+        return;
+      }
+      try {
+        const resp = await fetchFormValidations(formId);
+        if (!resp || !resp.ok) {
+          setServerValidations([]);
+          return;
+        }
+        if (!cancelled) setServerValidations(resp.validations || []);
+      } catch {
+        setServerValidations([]);
+      }
+    }
+    void loadServerValidations();
+    return () => { cancelled = true; };
+  }, [formId]);
+
+  // Load and run validations dynamically
+  const [runtimeResults, setRuntimeResults] = useState(null);
+  const [validationRunning, setValidationRunning] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function runValidations() {
+      if (!enccode || !serverValidations || serverValidations.length === 0) {
+        if (!cancelled) {
+          setRuntimeResults(null);
+        }
+        return;
+      }
+
+      try {
+        setValidationRunning(true);
+        const validationIds = serverValidations.map(v => v.id);
+        const result = await runEncounterValidations(enccode, validationIds);
+
+        if (!cancelled && result.ok) {
+          setRuntimeResults(result);
+        }
+      } catch (e) {
+        console.error("Error running validations:", e);
+        if (!cancelled) {
+          setRuntimeResults(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setValidationRunning(false);
+        }
+      }
+    }
+
+    void runValidations();
+    return () => { cancelled = true; };
+  }, [enccode, serverValidations]);
+
+  // Build validation results from server validations and runtime results
+  const validationResults = useMemo(() => {
+    if (!serverValidations || serverValidations.length === 0) {
+      return { checks: [], summary: { total: 0, passed: 0, failed: 0, allPassed: true, hasIssues: false } };
+    }
+    return buildValidationResults(serverValidations, runtimeResults);
+  }, [serverValidations, runtimeResults]);
 
   const validationStats = useMemo(() => {
-    const totalForms = validationBreakdown.length;
-    const blockedForms = validationBreakdown.filter((entry) => entry.hasIssues).length;
-    const readyForms = totalForms - blockedForms;
-    const blockingChecks = validationBreakdown.reduce(
-      (count, entry) => count + entry.missingChecks.length,
-      0,
-    );
-
+    const summary = validationResults.summary;
     return {
-      totalForms,
-      blockedForms,
-      readyForms,
-      blockingChecks,
+      totalForms: summary.total,
+      blockedForms: summary.failed,
+      readyForms: summary.passed,
+      blockingChecks: summary.failed,
     };
-  }, [validationBreakdown]);
-
-  const legendChecks = useMemo(() => {
-    const seen = new Set();
-    return validationBreakdown
-      .flatMap((entry) => entry.checks)
-      .filter((check) => {
-        if (seen.has(check.id)) return false;
-        seen.add(check.id);
-        return true;
-      });
-  }, [validationBreakdown]);
+  }, [validationResults]);
 
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
@@ -181,22 +224,22 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   const resolvedEnccode =
     validationData?.details?.DEBUG_INFO?.resolvedEnccode || enccode;
 
-  const isLoading = loading || formsLoading;
+  const isLoading = loading || formsLoading || validationRunning;
   const statusTone = isLoading
     ? "loading"
-    : scopedSummary.hasIssues
+    : validationResults.summary.hasIssues
       ? "attention"
       : "ready";
   const statusLabel = isLoading
     ? "Checking"
-    : scopedSummary.hasIssues
+    : validationResults.summary.hasIssues
       ? "Needs attention"
       : "Ready";
 
   const handleProceedClick = () => {
     if (onProceed) {
       onProceed({
-        canProceed: !scopedSummary.hasIssues,
+        canProceed: !validationResults.summary.hasIssues,
         selectedForms,
       });
     }
@@ -291,9 +334,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
               type="button"
               className="validation-btn validation-btn--primary"
               onClick={handleProceedClick}
-              disabled={!selectedPatient || loading || scopedSummary.hasIssues}
+              disabled={!selectedPatient || loading || validationResults.summary.hasIssues}
               title={
-                scopedSummary.hasIssues
+                validationResults.summary.hasIssues
                   ? "Complete missing data before proceeding"
                   : "Proceed to forms"
               }
@@ -328,83 +371,55 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           </div>
         ) : null}
 
-        {loading ? (
+        {loading || isLoading ? (
           <div className="validation-loading">
             Checking validation status...
           </div>
-        ) : validationBreakdown.length > 0 ? (
+        ) : validationResults.checks.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Validation Results by Selected Form</h2>
+            <h2 className="validation-panel-title">Validation Results</h2>
             <p className="validation-helper-text">
-              Each row below shows what is complete and what still needs to be filled in.
+              Review the validation status for each requirement below.
             </p>
             <div className="validation-form-grid">
-              {validationBreakdown.map((entry) => (
-                <article
-                  key={entry.formName}
-                  className={`validation-form-card ${entry.hasIssues ? "validation-form-card--alert" : ""}`}
-                >
-                  <div className="validation-form-card__header">
-                    <div>
-                      <h3 className="validation-section-label">{entry.formName}</h3>
-                      <p className="validation-helper-text">Rule set: {entry.label}</p>
-                    </div>
-                    <span className={`validation-badge ${entry.hasIssues ? "validation-badge--alert" : "validation-badge--success"}`}>
-                      <span className="validation-badge-icon">{entry.hasIssues ? "⚠" : "✓"}</span>
-                      {entry.hasIssues ? "Action needed" : "Ready"}
-                    </span>
-                  </div>
-
-                  <div className="validation-step-list">
-                    {entry.checks.map((check) => (
-                      <div
-                        key={check.id}
-                        className={`validation-check-row ${check.passed ? "validation-check-row--pass" : "validation-check-row--fail"}`}
-                      >
-                        <div className="validation-check-row__icon" aria-hidden="true">
-                          {check.passed ? "✓" : "●"}
-                        </div>
-                        <div className="validation-check-row__content">
-                          <div className="validation-check-row__title-wrap">
-                            <div className="validation-check-row__title">{check.label}</div>
-                            <span
-                              className={`validation-check-status ${check.passed ? "validation-check-status--pass" : "validation-check-status--fail"}`}
-                            >
-                              {check.passed ? "Complete" : "Missing"}
-                            </span>
-                          </div>
-                          <div className="validation-check-row__message">
-                            {check.passed ? "This requirement is complete." : check.message}
-                          </div>
-                        </div>
+              <article className={`validation-form-card ${validationResults.summary.hasIssues ? "validation-form-card--alert" : ""}`}>
+                <div className="validation-step-list">
+                  {validationResults.checks.map((check) => (
+                    <div
+                      key={check.id}
+                      className={`validation-check-row ${check.passed ? "validation-check-row--pass" : check.passed === false ? "validation-check-row--fail" : "validation-check-row--pending"}`}
+                    >
+                      <div className="validation-check-row__icon" aria-hidden="true">
+                        {check.passed === true ? "✓" : check.passed === false ? "●" : "—"}
                       </div>
-                    ))}
-                  </div>
-                </article>
-              ))}
+                      <div className="validation-check-row__content">
+                        <div className="validation-check-row__title-wrap">
+                          <div className="validation-check-row__title">{check.description}</div>
+                          <span
+                            className={`validation-check-status ${check.passed === true ? "validation-check-status--pass" : check.passed === false ? "validation-check-status--fail" : ""}`}
+                          >
+                            {check.passed === true ? "Complete" : check.passed === false ? "Missing" : "Pending"}
+                          </span>
+                        </div>
+                        {check.info && Object.keys(check.info).length > 0 ? (
+                          <div className="validation-check-row__message">
+                            {Object.entries(check.info)
+                              .map(([key, val]) => `${key}: ${val}`)
+                              .join(", ")}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </article>
             </div>
           </section>
         ) : (
           <div className="validation-empty">
-            All selected forms are complete and ready to proceed.
+            No validations available for this form.
           </div>
         )}
-
-        {validationBreakdown.length > 0 ? (
-          <section className="validation-panel">
-            <h2 className="validation-panel-title">Checklist Coverage</h2>
-            <p className="validation-helper-text">
-              These are the checks used to evaluate your selected forms.
-            </p>
-            <div className="validation-step-list">
-              {legendChecks.map((check) => (
-                <span key={`${check.id}-${check.label}`} className="validation-pill">
-                  {getFieldLabel(check.id)}
-                </span>
-              ))}
-            </div>
-          </section>
-        ) : null}
       </main>
     </div>
   );
@@ -419,13 +434,19 @@ ValidationPage.propTypes = {
     contextParams: PropTypes.object,
   }),
   enccode: PropTypes.string,
-  selectedForms: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object,
-  ]),
-  onProceed: PropTypes.func.isRequired,
+  selectedForms: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  onProceed: PropTypes.func,
   onBackToForms: PropTypes.func,
   onChangePatient: PropTypes.func,
+};
+
+ValidationPage.defaultProps = {
+  selectedPatient: null,
+  enccode: undefined,
+  selectedForms: [],
+  onProceed: undefined,
+  onBackToForms: undefined,
+  onChangePatient: undefined,
 };
 
 export default ValidationPage;
