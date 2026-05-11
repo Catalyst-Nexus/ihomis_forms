@@ -242,14 +242,3 @@
 .dnr-note-list div {
 	margin-bottom: 0.5mm;
 }
-
-/* Footer */
-.dnr-footer {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.72rem;
-  font-style: italic;
-  color: #000;
-}

@@ -1,0 +1,150 @@
+/**
+ * PrintRegistry.module.css
+ * 
+ * CSS Module for print registry with strict A4 sandboxing.
+ * 
+ * IMPORTANT: These styles ONLY manage page flow and container sizing.
+ * They do NOT override any internal styles of individual forms.
+ * Each form's CSS Module handles its own internal layout.
+ */
+
+/* 
+ * STRICT A4 SANDBOXING
+ * These rules lock each form into a 210mm x 297mm container
+ */
+
+/* Root wrapper - no flexbox, just block flow */
+.printRegistryWrapper {
+  width: 210mm;
+  background: #ffffff;
+}
+
+/* Individual form page container - THE KEY TO SANDBOXING */
+.pageBreak {
+  /* A4 dimensions - STRICT LOCK */
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  
+  /* Overflow hidden to prevent content bleeding */
+  overflow: hidden;
+  
+  /* Force block display - NO FLEXBOX */
+  display: block !important;
+  position: relative;
+  
+  /* Page break - each form starts on new page */
+  break-after: page;
+  page-break-after: always;
+  
+  /* Prevent breaks inside */
+  break-inside: avoid;
+  page-break-inside: avoid;
+  
+  /* Reset margins and padding */
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Last form - no page break after */
+.pageBreakLast {
+  /* A4 dimensions - STRICT LOCK */
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  
+  /* Overflow hidden */
+  overflow: hidden;
+  
+  /* Force block display */
+  display: block !important;
+  position: relative;
+  
+  /* NO page break for last form */
+  break-after: auto;
+  page-break-after: auto;
+  
+  /* Prevent breaks inside */
+  break-inside: avoid;
+  page-break-inside: avoid;
+  
+  /* Reset */
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/*
+ * FLEXBOX KILL RESET
+ * High priority reset for print media
+ */
+@media print {
+  /* Kill all flexbox at root level */
+  :global(#root),
+  :global(body),
+  .printRegistryWrapper {
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    flex-direction: unset !important;
+    flex-wrap: unset !important;
+    align-items: stretch !important;
+    justify-content: unset !important;
+  }
+  
+  /* Ensure page containers are strict A4 */
+  .pageBreak,
+  .pageBreakLast {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    max-width: 210mm !important;
+    overflow: hidden !important;
+    display: block !important;
+    position: relative !important;
+    
+    /* Page breaks */
+    break-after: page !important;
+    page-break-after: always !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  
+  .pageBreakLast {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+  
+  /* Ensure form components inside don't have flex constraints */
+  .pageBreak > *,
+  .pageBreakLast > * {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/*
+ * SCREEN STYLES
+ * Keep forms visible for screen preview
+ */
+@media screen {
+  .printRegistryWrapper {
+    display: block;
+  }
+  
+  .pageBreak,
+  .pageBreakLast {
+    display: block;
+    position: relative;
+  }
+}

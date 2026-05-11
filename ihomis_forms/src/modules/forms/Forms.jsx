@@ -1,12 +1,10 @@
 import PropTypes from "prop-types";
-import { useState, useMemo, useEffect } from "react";
-import { createRoot } from "react-dom/client";
-import { flushSync } from "react-dom";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
 import { supabase } from "../../lib/supabaseClient.js";
+// Native Browser Print imports
+import { printForms as nativePrintForms } from "../../lib/printController.jsx";
 import DNRForm from "./DNRForm";
 import FormDocument from "../components/FormDocument.jsx";
 import ApgarScoring from "./ApgarScoring";
@@ -17,7 +15,7 @@ import BloodRequestAdult from "./BloodRequestAdult";
 import BloodRequestPediatric from "./BloodRequestPediatric";
 import BloodTransfusionReactionRegistry from "./BloodTransfusionReactionRegistry";
 import Abtcform from "./Abtcform";
-import BloodTransfusionSheet from "./BloodTransfusionSheet";
+import BloodtransfusionSheet from "./BloodTransfusionSheet";
 import ClinicalReferralSlip from "./ClinicalReferralSlip";
 import ClinicalCoverSheet from "./ClinicalCoverSheet";
 import RandomBloodSugar from "./RandomBloodSugar";
@@ -89,7 +87,9 @@ const COMPONENT_MAP = {
   BloodRequestPediatric,
   BloodTransfusionReactionRegistry,
   Abtcform,
-  BloodTransfusionSheet,
+  BloodtransfusionSheet,
+  // Alias for database component_name
+  BloodTransfusionSheet: BloodtransfusionSheet,
   ClinicalReferralSlip,
   ClinicalCoverSheet,
   RandomBloodSugar,
@@ -665,86 +665,19 @@ export default function Forms({
     </FormDocument>
   );
 
-  const waitForImageLoad = (image) =>
-    new Promise((resolve) => {
-      if (!image) {
-        resolve();
-        return;
-      }
-
-      if (image.complete && image.naturalWidth > 0) {
-        resolve();
-        return;
-      }
-
-      image.addEventListener("load", () => resolve(), { once: true });
-      image.addEventListener("error", () => resolve(), { once: true });
-    });
-
-  const captureFormToCanvas = async (rootNode) => {
-    if (document.fonts?.ready) {
-      await document.fonts.ready;
-    }
-
-    // Allow layout and fonts to settle
-    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-
-    const images = Array.from(rootNode.querySelectorAll("img"));
-    await Promise.all(images.map(waitForImageLoad));
-
-    // Keep the capture scale conservative so large forms do not blow past canvas limits.
-    const scales = [1.5, 1];
-    let lastErr = null;
-
-    for (const scale of scales) {
-      try {
-        console.debug(`html2canvas attempt with scale=${scale}`);
-        const result = await html2canvas(rootNode, {
-          backgroundColor: "#ffffff",
-          scale,
-          useCORS: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: -window.scrollY,
-        });
-        console.debug("html2canvas succeeded", { width: result.width, height: result.height, scale });
-        return result;
-      } catch (err) {
-        console.warn(`html2canvas failed at scale=${scale}`, err);
-        lastErr = err;
-        // small yield so the browser can reclaim memory
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((r) => setTimeout(r, 100));
-      }
-    }
-
-    throw lastErr || new Error("html2canvas failed for unknown reason");
-  };
-
-
-  const addCanvasToPdf = (pdf, canvas) => {
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    const imageData = canvas.toDataURL("image/png", 1.0);
-
-    let remainingHeight = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-    remainingHeight -= pageHeight;
-
-    while (remainingHeight > 0) {
-      pdf.addPage();
-      position -= pageHeight;
-      pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-      remainingHeight -= pageHeight;
-    }
-  };
-
-  const handleGenerateSelectedFormsPdf = async () => {
+  /**
+   * Native Browser Print Handler
+   * 
+   * Uses the browser's native print engine to render forms with proper CSS support.
+   * This replaces the html2canvas/jsPDF approach which failed to handle CSS Modules.
+   * 
+   * Key benefits:
+   * - Full CSS support (including CSS Modules)
+   * - Proper page breaks (break-after: page)
+   * - 210mm width constraint maintained
+   * - Combined preview of all selected forms
+   */
+  const handlePrintSelectedForms = useCallback(async () => {
     const selectedFormObjects = dbForms.filter((form) => selectedForms.has(form.id));
 
     if (selectedFormObjects.length === 0) {
@@ -753,97 +686,41 @@ export default function Forms({
 
     setIsGeneratingPdf(true);
 
-    const exportHost = document.createElement("div");
-    exportHost.style.position = "fixed";
-    exportHost.style.left = "-10000px";
-    exportHost.style.top = "0";
-    exportHost.style.width = "210mm";
-    exportHost.style.background = "#ffffff";
-    exportHost.style.pointerEvents = "none";
-    exportHost.style.zIndex = "-1";
-    document.body.appendChild(exportHost);
-
-    const root = createRoot(exportHost);
-
     try {
-      const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+      // Build form configurations from selected forms
+      // Pass the actual form objects directly - PrintRegistry handles component mapping
+      const formConfigs = selectedFormObjects.map(formObject => ({
+        id: formObject.id,
+        component_name: formObject.component_name,
+        description: formObject.description,
+      }));
 
-      const failed = [];
-      let pagesAdded = 0;
-
-      for (let index = 0; index < selectedFormObjects.length; index += 1) {
-        const formObject = selectedFormObjects[index];
-
-        // Render the form offscreen
-        flushSync(() => {
-          root.render(
-            <div style={{ width: "210mm", background: "#ffffff" }}>
-              {renderFormDocument(formObject)}
-            </div>,
-          );
-        });
-
-        await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-
-        const renderedNode = exportHost.firstElementChild;
-
-        if (!renderedNode) {
-          failed.push({ form: formObject, reason: "rendered node missing" });
-          continue;
-        }
-
-        try {
-          // If the rendered form contains explicit page children (FormDocument wraps pages
-          // inside `.form-document__body`), capture each page element separately so large
-          // tables (like the bilirubin/urine blocks) are not split across canvas page slices.
-          const bodyEl = renderedNode.querySelector?.('.form-document__body') || renderedNode;
-          const pageChildren = bodyEl && bodyEl.children ? Array.from(bodyEl.children).filter((c) => c.clientHeight > 0) : [];
-
-          if (pageChildren.length > 1) {
-            // Capture each page node individually
-            // eslint-disable-next-line no-restricted-syntax
-            for (const pageNode of pageChildren) {
-              const canvas = await captureFormToCanvas(pageNode);
-
-              if (pagesAdded > 0) pdf.addPage();
-              addCanvasToPdf(pdf, canvas);
-              pagesAdded += 1;
-            }
-          } else {
-            const canvas = await captureFormToCanvas(renderedNode);
-            if (pagesAdded > 0) pdf.addPage();
-            addCanvasToPdf(pdf, canvas);
-            pagesAdded += 1;
-          }
-        } catch (err) {
-          // Capture failures (likely CORS/asset/resize issues) shouldn't abort the whole export
-          console.error("Failed to capture form to canvas:", formObject, err);
-          failed.push({ form: formObject, reason: err?.message || String(err) });
-          // continue with remaining forms
-        }
+      if (formConfigs.length === 0) {
+        window.alert("No valid forms could be printed.");
+        return;
       }
 
-      if (pagesAdded === 0) {
-        const msg = failed.length > 0
-          ? `Failed to generate PDF: all ${failed.length} selected form(s) could not be exported.`
-          : "No forms were rendered to PDF.";
-        window.alert(msg);
-      } else {
-        const fileName = `${sanitizeFileName(patientName)}_selected_forms.pdf`;
-        pdf.save(fileName);
-
-        if (failed.length > 0) {
-          // Inform user some forms were skipped
-          const titles = failed.map((f) => f.form?.description || f.reason).slice(0, 5).join("; ");
-          window.alert(`PDF created, but ${failed.length} form(s) were skipped: ${titles}`);
-        }
-      }
+      // Use the native print controller with PrintRegistry
+      await nativePrintForms(formConfigs, {
+        patientName,
+        patientData,
+        onBeforePrint: () => {
+          console.log("Opening print dialog for", formConfigs.length, "forms");
+        },
+        onAfterPrint: () => {
+          console.log("Print job completed");
+        },
+      });
+    } catch (error) {
+      console.error("Print error:", error);
+      window.alert("Failed to print forms. Please try again.");
     } finally {
-      root.unmount();
-      exportHost.remove();
       setIsGeneratingPdf(false);
     }
-  };
+  }, [selectedForms, dbForms, patientName, patientData]);
+
+  // Legacy handler name for backwards compatibility (can be removed later)
+  const handleGenerateSelectedFormsPdf = handlePrintSelectedForms;
 
   return (
     <div
@@ -953,6 +830,9 @@ export default function Forms({
         isOpen={!!openForm}
         onClose={() => setOpenForm(null)}
         title={openForm?.description}
+        formConfig={openForm}
+        patientName={patientName}
+        patientData={patientData}
       >
         {openForm && renderFormDocument(openForm)}
       </Modal>
