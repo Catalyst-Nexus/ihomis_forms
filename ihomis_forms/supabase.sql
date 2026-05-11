@@ -98,6 +98,7 @@ create table public.lab_result_uploads (
   source character varying(50) null,
   is_signed_url boolean null default false,
   url_expires_at timestamp with time zone null,
+  is_active boolean null default true,
   created_at timestamp with time zone null default now(),
   constraint lab_result_uploads_pkey primary key (id),
   constraint lab_result_uploads_storage_path_key unique (storage_path)
@@ -118,6 +119,9 @@ create index if not exists idx_lab_result_uploads_docointkey
 create index if not exists idx_lab_result_uploads_uploaded_by
   on public.lab_result_uploads using btree (uploaded_by) TABLESPACE pg_default;
 
+create index if not exists idx_lab_result_uploads_is_active
+  on public.lab_result_uploads using btree (is_active) TABLESPACE pg_default;
+
 -- Supabase storage bucket for lab results
 insert into storage.buckets (id, name, public)
 values ('lab-results', 'lab-results', false)
@@ -126,17 +130,52 @@ on conflict (id) do nothing;
 -- RLS policies for lab result metadata
 alter table public.lab_result_uploads enable row level security;
 
+drop policy if exists lab_result_uploads_insert on public.lab_result_uploads;
 create policy lab_result_uploads_insert
   on public.lab_result_uploads
   for insert
   to anon, authenticated
   with check (true);
 
+drop policy if exists lab_result_uploads_read on public.lab_result_uploads;
 create policy lab_result_uploads_read
   on public.lab_result_uploads
   for select
   to anon, authenticated
-  using (true);
+  using (is_active = true);
+
+drop policy if exists lab_result_uploads_update on public.lab_result_uploads;
+create policy lab_result_uploads_update
+  on public.lab_result_uploads
+  for update
+  to anon, authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists lab_result_uploads_update_active on public.lab_result_uploads;
+create policy lab_result_uploads_update_active
+  on public.lab_result_uploads
+  for update
+  to anon, authenticated
+  using (true)
+  with check (true);
+
+-- Function to soft delete a record (bypasses RLS if policies fail)
+create or replace function public.soft_delete_lab_result(p_id bigint)
+returns boolean
+language plpgsql
+security definer
+as $$
+begin
+  update lab_result_uploads
+  set is_active = false
+  where id = p_id;
+  return true;
+end;
+$$;
+
+-- Grant execute to anon and authenticated
+grant execute on function public.soft_delete_lab_result(bigint) to anon, authenticated;
 
 -- RLS policies for lab result files in storage
 alter table storage.objects enable row level security;

@@ -1038,7 +1038,7 @@ export async function fetchEncounterOrders({
       oritem: order.oritem,
       ordate: order.ordate || order.ordates,
       ortime: order.ortime,
-      estatus: order.estatus,
+      procstat: order.procstat,
       entryby: order.entryby,
       docointkey: order.docointkey,
       hpercode: order.hpercode,

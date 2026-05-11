@@ -114,6 +114,7 @@ export async function uploadLabResult({
     source: "lab-upload",
     is_signed_url: false,
     url_expires_at: null,
+    is_active: true,
   };
 
   const { data, error: insertError } = await supabase
@@ -141,6 +142,9 @@ export async function uploadLabResult({
 export async function fetchPatientUploadedFilesSupabase({
   hpercode,
   enccode = null,
+  orcode = null,
+  proccode = null,
+  procedureInstanceId = null,
 }) {
   if (!isConfigured()) {
     throw new Error(
@@ -157,11 +161,24 @@ export async function fetchPatientUploadedFilesSupabase({
     .from(LAB_UPLOAD_SUPABASE_TABLE)
     .select("*")
     .eq("hpercode", trimmedHpercode)
+    .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(100);
 
   if (enccode) {
     query = query.eq("enccode", String(enccode).trim());
+  }
+
+  if (orcode) {
+    query = query.eq("orcode", String(orcode).trim());
+  }
+
+  if (proccode) {
+    query = query.eq("proccode", String(proccode).trim());
+  }
+
+  if (procedureInstanceId) {
+    query = query.eq("procedure_instance_id", String(procedureInstanceId).trim());
   }
 
   const { data, error, count } = await query;
@@ -206,6 +223,37 @@ export async function fetchPatientUploadedFilesSupabase({
 
 export function canUseSupabaseUploads() {
   return isConfigured();
+}
+
+export async function softDeleteLabResult(id) {
+  if (!isConfigured()) {
+    throw new Error(
+      "Supabase is not configured. Set VITE_SUPABASE_LAB_RESULTS_BUCKET and VITE_SUPABASE_LAB_RESULTS_TABLE.",
+    );
+  }
+
+  if (id == null) {
+    throw new Error("Record ID is required to soft delete.");
+  }
+
+  // Try direct update first
+  const { error: updateError } = await supabase
+    .from(LAB_UPLOAD_SUPABASE_TABLE)
+    .update({ is_active: false })
+    .eq("id", id);
+
+  if (!updateError) {
+    return { ok: true };
+  }
+
+  // If direct update fails (RLS issue), try RPC function with SECURITY DEFINER
+  const { error: rpcError } = await supabase.rpc("soft_delete_lab_result", { p_id: id });
+
+  if (rpcError) {
+    throw new Error(`Delete failed: ${rpcError.message}`);
+  }
+
+  return { ok: true };
 }
 
 export async function uploadLabResultBatchSupabase({
