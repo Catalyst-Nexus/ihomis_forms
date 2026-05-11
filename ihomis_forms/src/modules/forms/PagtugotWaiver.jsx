@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import "./PagtugotWaiver.css";
+import styles from "./PagtugotWaiver.module.css";
 
 export default function PagtugotWaiver({ patientName, patientData }) {
   const name = patientName || "";
@@ -8,20 +7,9 @@ export default function PagtugotWaiver({ patientName, patientData }) {
   const sex = patientData?.sex || "";
   const age = patientData?.age || "";
 
-  const { dateStr, generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const hh = String(h % 12 || 12).padStart(2, "0");
-    const ampm = h < 12 ? "am" : "pm";
-    const dateStr = `${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${now.getFullYear()}`;
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`;
-    return { dateStr, generatedOn, generatedBy: "TCP T. TCP" };
-  }, []);
+  const pad = (n) => String(n).padStart(2, "0");
+  const now = new Date();
+  const dateStr = `${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${now.getFullYear()}`;
 
   const items = [
     "Wala nay kwarto nga masudlan busa sa hallway na lang iplastar ang pasyente gamit ang hospital folding bed.",
@@ -33,100 +21,92 @@ export default function PagtugotWaiver({ patientName, patientData }) {
   ];
 
   return (
-    <div className="ptw-page">
-      <br />
-      <div className="ptw-patient-info">
-        <div className="ptw-info-row">
-          <span className="ptw-info-label">Case No.</span>
-          <span className="ptw-info-colon">:</span>
+    <div className={styles.page}>
+      <div className={styles.patientInfo}>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Case No.</span>
+          <span className={styles.infoColon}>:</span>
           <span>{caseNo}</span>
         </div>
-        <div className="ptw-info-row">
-          <span className="ptw-info-label">Hospital No.</span>
-          <span className="ptw-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Hospital No.</span>
+          <span className={styles.infoColon}>:</span>
           <span>{hospitalNo}</span>
         </div>
-        <div className="ptw-info-row">
-          <span className="ptw-info-label">Patient's Name</span>
-          <span className="ptw-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Patient's Name</span>
+          <span className={styles.infoColon}>:</span>
           <span>{name}</span>
         </div>
-        <div className="ptw-info-row">
-          <span className="ptw-info-label">Sex</span>
-          <span className="ptw-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Sex</span>
+          <span className={styles.infoColon}>:</span>
           <span>{sex}</span>
         </div>
-        <div className="ptw-info-row">
-          <span className="ptw-info-label">Age</span>
-          <span className="ptw-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Age</span>
+          <span className={styles.infoColon}>:</span>
           <span>{age}</span>
         </div>
       </div>
 
       {/* ── Opening paragraph ── */}
-      <div className="ptw-opening">
+      <div className={styles.opening}>
         Human &nbsp; sa &nbsp; maayo &nbsp; nga &nbsp; pagpasabot &nbsp; kanako, &nbsp; ako &nbsp; si{" "}
-        <span className="ptw-opening-line" /> nga ana sa ensaktong pangidaron
+        <span className={styles.openingLine} /> nga ana sa ensaktong pangidaron
         nagatugot nga ako/akong pasyente masulod/ma-admit diri sa Agusan del Norte
         Provincial Hospital bisan pa sa mga sumusunod na nga sitwasyon:
       </div>
 
       {/* ── Checkbox items ── */}
-      <div className="ptw-items">
+      <div className={styles.items}>
         {items.map((item, i) => (
-          <div key={i} className="ptw-item">
-            <span className="ptw-item-bracket">( )</span>
-            <span className="ptw-item-text">{item}</span>
+          <div key={i} className={styles.item}>
+            <span className={styles.itemBracket}>( )</span>
+            <span className={styles.itemText}>{item}</span>
           </div>
         ))}
-        <div className="ptw-item">
-          <span className="ptw-item-bracket">( )</span>
-          <span className="ptw-item-text">
-            Uban pa <span className="ptw-uban-line" />.
+        <div className={styles.item}>
+          <span className={styles.itemBracket}>( )</span>
+          <span className={styles.itemText}>
+            Uban pa <span className={styles.ubanLine} />.
           </span>
         </div>
       </div>
 
       {/* ── Closing paragraph ── */}
-      <div className="ptw-closing">
+      <div className={styles.closing}>
         Akong gikuhaan ang mga hospital staff/personnel sa AGUSAN DEL NORTE
         PROVINCIAL HOSPITAL sa unsa mang responsibilidad kung unsa man ugaling ang
         dangatan kanako/akong pasyente sa akong desisyon nga gihimo.
       </div>
 
       {/* ── Signature section ── */}
-      <div className="ptw-sig-section">
+      <div className={styles.sigSection}>
 
         {/* Patient name centered above left signature line */}
-        <div className="ptw-sig-row">
-          <div className="ptw-sig-left">
-            <div className="ptw-sig-name">{name}</div>
-            <div className="ptw-sig-line-full" />
+        <div className={styles.sigRow}>
+          <div className={styles.sigLeft}>
+            <div className={styles.sigName}>{name}</div>
+            <div className={styles.sigLineFull} />
           </div>
-          <div className="ptw-sig-right">
-            <div className="ptw-sig-line-full" />
+          <div className={styles.sigRight}>
+            <div className={styles.sigLineFull} />
           </div>
         </div>
 
         {/* Labels row */}
-        <div className="ptw-sig-label-row">
-          <div className="ptw-sig-label-left">
+        <div className={styles.sigLabelRow}>
+          <div className={styles.sigLabelLeft}>
             Ngalan ug pirma ibabaw sa pangalan sa nitugot
           </div>
-          <div className="ptw-sig-label-right">
+          <div className={styles.sigLabelRight}>
             Ngalan ug pirma ibabaw sa pangalan sa testigo
           </div>
         </div>
-        <br />
-        <br />
 
         {/* Date centered below both labels */}
-        <div className="ptw-date-row">{dateStr}</div>
-      </div>
-
-      {/* ── Footer ── */}
-      <div className="ptw-footer">
-        Generated by: {generatedBy} on {generatedOn}
+        <div className={styles.dateRow}>{dateStr}</div>
       </div>
 
     </div>

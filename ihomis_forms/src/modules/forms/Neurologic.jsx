@@ -1,20 +1,13 @@
+/**
+ * Neurologic - Converted to CSS Module
+ * 
+ * FIX: Removed global style injection that was causing layout conflicts
+ * FIX: Now uses CSS Module for scoped styling
+ */
+
 import { useMemo } from 'react';
-import './Neurologic.css';
 import chartPlaceholderSrc from './img/neurologic examination.png';
-
-const chartSectionStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '2mm',
-};
-
-const chartImageStyle = {
-  width: '100%',
-  height: 'auto',
-  display: 'block',
-  objectFit: 'contain',
-};
+import styles from './Neurologic.module.css';
 
 const Neurological = ({ patientName, patientData }) => {
   const name      = patientName            || "";
@@ -39,63 +32,63 @@ const Neurological = ({ patientName, patientData }) => {
   }, []);
 
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <section className="form-intro" aria-label="Form title and patient details">
-          <div className="patient-header">
+    <div className={styles.container}>
+      <div className={styles.page}>
+        <section className={styles.body} aria-label="Form title and patient details">
+          <div className={styles.patientHeader}>
             {/* Row 1: Case Number — centered */}
-            <div className="header-row header-row-1">
-              <span className="header-label">Case Number:</span>
-              <span className="header-value">{caseNo}</span>
+            <div className={`${styles.headerRow} ${styles.headerRow1}`}>
+              <span className={styles.headerLabel}>Case Number:</span>
+              <span className={styles.headerValue}>{caseNo}</span>
             </div>
 
             {/* Row 2: Patient Name, Age, Sex — centered */}
-            <div className="header-row header-row-2">
-              <div className="header-item">
-                <span className="header-label">Patient's Name :</span>
-                <span className="header-value">{name}</span>
+            <div className={`${styles.headerRow} ${styles.headerRow2}`}>
+              <div className={styles.headerItem}>
+                <span className={styles.headerLabel}>Patient's Name :</span>
+                <span className={styles.headerValue}>{name}</span>
               </div>
-              <div className="header-item header-item-inline">
-                <span className="header-label">Age :</span>
-                <span className="header-value">{age}</span>
+              <div className={`${styles.headerItem} ${styles.headerItemInline}`}>
+                <span className={styles.headerLabel}>Age :</span>
+                <span className={styles.headerValue}>{age}</span>
               </div>
-              <div className="header-item header-item-inline">
-                <span className="header-label">Sex :</span>
-                <span className="header-value">{sex}</span>
+              <div className={`${styles.headerItem} ${styles.headerItemInline}`}>
+                <span className={styles.headerLabel}>Sex :</span>
+                <span className={styles.headerValue}>{sex}</span>
               </div>
             </div>
 
             {/* Row 3: Impression/Diagnosis and Date — centered together */}
-            <div className="header-row header-row-3">
-              <div className="header-item">
-                <span className="header-label">Impression/Diagnosis:</span>
+            <div className={`${styles.headerRow} ${styles.headerRow3}`}>
+              <div className={styles.headerItem}>
+                <span className={styles.headerLabel}>Impression/Diagnosis:</span>
               </div>
-              <div className="header-item">
-                <span className="header-label">Date:</span>
-                <span className="header-value">{date}</span>
+              <div className={styles.headerItem}>
+                <span className={styles.headerLabel}>Date:</span>
+                <span className={styles.headerValue}>{date}</span>
               </div>
             </div>
 
             {/* Row 4 & 5: Diagnosis underlines */}
-            <div className="header-row header-row-4">
-              <span className="header-underline-full">{diagnosis}</span>
+            <div className={`${styles.headerRow} ${styles.headerRow4}`}>
+              <span className={styles.headerUnderlineFull}>{diagnosis}</span>
             </div>
-            <div className="header-row header-row-4">
-              <span className="header-underline-full"></span>
+            <div className={`${styles.headerRow} ${styles.headerRow4}`}>
+              <span className={styles.headerUnderlineFull}></span>
             </div>
 
           </div>
         </section>
 
-        <section aria-label="Neuro vital signs chart image" style={chartSectionStyle}>
+        <section aria-label="Neuro vital signs chart image" className={styles.chartSection}>
           <img
             src={chartPlaceholderSrc}
             alt="Neuro vital signs status chart placeholder"
-            style={chartImageStyle}
+            className={styles.chartImage}
           />
         </section>
 
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
+        <div className={styles.formFooter}>Generated by: {generatedBy} on {generatedOn}</div>
       </div>
     </div>
   );

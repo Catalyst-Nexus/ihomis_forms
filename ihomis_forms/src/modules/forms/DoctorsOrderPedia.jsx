@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import "./DoctorsOrderPedia.css";
+import styles from "./DoctorsOrderPedia.module.css";
 
 export default function DoctorsOrderPedia({ patientName, patientData }) {
   const name       = patientName             || "";
@@ -7,17 +6,6 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
   const caseNo     = patientData?.caseNo     || "";
   const sex        = patientData?.sex        || "";
   const age        = patientData?.age        || "";
-
-  const { generatedOn } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const hh = String(h % 12 || 12).padStart(2, "0");
-    const ampm = h < 12 ? "am" : "pm";
-    const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${hh}:${pad(m)} ${ampm}`;
-    return { generatedOn };
-  }, []);
 
   const U = ({ w }) => (
     <span style={{
@@ -31,151 +19,145 @@ export default function DoctorsOrderPedia({ patientName, patientData }) {
   );
 
   return (
-    <div className="dop-page">
-      <br />
-      <table className="dop-table">
+    <div className={styles.page}>
+      <table className={styles.table}>
         <thead>
           <tr>
-            <th className="dop-col-left">PROGRESS NOTES</th>
-            <th className="dop-col-right">DOCTOR'S ORDER</th>
+            <th className={styles.colLeft}>PROGRESS NOTES</th>
+            <th className={styles.colRight}>DOCTOR'S ORDER</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="dop-cell">Date:</td>
-            <td className="dop-cell">-Dry thoroughly and cover with warm linen</td>
+            <td className={styles.cell}>Date:</td>
+            <td className={styles.cell}>-Dry thoroughly and cover with warm linen</td>
           </tr>
           <tr>
-            <td className="dop-cell">Time of Delivery:</td>
-            <td className="dop-cell">-Skin to skin contact with mother</td>
+            <td className={styles.cell}>Time of Delivery:</td>
+            <td className={styles.cell}>-Skin to skin contact with mother</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o CS 2° to <U w="28mm" /></td>
-            <td className="dop-cell">-Initiate breastfeeding as tolerated</td>
+            <td className={`${styles.cell} ${styles.indent}`}>o CS 2° to <U w="28mm" /></td>
+            <td className={styles.cell}>-Initiate breastfeeding as tolerated</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o NSVD</td>
-            <td className="dop-cell">-Keep thermo-regulated</td>
+            <td className={`${styles.cell} ${styles.indent}`}>o NSVD</td>
+            <td className={styles.cell}>-Keep thermo-regulated</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o Breech <U w="22mm" /></td>
-            <td className="dop-cell"></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Breech <U w="22mm" /></td>
+            <td className={styles.cell}></td>
           </tr>
           <tr>
-            <td className="dop-cell"><span className="dop-bold">APGAR Score:</span></td>
-            <td className="dop-cell">-Pls. admit patient</td>
+            <td className={styles.cell}><span className={styles.bold}>APGAR Score:</span></td>
+            <td className={styles.cell}>-Pls. admit patient</td>
           </tr>
           <tr>
-            <td className="dop-cell">1min<U w="28mm" /> 5min<U w="28mm" /></td>
-            <td className="dop-cell">-Secure consent to care</td>
+            <td className={styles.cell}>1min<U w="28mm" /> 5min<U w="28mm" /></td>
+            <td className={styles.cell}>-Secure consent to care</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell dop-indent">o Bed in with mother</td>
+            <td className={styles.cell}></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Bed in with mother</td>
           </tr>
           <tr>
-            <td className="dop-cell"><span className="dop-bold">BIRTH WEIGHT:<U w="10mm" />kg.</span></td>
-            <td className="dop-cell">-Vital signs every 4 hours</td>
+            <td className={styles.cell}><span className={styles.bold}>BIRTH WEIGHT:<U w="10mm" />kg.</span></td>
+            <td className={styles.cell}>-Vital signs every 4 hours</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o AGA &nbsp;o LGA &nbsp;o SGA</td>
-            <td className="dop-cell">-Breastfeeding per demand</td>
+            <td className={`${styles.cell} ${styles.indent}`}>o AGA &nbsp;o LGA &nbsp;o SGA</td>
+            <td className={styles.cell}>-Breastfeeding per demand</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell">-Diagnostics</td>
+            <td className={styles.cell}></td>
+            <td className={styles.cell}>-Diagnostics</td>
           </tr>
           <tr>
-            <td className="dop-cell"><span className="dop-bold">BALLARD SCORE:<U w="10mm" />weeks</span></td>
-            <td className="dop-cell dop-indent">o NBS post 24 hours of life</td>
+            <td className={styles.cell}><span className={styles.bold}>BALLARD SCORE:<U w="10mm" />weeks</span></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o NBS post 24 hours of life</td>
           </tr>
           <tr>
-            <td className="dop-cell">o Term &nbsp;o Pre-term &nbsp;o Post-term</td>
-            <td className="dop-cell dop-indent">o Hearing test</td>
+            <td className={styles.cell}>o Term &nbsp;o Pre-term &nbsp;o Post-term</td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Hearing test</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell dop-indent">o Others:</td>
+            <td className={styles.cell}></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Others:</td>
           </tr>
           <tr>
-            <td className="dop-cell"><span className="dop-bold">o Male &nbsp;&nbsp;&nbsp;o Female</span></td>
-            <td className="dop-cell dop-indent">o Hearing test</td>
+            <td className={styles.cell}><span className={styles.bold}>o Male &nbsp;&nbsp;&nbsp;o Female</span></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Hearing test</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell">-Routine Newborn Care</td>
+            <td className={styles.cell}></td>
+            <td className={styles.cell}>-Routine Newborn Care</td>
           </tr>
           <tr>
-            <td className="dop-cell">o Meconium-stained AF<U w="18mm" /></td>
-            <td className="dop-cell dop-indent">o CREDE's Prophylaxis OU</td>
+            <td className={styles.cell}>o Meconium-stained AF<U w="18mm" /></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o CREDE's Prophylaxis OU</td>
           </tr>
           <tr>
-            <td className="dop-cell">o Cord Coil<U w="18mm" /></td>
-            <td className="dop-cell dop-indent">o Vitamin K 1mg IM now</td>
+            <td className={styles.cell}>o Cord Coil<U w="18mm" /></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Vitamin K 1mg IM now</td>
           </tr>
           <tr>
-            <td className="dop-cell">o LMP<U w="18mm" /></td>
-            <td className="dop-cell dop-indent">o Hepatitis B 0.5cc IM now</td>
+            <td className={styles.cell}>o LMP<U w="18mm" /></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o Hepatitis B 0.5cc IM now</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell dop-indent">o BCG 0.05cc Right Deltoid ID</td>
+            <td className={styles.cell}></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o BCG 0.05cc Right Deltoid ID</td>
           </tr>
           <tr>
-            <td className="dop-cell"></td>
-            <td className="dop-cell">-Daily Cord Care</td>
+            <td className={styles.cell}></td>
+            <td className={styles.cell}>-Daily Cord Care</td>
           </tr>
           <tr>
-            <td className="dop-cell"><span className="dop-bold">Maternal co-morbidities:</span></td>
-            <td className="dop-cell">-Keep thermoregulated bet. 36.5°C-37.5°C at all times</td>
+            <td className={styles.cell}><span className={styles.bold}>Maternal co-morbidities:</span></td>
+            <td className={styles.cell}>-Keep thermoregulated bet. 36.5°C-37.5°C at all times</td>
           </tr>
           <tr>
-            <td className="dop-cell">RBOW<U w="18mm" />Hrs.</td>
-            <td className="dop-cell">-Monitor I &amp; O q shift</td>
+            <td className={styles.cell}>RBOW<U w="18mm" />Hrs.</td>
+            <td className={styles.cell}>-Monitor I & O q shift</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o UTI</td>
-            <td className="dop-cell">-Refer accordingly</td>
+            <td className={`${styles.cell} ${styles.indent}`}>o UTI</td>
+            <td className={styles.cell}>-Refer accordingly</td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o GDM</td>
-            <td className="dop-cell"></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o GDM</td>
+            <td className={styles.cell}></td>
           </tr>
           <tr>
-            <td className="dop-cell dop-indent">o HPN</td>
-            <td className="dop-cell"></td>
+            <td className={`${styles.cell} ${styles.indent}`}>o HPN</td>
+            <td className={styles.cell}></td>
           </tr>
           <tr>
-            <td className="dop-cell">o Others:<U w="18mm" /></td>
-            <td className="dop-cell"></td>
+            <td className={styles.cell}>o Others:<U w="18mm" /></td>
+            <td className={styles.cell}></td>
           </tr>
         </tbody>
       </table>
 
       {/* ── Patient info ── */}
-      <div className="dop-patient-info-grid">
-        <div className="dop-patient-info-row">
-          <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Hospital No.:</span>&nbsp;{hospitalNo}
+      <div className={styles.patientInfoGrid}>
+        <div className={styles.patientInfoRow}>
+          <div className={styles.patientInfoCell}>
+            <span className={styles.infoLabel}>Hospital No.:</span>&nbsp;{hospitalNo}
           </div>
-          <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Case Number:</span>&nbsp;{caseNo}
-          </div>
-        </div>
-        <div className="dop-patient-info-row">
-          <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Patient Name:</span>&nbsp;{name}
-          </div>
-          <div className="dop-patient-info-cell">
-            <span className="dop-info-label">Sex:</span>&nbsp;{sex}&nbsp;&nbsp;&nbsp;
-            <span className="dop-info-label">Age:</span>&nbsp;{age}
+          <div className={styles.patientInfoCell}>
+            <span className={styles.infoLabel}>Case Number:</span>&nbsp;{caseNo}
           </div>
         </div>
-      </div>
-
-      {/* ── Footer ── */}
-      <div className="dop-footer">
-        Generated by: TCP T. TCP on {generatedOn}
+        <div className={styles.patientInfoRow}>
+          <div className={styles.patientInfoCell}>
+            <span className={styles.infoLabel}>Patient Name:</span>&nbsp;{name}
+          </div>
+          <div className={styles.patientInfoCell}>
+            <span className={styles.infoLabel}>Sex:</span>&nbsp;{sex}&nbsp;&nbsp;&nbsp;
+            <span className={styles.infoLabel}>Age:</span>&nbsp;{age}
+          </div>
+        </div>
       </div>
 
     </div>

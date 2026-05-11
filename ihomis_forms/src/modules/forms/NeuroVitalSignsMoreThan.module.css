@@ -1,0 +1,161 @@
+/* CSS Module - Scoped to NeuroVitalSignsMoreThan */
+/* NO global selectors */
+
+.container {
+  width: 210mm;
+  height: 297mm;
+  margin: auto;
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.page {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 10.5mm 12mm 8mm;
+  color: #222;
+  font-size: 8pt;
+  line-height: 1.05;
+  box-sizing: border-box;
+}
+
+.headerSpace {
+  height: 27mm;
+  flex: 0 0 auto;
+}
+
+.formIntro {
+  flex: 0 0 auto;
+}
+
+.patientMeta {
+  width: 100%;
+}
+
+.patientMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: min-content;
+  column-gap: 14mm;
+  row-gap: 1.2mm;
+  margin-bottom: 2.2mm;
+}
+
+.metaRow {
+  display: flex;
+  align-items: flex-end;
+  min-height: 4.2mm;
+}
+
+.metaRowLeft {
+  grid-column: 1 / 2;
+}
+
+.metaLabel {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.metaValueInline {
+  margin-left: 2.2mm;
+}
+
+.metaValue {
+  min-width: 0;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.metaValueName {
+  margin-left: 2mm;
+}
+
+.metaRowSplit {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8mm;
+  align-items: flex-end;
+}
+
+.metaRowAgeDate {
+  /* Additional styling for age/date row */
+}
+
+.metaLeftBlock {
+  display: flex;
+  align-items: flex-end;
+  white-space: nowrap;
+  flex: 1 1 auto;
+}
+
+.metaRightBlock {
+  display: flex;
+  align-items: flex-end;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.metaRightPhysician {
+  min-width: 74mm;
+}
+
+.metaLineFill {
+  display: inline-block;
+  width: 58mm;
+  border-bottom: 0.25mm solid #222;
+  margin-left: 1.5mm;
+  transform: translateY(-0.3mm);
+}
+
+.chartSection {
+  width: 100%;
+  margin-top: 1mm;
+  margin-bottom: 2mm;
+  flex: 1;
+}
+
+.chartImage {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  object-fit: fill;
+  border: 0;
+}
+
+.formFooter {
+  margin-top: auto;
+  padding-top: 1.5mm;
+  border-top: 0.25mm solid #111;
+  text-align: right;
+  font-size: 7.5pt;
+  font-style: italic;
+}
+
+/* SCOPED PRINT RULES */
+@media print {
+  .container {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  .page {
+    padding: 10.5mm 12mm 7.5mm !important;
+  }
+}
+
+@media screen {
+  .container {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+    margin: 16px auto;
+  }
+}

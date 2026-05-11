@@ -1,0 +1,553 @@
+/* CSS Module - Scoped to Neurologic */
+/* NO global selectors */
+
+/* Container */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page {
+  box-shadow: none !important;
+  background: transparent !important;
+  width: 100%;
+  max-width: 210mm;
+  padding: 10mm 14mm;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Patient Header */
+.patientHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 3mm;
+  font-size: 2.95mm;
+  font-weight: 400;
+  margin-bottom: 2mm;
+}
+
+.headerRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8mm;
+  justify-content: center;
+}
+
+.headerRow1 {
+  justify-content: center;
+  gap: 6mm;
+}
+
+.headerRow2 {
+  justify-content: center;
+  gap: 12mm;
+  align-items: center;
+}
+
+.headerRow3 {
+  justify-content: center;
+  align-items: baseline;
+  gap: 12mm;
+}
+
+.headerRow4 {
+  justify-content: center;
+  margin-top: 0.5mm;
+}
+
+.headerItem {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  white-space: nowrap;
+}
+
+.headerItemInline {
+  white-space: nowrap;
+}
+
+.headerItemFull {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  min-width: 0;
+}
+
+.headerItemRight {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  white-space: nowrap;
+}
+
+.headerLabel {
+  font-weight: 700;
+  font-size: 2.95mm;
+}
+
+.headerValue {
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: 2.95mm;
+}
+
+.headerUnderline {
+  display: inline-block;
+  height: 0;
+  border-bottom: 0.35mm solid #000;
+  flex: 1 1 auto;
+  min-width: 120mm;
+}
+
+.headerUnderlineFull {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-bottom: 0.35mm solid #000;
+}
+
+/* Logo */
+.logo {
+  width: 14mm;
+  height: 14mm;
+  border: 0.3mm solid #2d2d2d;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+/* Header Center */
+.headerCenter {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+  padding: 0 6mm;
+  min-height: 20mm;
+}
+
+/* Header Lines */
+.headerLine {
+  display: block;
+  height: 0;
+  border-bottom: 0.25mm solid #1f1f1f;
+}
+
+.headerLineXs {
+  width: 28mm;
+}
+
+.headerLineSm {
+  width: 48mm;
+}
+
+.headerLineMd {
+  width: 60mm;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 4.35mm;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0 0 3mm;
+}
+
+/* Meta */
+.meta {
+  margin-bottom: 2.4mm;
+  font-size: 2.85mm;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4mm;
+  margin-bottom: 1.4mm;
+  justify-content: space-between;
+}
+
+.metaRowPatient {
+  justify-content: flex-start;
+}
+
+.metaRowImpression {
+  margin-bottom: 1mm;
+}
+
+.metaItem {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2mm;
+  min-width: 0;
+}
+
+.metaItemPatient {
+  flex: 1 1 auto;
+}
+
+.inlineGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 12mm;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.inlineItem {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2mm;
+  white-space: nowrap;
+}
+
+.metaLabel {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.metaValue {
+  white-space: nowrap;
+}
+
+.metaDate {
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: 2.75mm;
+}
+
+/* Diagnosis Lines */
+.diagnosisLines {
+  display: block;
+  width: 100%;
+  height: 12mm;
+  object-fit: fill;
+  margin-top: 0.2mm;
+}
+
+/* Body */
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4mm;
+  padding-top: 1mm;
+}
+
+/* Section */
+.section {
+  position: relative;
+}
+
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4mm;
+  margin-bottom: 1.1mm;
+}
+
+.sectionTitle {
+  font-size: 3.15mm;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gcs {
+  font-size: 2.8mm;
+  font-weight: 700;
+  white-space: nowrap;
+  padding-right: 16mm;
+}
+
+/* Input Row */
+.inputRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  margin-bottom: 0.85mm;
+}
+
+.inputLabel {
+  font-size: 2.9mm;
+  white-space: nowrap;
+}
+
+.inputLabelCranial {
+  min-width: 25mm;
+}
+
+.underline {
+  display: inline-block;
+  height: 3.7mm;
+  border-bottom: 0.28mm solid #000;
+  flex: 1 1 auto;
+}
+
+/* Cranial Grid */
+.cranialGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10mm;
+  margin-top: 0.8mm;
+}
+
+.cranialCol {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Motor Section */
+.sectionMotor {
+  margin-top: 0.6mm;
+}
+
+/* Cross */
+.crossWrap {
+  width: 23mm;
+  height: 20mm;
+  margin: 1.4mm auto 0;
+  position: relative;
+}
+
+.crossHorizontal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #252525;
+  width: 16mm;
+  height: 0.35mm;
+}
+
+.crossVertical {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #252525;
+  width: 0.35mm;
+  height: 16mm;
+}
+
+/* Reflexes Section */
+.sectionReflexes {
+  min-height: 32mm;
+}
+
+.reflexesLayout {
+  display: grid;
+  grid-template-columns: 1fr 44mm;
+  column-gap: 8mm;
+  align-items: start;
+  min-height: 27mm;
+  margin-top: 0.9mm;
+}
+
+.reflexFigure {
+  position: relative;
+  width: 27mm;
+  height: 25mm;
+  margin-left: 16mm;
+  margin-top: 0.8mm;
+}
+
+.stickHead {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 7.2mm;
+  height: 7.2mm;
+  border: 0.35mm solid #2c2c2c;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.stickBody {
+  position: absolute;
+  left: 50%;
+  top: 7.2mm;
+  transform: translateX(-50%);
+  width: 0.35mm;
+  height: 9.2mm;
+  background: #2c2c2c;
+}
+
+.stickArm {
+  position: absolute;
+  left: 50%;
+  background: #2c2c2c;
+  transform-origin: left center;
+  top: 10.1mm;
+  height: 0.35mm;
+  width: 10.5mm;
+}
+
+.stickArmLeft {
+  transform: translateX(-50%) rotate(180deg);
+}
+
+.stickArmRight {
+  transform: translateX(-50%) rotate(0deg);
+}
+
+.stickLeg {
+  position: absolute;
+  left: 50%;
+  background: #2c2c2c;
+  transform-origin: left center;
+  top: 16.2mm;
+  height: 0.35mm;
+  width: 10.5mm;
+}
+
+.stickLegLeft {
+  transform: translateX(-50%) rotate(150deg);
+}
+
+.stickLegRight {
+  transform: translateX(-50%) rotate(30deg);
+}
+
+.reflexRight {
+  position: relative;
+  padding-top: 1.2mm;
+  padding-left: 2mm;
+}
+
+.oculomotor {
+  font-size: 2.9mm;
+  font-weight: 700;
+  margin: 0 0 9mm 2mm;
+}
+
+.scaleBox {
+  width: 30mm;
+  border: 0.28mm solid #989898;
+  padding: 1mm 1.1mm;
+  font-size: 1.9mm;
+  line-height: 1.08;
+  background: #fff;
+}
+
+.cerebellarList {
+  padding-left: 13.5mm;
+  margin-top: 0.8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7mm;
+  font-size: 2.95mm;
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-top: 2mm;
+}
+
+.signatureBlock {
+  width: 64mm;
+  text-align: center;
+  margin-bottom: 0.8mm;
+}
+
+.signatureLine {
+  width: 56mm;
+  height: 0;
+  border-bottom: 0.3mm solid #000;
+  margin: 0 0 1.8mm auto;
+}
+
+.signatureLabel {
+  font-size: 2.4mm;
+  margin-bottom: 1.4mm;
+}
+
+.licenseRow {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1.3mm;
+  font-size: 2.4mm;
+}
+
+.licenseLabel {
+  white-space: nowrap;
+}
+
+.licenseLine {
+  display: inline-block;
+  width: 20mm;
+  height: 3mm;
+  border-bottom: 0.3mm solid #000;
+}
+
+.generated {
+  width: 100%;
+  border-top: 0.28mm solid #000;
+  padding-top: 1.15mm;
+  text-align: right;
+  font-size: 1.95mm;
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* Chart Section */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2mm;
+  flex: 1;
+}
+
+.chartImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Form Footer */
+.formFooter {
+  margin-top: auto;
+  padding-top: 1.5mm;
+  border-top: 0.25mm solid #111;
+  text-align: center;
+  font-size: 6pt;
+  font-style: italic;
+}
+
+/* SCOPED PRINT RULES */
+@media print {
+  .container {
+    width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+  
+  .page {
+    max-width: none !important;
+    padding: 10mm 14mm !important;
+  }
+}
+
+@media screen {
+  .container {
+    margin: 16px auto;
+  }
+}

@@ -1,0 +1,121 @@
+/* MonitoringSheet CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ─────────────────────────────────────────────────── */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 6mm 12mm 10mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.header {
+  margin-bottom: 1mm;
+  font-size: 10pt;
+  flex-shrink: 0;
+  line-height: 1.1;
+}
+
+.headerRow1 {
+  display: flex;
+  margin-bottom: 0.3mm;
+}
+
+.headerRow2 {
+  display: flex;
+  align-items: center;
+}
+
+.label { font-weight: bold; white-space: nowrap; }
+.value  { font-weight: normal; }
+
+.rightInfo {
+  display: flex;
+  gap: 4mm;
+  margin-left: 8mm;
+  align-items: center;
+}
+
+/* ─── TABLE ──────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.table th,
+.table td {
+  border: 1px solid #000;
+  padding: 0;
+  font-size: 9pt;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.table thead tr {
+  height: 6mm;
+}
+
+.table th {
+  font-weight: bold;
+  background: #fff;
+}
+
+.table tbody tr {
+  height: 7.5mm;
+}
+
+/* ─── COLUMN WIDTHS ──────────────────────────────────────── */
+.colDate { width: 11%; }
+.colTime { width: 10%; }
+.colTemp { width: 10%; }
+.colBp   { width: 11%; }
+.colPr   { width: 9%;  }
+.colRr   { width: 9%;  }
+.colO2   { width: 10%; }
+.colFht  { width: 10%; }
+.colSig  { width: 20%; }
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .page {
+    box-shadow: none;
+    width: 210mm;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 5mm 12mm 8mm 12mm;
+    overflow: visible;
+    page-break-after: auto;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table {
+    page-break-inside: avoid;
+  }
+}

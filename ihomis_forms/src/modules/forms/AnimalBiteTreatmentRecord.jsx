@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import "./AnimalBiteTreatmentRecord.css";
+import styles from "./AnimalBiteTreatmentRecord.module.css";
 
 export default function AnimalBiteTreatmentRecord({ patientName, patientData }) {
 	const name        = patientName              || "";
@@ -20,20 +19,8 @@ export default function AnimalBiteTreatmentRecord({ patientName, patientData }) 
 	const physician   = patientData?.physician   || "";
 	const licenseNo   = patientData?.licenseNo   || "";
 
-	const { generatedOn } = useMemo(() => {
-		const now = new Date();
-		const pad = (n) => String(n).padStart(2, "0");
-		const h = now.getHours();
-		const m = now.getMinutes();
-		const ampm = h >= 12 ? "am" : "am";
-		const hh = String(h % 12 || 12).padStart(2, "0");
-		const timeStr = `${hh}:${pad(m)} ${ampm}`;
-		const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`;
-		return { generatedOn };
-	}, []);
-
 	const UL = ({ width = "120px" }) => (
-		<span className="abtr-ul" style={{ width }} />
+		<span className={styles.ul} style={{ width }} />
 	);
 
 	const vacRows = [
@@ -51,71 +38,70 @@ export default function AnimalBiteTreatmentRecord({ patientName, patientData }) 
 	];
 
 	return (
-		<div className="abtr-page">
-			<br />
-			<div className="abtr-outer-box">
+		<div className={styles.page}>
+			<div className={styles.outerBox}>
 
 				{/* Title row */}
-				<div className="abtr-row abtr-title-row">
-					<div className="abtr-title-left">
-						<h2 className="abtr-title">Animal Bite Treatment Record</h2>
+				<div className={`${styles.row} ${styles.titleRow}`}>
+					<div className={styles.titleLeft}>
+						<h2 className={styles.title}>Animal Bite Treatment Record</h2>
 					</div>
-					<div className="abtr-title-right">
-						<span className="abtr-lbl">CASE NO.: </span>
-						<span className="abtr-val">{caseNum}</span>
+					<div className={styles.titleRight}>
+						<span className={styles.lbl}>CASE NO.: </span>
+						<span className={styles.val}>{caseNum}</span>
 					</div>
 				</div>
 
 				{/* Row: SR. CITIZEN NO. | HOSPITAL NO. */}
-				<div className="abtr-row abtr-row-2col">
-					<div className="abtr-cell abtr-cell-half">
-						<span className="abtr-lbl">SR. CITIZEN NO.: </span>
-						<span className="abtr-val">{srCitizen}</span>
+				<div className={`${styles.row} ${styles.row2Col}`}>
+					<div className={`${styles.cell} ${styles.cellHalf}`}>
+						<span className={styles.lbl}>SR. CITIZEN NO.: </span>
+						<span className={styles.val}>{srCitizen}</span>
 					</div>
-					<div className="abtr-cell abtr-cell-half abtr-border-left">
-						<span className="abtr-lbl">HOSPITAL NO.: </span>
-						<span className="abtr-val">{hospitalNo}</span>
+					<div className={`${styles.cell} ${styles.cellHalf} ${styles.borderLeft}`}>
+						<span className={styles.lbl}>HOSPITAL NO.: </span>
+						<span className={styles.val}>{hospitalNo}</span>
 					</div>
 				</div>
 
 				{/* Row: PATIENT NAME | PHIC ID */}
-				<div className="abtr-row abtr-row-2col">
-					<div className="abtr-cell abtr-cell-half abtr-cell-tall">
-						<div><span className="abtr-lbl">PATIENT NAME: </span><span className="abtr-val">{name}</span></div>
+				<div className={`${styles.row} ${styles.row2Col}`}>
+					<div className={`${styles.cell} ${styles.cellHalf} ${styles.cellTall}`}>
+						<div><span className={styles.lbl}>PATIENT NAME: </span><span className={styles.val}>{name}</span></div>
 					</div>
-					<div className="abtr-cell abtr-cell-half abtr-border-left abtr-cell-tall">
+					<div className={`${styles.cell} ${styles.cellHalf} ${styles.borderLeft} ${styles.cellTall}`}>
 						<div style={{ display: "flex", alignItems: "flex-end", gap: "4px" }}>
-							<span className="abtr-lbl">PHIC ID:</span>
+							<span className={styles.lbl}>PHIC ID:</span>
 							<UL width="170px" />
 						</div>
-						<div className="abtr-phic-row">
-							<span className="abtr-val">( &nbsp;) Member &nbsp;&nbsp;( &nbsp;) Dependent</span>
+						<div className={styles.phicRow}>
+							<span className={styles.val}>( &nbsp;) Member &nbsp;&nbsp;( &nbsp;) Dependent</span>
 						</div>
 					</div>
 				</div>
 
 				{/* Row: PERMANENT ADDRESS | TEL | SEX | CIVIL STATUS */}
-				<div className="abtr-row abtr-row-4col">
-					<div className="abtr-cell abtr-cell-addr abtr-cell-tall">
-						<div><span className="abtr-lbl">PERMANENT ADDRESS</span></div>
-						<div><span className="abtr-val">{address}</span></div>
+				<div className={`${styles.row} ${styles.row4Col}`}>
+					<div className={`${styles.cell} ${styles.cellAddr} ${styles.cellTall}`}>
+						<div><span className={styles.lbl}>PERMANENT ADDRESS</span></div>
+						<div><span className={styles.val}>{address}</span></div>
 					</div>
-					<div className="abtr-cell abtr-cell-tel abtr-border-left abtr-cell-tall">
-						<div><span className="abtr-lbl">TEL.NO./CP NO.</span></div>
-						<div><span className="abtr-val">{telNo}</span></div>
+					<div className={`${styles.cell} ${styles.cellTel} ${styles.borderLeft} ${styles.cellTall}`}>
+						<div><span className={styles.lbl}>TEL.NO./CP NO.</span></div>
+						<div><span className={styles.val}>{telNo}</span></div>
 					</div>
-					<div className="abtr-cell abtr-cell-sex abtr-border-left abtr-cell-tall">
-						<div><span className="abtr-lbl">Sex</span></div>
-						<div><span className="abtr-val">{sex}</span></div>
+					<div className={`${styles.cell} ${styles.cellSex} ${styles.borderLeft} ${styles.cellTall}`}>
+						<div><span className={styles.lbl}>Sex</span></div>
+						<div><span className={styles.val}>{sex}</span></div>
 					</div>
-					<div className="abtr-cell abtr-cell-civil abtr-border-left abtr-cell-tall">
-						<div><span className="abtr-lbl">Civil Status</span></div>
-						<div><span className="abtr-val">{civilStatus}</span></div>
+					<div className={`${styles.cell} ${styles.cellCivil} ${styles.borderLeft} ${styles.cellTall}`}>
+						<div><span className={styles.lbl}>Civil Status</span></div>
+						<div><span className={styles.val}>{civilStatus}</span></div>
 					</div>
 				</div>
 
 				{/* Row: BIRTHDATE | AGE | BIRTH PLACE | NATIONALITY | RELIGION | OCCUPATION | INDIGENOUS */}
-				<div className="abtr-row abtr-row-7col">
+				<div className={styles.row}>
 					{[
 						{ label: "BIRTHDATE",    value: birthdate },
 						{ label: "Age",           value: age },
@@ -125,97 +111,88 @@ export default function AnimalBiteTreatmentRecord({ patientName, patientData }) 
 						{ label: "OCCUPATION",    value: occupation },
 						{ label: "INDIGENOUS",    value: indigenous },
 					].map((col, i) => (
-						<div key={i} className={`abtr-cell abtr-cell-7 ${i > 0 ? "abtr-border-left" : ""}`}>
-							<div className="abtr-th-lbl">{col.label}</div>
-							<div className="abtr-val">{col.value}</div>
+						<div key={i} className={`${styles.cell} ${styles.cell7} ${i > 0 ? styles.borderLeft : ""}`}>
+							<div className={styles.thLbl}>{col.label}</div>
+							<div className={styles.val}>{col.value}</div>
 						</div>
 					))}
 				</div>
 
-			</div>{/* end abtr-outer-box */}
+			</div>
 
-			{/* ══════════════════════════════
-			    CLINICAL SECTION
-			    ══════════════════════════════ */}
-			<div className="abtr-clinical">
+			{/* CLINICAL SECTION */}
+			<div className={styles.clinical}>
 
 				{/* Exposure Category + Dates */}
-				<div className="abtr-exp-dates-row">
-					<div className="abtr-exp-left">
-						<span className="abtr-lbl">Exposure Category: </span>
-						<span className="abtr-val">( &nbsp;)I &nbsp;&nbsp;( &nbsp;)II &nbsp;&nbsp;( &nbsp;)III</span>
+				<div className={styles.expDatesRow}>
+					<div className={styles.expLeft}>
+						<span className={styles.lbl}>Exposure Category: </span>
+						<span className={styles.val}>( &nbsp;)I &nbsp;&nbsp;( &nbsp;)II &nbsp;&nbsp;( &nbsp;)III</span>
 					</div>
-					<div className="abtr-exp-right">
-						<div className="abtr-date-line">
-							<span className="abtr-val">Date of Exposure:</span><UL width="150px" />
+					<div className={styles.expRight}>
+						<div className={styles.dateLine}>
+							<span className={styles.val}>Date of Exposure:</span><UL width="150px" />
 						</div>
-						<div className="abtr-date-line">
-							<span className="abtr-val">Date of Treatment:</span><UL width="150px" />
+						<div className={styles.dateLine}>
+							<span className={styles.val}>Date of Treatment:</span><UL width="150px" />
 						</div>
 					</div>
 				</div>
-                <br />
-
 
 				{/* Two columns */}
-				<div className="abtr-two-col">
-					<div className="abtr-col">
-						<p className="abtr-col-title"><strong>1. Mode of Animal Exposure</strong></p>
+				<div className={styles.twoCol}>
+					<div className={styles.col}>
+						<p className={styles.colTitle}><strong>1. Mode of Animal Exposure</strong></p>
 						{["Nibbling/licking of uncovered skin","Nibbling/licking of wound/broken skin","Scratch/Abrasion","Transdermal bite","Handling/ingestion of raw infected meat","Any combination of the above"].map((item, i) => (
-							<div key={i} className="abtr-check-item">( &nbsp;) {item}</div>
+							<div key={i} className={styles.checkItem}>( &nbsp;) {item}</div>
 						))}
 					</div>
-					<div className="abtr-col">
-						<p className="abtr-col-title"><strong>2. Body Part Affected / Exposed to Animal Bite</strong></p>
+					<div className={styles.col}>
+						<p className={styles.colTitle}><strong>2. Body Part Affected / Exposed to Animal Bite</strong></p>
 						{["Head and/or Neck","other part of the body (L.Leg/R.Leg)","N/A (if by ingestion mode)"].map((item, i) => (
-							<div key={i} className="abtr-check-item">( &nbsp;) {item}</div>
+							<div key={i} className={styles.checkItem}>( &nbsp;) {item}</div>
 						))}
-						<p className="abtr-col-item"><strong>3. Types of Animal:</strong> ( &nbsp;) Dog &nbsp;&nbsp;( &nbsp;) Others <UL width="60px" /></p>
-						<p className="abtr-col-item"><strong>4. Past history of animal bite:</strong> ( &nbsp;) Yes &nbsp;&nbsp;( &nbsp;) No</p>
-						<p className="abtr-col-item">If YES, Specify Date: <UL width="100px" /></p>
+						<p className={styles.colItem}><strong>3. Types of Animal:</strong> ( &nbsp;) Dog &nbsp;&nbsp;( &nbsp;) Others <UL width="60px" /></p>
+						<p className={styles.colItem}><strong>4. Past history of animal bite:</strong> ( &nbsp;) Yes &nbsp;&nbsp;( &nbsp;) No</p>
+						<p className={styles.colItem}>If YES, Specify Date: <UL width="100px" /></p>
 					</div>
 				</div>
-                <br />
 
-				<p className="abtr-item5">
+				<p className={styles.item5}>
 					<strong>5. Based on item no.3 was the PEP primary immunization schedule complete ( &nbsp;) Yes &nbsp;&nbsp;( &nbsp;) No</strong>
 				</p>
-                <br />
 
-				<div className="abtr-icd-row">
-					<span className="abtr-val">ICD Code</span>
+				<div className={styles.icdRow}>
+					<span className={styles.val}>ICD Code</span>
 					<UL width="110px" />
 				</div>
-                <br />
 
 			</div>
 
-			{/* ══════════════════════════════
-			    VACCINATION TABLE
-			    ══════════════════════════════ */}
-			<table className="abtr-vac-table">
+			{/* VACCINATION TABLE */}
+			<table className={styles.vacTable}>
 				<thead>
 					<tr>
-						<th className="abtr-vth" colSpan={5}>Post-Exposure Vaccination Record</th>
+						<th className={styles.vth} colSpan={5}>Post-Exposure Vaccination Record</th>
 					</tr>
 					<tr>
-						<th className="abtr-vth abtr-vcol-period">Period</th>
-						<th className="abtr-vth abtr-vcol-route">Adm. Route</th>
-						<th className="abtr-vth abtr-vcol-date">Date</th>
-						<th className="abtr-vth abtr-vcol-given">Given</th>
-						<th className="abtr-vth abtr-vcol-sig">Signature</th>
+						<th className={`${styles.vth} ${styles.vcolPeriod}`}>Period</th>
+						<th className={`${styles.vth} ${styles.vcolRoute}`}>Adm. Route</th>
+						<th className={`${styles.vth} ${styles.vcolDate}`}>Date</th>
+						<th className={`${styles.vth} ${styles.vcolGiven}`}>Given</th>
+						<th className={`${styles.vth} ${styles.vcolSig}`}>Signature</th>
 					</tr>
 				</thead>
 				<tbody>
 					{vacRows.map((row, i) => (
-						<tr key={i} className="abtr-vtr">
-							<td className="abtr-vtd abtr-vcol-period">{row.label}</td>
-							<td className="abtr-vtd abtr-vcol-route" />
-							<td className="abtr-vtd abtr-vcol-date" />
-							<td className="abtr-vtd abtr-vcol-given" />
+						<tr key={i} className={styles.vtr}>
+							<td className={`${styles.vtd} ${styles.vcolPeriod}`}>{row.label}</td>
+							<td className={`${styles.vtd} ${styles.vcolRoute}`} />
+							<td className={`${styles.vtd} ${styles.vcolDate}`} />
+							<td className={`${styles.vtd} ${styles.vcolGiven}`} />
 							{i === 0 && (
-								<td className="abtr-vtd abtr-vcol-sig" rowSpan={vacRows.length}>
-									<div className="abtr-physician">
+								<td className={`${styles.vtd} ${styles.vcolSig}`} rowSpan={vacRows.length}>
+									<div className={styles.physician}>
 										<div>{physician}</div>
 										<div>{licenseNo}</div>
 									</div>
@@ -225,11 +202,6 @@ export default function AnimalBiteTreatmentRecord({ patientName, patientData }) 
 					))}
 				</tbody>
 			</table>
-
-			{/* Footer */}
-			<div className="abtr-footer">
-				Generated by: TCP T. TCP on {generatedOn}
-			</div>
 
 		</div>
 	);

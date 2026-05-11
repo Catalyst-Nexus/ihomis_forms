@@ -1,20 +1,13 @@
+/**
+ * PostAnesthesiaSheet - Converted to CSS Module
+ * 
+ * FIX: Removed global style injection that was causing layout conflicts
+ * FIX: Now uses CSS Module for scoped styling
+ */
+
 import { useMemo } from 'react';
-import './PostAnesthesiaSheet.css';
 import chartPlaceholderSrc from './img/post anesthesia sheet.png';
-
-const chartSectionStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '2mm',
-};
-
-const chartImageStyle = {
-  width: '190mm',
-  height: '180mm',
-  display: 'block',
-  objectFit: 'fill',
-};
+import styles from './PostAnesthesiaSheet.module.css';
 
 const PostAnesthesiaSheet = ({ patientName, patientData }) => {
   const name = patientName || "";
@@ -33,82 +26,81 @@ const PostAnesthesiaSheet = ({ patientName, patientData }) => {
   const generatedBy = "TCP T. TCP";
 
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <section className="form-intro pacu-header" aria-label="Form title and patient details">
-          <div className="pacu-panel">
-            <div className="pacu-row pacu-row--top">
-              <div className="pacu-cell">
-                <span className="pacu-label">Hospital No.:</span>
-                <span className="pacu-value">{hospitalNo}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Case Number:</span>
-                <span className="pacu-value">{caseNo}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--right"></div>
+    <div className={styles.page}>
+      <section className={styles.header} aria-label="Form title and patient details">
+        <div className={styles.pacuPanel}>
+          <div className={`${styles.pacuRow} ${styles.pacuRowTop}`}>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>Hospital No.:</span>
+              <span className={styles.pacuValue}>{hospitalNo}</span>
             </div>
-
-            <div className="pacu-row pacu-row--patient">
-              <div className="pacu-cell">
-                <span className="pacu-label">NAME:</span>
-                <span className="pacu-value">{name}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">DATE:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-check">[ ] CHARITY</span>
-              </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>Case Number:</span>
+              <span className={styles.pacuValue}>{caseNo}</span>
             </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellRight}`}></div>
+          </div>
 
-            <div className="pacu-row pacu-row--procedure">
-              <div className="pacu-cell">
-                <span className="pacu-label">PROCEDURE</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">TIME:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-check">[ ] PHIC</span>
-              </div>
+          <div className={`${styles.pacuRow} ${styles.pacuRowPatient}`}>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>NAME:</span>
+              <span className={styles.pacuValue}>{name}</span>
             </div>
-
-            <div className="pacu-row pacu-row--surgeon">
-              <div className="pacu-cell">
-                <span className="pacu-label">SURGEON/S:</span>
-              </div>
-              <div className="pacu-cell">
-                <span className="pacu-label">Blood Transfusion Site:</span>
-              </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>DATE:</span>
             </div>
-
-            <div className="pacu-row pacu-row--anesthesia">
-              <div className="pacu-cell">
-                <span className="pacu-label">ANESTHESIOLOGIST/S:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Component:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Blood Type:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Serial #:</span>
-              </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuCheck}>[ ] CHARITY</span>
             </div>
           </div>
-        </section>
 
-        <section aria-label="Post-Anesthesia Sheet chart image" style={chartSectionStyle}>
-          <img
-            src={chartPlaceholderSrc}
-            alt="Post-Anesthesia Sheet status chart placeholder"
-            style={chartImageStyle}
-          />
-        </section>
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
-      </div>
+          <div className={`${styles.pacuRow} ${styles.pacuRowProcedure}`}>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>PROCEDURE</span>
+            </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>TIME:</span>
+            </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuCheck}>[ ] PHIC</span>
+            </div>
+          </div>
+
+          <div className={`${styles.pacuRow} ${styles.pacuRowSurgeon}`}>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>SURGEON/S:</span>
+            </div>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>Blood Transfusion Site:</span>
+            </div>
+          </div>
+
+          <div className={`${styles.pacuRow} ${styles.pacuRowAnesthesia}`}>
+            <div className={styles.pacuCell}>
+              <span className={styles.pacuLabel}>ANESTHESIOLOGIST/S:</span>
+            </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>Component:</span>
+            </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>Blood Type:</span>
+            </div>
+            <div className={`${styles.pacuCell} ${styles.pacuCellCenter}`}>
+              <span className={styles.pacuLabel}>Serial #:</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Post-Anesthesia Sheet chart image" className={styles.chartSection}>
+        <img
+          src={chartPlaceholderSrc}
+          alt="Post-Anesthesia Sheet status chart placeholder"
+          className={styles.chartImage}
+        />
+      </section>
+      
+      <div className={styles.formFooter}>Generated by: {generatedBy} on {generatedOn}</div>
     </div>
   );
 };

@@ -1,0 +1,219 @@
+/* CSS Module - Scoped to Partograph */
+/* NO global selectors */
+
+/* Container */
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3mm;
+  line-height: 1.15;
+}
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  background: #fff;
+  padding: 5mm 12mm 5mm;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header Space */
+.headerSpace {
+  height: 2mm;
+  flex: 0 0 auto;
+}
+
+/* Partograph Header */
+.partographHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4mm;
+  margin-bottom: 1mm;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.partographTitle {
+  margin: 0;
+  text-align: center;
+  font-size: 8.4mm;
+  line-height: 0.95;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  transform: translateY(-0.8mm);
+}
+
+/* Partograph Meta */
+.partographMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1mm;
+  font-size: 2.95mm;
+  line-height: 1;
+}
+
+.partographMetaRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4mm;
+}
+
+.partographMetaRowTop {
+  justify-content: space-between;
+}
+
+.partographMetaRowPatient {
+  justify-content: space-between;
+  gap: 5mm;
+}
+
+.partographMetaRowBlank {
+  justify-content: space-between;
+  gap: 4mm;
+  margin-top: 0.4mm;
+}
+
+.partographMetaItem {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1mm;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.partographMetaItemLeft,
+.partographMetaItemCenter,
+.partographMetaItemRight {
+  flex: 1 1 0;
+}
+
+.partographMetaItemCenter {
+  justify-content: center;
+}
+
+.partographMetaItemRight {
+  justify-content: flex-end;
+}
+
+.partographMetaItemPatient {
+  flex: 1 1 auto;
+}
+
+.partographMetaItemInline {
+  flex: 0 0 auto;
+}
+
+/* Blank Fields */
+.blankField {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1mm;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.blankFieldGroup {
+  flex: 1 1 28mm;
+}
+
+.tpalLabel {
+  font-size: 2.95mm;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.blankLine {
+  display: inline-block;
+  height: 3.6mm;
+  border-bottom: 0.35mm solid #000;
+  flex: 1 1 auto;
+  min-width: 14mm;
+}
+
+.blankLineXs {
+  width: 18mm;
+  min-width: 18mm;
+}
+
+.blankLineSm {
+  width: 25mm;
+  min-width: 25mm;
+}
+
+.blankLineLg {
+  width: 40mm;
+  min-width: 40mm;
+}
+
+/* Header Label & Value */
+.headerLabel {
+  font-weight: 700;
+  font-size: 2.95mm;
+}
+
+.headerValue {
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: 2.95mm;
+}
+
+/* Chart Section */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chartImage {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+  border: 0;
+}
+
+/* Form Footer */
+.formFooter {
+  flex-shrink: 0;
+  padding-top: 1mm;
+  border-top: 0.25mm solid #111;
+  text-align: right;
+  font-size: 6pt;
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* SCOPED PRINT RULES */
+@media print {
+  .container {
+    width: 100% !important;
+    background: #fff !important;
+  }
+  
+  .page {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 5mm 12mm 5mm !important;
+    box-shadow: none !important;
+  }
+
+  .chartSection {
+    overflow: hidden !important;
+  }
+
+  .chartImage {
+    max-height: calc(297mm - 40mm) !important;
+  }
+}
