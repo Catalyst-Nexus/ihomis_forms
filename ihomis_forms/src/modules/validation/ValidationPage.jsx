@@ -93,6 +93,17 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     };
   }, [validationBreakdown]);
 
+  const legendChecks = useMemo(() => {
+    const seen = new Set();
+    return validationBreakdown
+      .flatMap((entry) => entry.checks)
+      .filter((check) => {
+        if (seen.has(check.id)) return false;
+        seen.add(check.id);
+        return true;
+      });
+  }, [validationBreakdown]);
+
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
     [selectedPatient],
@@ -112,7 +123,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
       ? "attention"
       : "ready";
   const statusLabel = loading
-    ? "Loading"
+    ? "Checking"
     : scopedSummary.hasIssues
       ? "Needs attention"
       : "Ready";
@@ -150,15 +161,15 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                 </span>
               </div>
               <h1 className="validation-hero-title">
-                CHART Tracking checklist
+                Chart validation checklist
               </h1>
               <p className="validation-hero-sub">
-                Review missing form fields before generating patient forms.
+                Review incomplete form sections before generating the selected forms.
               </p>
               <div className="validation-hero-meta">
-                <span>Validation endpoint: /api/validation</span>
+                <span>Source: Validation API</span>
                 {resolvedEnccode ? (
-                  <span>Resolved ENCCODE: {resolvedEnccode}</span>
+                  <span>Encounter: {resolvedEnccode}</span>
                 ) : null}
               </div>
             </div>
@@ -176,7 +187,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                     {patientLabel.name}
                   </span>
                   <span className="validation-hero-patient-meta">
-                    HPER {patientLabel.hpercode || "N/A"}
+                    Patient ID: {patientLabel.hpercode || "N/A"}
                   </span>
                 </div>
               </div>
@@ -222,25 +233,25 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                   : "Proceed to forms"
               }
             >
-              Continue to Generate
+              Continue
             </button>
           </div>
         </section>
 
         <section className="validation-summary">
-          <SummaryCard label="Form Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
+          <SummaryCard label="Overall Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
           <SummaryCard
-            label="Selected Forms"
+            label="Forms Selected"
             value={validationStats.totalForms}
             tone={validationStats.totalForms > 0 ? "default" : "alert"}
           />
           <SummaryCard
-            label="Ready Forms"
+            label="Forms Ready"
             value={validationStats.readyForms}
             tone={validationStats.readyForms === validationStats.totalForms ? "default" : "alert"}
           />
           <SummaryCard
-            label="Blocking Checks"
+            label="Items to Review"
             value={validationStats.blockingChecks}
             tone={validationStats.blockingChecks > 0 ? "alert" : "default"}
           />
@@ -248,19 +259,19 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
 
         {error ? (
           <div className="validation-message validation-message--error">
-            {error}
+            Validation service issue: {error}
           </div>
         ) : null}
 
         {loading ? (
           <div className="validation-loading">
-            Loading form validation status...
+            Checking validation status...
           </div>
         ) : validationBreakdown.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Validation by selected form</h2>
+            <h2 className="validation-panel-title">Validation Results by Selected Form</h2>
             <p className="validation-helper-text">
-              The page uses the backend encounter validation checks and shows the exact requirements for each selected form.
+              Each row below shows what is complete and what still needs to be filled in.
             </p>
             <div className="validation-form-grid">
               {validationBreakdown.map((entry) => (
@@ -271,10 +282,10 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                   <div className="validation-form-card__header">
                     <div>
                       <h3 className="validation-section-label">{entry.formName}</h3>
-                      <p className="validation-helper-text">{entry.label}</p>
+                      <p className="validation-helper-text">Rule set: {entry.label}</p>
                     </div>
                     <span className={`validation-badge ${entry.hasIssues ? "validation-badge--unknown" : "validation-badge--adm"}`}>
-                      {entry.hasIssues ? "Needs attention" : "Validated"}
+                      {entry.hasIssues ? "Action needed" : "Ready"}
                     </span>
                   </div>
 
@@ -284,9 +295,16 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                         key={check.id}
                         className={`validation-check-row ${check.passed ? "validation-check-row--pass" : "validation-check-row--fail"}`}
                       >
-                        <div className="validation-check-row__title">{check.label}</div>
+                        <div className="validation-check-row__title-wrap">
+                          <div className="validation-check-row__title">{check.label}</div>
+                          <span
+                            className={`validation-check-status ${check.passed ? "validation-check-status--pass" : "validation-check-status--fail"}`}
+                          >
+                            {check.passed ? "Complete" : "Missing"}
+                          </span>
+                        </div>
                         <div className="validation-check-row__message">
-                          {check.passed ? "Backend validation passed." : check.message}
+                          {check.passed ? "This requirement is complete." : check.message}
                         </div>
                       </div>
                     ))}
@@ -297,16 +315,19 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           </section>
         ) : (
           <div className="validation-empty">
-            ✓ All forms are complete and ready to proceed.
+            All selected forms are complete and ready to proceed.
           </div>
         )}
 
         {validationBreakdown.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Validation requirement legend</h2>
+            <h2 className="validation-panel-title">Checklist Coverage</h2>
+            <p className="validation-helper-text">
+              These are the checks used to evaluate your selected forms.
+            </p>
             <div className="validation-step-list">
-              {validationBreakdown.flatMap((entry) => entry.checks).map((check) => (
-                <span key={`${check.id}-${check.label}`} className="validation-pill validation-pill--missing">
+              {legendChecks.map((check) => (
+                <span key={`${check.id}-${check.label}`} className="validation-pill">
                   {getFieldLabel(check.id)}
                 </span>
               ))}

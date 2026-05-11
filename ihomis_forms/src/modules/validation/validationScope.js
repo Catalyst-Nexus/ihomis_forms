@@ -31,123 +31,119 @@ const FIELD_LABELS = {
 const VALIDATION_CHECKS = {
   vitalSigns: {
     label: "Vital Signs",
-    message: "Hvitalsign must exist for the encounter.",
+    message: "Add at least one vital signs record for this encounter.",
   },
   bmi: {
     label: "BMI",
-    message: "Hvsothr must exist for the encounter.",
+    message: "Record the patient's BMI for this encounter.",
   },
   historyGDPPR: {
     label: "General Data",
-    message: "Hmrhisto must exist with histype = GDPPR.",
+    message: "Complete the General Data section.",
   },
   historyCOMPL: {
     label: "Chief Complaint",
-    message: "Hmrhisto must exist with histype = COMPL.",
+    message: "Document the patient's chief complaint.",
   },
   historyPRHIS: {
     label: "Present Illness History",
-    message: "Hmrhisto must exist with histype = PRHIS.",
+    message: "Document the history of present illness.",
   },
   historyPAHIS: {
     label: "Past Medical History",
-    message: "Hmrhisto must exist with histype = PAHIS.",
+    message: "Document past medical history.",
   },
   historyOCENV: {
     label: "Occupation/Environment",
-    message: "Hmrhisto must exist with histype = OCENV.",
+    message: "Complete occupation and environment details.",
   },
   historyFAHIS: {
     label: "Family History",
-    message: "Hmrhisto must exist with histype = FAHIS.",
+    message: "Document relevant family history.",
   },
   historyDRTHE: {
     label: "Drug Therapy",
-    message: "Hmrhisto must exist with histype = DRTHE.",
+    message: "Document current or prior drug therapy.",
   },
   historyALCOH: {
     label: "Alcohol History",
-    message: "Hmrhisto must exist with histype = ALCOH.",
+    message: "Document alcohol use history.",
   },
   historyTOBAC: {
     label: "Tobacco History",
-    message: "Hmrhisto must exist with histype = TOBAC.",
+    message: "Document tobacco use history.",
   },
   historyDRUGA: {
     label: "Drug Allergies",
-    message: "Hmrhisto must exist with histype = DRUGA.",
+    message: "Document known drug allergies.",
   },
   historyOTHAL: {
     label: "Other Allergies",
-    message: "Hmrhisto must exist with histype = OTHAL.",
+    message: "Document non-drug allergies.",
   },
   historyOB: {
     label: "OB History",
-    message: "OB cases require Hmrhistoob with non-null obg and oblmp.",
+    message: "For OB cases, complete OB history including gravida and LMP.",
   },
   prenatal: {
     label: "Prenatal Data",
-    message:
-      "OB cases require Hprenatal with mcp, prenataldte2, prenataldte3, prenataldte4, and expectdeliverydte.",
+    message: "For OB cases, complete required prenatal details and expected delivery date.",
   },
   pertinentSignSymptoms: {
     label: "Signs & Symptoms",
-    message:
-      "Hsignsymptoms must exist, or Hpesignsothers must exist with pesigntype = others or painsite.",
+    message: "Record signs and symptoms, or provide details in other/pain site notes.",
   },
   physicalExam: {
     label: "Physical Examination",
-    message: "Hphyexam must exist for the encounter.",
+    message: "Complete physical examination findings.",
   },
   systemReview: {
     label: "System Review",
-    message: "Hmrsrev must exist for the encounter.",
+    message: "Complete system review notes.",
   },
   courseWard: {
     label: "Course in Ward",
-    message: "Hcrsward must exist for the encounter.",
+    message: "Add at least one course-in-ward entry.",
   },
   pharmacyClearance: {
     label: "Pharmacy Clearance",
-    message: "ClearanceController::Pharmacy must be empty.",
+    message: "Resolve all pending pharmacy clearance items.",
   },
   csrClearance: {
     label: "CSR Clearance",
-    message: "ClearanceController::CSR must be empty.",
+    message: "Resolve all pending CSR clearance items.",
   },
   laboratoryClearance: {
     label: "Laboratory Clearance",
-    message: "ClearanceController::Laboratory must be empty.",
+    message: "Resolve all pending laboratory clearance items.",
   },
   radiologyClearance: {
     label: "Radiology Clearance",
-    message: "ClearanceController::Radiology must be empty.",
+    message: "Resolve all pending radiology clearance items.",
   },
   newbornClearance: {
     label: "Newborn Clearance",
-    message: "ClearanceController::Newborn must be empty.",
+    message: "Resolve all pending newborn clearance items.",
   },
   dischargeOrder: {
     label: "Discharge Order",
-    message: "ADM encounters require Hdocord with orcode = DISCH.",
+    message: "For admitted patients, encode a discharge order.",
   },
   finalDiagnosis: {
     label: "Final Diagnosis",
-    message: "Hencdiag must exist with tdcode = FINDX and primediag = Y.",
+    message: "Set a primary final diagnosis.",
   },
   icdCode: {
     label: "ICD Code",
-    message: "Hencdiag must exist with tdcode = FINDX.",
+    message: "Assign an ICD code for the final diagnosis.",
   },
   courseInWard: {
     label: "Course in Ward Discharge",
-    message:
-      "Course-in-ward entries must cover each day from admission to discharge.",
+    message: "Ensure course-in-ward entries cover each day until discharge.",
   },
   phic: {
     label: "PHIC Status",
-    message:
-      "Henctr.phicclaim must be Y and Hpatcon.nbb must be Y for PHIC validation.",
+    message: "For PHIC claims, confirm PHIC claim and NBB fields are both set to Yes.",
   },
 };
 
