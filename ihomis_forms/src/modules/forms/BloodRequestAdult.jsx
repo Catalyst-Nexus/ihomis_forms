@@ -363,8 +363,3 @@ export default function BloodRequestAdult() {
     </div>
   );
 }
-
-BloodRequestAdult.propTypes = {
-	patientName: PropTypes.string,
-	patientData: PropTypes.object,
-};

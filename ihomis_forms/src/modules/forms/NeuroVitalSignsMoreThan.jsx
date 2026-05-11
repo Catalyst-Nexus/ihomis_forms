@@ -85,7 +85,6 @@ const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
             className={styles.chartImage}
             src={chartPlaceholderSrc}
             alt="Neuro vital signs status chart"
-            className="chart-image"
           />
         </section>
         
