@@ -161,7 +161,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                 </span>
               </div>
               <h1 className="validation-hero-title">
-                Chart validation checklist
+                Patient Record Verification
               </h1>
               <p className="validation-hero-sub">
                 Review incomplete form sections before generating the selected forms.
@@ -284,7 +284,8 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                       <h3 className="validation-section-label">{entry.formName}</h3>
                       <p className="validation-helper-text">Rule set: {entry.label}</p>
                     </div>
-                    <span className={`validation-badge ${entry.hasIssues ? "validation-badge--unknown" : "validation-badge--adm"}`}>
+                    <span className={`validation-badge ${entry.hasIssues ? "validation-badge--alert" : "validation-badge--success"}`}>
+                      <span className="validation-badge-icon">{entry.hasIssues ? "⚠" : "✓"}</span>
                       {entry.hasIssues ? "Action needed" : "Ready"}
                     </span>
                   </div>
@@ -295,16 +296,21 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                         key={check.id}
                         className={`validation-check-row ${check.passed ? "validation-check-row--pass" : "validation-check-row--fail"}`}
                       >
-                        <div className="validation-check-row__title-wrap">
-                          <div className="validation-check-row__title">{check.label}</div>
-                          <span
-                            className={`validation-check-status ${check.passed ? "validation-check-status--pass" : "validation-check-status--fail"}`}
-                          >
-                            {check.passed ? "Complete" : "Missing"}
-                          </span>
+                        <div className="validation-check-row__icon" aria-hidden="true">
+                          {check.passed ? "✓" : "●"}
                         </div>
-                        <div className="validation-check-row__message">
-                          {check.passed ? "This requirement is complete." : check.message}
+                        <div className="validation-check-row__content">
+                          <div className="validation-check-row__title-wrap">
+                            <div className="validation-check-row__title">{check.label}</div>
+                            <span
+                              className={`validation-check-status ${check.passed ? "validation-check-status--pass" : "validation-check-status--fail"}`}
+                            >
+                              {check.passed ? "Complete" : "Missing"}
+                            </span>
+                          </div>
+                          <div className="validation-check-row__message">
+                            {check.passed ? "This requirement is complete." : check.message}
+                          </div>
                         </div>
                       </div>
                     ))}
