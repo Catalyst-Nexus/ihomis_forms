@@ -257,7 +257,7 @@
 /* ── Table ──────────────────────────────────────────────────────── */
 .tracking-table-wrap {
   border: 1px solid rgba(16,54,63,.10);
-  overflow: auto; 
+  overflow: visible;
   background: #fff;
   box-shadow: 
     0 8px 32px rgba(16,54,63,.08),

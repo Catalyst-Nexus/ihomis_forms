@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { supabase } from "../tracking/hooks/supabaseClient.js";
 import {
   Search, X, Calendar, RefreshCw,
@@ -6,35 +7,14 @@ import {
 } from "lucide-react";
 import "./tracking.css";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WORKFLOW DEFINITION — fixed order, 8 columns (purely DB-driven, no API steps)
-// ─────────────────────────────────────────────────────────────────────────────
-const STEPS = [
-  { key: "phic",             label: "PHIC"             },
-  { key: "records_received", label: "Records Received" },
-  { key: "verify_status",    label: "Verify"           },
-  { key: "scan_status",      label: "Scan"             },
-  { key: "send_status",      label: "Send"             },
-  { key: "records_filed",    label: "Records Filed"    },
-  { key: "claim_map",        label: "Claim Map"        },
-  { key: "acpn",             label: "ACPN"             },
-];
+// Workflow (dynamic via tracking_sequence)
+function getNextSequenceId(steps, sequenceId) {
+  const idx = steps.findIndex(s => String(s.id) === String(sequenceId));
+  if (idx === -1 || idx >= steps.length - 1) return null;
+  return steps[idx + 1].id;
+}
 
-// Only used for DB bootstrap (seq description matching) — NOT for cell state
-const API_FIELD_MAP = {
-  phic:             ["phic"],
-  records_received: ["records received", "records_received"],
-  verify_status:    ["verify"],
-  scan_status:      ["scan"],
-  send_status:      ["send"],
-  records_filed:    ["records filed", "records_filed"],
-  claim_map:        ["claim map", "claim_map", "philhealth"],
-  acpn:             ["acpm", "acpn"],
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Toast
-// ─────────────────────────────────────────────────────────────────────────────
 function Toast({ message, type = "success", onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 3200);
@@ -49,9 +29,7 @@ function Toast({ message, type = "success", onDone }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 function extractAdmittedDate(encoCode = "") {
   const m = String(encoCode).match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
   if (!m) return "—";
@@ -91,48 +69,49 @@ function fmtTime(iso) {
   });
 }
 
-function getNextStepKey(stepKey) {
-  const idx = STEPS.findIndex(s => s.key === stepKey);
-  if (idx === -1 || idx >= STEPS.length - 1) return null;
-  return STEPS[idx + 1].key;
+function getStepLabel(steps, sequenceId) {
+  return steps.find(s => String(s.id) === String(sequenceId))?.label ?? `Step ${sequenceId}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ProcessModal
 // ─────────────────────────────────────────────────────────────────────────────
-function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
+function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
   const {
-    row, stepKey, stepLabel, existingLog,
-    currentUserId, currentUserName,
+    row, sequenceId, sequenceLabel, existingLog,
+    currentUserName,
   } = ctx;
 
   const [remarks,  setRemarks]  = useState(existingLog?.remarks ?? "");
-  const [nextUser, setNextUser] = useState("");
   const [saving,   setSaving]   = useState(false);
 
   const history = Object.entries(row._stepLogs ?? {})
     .filter(([, l]) => l.status === "done")
     .sort(([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at));
 
-  const nextStepKey   = getNextStepKey(stepKey);
-  const nextStepLabel = STEPS.find(s => s.key === nextStepKey)?.label ?? "next step";
-  const eligibleUsers = nextStepKey
-    ? (stepKeyToUsers[nextStepKey] ?? []).filter(u => u.user_id !== currentUserId)
-    : [];
+  const nextSequenceId = getNextSequenceId(steps, sequenceId);
+  const nextStepLabel = nextSequenceId ? getStepLabel(steps, nextSequenceId) : "next step";
+  const assignedUsers = nextSequenceId ? (sequenceIdToUsers[String(nextSequenceId)] ?? []) : [];
+  const autoAssignee = assignedUsers.length
+    ? [...assignedUsers].sort((a, b) => {
+      const al = String(a.full_name ?? a.username ?? a.user_id ?? "");
+      const bl = String(b.full_name ?? b.username ?? b.user_id ?? "");
+      return al.localeCompare(bl, undefined, { sensitivity: "base" });
+    })[0]
+    : null;
 
   async function handleDoneAndPass() {
-    if (nextStepKey && eligibleUsers.length > 0 && !nextUser) return;
     setSaving(true);
-    const result = await onSave({ row, stepKey, remarks, markDone: true, nextUserId: nextUser || null });
+    const result = await onSave({ row, sequenceId, remarks, markDone: true });
     setSaving(false);
     onClose(result);
   }
 
   async function handleSaveOnly() {
     setSaving(true);
-    await onSave({ row, stepKey, remarks, markDone: false });
+    const result = await onSave({ row, sequenceId, remarks, markDone: false });
     setSaving(false);
-    onClose(null);
+    onClose(result ?? null);
   }
 
   return (
@@ -143,7 +122,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           <div className="modal-header-info">
             <span className="modal-step-pill">
               <Clock size={11}/>
-              {stepLabel}
+              {sequenceLabel}
             </span>
             <h3 className="modal-patient">
               <User size={20} style={{marginRight: '6px', opacity: 0.6}}/>
@@ -162,14 +141,14 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
             </p>
             <div className="modal-timeline">
               {history.map(([key, log]) => {
-                const step = STEPS.find(s => s.key === key);
+                const step = steps.find(s => String(s.id) === String(key));
                 return (
                   <div key={key} className="timeline-row">
                     <CheckCircle2 size={15} className="tl-icon-done"/>
                     <div className="tl-content">
-                      <span className="tl-step">{step?.label ?? key}</span>
+                      <span className="tl-step">{step?.label ?? String(key)}</span>
                       <span className="tl-who">{log.completed_by} · {fmt(log.completed_at)}</span>
-                      {log.remarks && <p className="tl-remarks">"{log.remarks}"</p>}
+                      {log.remarks && <p className="tl-remarks">&quot;{log.remarks}&quot;</p>}
                     </div>
                   </div>
                 );
@@ -177,7 +156,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
               <div className="timeline-row timeline-row--current">
                 <Clock size={15} className="tl-icon-current"/>
                 <div className="tl-content">
-                  <span className="tl-step">{stepLabel} <em>(you are here)</em></span>
+                  <span className="tl-step">{sequenceLabel} <em>(you are here)</em></span>
                   <span className="tl-who">{currentUserName}</span>
                 </div>
               </div>
@@ -187,7 +166,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
 
         <div className="modal-body">
           <label className="modal-field-label">
-            Remarks for <strong>{stepLabel}</strong>
+            Remarks for <strong>{sequenceLabel}</strong>
           </label>
           <textarea
             className="modal-textarea"
@@ -202,31 +181,17 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
         <div className="modal-pass-section">
           <p className="modal-pass-title">
             <ArrowRight size={14}/>
-            {nextStepKey
+            {nextSequenceId
               ? <> Mark Done & Pass to <strong>{nextStepLabel}</strong> user</>
               : <> Mark Done (last step)</>
             }
           </p>
 
-          {nextStepKey ? (
-            eligibleUsers.length > 0 ? (
-              <>
-                <select
-                  className="modal-select"
-                  value={nextUser}
-                  onChange={e => setNextUser(e.target.value)}
-                >
-                  <option value="">— Choose who handles {nextStepLabel} —</option>
-                  {eligibleUsers.map(u => (
-                    <option key={u.user_id} value={u.user_id}>
-                      {u.full_name ?? u.username}
-                    </option>
-                  ))}
-                </select>
-                <p className="modal-pass-hint">
-                  Only users assigned to <strong>{nextStepLabel}</strong> are listed.
-                </p>
-              </>
+          {nextSequenceId ? (
+            autoAssignee ? (
+              <p className="modal-pass-hint">
+                Automatically passes to <strong>{autoAssignee.full_name ?? autoAssignee.username ?? autoAssignee.user_id}</strong>.
+              </p>
             ) : (
               <p className="modal-pass-hint modal-pass-hint--warn">
                 ⚠️ No users are assigned to <strong>{nextStepLabel}</strong> yet.
@@ -250,8 +215,7 @@ function ProcessModal({ ctx, stepKeyToUsers, onClose, onSave }) {
           <button
             className="mbtn mbtn--primary"
             onClick={handleDoneAndPass}
-            disabled={saving || (nextStepKey && eligibleUsers.length > 0 && !nextUser)}
-            title={nextStepKey && !nextUser ? "Select a user first" : ""}
+            disabled={saving}
           >
             {saving
               ? "Saving…"
@@ -279,14 +243,29 @@ export default function Tracking({
   const [dateInput,  setDateInput]  = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
+  const [steps,              setSteps]              = useState([]);
   const [apiRows,            setApiRows]            = useState([]);
   const [dbRows,             setDbRows]             = useState([]);
   const [wfLogs,             setWfLogs]             = useState({});
   const [allUsers,           setAllUsers]           = useState([]);
-  const [myAssignedStepKeys, setMyAssignedStepKeys] = useState(new Set());
+  const [myAssignedSeqIds,   setMyAssignedSeqIds]   = useState(new Set());
   const [isSuperUser,        setIsSuperUser]        = useState(false);
-  const [seqToKey,           setSeqToKey]           = useState({});
-  const [stepKeyToUsers,     setStepKeyToUsers]     = useState({});
+  const [sequenceIdToUsers,  setSequenceIdToUsers]  = useState({});
+
+  // Deterministic auto-assignee for each sequence step
+  const sequenceIdToAutoAssignee = useMemo(() => {
+    const out = {};
+    for (const [seqId, users] of Object.entries(sequenceIdToUsers ?? {})) {
+      const list = Array.isArray(users) ? users : [];
+      const sorted = [...list].sort((a, b) => {
+        const al = String(a.full_name ?? a.username ?? a.user_id ?? "");
+        const bl = String(b.full_name ?? b.username ?? b.user_id ?? "");
+        return al.localeCompare(bl, undefined, { sensitivity: "base" });
+      });
+      out[String(seqId)] = sorted[0] ?? null;
+    }
+    return out;
+  }, [sequenceIdToUsers]);
 
   const [loadingApi,  setLoadingApi]  = useState(false);
   const [syncing,     setSyncing]     = useState(false);
@@ -297,60 +276,119 @@ export default function Tracking({
   const [toast,       setToast]       = useState(null);
   const ROWS_PER_PAGE = 10;
 
-  // ── Bootstrap ────────────────────────────────────────────────────────────
+  // ── Load workflow steps (dynamic) ────────────────────────────────────────
+  const reloadSteps = useCallback(async () => {
+    const { data, error: stepsErr } = await supabase
+      .from("tracking_sequence")
+      .select("id, description, sort_order")
+      .order("sort_order", { ascending: true });
+
+    if (stepsErr) {
+      console.error("reloadSteps:", stepsErr.message);
+      return;
+    }
+
+    setSteps((data ?? []).map(r => ({
+      id: r.id,
+      label: r.description,
+      sortOrder: r.sort_order,
+    })));
+  }, []);
+
+  useEffect(() => {
+    reloadSteps();
+  }, [reloadSteps]);
+
+  // Realtime: reflect inserts/deletes/reorders/edits in tracking_sequence instantly
+  useEffect(() => {
+    const ch = supabase
+      .channel("tracking-sequence-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tracking_sequence" },
+        () => reloadSteps(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [reloadSteps]);
+
   useEffect(() => {
     if (!currentUserId) return;
+    let alive = true;
     (async () => {
-      const { data: seqs } = await supabase
-        .from("tracking_sequence")
-        .select("id, description")
-        .order("sort_order", { ascending: true });
+      const { data: users, error: usersErr } = await supabase
+        .from("users")
+        .select("user_id, username, full_name")
+        .eq("active", true);
 
-      const map = {};
-      for (const s of seqs ?? []) {
-        const desc = s.description.toLowerCase();
-        for (const [key, kws] of Object.entries(API_FIELD_MAP)) {
-          if (kws.some(kw => desc.includes(kw))) { map[s.id] = key; break; }
-        }
+      if (!alive) return;
+      if (usersErr) {
+        console.error("load users:", usersErr.message);
       }
-      setSeqToKey(map);
-
-      const { data: users } = await supabase
-        .from("users").select("user_id, username, full_name").eq("active", true);
       setAllUsers(users ?? []);
 
-      const { data: allAssignments } = await supabase
-        .from("user_seq_assignment").select("user_id, seq_id");
+      const { data: allAssignments, error: assignErr } = await supabase
+        .from("user_seq_assignment")
+        .select("user_id, seq_id");
 
-      const skToUsers = {};
-      for (const stepKey of Object.keys(API_FIELD_MAP)) skToUsers[stepKey] = [];
+      if (!alive) return;
+      if (assignErr) {
+        console.error("load user_seq_assignment:", assignErr.message);
+      }
+
+      const seqToUsers = {};
       for (const assignment of allAssignments ?? []) {
-        const sk   = map[assignment.seq_id];
-        if (!sk) continue;
+        const seqId = assignment.seq_id;
+        if (seqId == null) continue;
         const user = (users ?? []).find(u => u.user_id === assignment.user_id);
-        if (user && !skToUsers[sk].some(u => u.user_id === user.user_id)) {
-          skToUsers[sk].push(user);
+        if (!user) continue;
+        const k = String(seqId);
+        if (!seqToUsers[k]) seqToUsers[k] = [];
+        if (!seqToUsers[k].some(u => u.user_id === user.user_id)) {
+          seqToUsers[k].push(user);
         }
       }
-      setStepKeyToUsers(skToUsers);
+      setSequenceIdToUsers(seqToUsers);
 
-      const { data: myTA } = await supabase
+      const { data: myTA, error: taErr } = await supabase
         .from("tracking_user_assignment")
-        .select("tag_order").eq("user_id", currentUserId);
+        .select("tag_order")
+        .eq("user_id", currentUserId);
+
+      if (!alive) return;
+      if (taErr) {
+        console.error("load tracking_user_assignment:", taErr.message);
+      }
+
       const isSuper = (myTA ?? []).some(a => a.tag_order === 1);
       setIsSuperUser(isSuper);
 
       if (!isSuper) {
-        const { data: mySeqs } = await supabase
-          .from("user_seq_assignment").select("seq_id").eq("user_id", currentUserId);
-        setMyAssignedStepKeys(new Set(
-          (mySeqs ?? []).map(r => map[r.seq_id]).filter(Boolean)
-        ));
+        const { data: mySeqs, error: mySeqErr } = await supabase
+          .from("user_seq_assignment")
+          .select("seq_id")
+          .eq("user_id", currentUserId);
+
+        if (!alive) return;
+        if (mySeqErr) {
+          console.error("load my user_seq_assignment:", mySeqErr.message);
+        }
+
+        setMyAssignedSeqIds(new Set((mySeqs ?? []).map(r => r.seq_id).filter(Boolean)));
+      } else {
+        setMyAssignedSeqIds(new Set());
       }
     })();
+
+    return () => {
+      alive = false;
+    };
   }, [currentUserId]);
 
-  // ── Fetch API (for patient demographics only) ────────────────────────────
+  // ── Fetch API (for patient demographics only)
   const fetchApi = useCallback(async () => {
     const url = import.meta.env.VITE_CHART_TRACKING;
     if (!url) { setError("VITE_CHART_TRACKING not configured."); return; }
@@ -366,87 +404,183 @@ export default function Tracking({
 
   useEffect(() => { fetchApi(); }, [fetchApi]);
 
-  // ── Sync API → tracking table (demographics only) ────────────────────────
-useEffect(() => {
-  if (!apiRows.length) return;
-  let cancelled = false;
-  (async () => {
-    setSyncing(true);
-    // Only sync first 100 rows, not all 23,621
-    const toSync = apiRows.slice(0, 100);
-    for (const r of toSync) {
-      if (cancelled) break;
-      const enco = r.enccode ?? r.tracking_encocode;
-      if (!enco) continue;
-      await supabase.from("tracking").upsert(
-        { tracking_encocode: enco, encounter_type: r.encounter_type ?? "", is_current: true, created_by: String(r.patient_id ?? "") },
-        { onConflict: "tracking_encocode" }
-      );
+  // ── Reload DB + workflow logs 
+  const reloadDb = useCallback(async () => {
+    if (!apiRows.length) { setDbRows([]); setWfLogs({}); return; }
+
+    // Only get encocodes visible on current page
+    const pageEncocodes = apiRows
+      .map(r => r.enccode ?? r.tracking_encocode ?? "")
+      .filter(Boolean)
+      .slice(0, 500); 
+
+    // Fetch in small sequential batches, not all at once
+    const allTrackingRows = [];
+    for (let i = 0; i < pageEncocodes.length; i += 20) {
+      const chunk = pageEncocodes.slice(i, i + 20);
+      const { data } = await supabase
+        .from("tracking")
+        .select("id, tracking_encocode, encounter_type, date_created")
+        .in("tracking_encocode", chunk);
+      if (data) allTrackingRows.push(...data);
     }
-    if (!cancelled) { setSyncing(false); await reloadDb(); }
-  })();
-  return () => { cancelled = true; };
-}, [apiRows]);
 
-  // ── Reload DB + workflow logs ────────────────────────────────────────────
-  // Splits array into chunks of `size` to keep URLs short (avoids CORS/414 on large .in() queries)
-  function chunkArray(arr, size) {
-    const out = [];
-    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-    return out;
-  }
+    if (!allTrackingRows.length) { setDbRows([]); setWfLogs({}); return; }
 
-const reloadDb = useCallback(async () => {
-  if (!apiRows.length) { setDbRows([]); setWfLogs({}); return; }
+    const ids = allTrackingRows.map(r => r.id);
+    const allLogs = [];
+    for (let i = 0; i < ids.length; i += 50) {
+      const chunk = ids.slice(i, i + 50);
+      const { data } = await supabase
+        .from("workflow_step_log")
+        .select("id, tracking_id, sequence_id, status, remarks, completed_by, completed_at, assigned_to")
+        .in("tracking_id", chunk);
+      if (data) allLogs.push(...data);
+    }
 
-  // Only get encocodes visible on current page
-  const pageEncocodes = apiRows
-    .map(r => r.enccode ?? r.tracking_encocode ?? "")
-    .filter(Boolean)
-    .slice(0, 500); // max 500 at a time
-
-  // Fetch in small sequential batches, not all at once
-  const allTrackingRows = [];
-  for (let i = 0; i < pageEncocodes.length; i += 20) {
-    const chunk = pageEncocodes.slice(i, i + 20);
-    const { data } = await supabase
-      .from("tracking")
-      .select("id, tracking_encocode, encounter_type, date_created")
-      .in("tracking_encocode", chunk);
-    if (data) allTrackingRows.push(...data);
-  }
-
-  if (!allTrackingRows.length) { setDbRows([]); setWfLogs({}); return; }
-
-  const ids = allTrackingRows.map(r => r.id);
-  const allLogs = [];
-  for (let i = 0; i < ids.length; i += 50) {
-    const chunk = ids.slice(i, i + 50);
-    const { data } = await supabase
-      .from("workflow_step_log")
-      .select("id, tracking_id, step_key, status, remarks, completed_by, completed_at, assigned_to")
-      .in("tracking_id", chunk);
-    if (data) allLogs.push(...data);
-  }
-
-  const lm = {};
-  for (const l of allLogs) {
-    if (!lm[l.tracking_id]) lm[l.tracking_id] = {};
-    lm[l.tracking_id][l.step_key] = l;
-  }
-  setWfLogs(lm);
-  setDbRows(allTrackingRows);
-}, [apiRows]);
+    const lm = {};
+    for (const l of allLogs) {
+      if (!lm[l.tracking_id]) lm[l.tracking_id] = {};
+      lm[l.tracking_id][l.sequence_id] = l;
+    }
+    setWfLogs(lm);
+    setDbRows(allTrackingRows);
+  }, [apiRows]);
 
   useEffect(() => { reloadDb(); }, [reloadDb]);
+
+  // ── Normalize workflow progression when sequence changes ────────────────
+  // If steps are inserted/reordered, we must:
+  // 1) Reset any out-of-order 'active' logs to pending
+  // 2) Ensure the *correct* next step (by sort_order) is active
+  const stepsKey = useMemo(
+    () => steps.map(s => `${s.id}:${s.sortOrder ?? ""}`).join("|"),
+    [steps],
+  );
+  const normalizingRef = useRef(false);
+
+  const normalizeLoadedWorkflows = useCallback(async () => {
+    if (!steps.length || !dbRows.length) return false;
+
+    const resetIds = new Set();
+    const expectedUpserts = [];
+
+    for (const tr of dbRows) {
+      const trackingId = tr?.id;
+      if (!trackingId) continue;
+
+      const logs = wfLogs?.[trackingId];
+      if (!logs || Object.keys(logs).length === 0) {
+        // Unstarted record: don't create an active row automatically.
+        continue;
+      }
+
+      const expectedStep = steps.find(s => logs?.[s.id]?.status !== "done");
+
+      // If everything is done, clear any stray active logs.
+      if (!expectedStep) {
+        for (const l of Object.values(logs)) {
+          if (l?.status === "active" && l?.id) resetIds.add(l.id);
+        }
+        continue;
+      }
+
+      const expectedId = expectedStep.id;
+      for (const l of Object.values(logs)) {
+        if (!l?.id) continue;
+        if (l.status === "active" && String(l.sequence_id) !== String(expectedId)) {
+          resetIds.add(l.id);
+        }
+      }
+
+      const expectedLog = logs?.[expectedId];
+      const autoAssignee = sequenceIdToAutoAssignee[String(expectedId)] ?? null;
+      const assignedTo = autoAssignee?.user_id != null ? String(autoAssignee.user_id) : null;
+
+      const needsActive = !expectedLog || expectedLog.status !== "active";
+      const needsAssignee = assignedTo && String(expectedLog?.assigned_to ?? "") !== assignedTo;
+
+      if (needsActive || needsAssignee) {
+        expectedUpserts.push({
+          tracking_id:  trackingId,
+          sequence_id:  expectedId,
+          status:       "active",
+          assigned_to:  assignedTo,
+          remarks:      expectedLog?.remarks ?? null,
+          completed_by: null,
+          completed_at: null,
+        });
+      }
+    }
+
+    let changed = false;
+
+    if (resetIds.size > 0) {
+      const ids = [...resetIds];
+      const { error } = await supabase
+        .from("workflow_step_log")
+        .update({ status: "pending", assigned_to: null })
+        .in("id", ids);
+      if (error) {
+        console.error("normalize reset actives:", error.message);
+      } else {
+        changed = true;
+      }
+    }
+
+    if (expectedUpserts.length > 0) {
+      const { error } = await supabase
+        .from("workflow_step_log")
+        .upsert(expectedUpserts, { onConflict: "tracking_id,sequence_id", ignoreDuplicates: false });
+      if (error) {
+        console.error("normalize expected active:", error.message);
+      } else {
+        changed = true;
+      }
+    }
+
+    return changed;
+  }, [steps, dbRows, wfLogs, sequenceIdToAutoAssignee]);
+
+  useEffect(() => {
+    if (normalizingRef.current) return;
+    if (!steps.length || !dbRows.length) return;
+
+    normalizingRef.current = true;
+    (async () => {
+      const changed = await normalizeLoadedWorkflows();
+      if (changed) await reloadDb();
+    })()
+      .catch((e) => console.error("normalize error:", e?.message ?? e))
+      .finally(() => {
+        normalizingRef.current = false;
+      });
+  }, [stepsKey, steps.length, dbRows.length, normalizeLoadedWorkflows, reloadDb]);
+
+  useEffect(() => {
+    if (!apiRows.length) return;
+    let cancelled = false;
+    (async () => {
+      setSyncing(true);
+      const toSync = apiRows.slice(0, 100);
+      for (const r of toSync) {
+        if (cancelled) break;
+        const enco = r.enccode ?? r.tracking_encocode;
+        if (!enco) continue;
+        await supabase.from("tracking").upsert(
+          { tracking_encocode: enco, encounter_type: r.encounter_type ?? "", is_current: true, created_by: String(r.patient_id ?? "") },
+          { onConflict: "tracking_encocode" }
+        );
+      }
+      if (!cancelled) { setSyncing(false); await reloadDb(); }
+    })();
+    return () => { cancelled = true; };
+  }, [apiRows, reloadDb]);
 
   // ── Merge ────────────────────────────────────────────────────────────────
   const mergedRows = useMemo(() => apiRows.map(apiRow => {
     const enco = apiRow.enccode ?? apiRow.tracking_encocode ?? "";
     const db = dbRows.find(r => r.tracking_encocode === enco);
-    if (apiRows.indexOf(apiRow) < 3) {
-    console.log("[merge] enco:", enco, "| db found:", db?.id ?? "NULL", "| dbRows sample:", dbRows.slice(0,2).map(r => r.tracking_encocode));
-  }
     const dis  = apiRow.discharged_date || "—";
     return {
       id:             db?.id ?? null,
@@ -487,8 +621,8 @@ const reloadDb = useCallback(async () => {
   const paginatedRows = filteredRows.slice((currentPage-1)*ROWS_PER_PAGE, currentPage*ROWS_PER_PAGE);
 
   // ── Cell state — DB-ONLY, no API step resolution ─────────────────────────
-function getCellState(row, stepKey, allUsers) {
-  const wfLog = row._stepLogs?.[stepKey];
+function getCellState(row, sequenceId, allUsers) {
+  const wfLog = row._stepLogs?.[sequenceId];
 
   // ── Done ────────────────────────────────────────────────────────────────
   if (wfLog?.status === "done") {
@@ -524,22 +658,25 @@ function getCellState(row, stepKey, allUsers) {
     String(myUser?.full_name ?? "").toLowerCase(),
   ].filter(Boolean));
 
-  const stepIndex = STEPS.findIndex(s => s.key === stepKey);
+  const stepIndex = steps.findIndex(s => String(s.id) === String(sequenceId));
+  if (stepIndex === -1) {
+    return { status: "pending", value: "", meta: "", canClick: false, log: wfLog ?? null };
+  }
 
-  // ── Check previous step is done (skip for first step) ───────────────────
-  const previousStepDone = stepIndex === 0 || (() => {
-    const prevStep = STEPS[stepIndex - 1];
-    return row._stepLogs?.[prevStep.key]?.status === "done";
-  })();
+  // ── Strict gating: all previous steps must be done ──────────────────────
+  const allPreviousDone = stepIndex === 0 || steps
+    .slice(0, stepIndex)
+    .every(s => row._stepLogs?.[s.id]?.status === "done");
+
+  // Never show waiting/active out-of-order.
+  if (!allPreviousDone) {
+    return { status: "pending", value: "", meta: "", canClick: false, log: wfLog ?? null };
+  }
 
   // ── Super user logic ─────────────────────────────────────────────────────
   if (isSuperUser) {
-    if (!previousStepDone) {
-      return { status: "pending", value: "", meta: "", canClick: false, log: null };
-    }
     // Active in DB
     if (wfLog?.status === "active") {
-      const assignedTo = String(wfLog.assigned_to ?? "").toLowerCase().trim();
       return {
         status:   "active",
         value:    "",
@@ -554,7 +691,7 @@ function getCellState(row, stepKey, allUsers) {
 
   // ── Regular user logic ───────────────────────────────────────────────────
   // Must be assigned to this step type at all
-  if (!myAssignedStepKeys.has(stepKey)) {
+  if (!myAssignedSeqIds.has(sequenceId)) {
     // Not their step — show state but never clickable
     if (wfLog?.status === "active") {
       return {
@@ -571,21 +708,21 @@ function getCellState(row, stepKey, allUsers) {
   // Their step type — but only clickable if THIS specific row was passed to them
   if (wfLog?.status === "active") {
     const assignedTo = String(wfLog.assigned_to ?? "").toLowerCase().trim();
-    const isAssignedToMe = assignedTo !== "" && myIds.has(assignedTo);
+    const isAssignedToMe = assignedTo === "" || myIds.has(assignedTo);
     return {
       status:   "active",
       value:    "",
       meta:     isAssignedToMe
         ? ""
         : (wfLog.assigned_to ? `Assigned to ${wfLog.assigned_to}` : "Waiting"),
-      canClick: isAssignedToMe && previousStepDone,
+      canClick: isAssignedToMe,
       log:      wfLog,
     };
   }
 
   // No log yet — regular user can only initiate first step if assigned
   // (subsequent steps require the row to be explicitly passed via handleSave)
-  if (stepIndex === 0 && previousStepDone) {
+  if (stepIndex === 0) {
     return { status: "active", value: "", meta: "", canClick: true, log: null };
   }
 
@@ -593,9 +730,9 @@ function getCellState(row, stepKey, allUsers) {
 }
 
   // ── Open modal ───────────────────────────────────────────────────────────
-  function openModal(row, stepKey, stepLabel, cell) {
+  function openModal(row, sequenceId, sequenceLabel, cell) {
     if (!cell.canClick) return;
-    setModal({ row, stepKey, stepLabel, existingLog: cell.log, currentUserId, currentUserName });
+    setModal({ row, sequenceId, sequenceLabel, existingLog: cell.log, currentUserId, currentUserName });
   }
 
   // ── Ensure tracking row ──────────────────────────────────────────────────
@@ -617,17 +754,28 @@ function getCellState(row, stepKey, allUsers) {
   
 
   // ── Save ─────────────────────────────────────────────────────────────────
-  async function handleSave({ row, stepKey, remarks, markDone, nextUserId }) {
+  async function handleSave({ row, sequenceId, remarks, markDone }) {
     const now = new Date().toISOString();
     const trackingId = await ensureTrackingRow(row);
     if (!trackingId) { console.error("Could not resolve tracking ID for", row.encoCode); return null; }
      
-    const existing = row._stepLogs?.[stepKey];
+    const liveLogs = wfLogs?.[trackingId] ?? row._stepLogs ?? {};
+    const expectedStep = steps.find(s => liveLogs?.[s.id]?.status !== "done");
+    if (expectedStep && String(expectedStep.id) !== String(sequenceId)) {
+      const expectedLabel = getStepLabel(steps, expectedStep.id);
+      const currentLabel = getStepLabel(steps, sequenceId);
+      return {
+        type: "error",
+        message: `⚠️ Workflow changed. You can't complete "${currentLabel}" yet — next step is "${expectedLabel}".`,
+      };
+    }
+
+    const existing = liveLogs?.[sequenceId];
 
     if (markDone) {
       const donePayload = {
         tracking_id:  trackingId,
-        step_key:     stepKey,
+        sequence_id:  sequenceId,
         status:       "done",
         remarks:      remarks || null,
         completed_by: currentUserName ?? currentUserId,
@@ -641,35 +789,31 @@ function getCellState(row, stepKey, allUsers) {
         await supabase.from("workflow_step_log").insert(donePayload);
       }
 
-      // Activate next step for chosen user — use upsert to avoid 409 Conflict
-      const nextKey = getNextStepKey(stepKey);
-      if (nextKey) {
-      const resolvedUser = allUsers.find(
-  u => String(u.user_id) === String(nextUserId || currentUserId) ||
-       String(u.username).toLowerCase() === String(nextUserId || currentUserId).toLowerCase()
-);
-const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
+      // Activate next step automatically based on step assignment
+      const nextSequenceId = getNextSequenceId(steps, sequenceId);
+      if (nextSequenceId) {
+        const autoAssignee = sequenceIdToAutoAssignee[String(nextSequenceId)] ?? null;
+        const assignTo = autoAssignee?.user_id != null ? String(autoAssignee.user_id) : null;
         // Single atomic upsert: if the row exists update it, otherwise insert it.
-        // Requires a unique constraint on (tracking_id, step_key) in your DB.
-        // If it doesn't exist yet, add it: CREATE UNIQUE INDEX ON workflow_step_log(tracking_id, step_key);
+        // Requires a unique constraint on (tracking_id, sequence_id) in your DB.
         const { error: upsertErr } = await supabase.from("workflow_step_log").upsert(
           {
             tracking_id:  trackingId,
-            step_key:     nextKey,
+            sequence_id:  nextSequenceId,
             status:       "active",
             assigned_to:  assignTo,
             remarks:      null,
             completed_by: null,
             completed_at: null,
           },
-          { onConflict: "tracking_id,step_key", ignoreDuplicates: false }
+          { onConflict: "tracking_id,sequence_id", ignoreDuplicates: false }
         );
 
         // Fallback: if upsert fails (e.g. no unique constraint yet), try update then insert
         if (upsertErr) {
           const { data: nextEx } = await supabase
             .from("workflow_step_log").select("id")
-            .eq("tracking_id", trackingId).eq("step_key", nextKey).maybeSingle();
+            .eq("tracking_id", trackingId).eq("sequence_id", nextSequenceId).maybeSingle();
           if (nextEx?.id) {
             await supabase.from("workflow_step_log")
               .update({ status: "active", assigned_to: assignTo })
@@ -677,7 +821,7 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
           } else {
             await supabase.from("workflow_step_log").insert({
               tracking_id:  trackingId,
-              step_key:     nextKey,
+              sequence_id:  nextSequenceId,
               status:       "active",
               assigned_to:  assignTo,
               remarks:      null,
@@ -688,25 +832,34 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
         }
 
         // Look up the name of the assigned user for the toast
-        const nextUserObj = allUsers.find(u => String(u.user_id) === String(assignTo));
-        const nextLabel   = STEPS.find(s => s.key === nextKey)?.label ?? nextKey;
+        const nextUserObj = assignTo
+          ? allUsers.find(u => String(u.user_id) === String(assignTo))
+          : null;
+        const nextLabel   = getStepLabel(steps, nextSequenceId);
+        const currentLabel = getStepLabel(steps, sequenceId);
+        const who = nextUserObj?.full_name
+          ?? nextUserObj?.username
+          ?? autoAssignee?.full_name
+          ?? autoAssignee?.username
+          ?? (assignTo ?? "unassigned");
         await reloadDb();
         return {
           type:    "success",
-          message: `✅ "${STEPS.find(s=>s.key===stepKey)?.label}" marked done. Passed "${nextLabel}" to ${nextUserObj?.full_name ?? nextUserObj?.username ?? assignTo}.`,
+          message: `✅ "${currentLabel}" marked done. Passed "${nextLabel}" to ${who}.`,
         };
       } else {
+        const currentLabel = getStepLabel(steps, sequenceId);
         await reloadDb();
         return {
           type:    "success",
-          message: `✅ "${STEPS.find(s=>s.key===stepKey)?.label}" completed — workflow finished for this record.`,
+          message: `✅ "${currentLabel}" completed — workflow finished for this record.`,
         };
       }
     } else {
       // Save remarks only
       const activePayload = {
         tracking_id: trackingId,
-        step_key:    stepKey,
+        sequence_id: sequenceId,
         status:      "active",
         remarks:     remarks || null,
         assigned_to: String(currentUserId),
@@ -754,9 +907,9 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
               Viewing as: <strong>{currentUserName}</strong>
               {isSuperUser
                 ? <span className="badge-super">SUPER USER</span>
-                : myAssignedStepKeys.size > 0
+                : myAssignedSeqIds.size > 0
                 ? <span className="badge-assigned">
-                    {[...myAssignedStepKeys].map(k => STEPS.find(s=>s.key===k)?.label).join(", ")}
+                    {[...myAssignedSeqIds].map(id => getStepLabel(steps, id)).join(", ")}
                   </span>
                 : null
               }
@@ -813,8 +966,8 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
           <span className="leg leg-hint">
             {isSuperUser
               ? "Super User — click any step cell to process"
-              : myAssignedStepKeys.size > 0
-              ? `You can process: ${[...myAssignedStepKeys].map(k=>STEPS.find(s=>s.key===k)?.label).join(", ")}`
+              : myAssignedSeqIds.size > 0
+              ? `You can process: ${[...myAssignedSeqIds].map(id => getStepLabel(steps, id)).join(", ")}`
               : "👁 View only — no step assigned"}
           </span>
         </div>
@@ -837,14 +990,14 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                 <th>Discharged</th>
                 <th>Days Left</th>
                 <th>Patient Name</th>
-                {STEPS.map(s => <th key={s.key} className="th-step">{s.label}</th>)}
+                {steps.map(s => <th key={s.id} className="th-step">{s.label}</th>)}
               </tr>
             </thead>
             <tbody>
               {isLoading && !filteredRows.length
-                ? <tr><td colSpan={7+STEPS.length} className="tracking-td-center">⏳ Loading…</td></tr>
+                ? <tr><td colSpan={7+steps.length} className="tracking-td-center">⏳ Loading…</td></tr>
                 : !filteredRows.length
-                ? <tr><td colSpan={7+STEPS.length} className="tracking-td-center">No records found.</td></tr>
+                ? <tr><td colSpan={7+steps.length} className="tracking-td-center">No records found.</td></tr>
                 : paginatedRows.map((row, idx) => (
                   <tr key={row.encoCode}>
                     <td>{(currentPage-1)*ROWS_PER_PAGE + idx + 1}</td>
@@ -861,19 +1014,19 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
                     </td>
                     <td className="tracking-td-name">{row.patientName}</td>
 
-                    {STEPS.map(step => {
-                      const cell      = getCellState(row, step.key, allUsers);
+                    {steps.map(step => {
+                      const cell      = getCellState(row, step.id, allUsers);
                       const clickable = cell.canClick;
                       return (
                         <td
-                          key={step.key}
+                          key={step.id}
                           className={[
                             "wf-cell",
                             cell.status === "done"   && "wf-done",
                             cell.status === "active" && "wf-active",
                             clickable                && "wf-clickable",
                           ].filter(Boolean).join(" ")}
-                          onClick={() => clickable && openModal(row, step.key, step.label, cell)}
+                          onClick={() => clickable && openModal(row, step.id, step.label, cell)}
                           title={clickable ? `Click to process ${step.label}` : cell.value || ""}
                         >
                           <div className="wf-inner">
@@ -933,7 +1086,8 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
       {modal && (
         <ProcessModal
           ctx={modal}
-          stepKeyToUsers={stepKeyToUsers}
+          steps={steps}
+          sequenceIdToUsers={sequenceIdToUsers}
           onClose={handleModalClose}
           onSave={handleSave}
         />
@@ -941,3 +1095,36 @@ const assignTo = String(resolvedUser?.user_id ?? nextUserId ?? currentUserId);
     </div>
   );
 }
+
+Toast.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["success", "error"]),
+  onDone: PropTypes.func.isRequired,
+};
+
+ProcessModal.propTypes = {
+  ctx: PropTypes.shape({
+    row: PropTypes.object.isRequired,
+    sequenceId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    sequenceLabel: PropTypes.string.isRequired,
+    existingLog: PropTypes.object,
+    currentUserId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    currentUserName: PropTypes.string,
+  }).isRequired,
+  steps: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+      label: PropTypes.string,
+    }),
+  ).isRequired,
+  sequenceIdToUsers: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+};
+
+Tracking.propTypes = {
+  onBackToModuleNavigator: PropTypes.func.isRequired,
+  currentUserId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  currentUserName: PropTypes.string,
+  onSwitchUser: PropTypes.func.isRequired,
+};
