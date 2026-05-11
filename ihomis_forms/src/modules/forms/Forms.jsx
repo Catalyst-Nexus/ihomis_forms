@@ -62,7 +62,7 @@ import Lubchenco from "./Lubchenco";
 import AnesthesiaRecord from "./AnesthesiaRecord";
 import ChildImmunizationRecord from "./ChildImmunizationRecord";
 import MIS from "./MIS";
-// import TPRSheet from "./TPRSheet";
+import TPRSheet from "./TPRSheet";
 // import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
 // import RequestBloodCompatibility from "./RequestBloodCompatibility";
 // import RadiologyRequestOutside from "./RadiologyRequestOutside";
@@ -134,7 +134,7 @@ const COMPONENT_MAP = {
   AnesthesiaRecord,
   ChildImmunizationRecord,
   MIS,
-  // TPRSheet,
+  TPRSheet,
   // SurgicalSafetyChecklist,
   // RequestBloodCompatibility,
   // RadiologyRequestOutside,
