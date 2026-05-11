@@ -1,5 +1,9 @@
 import PropTypes from "prop-types";
 import { useState, useMemo, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import "./Forms.css";
 import Modal from "./Modal";
 import { supabase } from "../../lib/supabaseClient.js";
@@ -264,6 +268,21 @@ function calculateAgeFromBirthDate(value) {
   }
 
   return `${age} year(s)`;
+}
+
+function sanitizeFileName(value) {
+  const text = toSafeString(value).toLowerCase();
+
+  if (!text) {
+    return "forms";
+  }
+
+  return (
+    text
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .replace(/_{2,}/g, "_") || "forms"
+  );
 }
 
 function normalizeSexValue(value) {
@@ -531,6 +550,7 @@ export default function Forms({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [dbForms, setDbForms] = useState([]);
   const patientData = useMemo(
     () => buildPatientFormData(selectedPatient),
@@ -645,6 +665,186 @@ export default function Forms({
     </FormDocument>
   );
 
+  const waitForImageLoad = (image) =>
+    new Promise((resolve) => {
+      if (!image) {
+        resolve();
+        return;
+      }
+
+      if (image.complete && image.naturalWidth > 0) {
+        resolve();
+        return;
+      }
+
+      image.addEventListener("load", () => resolve(), { once: true });
+      image.addEventListener("error", () => resolve(), { once: true });
+    });
+
+  const captureFormToCanvas = async (rootNode) => {
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+
+    // Allow layout and fonts to settle
+    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+    const images = Array.from(rootNode.querySelectorAll("img"));
+    await Promise.all(images.map(waitForImageLoad));
+
+    // Keep the capture scale conservative so large forms do not blow past canvas limits.
+    const scales = [1.5, 1];
+    let lastErr = null;
+
+    for (const scale of scales) {
+      try {
+        console.debug(`html2canvas attempt with scale=${scale}`);
+        const result = await html2canvas(rootNode, {
+          backgroundColor: "#ffffff",
+          scale,
+          useCORS: true,
+          logging: false,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        });
+        console.debug("html2canvas succeeded", { width: result.width, height: result.height, scale });
+        return result;
+      } catch (err) {
+        console.warn(`html2canvas failed at scale=${scale}`, err);
+        lastErr = err;
+        // small yield so the browser can reclaim memory
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    }
+
+    throw lastErr || new Error("html2canvas failed for unknown reason");
+  };
+
+
+  const addCanvasToPdf = (pdf, canvas) => {
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const imageData = canvas.toDataURL("image/png", 1.0);
+
+    let remainingHeight = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
+    remainingHeight -= pageHeight;
+
+    while (remainingHeight > 0) {
+      pdf.addPage();
+      position -= pageHeight;
+      pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight, undefined, "FAST");
+      remainingHeight -= pageHeight;
+    }
+  };
+
+  const handleGenerateSelectedFormsPdf = async () => {
+    const selectedFormObjects = dbForms.filter((form) => selectedForms.has(form.id));
+
+    if (selectedFormObjects.length === 0) {
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+
+    const exportHost = document.createElement("div");
+    exportHost.style.position = "fixed";
+    exportHost.style.left = "-10000px";
+    exportHost.style.top = "0";
+    exportHost.style.width = "210mm";
+    exportHost.style.background = "#ffffff";
+    exportHost.style.pointerEvents = "none";
+    exportHost.style.zIndex = "-1";
+    document.body.appendChild(exportHost);
+
+    const root = createRoot(exportHost);
+
+    try {
+      const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+
+      const failed = [];
+      let pagesAdded = 0;
+
+      for (let index = 0; index < selectedFormObjects.length; index += 1) {
+        const formObject = selectedFormObjects[index];
+
+        // Render the form offscreen
+        flushSync(() => {
+          root.render(
+            <div style={{ width: "210mm", background: "#ffffff" }}>
+              {renderFormDocument(formObject)}
+            </div>,
+          );
+        });
+
+        await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+        const renderedNode = exportHost.firstElementChild;
+
+        if (!renderedNode) {
+          failed.push({ form: formObject, reason: "rendered node missing" });
+          continue;
+        }
+
+        try {
+          // If the rendered form contains explicit page children (FormDocument wraps pages
+          // inside `.form-document__body`), capture each page element separately so large
+          // tables (like the bilirubin/urine blocks) are not split across canvas page slices.
+          const bodyEl = renderedNode.querySelector?.('.form-document__body') || renderedNode;
+          const pageChildren = bodyEl && bodyEl.children ? Array.from(bodyEl.children).filter((c) => c.clientHeight > 0) : [];
+
+          if (pageChildren.length > 1) {
+            // Capture each page node individually
+            // eslint-disable-next-line no-restricted-syntax
+            for (const pageNode of pageChildren) {
+              const canvas = await captureFormToCanvas(pageNode);
+
+              if (pagesAdded > 0) pdf.addPage();
+              addCanvasToPdf(pdf, canvas);
+              pagesAdded += 1;
+            }
+          } else {
+            const canvas = await captureFormToCanvas(renderedNode);
+            if (pagesAdded > 0) pdf.addPage();
+            addCanvasToPdf(pdf, canvas);
+            pagesAdded += 1;
+          }
+        } catch (err) {
+          // Capture failures (likely CORS/asset/resize issues) shouldn't abort the whole export
+          console.error("Failed to capture form to canvas:", formObject, err);
+          failed.push({ form: formObject, reason: err?.message || String(err) });
+          // continue with remaining forms
+        }
+      }
+
+      if (pagesAdded === 0) {
+        const msg = failed.length > 0
+          ? `Failed to generate PDF: all ${failed.length} selected form(s) could not be exported.`
+          : "No forms were rendered to PDF.";
+        window.alert(msg);
+      } else {
+        const fileName = `${sanitizeFileName(patientName)}_selected_forms.pdf`;
+        pdf.save(fileName);
+
+        if (failed.length > 0) {
+          // Inform user some forms were skipped
+          const titles = failed.map((f) => f.form?.description || f.reason).slice(0, 5).join("; ");
+          window.alert(`PDF created, but ${failed.length} form(s) were skipped: ${titles}`);
+        }
+      }
+    } finally {
+      root.unmount();
+      exportHost.remove();
+      setIsGeneratingPdf(false);
+    }
+  };
+
   return (
     <div
       className="forms-container"
@@ -691,13 +891,12 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={() => {
-              const firstSelectedId = Array.from(selectedForms)[0];
-              const firstSelectedForm = dbForms.find((f) => f.id === firstSelectedId);
-              setOpenForm(firstSelectedForm || null);
-            }}
+            onClick={handleGenerateSelectedFormsPdf}
+            disabled={isGeneratingPdf}
           >
-            Generate Selected Forms ({selectedForms.size})
+            {isGeneratingPdf
+              ? "Generating PDF..."
+              : `Generate Selected Forms (${selectedForms.size})`}
           </button>
         )}
       </div>
@@ -759,7 +958,7 @@ export default function Forms({
       </Modal>
     </div>
   );
-}
+};
 
 Forms.propTypes = {
   isDarkMode: PropTypes.bool,
