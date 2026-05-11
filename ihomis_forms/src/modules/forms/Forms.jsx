@@ -60,8 +60,8 @@ import Partograph from "./Partograph";
 import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
 import Lubchenco from "./Lubchenco";
 import AnesthesiaRecord from "./AnesthesiaRecord";
-// import ChildImmunizationRecord from "./ChildImmunizationRecord";
-// import MIS from "./MIS";
+import ChildImmunizationRecord from "./ChildImmunizationRecord";
+import MIS from "./MIS";
 // import TPRSheet from "./TPRSheet";
 // import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
 // import RequestBloodCompatibility from "./RequestBloodCompatibility";
@@ -132,8 +132,8 @@ const COMPONENT_MAP = {
   PostAnesthesiaSheet,
   Lubchenco,
   AnesthesiaRecord,
-  // import ChildImmunizationRecord from "./ChildImmunizationRecord",
-  // import MIS from "./MIS",
+  ChildImmunizationRecord,
+  MIS,
   // TPRSheet,
   // SurgicalSafetyChecklist,
   // RequestBloodCompatibility,
