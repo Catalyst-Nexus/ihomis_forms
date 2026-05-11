@@ -236,6 +236,7 @@
 @media (max-width: 760px) {
   .page {
     width: 100%;
+    max-width: none;
     min-height: auto;
     font-size: 0.9rem;
     padding: 0.75rem;
