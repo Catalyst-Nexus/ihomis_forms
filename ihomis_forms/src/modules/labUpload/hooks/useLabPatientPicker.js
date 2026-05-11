@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchLabPatientCandidates } from "../api/labUploadApi.js";
+import {
+  fetchLabPatientCandidates,
+  fetchPatientEncounters,
+} from "../api/labUploadApi.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
+import { LAB_UPLOAD_PATIENT_SEARCH_URL } from "../labUploadConfig.js";
 
 const PAGE_SIZE = 10;
 
@@ -42,6 +46,15 @@ function useLabPatientPicker({
   const [pageIndex, setPageIndex] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const skipNextSearchSyncRef = useRef(false);
+
+  // Encounter selection state
+  const [showEncounterModal, setShowEncounterModal] = useState(false);
+  const [patientForEncounterSelection, setPatientForEncounterSelection] =
+    useState(null);
+  const [encounters, setEncounters] = useState([]);
+  const [selectedEncounter, setSelectedEncounter] = useState(null);
+  const [encountersLoading, setEncountersLoading] = useState(false);
+  const [encountersError, setEncountersError] = useState("");
 
   const explicitUserFilter = useMemo(
     () => resolveUserFilter(normalizedInitialContextParams),
@@ -279,6 +292,97 @@ function useLabPatientPicker({
     setPageIndex((currentPage) => Math.max(0, currentPage - 1));
   }
 
+  // Fetch encounters for a patient
+  async function loadPatientEncounters(patient) {
+    const hpercode =
+      patient?.rawData?.hpercode ||
+      patient?.contextParams?.hpercode ||
+      patient?.id ||
+      "";
+
+    if (!hpercode) {
+      setEncountersError("No patient ID available to fetch encounters.");
+      setEncounters([]);
+      return;
+    }
+
+    setEncountersLoading(true);
+    setEncountersError("");
+
+    try {
+      const response = await fetchPatientEncounters({
+        hpercode,
+        token,
+        patientSearchUrl: LAB_UPLOAD_PATIENT_SEARCH_URL,
+      });
+
+      setEncounters(response.encounters || []);
+
+      // Auto-select the first encounter if only one exists
+      if (response.encounters.length === 1) {
+        setSelectedEncounter(response.encounters[0]);
+      } else if (response.encounters.length > 1) {
+        setSelectedEncounter(null);
+      }
+    } catch (error) {
+      setEncountersError(
+        error instanceof Error ? error.message : "Failed to load encounters.",
+      );
+      setEncounters([]);
+    } finally {
+      setEncountersLoading(false);
+    }
+  }
+
+  // Open encounter modal for a patient
+  function openEncounterModalForPatient(patient) {
+    setPatientForEncounterSelection(patient);
+    setEncounters([]);
+    setSelectedEncounter(null);
+    setEncountersError("");
+    setShowEncounterModal(true);
+    loadPatientEncounters(patient);
+  }
+
+  // Close encounter modal
+  function closeEncounterModal() {
+    setShowEncounterModal(false);
+    setPatientForEncounterSelection(null);
+    setEncounters([]);
+    setSelectedEncounter(null);
+    setEncountersError("");
+  }
+
+  // Handle encounter selection
+  function handleEncounterSelection(encounter) {
+    setSelectedEncounter(encounter);
+  }
+
+  // Confirm encounter selection and close modal
+  function confirmEncounterSelection() {
+    if (!selectedEncounter || !patientForEncounterSelection) {
+      return;
+    }
+
+    const patient = patientForEncounterSelection;
+
+    // Update the patient's context with the selected encounter
+    patient.contextParams = {
+      ...(patient.contextParams || {}),
+      enccode: selectedEncounter.enccode,
+      enc: selectedEncounter.enccode,
+      encdates: selectedEncounter.encdates || "",
+      toa: selectedEncounter.toa || "",
+      tod: selectedEncounter.tod || "",
+      fhud: selectedEncounter.fhud || patient.contextParams?.fhud || "",
+    };
+    patient.selectedEncounter = selectedEncounter;
+
+    closeEncounterModal();
+    setSelectionConfirmed(true);
+    setSelectedPatientId(patient.id);
+  }
+
   return {
     patients,
     loading,
@@ -292,12 +396,24 @@ function useLabPatientPicker({
     hasPreviousPage: pageIndex >= 1,
     activeContextParams,
     shouldShowPicker: !selectionConfirmed,
+    // Encounter selection
+    showEncounterModal,
+    patientForEncounterSelection,
+    encounters,
+    selectedEncounter,
+    encountersLoading,
+    encountersError,
     setSearchTerm,
     selectPatient,
     confirmSelection,
     reopenSelection,
     goToNextPage,
     goToPreviousPage,
+    openEncounterModalForPatient,
+    closeEncounterModal,
+    handleEncounterSelection,
+    confirmEncounterSelection,
+    loadPatientEncounters,
   };
 }
 

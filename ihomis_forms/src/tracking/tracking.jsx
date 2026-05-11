@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
+import PropTypes from "prop-types";
+import "./tracking.css";
 import { supabase } from "../tracking/hooks/supabaseClient.js";
 import {
   Search, X, Calendar, RefreshCw,
@@ -233,14 +235,15 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Tracking({
   onBackToModuleNavigator,
-  currentUserId,
-  currentUserName,
-  onSwitchUser,
+  currentUserId, // ← from useUserSession
+  currentUserName, // ← from useUserSession
+  onSwitchUser, // ← clears session → shows UserPicker
+  onOpenTagging, // ← for opening tagging modal
 }) {
   const [encounterFilter, setEncounterFilter] = useState("ADM");
-  const [nameInput,  setNameInput]  = useState("");
+  const [nameInput, setNameInput] = useState("");
   const [nameFilter, setNameFilter] = useState("");
-  const [dateInput,  setDateInput]  = useState("");
+  const [dateInput, setDateInput] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
   const [steps,              setSteps]              = useState([]);
@@ -391,18 +394,32 @@ export default function Tracking({
   // ── Fetch API (for patient demographics only)
   const fetchApi = useCallback(async () => {
     const url = import.meta.env.VITE_CHART_TRACKING;
-    if (!url) { setError("VITE_CHART_TRACKING not configured."); return; }
-    setLoadingApi(true); setError("");
+    if (!url) {
+      setError("VITE_CHART_TRACKING is not configured.");
+      return;
+    }
+    setLoadingApi(true);
+    setError("");
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      setApiRows(Array.isArray(json) ? json : (json?.data ?? []));
-    } catch (e) { setError(`API error: ${e.message}`); }
-    finally { setLoadingApi(false); }
+      const list = Array.isArray(json)
+        ? json
+        : Array.isArray(json?.data)
+          ? json.data
+          : [];
+      setApiRows(list);
+    } catch (e) {
+      setError(`API fetch error: ${e.message}`);
+    } finally {
+      setLoadingApi(false);
+    }
   }, []);
 
-  useEffect(() => { fetchApi(); }, [fetchApi]);
+  useEffect(() => {
+    fetchApi();
+  }, [fetchApi]);
 
   // ── Reload DB + workflow logs 
   const reloadDb = useCallback(async () => {
@@ -565,14 +582,52 @@ export default function Tracking({
       const toSync = apiRows.slice(0, 100);
       for (const r of toSync) {
         if (cancelled) break;
-        const enco = r.enccode ?? r.tracking_encocode;
-        if (!enco) continue;
-        await supabase.from("tracking").upsert(
-          { tracking_encocode: enco, encounter_type: r.encounter_type ?? "", is_current: true, created_by: String(r.patient_id ?? "") },
-          { onConflict: "tracking_encocode" }
-        );
+        const encoCode = apiRow.enccode ?? apiRow.tracking_encocode;
+        if (!encoCode) continue;
+        const { data: upserted, error: uErr } = await supabase
+          .from("tracking")
+          .upsert(
+            {
+              tracking_encocode: encoCode,
+              encounter_type: apiRow.encounter_type ?? "",
+              is_current: true,
+              created_by: String(apiRow.patient_id ?? ""),
+            },
+            { onConflict: "tracking_encocode" },
+          )
+          .select("id")
+          .single();
+        if (uErr || !upserted?.id) continue;
+        const trackingId = upserted.id;
+        for (const step of steps) {
+          if (cancelled) break;
+          const apiField = matchApiField(step.label);
+          if (!apiField) continue;
+          const rawVal = apiRow[apiField];
+          if (!rawVal) continue;
+          const parsed = parseApiStatus(String(rawVal));
+          if (!parsed.done) continue;
+          const { data: existing } = await supabase
+            .from("tracking_log")
+            .select("id")
+            .eq("tracking_id", trackingId)
+            .eq("seq_id", step.id)
+            .maybeSingle();
+          if (existing) continue;
+          const doneAt = parsed.isoDate ?? new Date().toISOString();
+          await supabase.from("tracking_log").insert({
+            tracking_id: trackingId,
+            seq_id: step.id,
+            done_by: "API sync",
+            done_at: doneAt,
+            remarks: parsed.label,
+          });
+        }
       }
-      if (!cancelled) { setSyncing(false); await reloadDb(); }
+      if (!cancelled) {
+        setSyncing(false);
+        await reloadDbRows();
+      }
     })();
     return () => { cancelled = true; };
   }, [apiRows, reloadDb]);
@@ -598,27 +653,44 @@ export default function Tracking({
 
   // ── Filter + sort ────────────────────────────────────────────────────────
   const filteredRows = useMemo(() => {
-    const f = mergedRows.filter(r => {
+    return mergedRows.filter((r) => {
+      // ── Access gate: only show records this user is tagged on ──────────────
+      // If accessMap has entries (user is tagged somewhere), enforce it.
+      // If accessMap is empty (user not tagged anywhere), show nothing.
+      if (currentUserId) {
+        if (Object.keys(accessMap).length > 0 && r.id && !hasAccess(r.id))
+          return false;
+      }
       if (encounterFilter && r.encounterType !== encounterFilter) return false;
-      if (nameFilter && !r.patientName.toLowerCase().includes(nameFilter.toLowerCase())) return false;
+      if (
+        nameFilter &&
+        !r.patientName.toLowerCase().includes(nameFilter.toLowerCase())
+      )
+        return false;
       if (dateFilter && !r.admittedDate.includes(dateFilter)) return false;
       return true;
     });
-    return f.sort((a, b) => {
-      if (a.remainingDays === null && b.remainingDays === null) return 0;
-      if (a.remainingDays === null) return 1;
-      if (b.remainingDays === null) return -1;
-      if (a.remainingDays < 0 && b.remainingDays < 0) return 0;
-      if (a.remainingDays < 0) return 1;
-      if (b.remainingDays < 0) return -1;
-      return a.remainingDays - b.remainingDays;
-    });
-  }, [mergedRows, encounterFilter, nameFilter, dateFilter]);
+  }, [
+    mergedRows,
+    encounterFilter,
+    nameFilter,
+    dateFilter,
+    accessMap,
+    currentUserId,
+    hasAccess,
+  ]);
 
-  useEffect(() => { setCurrentPage(1); }, [encounterFilter, nameFilter, dateFilter]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [encounterFilter, nameFilter, dateFilter]);
 
-  const totalPages    = Math.ceil(filteredRows.length / ROWS_PER_PAGE);
-  const paginatedRows = filteredRows.slice((currentPage-1)*ROWS_PER_PAGE, currentPage*ROWS_PER_PAGE);
+  // ── 7. Paginate ────────────────────────────────────────────────────────────
+  const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+  const paginatedRows = filteredRows.slice(
+    startIndex,
+    startIndex + ROWS_PER_PAGE,
+  );
 
   // ── Cell state — DB-ONLY, no API step resolution ─────────────────────────
 function getCellState(row, sequenceId, allUsers) {
@@ -924,35 +996,105 @@ function getCellState(row, sequenceId, allUsers) {
         {/* Filters */}
         <div className="tracking-filters">
           <div className="tracking-filter-row tracking-filter-row--select">
-            <label>Encounter Type</label>
-            <select value={encounterFilter} onChange={e => setEncounterFilter(e.target.value)}>
-              <option value="">All</option>
+            <label htmlFor="encounter-filter">Encounter Type</label>
+            <select
+              id="encounter-filter"
+              value={encounterFilter}
+              onChange={(e) => setEncounterFilter(e.target.value)}
+            >
+              <option value="">All Encounters</option>
               <option value="ADM">Admitted (ADM)</option>
               <option value="ER">Emergency (ER)</option>
               <option value="OPD">Out-Patient (OPD)</option>
             </select>
           </div>
           <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Search patient name…" value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => e.key==="Enter" && setNameFilter(nameInput)}/>
-            <button type="button" onClick={() => setNameFilter(nameInput)}><Search size={13}/> Search</button>
-            {nameFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setNameFilter(""); setNameInput(""); }}><X size={12}/> Clear</button>}
+            <input
+              type="text"
+              style={{ fontFamily: "inherit" }}
+              placeholder="Search patient name…"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && setNameFilter(nameInput)}
+            />
+            <button
+              type="button"
+              style={{ fontFamily: "inherit" }}
+              onClick={() => setNameFilter(nameInput)}
+            >
+              <Search size={13} strokeWidth={2.5} /> Search
+            </button>
+            {nameFilter && (
+              <button
+                type="button"
+                className="tracking-btn-ghost"
+                onClick={() => {
+                  setNameFilter("");
+                  setNameInput("");
+                }}
+              >
+                <X size={12} strokeWidth={2.5} /> Clear
+              </button>
+            )}
           </div>
           <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Filter by date e.g. 02/18/2026…" value={dateInput}
-              onChange={e => setDateInput(e.target.value)}
-              onKeyDown={e => e.key==="Enter" && setDateFilter(dateInput)}/>
-            <button type="button" onClick={() => setDateFilter(dateInput)}><Calendar size={13}/> Search</button>
-            {dateFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setDateFilter(""); setDateInput(""); }}><X size={12}/> Clear</button>}
+            <input
+              type="text"
+              style={{ fontFamily: "inherit" }}
+              placeholder="Filter by date e.g. 02/18/2026…"
+              value={dateInput}
+              onChange={(e) => setDateInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && setDateFilter(dateInput)}
+            />
+            <button
+              type="button"
+              style={{ fontFamily: "inherit" }}
+              onClick={() => setDateFilter(dateInput)}
+            >
+              <Calendar size={13} strokeWidth={2.5} /> Search
+            </button>
+            {dateFilter && (
+              <button
+                type="button"
+                className="tracking-btn-ghost"
+                onClick={() => {
+                  setDateFilter("");
+                  setDateInput("");
+                }}
+              >
+                <X size={12} strokeWidth={2.5} /> Clear
+              </button>
+            )}
           </div>
         </div>
 
         {/* Actions */}
         <section className="tracking-actions">
-          <button type="button" onClick={onBackToModuleNavigator}>← Back to Navigator</button>
-          <button type="button" onClick={() => { fetchApi(); reloadDb(); }} disabled={isLoading}>
-            <RefreshCw size={13}/> {isLoading ? "Syncing…" : "Refresh"}
+          <button
+            type="button"
+            style={{ fontFamily: "inherit" }}
+            onClick={onBackToModuleNavigator}
+          >
+            ← Back to Navigator
+          </button>
+          <button
+            type="button"
+            style={{ fontFamily: "inherit" }}
+            onClick={() => onOpenTagging(taggableRows)}
+            disabled={!taggableRows.length}
+          >
+            Open Tagging
+          </button>
+          <button
+            type="button"
+            style={{ fontFamily: "inherit" }}
+            onClick={() => {
+              fetchApi();
+              refreshAccess();
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? "Syncing…" : "↺ Refresh"}
           </button>
         </section>
 
@@ -1003,7 +1145,9 @@ function getCellState(row, sequenceId, allUsers) {
                     <td>{(currentPage-1)*ROWS_PER_PAGE + idx + 1}</td>
                     <td className="td-mono">{row.hospitalNo}</td>
                     <td>
-                      <span className={`tracking-badge tracking-badge--${row.encounterType.toLowerCase()}`}>
+                      <span
+                        className={`tracking-badge tracking-badge--${row.encounterType.toLowerCase()}`}
+                      >
                         {row.encounterType || "—"}
                       </span>
                     </td>
@@ -1075,9 +1219,25 @@ function getCellState(row, sequenceId, allUsers) {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="tracking-pagination">
-            <button className="tracking-pagination-btn" onClick={() => setCurrentPage(p=>Math.max(p-1,1))} disabled={currentPage===1}>← Prev</button>
-            <span className="tracking-pagination-info">Page {currentPage} of {totalPages}</span>
-            <button className="tracking-pagination-btn" onClick={() => setCurrentPage(p=>Math.min(p+1,totalPages))} disabled={currentPage===totalPages}>Next →</button>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="tracking-pagination-btn"
+            >
+              ← Prev
+            </button>
+            <span className="tracking-pagination-info">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="tracking-pagination-btn"
+            >
+              Next →
+            </button>
           </div>
         )}
       </main>
