@@ -80,7 +80,7 @@ const NeuroVitalSignsLessThan = ({ patientName, patientData }) => {
 
         <section className={styles.chartSection} aria-label="Neuro vital signs chart image">
           <img
-            src="/neuro-vital-signs-less-than-chart-placeholder.svg"
+            src={chartPlaceholderSrc}
             alt="Neuro vital signs status chart"
             className={styles.chartImage}
           />
