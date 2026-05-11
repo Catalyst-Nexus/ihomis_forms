@@ -1,0 +1,180 @@
+/* SurgicalSafetyChecklist CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ─────────────────────────────────────────────────── */
+.page {
+  width: 210mm;
+  min-height: 0;
+  height: auto;
+  padding: 8mm 10mm 8mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* ─── HEADER SPACE ──────────────────────────────────────────── */
+.headerSpace {
+  /* Reserved space for header */
+}
+
+/* ─── INFO TABLE ───────────────────────────────────────────── */
+.infoTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3mm;
+}
+
+.infoTableTd {
+  border: 1px solid #000;
+  padding: 1mm 2mm;
+  font-size: 9pt;
+  vertical-align: middle;
+}
+
+.infoLabel {
+  font-weight: bold;
+  white-space: nowrap;
+  width: 18%;
+}
+
+.infoValue {
+  width: 32%;
+}
+
+.nameVal {
+  font-weight: bold;
+  text-align: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+/* ─── TITLE ───────────────────────────────────────────────── */
+.title {
+  text-align: center;
+  font-size: 12pt;
+  font-weight: bold;
+  margin-top: 3mm;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3mm;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 9.5pt;
+  margin-bottom: 3mm;
+}
+
+/* ─── MAIN TABLE ───────────────────────────────────────────── */
+.mainTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 0;
+}
+
+.mainTableTh,
+.mainTableTd {
+  border: 1px solid #000;
+  vertical-align: top;
+  font-size: 9pt;
+  padding: 1.5mm 2mm;
+}
+
+.mainTableTh {
+  text-align: center;
+  background: #fff;
+  line-height: 1.5;
+}
+
+.colBefore {
+  width: 33.33%;
+}
+
+.colIncision {
+  width: 33.33%;
+}
+
+.colLeaves {
+  width: 33.34%;
+}
+
+/* ─── CONTENT CELLS ────────────────────────────────────────── */
+.cell {
+  vertical-align: top;
+  line-height: 1.55;
+  padding: 1.5mm 2mm !important;
+}
+
+.contentRowTd {
+  vertical-align: top;
+}
+
+/* ─── TYPOGRAPHY HELPERS ──────────────────────────────────── */
+.indent {
+  padding-left: 5mm;
+}
+
+.mt {
+  margin-top: 1.5mm;
+}
+
+.center {
+  text-align: center;
+}
+
+/* ─── BLANK LINES ──────────────────────────────────────────── */
+.blankLine {
+  border-bottom: 1px solid #000;
+  height: 5mm;
+  margin: 0.5mm 0;
+}
+
+/* ─── UNDERLINE HELPER ─────────────────────────────────────── */
+.u {
+  display: inline-block;
+  width: 100%;
+  border-bottom: 1px solid #000;
+}
+
+.uMd {
+  display: inline-block;
+  width: 100%;
+  border-bottom: 1px solid #000;
+}
+
+.uLg {
+  display: inline-block;
+  width: 100%;
+  border-bottom: 1px solid #000;
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    height: auto;
+    overflow: visible;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: auto;
+    min-height: 0;
+  }
+
+  .mainTable {
+    page-break-inside: avoid;
+  }
+}

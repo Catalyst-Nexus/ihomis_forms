@@ -1,0 +1,156 @@
+/* AldreteScore CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ─────────────────────────────────────────────────── */
+.page {
+  width: 210mm;
+  padding: 10mm 12mm 16mm 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.header {
+  font-size: 10pt;
+  margin-bottom: 2mm;
+  line-height: 1.4;
+}
+
+.headerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1mm 8mm;
+  align-items: baseline;
+}
+
+.headerCell {
+  font-size: 10pt;
+}
+
+.headerCellFull {
+  grid-column: 1 / -1;
+}
+
+.bold { font-weight: bold; }
+
+/* ─── DISCHARGE NOTE ──────────────────────────────────────── */
+.note {
+  font-size: 10pt;
+  font-style: italic;
+  margin-bottom: 2mm;
+}
+
+/* ─── SCORE TABLE ─────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 4mm;
+}
+
+.table td,
+.table th {
+  border: 1px solid #000;
+  padding: 1mm 2.5mm;
+  font-size: 10pt;
+  vertical-align: middle;
+}
+
+.table th {
+  font-weight: bold;
+  text-align: right;
+  background: #fff;
+  font-size: 10pt;
+  border: 1px solid #000;
+}
+
+/* Category row */
+.catRow td {
+  font-weight: bold;
+  font-size: 10pt;
+  background: #fff;
+  padding: 0.8mm 2.5mm;
+}
+
+/* Item row */
+.itemRow td:first-child {
+  padding-left: 8mm;
+  font-weight: normal;
+}
+
+.itemRow td:last-child {
+  text-align: center;
+  width: 20%;
+}
+
+/* Total row */
+.totalRow td {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+.totalRow td:last-child {
+  text-align: center;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.sigSection {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8mm;
+  margin-bottom: 2mm;
+}
+
+.sigBlock {
+  width: 70mm;
+  text-align: center;
+}
+
+.sigLine {
+  border-top: 1px solid #000;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.sigLabel {
+  font-size: 10pt;
+  text-align: center;
+}
+
+.sigDate {
+  font-size: 10pt;
+  text-align: center;
+  margin-top: 0.5mm;
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 210mm;
+    height: auto;
+    overflow: visible;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 5mm 12mm 5mm 12mm;
+    overflow: visible;
+    page-break-after: auto;
+    page-break-inside: avoid;
+  }
+}

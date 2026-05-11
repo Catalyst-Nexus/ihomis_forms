@@ -61,18 +61,18 @@ import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
 import Lubchenco from "./Lubchenco";
 import AnesthesiaRecord from "./AnesthesiaRecord";
 import ChildImmunizationRecord from "./ChildImmunizationRecord";
-// import MIS from "./MIS";
-// import TPRSheet from "./TPRSheet";
-// import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
-// import RequestBloodCompatibility from "./RequestBloodCompatibility";
-// import RadiologyRequestOutside from "./RadiologyRequestOutside";
-// import PagtugotWaiver from "./PagtugotWaiver";
-// import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
-// import MonitoringSheet from "./MonitoringSheet";
-// import MedicationSheet from "./MedicationSheet";
-// import DoctorsOrderPedia from "./DoctorsOrderPedia";
-// import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
-// import AldreteScore from "./AldreteScore";
+import MIS from "./MIS";
+import TPRSheet from "./TPRSheet";
+import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
+import RequestBloodCompatibility from "./RequestBloodCompatibility";
+import RadiologyRequestOutside from "./RadiologyRequestOutside";
+import PagtugotWaiver from "./PagtugotWaiver";
+import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
+import MonitoringSheet from "./MonitoringSheet";
+import MedicationSheet from "./MedicationSheet";
+import DoctorsOrderPedia from "./DoctorsOrderPedia";
+import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
+import AldreteScore from "./AldreteScore";
 
 // Component map for dynamic form rendering
 const COMPONENT_MAP = {
@@ -133,18 +133,18 @@ const COMPONENT_MAP = {
   Lubchenco,
   AnesthesiaRecord,
   ChildImmunizationRecord,
-  // import MIS from "./MIS",
-  // TPRSheet,
-  // SurgicalSafetyChecklist,
-  // RequestBloodCompatibility,
-  // RadiologyRequestOutside,
-  // PagtugotWaiver,
-  // NewbornPersonalInfoSheet,
-  // MonitoringSheet,
-  // MedicationSheet,
-  // DoctorsOrderPedia,
-  // AnimalBiteTreatmentRecord,
-  // AldreteScore,
+  MIS,
+  TPRSheet,
+  SurgicalSafetyChecklist,
+  RequestBloodCompatibility,
+  RadiologyRequestOutside,
+  PagtugotWaiver,
+  NewbornPersonalInfoSheet,
+  MonitoringSheet,
+  MedicationSheet,
+  DoctorsOrderPedia,
+  AnimalBiteTreatmentRecord,
+  AldreteScore,
 };
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (

@@ -1,0 +1,204 @@
+/* PagtugotWaiver CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ─────────────────────────────────────────────────── */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 3mm 14mm 16mm 14mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11.5pt;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ─── PATIENT INFO ────────────────────────────────────────── */
+.patientInfo {
+  font-size: 11pt;
+  line-height: 1.8;
+  margin-bottom: 9mm;
+}
+
+.infoRow {
+  display: flex;
+  gap: 1mm;
+}
+
+.infoLabel {
+  width: 32mm;
+  font-weight: normal;
+}
+
+.infoColon {
+  width: 4mm;
+}
+
+/* ─── OPENING ─────────────────────────────────────────────── */
+.opening {
+  font-size: 11.5pt;
+  line-height: 2;
+  text-align: justify;
+  margin-bottom: 6mm;
+}
+
+.openingLine {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 60mm;
+  height: 1px;
+  vertical-align: bottom;
+  margin: 0 1mm;
+}
+
+/* ─── ITEMS ───────────────────────────────────────────────── */
+.items {
+  font-size: 11.5pt;
+  line-height: 1.8;
+  margin-bottom: 7mm;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+}
+
+.itemBracket {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.itemText {
+  flex: 1;
+  text-align: justify;
+}
+
+.ubanLine {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  width: 55mm;
+  height: 1px;
+  vertical-align: bottom;
+  margin-left: 1mm;
+}
+
+/* ─── CLOSING ─────────────────────────────────────────────── */
+.closing {
+  font-size: 11.5pt;
+  line-height: 1.9;
+  text-align: justify;
+  margin-bottom: 11mm;
+}
+
+/* ─── SIGNATURE SECTION ───────────────────────────────────── */
+.sigSection {
+  margin-top: 6mm;
+}
+
+.sigRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1mm;
+}
+
+.sigLeft {
+  width: 85mm;
+  text-align: center;
+}
+
+.sigRight {
+  width: 75mm;
+}
+
+.sigName {
+  font-size: 12.5pt;
+  text-align: center;
+  margin-bottom: 1mm;
+}
+
+.sigNameRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+}
+
+.sigLine {
+  flex: 1;
+  border-top: 1px solid #000;
+  height: 1px;
+}
+
+.sigLineFull {
+  border-top: 1px solid #000;
+  width: 100%;
+  margin-bottom: 1px;
+}
+
+.sigLabel {
+  font-size: 10.5pt;
+  text-align: center;
+}
+
+.sigLabelRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3mm;
+}
+
+.sigLabelLeft {
+  font-size: 10.5pt;
+  width: 85mm;
+  text-align: center;
+}
+
+.sigLabelRight {
+  font-size: 10.5pt;
+  width: 75mm;
+  text-align: center;
+}
+
+.dateRow {
+  font-size: 11.5pt;
+  text-align: center;
+  width: 100%;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────────── */
+.footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 14mm;
+  right: 14mm;
+  border-top: 1px solid #000;
+  padding-top: 1.5px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    height: auto;
+    overflow: visible;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: auto;
+    min-height: 0;
+  }
+}

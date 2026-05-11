@@ -1,35 +1,39 @@
-/* CSS Module - Scoped to AnesthesiaRecord */
+/* AnesthesiaRecord CSS Module */
 /* NO global selectors */
 
-/* Container */
+/* ─── CONTAINER ───────────────────────────────────────────── */
 .container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
   width: 100%;
+  padding: 12px 0 24px;
   background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Page */
-.page {
-  width: 210mm;
+.record {
+  width: 100%;
+  max-width: 210mm;
   min-height: 297mm;
   background: #fff;
   padding: 10.5mm 12mm 8mm;
   display: flex;
   flex-direction: column;
-  font-family: Arial, Helvetica, sans-serif;
-  box-sizing: border-box;
 }
 
-/* Header Reserved Space */
+/* ─── HEADER RESERVED SPACE ──────────────────────────────── */
 .headerReservedSpace {
   height: 0;
 }
 
-/* Header */
+/* ─── ANESTHESIA HEADER ───────────────────────────────────── */
 .header {
   display: flex;
   flex-direction: column;
-  gap: 1mm;
-  margin-bottom: 1mm;
+  gap: 1.4mm;
+  margin-bottom: 2mm;
   color: #000;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -39,15 +43,15 @@
   align-items: baseline;
   gap: 2mm;
   font-size: 2.9mm;
-  margin-bottom: 1mm;
+  margin-bottom: 1.5mm;
   font-weight: 700;
 }
 
-/* Table */
+/* ─── TABLE ───────────────────────────────────────────────── */
 .table {
   border: 0.35mm solid #000;
   background: #fff;
-  margin-bottom: 1mm;
+  margin-bottom: 1.5mm;
   width: 100%;
 }
 
@@ -101,6 +105,7 @@
   flex-wrap: wrap;
 }
 
+/* ─── LABEL ──────────────────────────────────────────────── */
 .label {
   font-weight: 700;
   white-space: nowrap;
@@ -108,7 +113,7 @@
   flex-shrink: 0;
 }
 
-/* Input Styles */
+/* ─── INPUTS ──────────────────────────────────────────────── */
 .inputInline,
 .inputFull,
 .inputSm,
@@ -162,25 +167,7 @@
   font-weight: 400;
 }
 
-/* Chart Section */
-.chartSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0;
-  flex: 1 1 auto;
-}
-
-.chartImage {
-  width: 100%;
-  max-width: 187mm;
-  height: auto;
-  max-height: 180mm;
-  display: block;
-  object-fit: fill;
-}
-
-/* Footer */
+/* ─── FOOTER ─────────────────────────────────────────────── */
 .footer {
   margin-top: auto;
   padding-top: 1.5mm;
@@ -191,21 +178,87 @@
   font-weight: bold;
 }
 
-/* SCOPED PRINT RULES */
+/* ─── PRINT STYLES ─────────────────────────────────────────── */
 @media print {
-  .page {
+  .container {
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .record {
     width: 210mm !important;
-    height: 297mm !important;
-    min-height: 297mm !important;
-    overflow: hidden !important;
+    max-width: 210mm !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 10.5mm 12mm 8mm !important;
     box-shadow: none !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media screen and (max-width: 1024px) {
+  .record {
+    max-width: 100%;
+    min-height: 0;
+    padding: 8mm 8mm 6mm;
+    box-shadow: none;
   }
 
-  .chartSection {
-    flex: 1 1 auto !important;
+  .tableCell {
+    flex-wrap: wrap;
   }
 
-  .chartImage {
-    max-height: 180mm !important;
+  .label {
+    white-space: normal;
+  }
+
+  .inputInline,
+  .inputFull,
+  .inputSm,
+  .inputMd {
+    min-width: 0;
+  }
+
+  .row1 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .row2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .row3,
+  .row4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .row2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .caseNumber {
+    flex-wrap: wrap;
+  }
+
+  .row1,
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+
+  .tableCell {
+    min-height: auto;
   }
 }
