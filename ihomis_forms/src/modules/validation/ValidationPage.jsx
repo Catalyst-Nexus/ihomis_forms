@@ -157,6 +157,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   // Load and run validations dynamically
   const [runtimeResults, setRuntimeResults] = useState(null);
   const [validationRunning, setValidationRunning] = useState(false);
+  const [runtimeError, setRuntimeError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -165,22 +166,31 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
       if (!enccode || !serverValidations || serverValidations.length === 0) {
         if (!cancelled) {
           setRuntimeResults(null);
+          setRuntimeError("");
         }
         return;
       }
 
       try {
         setValidationRunning(true);
+        setRuntimeError("");
         const validationIds = serverValidations.map(v => v.id);
         const result = await runEncounterValidations(enccode, validationIds);
 
-        if (!cancelled && result.ok) {
-          setRuntimeResults(result);
+        if (!cancelled) {
+          if (result?.ok) {
+            setRuntimeResults(result);
+            setRuntimeError("");
+          } else {
+            setRuntimeResults(null);
+            setRuntimeError(result?.error || "Validation returned an unexpected response.");
+          }
         }
       } catch (e) {
         console.error("Error running validations:", e);
         if (!cancelled) {
           setRuntimeResults(null);
+          setRuntimeError(e instanceof Error ? e.message : "Unable to run validations.");
         }
       } finally {
         if (!cancelled) {
@@ -222,7 +232,12 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   );
 
   const resolvedEnccode =
-    validationData?.details?.DEBUG_INFO?.resolvedEnccode || enccode;
+    runtimeResults?.encounter?.resolvedEnccode ||
+    validationData?.details?.DEBUG_INFO?.resolvedEnccode ||
+    enccode;
+
+  const hasRenderedChecks = validationResults.checks.some((check) => check.passed !== null);
+  const displayError = runtimeError || (!hasRenderedChecks ? error : "");
 
   const isLoading = loading || formsLoading || validationRunning;
   const statusTone = isLoading
@@ -365,9 +380,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           />
         </section>
 
-        {error ? (
+        {displayError ? (
           <div className="validation-message validation-message--error">
-            Validation service issue: {error}
+            Validation service issue: {displayError}
           </div>
         ) : null}
 
