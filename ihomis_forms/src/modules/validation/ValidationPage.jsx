@@ -61,15 +61,84 @@ function getPatientInitials(label) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function getFormDisplayLabel(form) {
+  if (!form) return "";
+
+  if (typeof form === "string") {
+    return form.trim();
+  }
+
+  if (typeof form !== "object") {
+    return String(form).trim();
+  }
+
+  return (
+    form.description ||
+    form.name ||
+    form.component_name ||
+    form.label ||
+    form.title ||
+    form.formName ||
+    form.id ||
+    ""
+  )
+    .toString()
+    .trim();
+}
+
+function normalizeSelectedForms(selectedFormsValue) {
+  if (!selectedFormsValue) return [];
+
+  const items = Array.isArray(selectedFormsValue)
+    ? selectedFormsValue
+    : [selectedFormsValue];
+
+  return items
+    .map((item) => {
+      if (typeof item === "string") {
+        return { label: item.trim(), value: item };
+      }
+
+      if (!item || typeof item !== "object") {
+        const fallbackLabel = String(item || "").trim();
+        return fallbackLabel ? { label: fallbackLabel, value: item } : null;
+      }
+
+      const label = getFormDisplayLabel(item);
+      if (!label) return null;
+
+      return {
+        label,
+        value: item,
+        id: item.id ?? null,
+      };
+    })
+    .filter(Boolean);
+}
+
 function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
   const [formId, setFormId] = useState(null);
   const [formsLoading, setFormsLoading] = useState(false);
   const fallbackForms = useMemo(() => buildFallbackForms(), []);
+  const selectedFormItems = useMemo(
+    () => normalizeSelectedForms(selectedForms),
+    [selectedForms],
+  );
+  const selectedFormLabels = useMemo(
+    () => selectedFormItems.map((item) => item.label).filter(Boolean),
+    [selectedFormItems],
+  );
+  const selectedFormSummary = useMemo(() => {
+    if (selectedFormLabels.length === 0) return "No form selected";
+    if (selectedFormLabels.length === 1) return selectedFormLabels[0];
+    if (selectedFormLabels.length === 2) return `${selectedFormLabels[0]} and ${selectedFormLabels[1]}`;
+    return `${selectedFormLabels[0]} + ${selectedFormLabels.length - 1} more`;
+  }, [selectedFormLabels]);
 
   // Resolve form ID by looking up the form name in the hospital_forms table
   useEffect(() => {
     const resolveFormId = async () => {
-      if (!selectedForms || selectedForms.length === 0) {
+      if (selectedFormItems.length === 0) {
         setFormId(null);
         return;
       }
@@ -83,10 +152,8 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           ? data.forms
           : fallbackForms;
 
-        // Get the first selected form name
-        const selectedFormName = Array.isArray(selectedForms)
-          ? selectedForms[0]
-          : selectedForms?.description || selectedForms?.name;
+        // Resolve the first selected form name for the active validation set.
+        const selectedFormName = selectedFormItems[0]?.label || "";
 
         if (!selectedFormName) {
           setFormId(null);
@@ -104,9 +171,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         setFormId(matchedForm?.id || null);
       } catch (error) {
         console.error("Error resolving form ID:", error);
-        const selectedFormName = Array.isArray(selectedForms)
-          ? selectedForms[0]
-          : selectedForms?.description || selectedForms?.name;
+        const selectedFormName = selectedFormItems[0]?.label || "";
 
         const matchedFallback = fallbackForms.find(
           (form) =>
@@ -122,7 +187,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     };
 
     resolveFormId();
-  }, [fallbackForms, selectedForms]);
+  }, [fallbackForms, selectedFormItems]);
 
   const { enccode, loading, error, refresh, validationData } = useFormValidation({
     selectedPatient,
@@ -214,12 +279,13 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   const validationStats = useMemo(() => {
     const summary = validationResults.summary;
     return {
-      totalForms: summary.total,
+      selectedForms: selectedFormItems.length,
+      totalChecks: summary.total,
       blockedForms: summary.failed,
       readyForms: summary.passed,
       blockingChecks: summary.failed,
     };
-  }, [validationResults]);
+  }, [validationResults, selectedFormItems.length]);
 
   const patientLabel = useMemo(
     () => resolvePatientLabel(selectedPatient),
@@ -294,6 +360,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                 {resolvedEnccode ? (
                   <span>Encounter: {resolvedEnccode}</span>
                 ) : null}
+                <span>Selected form: {selectedFormSummary}</span>
               </div>
             </div>
 
@@ -365,13 +432,18 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           <SummaryCard label="Overall Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
           <SummaryCard
             label="Forms Selected"
-            value={validationStats.totalForms}
-            tone={validationStats.totalForms > 0 ? "default" : "alert"}
+            value={validationStats.selectedForms}
+            tone={validationStats.selectedForms > 0 ? "default" : "alert"}
+          />
+          <SummaryCard
+            label="Validation Checks"
+            value={validationStats.totalChecks}
+            tone={validationStats.totalChecks > 0 ? "default" : "alert"}
           />
           <SummaryCard
             label="Forms Ready"
             value={validationStats.readyForms}
-            tone={validationStats.readyForms === validationStats.totalForms ? "default" : "alert"}
+            tone={validationStats.readyForms === validationStats.totalChecks ? "default" : "alert"}
           />
           <SummaryCard
             label="Items to Review"
