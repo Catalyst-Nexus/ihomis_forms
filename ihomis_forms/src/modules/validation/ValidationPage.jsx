@@ -491,7 +491,14 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                         {check.info && Object.keys(check.info).length > 0 ? (
                           <div className="validation-check-row__message">
                             {Object.entries(check.info)
-                              .map(([key, val]) => `${key}: ${val}`)
+                              .filter(([key]) => {
+                                const lowerKey = String(key).toLowerCase();
+                                return lowerKey !== "rowcount" && lowerKey !== "sample";
+                              })
+                              .map(([key, val]) => {
+                                const displayVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                                return `${key}: ${displayVal}`;
+                              })
                               .join(", ")}
                           </div>
                         ) : null}
