@@ -97,9 +97,9 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
 
         {/* WHOLE BLOOD */}
         <div className={styles.compRow}>
-          <span className={styles.chk}>[ ]</span>
           <span>
-            <strong>Whole Blood(approximate volume 500ml):</strong>{" "}
+            <span className={styles.chk}>[ ]</span>
+            <strong> Whole Blood(approximate volume 500ml):</strong>{" "}
             Blood Type <span className={`${styles.line} ${styles.lineSm}`} />{" "}
             Number of units needed<span className={`${styles.line} ${styles.lineSm}`} />.
           </span>
@@ -124,9 +124,9 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
         {/* PACKED RBC */}
         <div className={styles.gapSm} />
         <div className={styles.compRow}>
-          <span className={styles.chk}>[ ]</span>
           <span>
-            <strong>PACKED RBC(approximate volume 250ml):</strong>{" "}
+            <span className={styles.chk}>[ ]</span>
+            <strong> PACKED RBC(approximate volume 250ml):</strong>{" "}
             Blood Type <span className={`${styles.line} ${styles.lineSm}`} />{" "}
             Number of units needed<span className={`${styles.line} ${styles.lineSm}`} />
           </span>
@@ -163,9 +163,9 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
         {/* WASHED RBC */}
         <div className={styles.gapSm} />
         <div className={styles.compRow}>
-          <span className={styles.chk}>[ ]</span>
           <span>
-            <strong>Washed RBC(approximate volume 180ml):</strong>{" "}
+            <span className={styles.chk}>[ ]</span>
+            <strong> Washed RBC(approximate volume 180ml):</strong>{" "}
             Blood Type <span className={`${styles.line} ${styles.lineSm}`} />{" "}
             Number of units needed<span className={`${styles.line} ${styles.lineSm}`} />.
           </span>
@@ -190,6 +190,11 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
           </span>
         </div>
 
+      </div>
+
+      {/* ═══════════════ PAGE 2 ═══════════════ */}
+      <div className={`${styles.page} ${styles.pageP2}`}>
+
         {/* NOTE RBC */}
         <div className={styles.noteBlock}>
           <p className={styles.noteTitle}>NOTE : Comments on RBC products:</p>
@@ -198,11 +203,6 @@ export default function BloodRequestAdult({ patientName, patientData = {} }) {
           <p className={styles.noteItem}>Remember, 1 unit may suffice to alleviate symptoms of anemia</p>
           <p className={styles.noteItem}>Infants: 10ml/kg. BW</p>
         </div>
-
-      </div>
-
-      {/* ═══════════════ PAGE 2 ═══════════════ */}
-      <div className={`${styles.page} ${styles.pageP2}`}>
 
         {/* PLATELETS */}
         <div className={styles.compRow}>

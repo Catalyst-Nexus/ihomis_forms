@@ -80,6 +80,44 @@
 }
 
 /*
+ * FLUID MULTI-PAGE CONTAINERS
+ * Allow internal page breaks while still separating forms.
+ */
+.fluidPageBreak {
+  width: 210mm;
+  min-height: auto;
+  max-height: none;
+  overflow: visible;
+  display: block !important;
+  position: relative;
+  break-after: page;
+  page-break-after: always;
+  break-inside: auto;
+  page-break-inside: auto;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.fluidPageBreakLast {
+  width: 210mm;
+  min-height: auto;
+  max-height: none;
+  overflow: visible;
+  display: block !important;
+  position: relative;
+  break-after: auto;
+  page-break-after: auto;
+  break-inside: auto;
+  page-break-inside: auto;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/*
  * FLEXBOX KILL RESET
  * High priority reset for print media
  */
@@ -117,6 +155,27 @@
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
+
+  .fluidPageBreak,
+  .fluidPageBreakLast {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+    position: relative !important;
+    break-after: page !important;
+    page-break-after: always !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .fluidPageBreakLast {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
   
   .pageBreakLast {
     break-after: auto !important;
@@ -126,6 +185,14 @@
   /* Ensure form components inside don't have flex constraints */
   .pageBreak > *,
   .pageBreakLast > * {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .fluidPageBreak > *,
+  .fluidPageBreakLast > * {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
     min-height: auto !important;

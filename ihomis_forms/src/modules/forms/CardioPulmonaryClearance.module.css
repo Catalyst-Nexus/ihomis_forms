@@ -206,7 +206,7 @@
 @media print {
   @page {
     size: A4;
-    margin: 10mm; /* Standardized hardware margin */
+    margin: 0; /* Standardized hardware margin */
   }
 
   .wrap, .page, .main {
@@ -218,7 +218,7 @@
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 10mm;
     min-height: 0;
     box-shadow: none;
   }

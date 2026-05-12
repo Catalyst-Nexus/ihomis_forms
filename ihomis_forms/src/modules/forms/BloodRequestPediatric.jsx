@@ -89,8 +89,6 @@ export default function BloodRequestPediatric({ patientName, patientData = {} })
           <span>History of Previous Transfusion:</span>
           <span className={styles.ml4}>When:</span>
           <span className={`${styles.line} ${styles.lineMd}`} />
-        </div>
-        <div className={`${styles.inlineRow} ${styles.indentWhere}`}>
           <span>Where:</span>
           <span className={`${styles.line} ${styles.lineMd}`} />
         </div>

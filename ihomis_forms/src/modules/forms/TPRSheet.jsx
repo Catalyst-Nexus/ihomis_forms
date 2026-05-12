@@ -38,6 +38,10 @@ export default function TPRSheet({ patientName, patientData }) {
                 <span className={styles.label}>Case Number:</span>
                 <span>{caseNumber}</span>
               </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Ward:</span>
+                <span>{ward}</span>
+              </span>
             </div>
             
             <div className={styles.metaRowSpaceBetween}>
@@ -52,10 +56,6 @@ export default function TPRSheet({ patientName, patientData }) {
               <span className={styles.metaCell}>
                 <span className={styles.label}>Age:</span>
                 <span>{age}</span>
-              </span>
-              <span className={styles.metaCell}>
-                <span className={styles.label}>Ward:</span>
-                <span>{ward}</span>
               </span>
             </div>
           </div>

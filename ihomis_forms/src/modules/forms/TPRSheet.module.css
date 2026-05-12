@@ -30,7 +30,7 @@
 }
 
 .headerSpacer {
-  height: 23mm; /* Calibrated for hospital letterhead */
+  height: 10mm; /* Calibrated for hospital letterhead */
   flex-shrink: 0;
 }
 

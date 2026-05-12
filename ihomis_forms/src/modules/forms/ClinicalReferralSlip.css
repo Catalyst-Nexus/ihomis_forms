@@ -22,10 +22,7 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
    color: var(--text-primary, #1a1a1a);
-  border: 1px solid var(--border-color, #ddd);
-  border-radius: 4px;
   background-color: var(--bg-primary, #fff);
-  box-shadow: 0 2px 4px var(--shadow-color, rgba(0, 0, 0, 0.1));
   box-sizing: border-box;
   position: relative;
 }

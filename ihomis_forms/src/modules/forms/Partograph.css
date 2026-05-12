@@ -635,16 +635,6 @@ body {
 	min-width: 40mm;
 }
 
-.form-footer {
-  margin-top: auto;
-  padding-top: 1.5mm;
-  border-top: 0.25mm solid #111;
-  text-align: right;
-  font-size: 6pt;
-  font-style: italic;
-  font-weight: bold;
-}
-
 @media print {
 	@page {
 		size: A4 portrait;

@@ -203,7 +203,8 @@
   
   .page {
     width: 210mm !important;
-    height: 297mm !important;
+    height: auto !important;
+    min-height: 0 !important;
     margin: 0 !important;
     padding: 5mm 12mm 5mm !important;
     box-shadow: none !important;
@@ -214,6 +215,6 @@
   }
 
   .chartImage {
-    max-height: calc(297mm - 40mm) !important;
+    max-height: none !important;
   }
 }
