@@ -9,24 +9,29 @@ import {
 import { supabase } from "../../lib/supabaseClient.js";
 import "./Validation.css";
 
-function SummaryCard({ label, value, tone = "default" }) {
-  const className =
-    tone === "alert"
-      ? "validation-card validation-card--alert"
-      : "validation-card";
+function StatCard({ icon, label, value, tone = "neutral", sublabel = "" }) {
+  const className = `validation-stat-card validation-stat-card--${tone}`;
 
   return (
     <div className={className}>
-      <span className="validation-card-label">{label}</span>
-      <span className="validation-card-value">{value}</span>
+      <div className="validation-stat-icon">{icon}</div>
+      <div className="validation-stat-content">
+        <span className="validation-stat-label">{label}</span>
+        <span className="validation-stat-value">{value}</span>
+        {sublabel && (
+          <span className="validation-stat-sublabel">{sublabel}</span>
+        )}
+      </div>
     </div>
   );
 }
 
-SummaryCard.propTypes = {
+StatCard.propTypes = {
+  icon: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   tone: PropTypes.string,
+  sublabel: PropTypes.string,
 };
 
 function resolvePatientLabel(selectedPatient, patientData = null) {
@@ -127,7 +132,14 @@ function normalizeSelectedForms(selectedFormsValue) {
     .filter(Boolean);
 }
 
-function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedForms, onProceed, onBackToForms, onChangePatient }) {
+function ValidationPage({
+  selectedPatient,
+  enccode: enccodeOverride,
+  selectedForms,
+  onProceed,
+  onBackToForms,
+  onChangePatient,
+}) {
   const [formId, setFormId] = useState(null);
   const [formsLoading, setFormsLoading] = useState(false);
   const fallbackForms = useMemo(() => buildFallbackForms(), []);
@@ -142,7 +154,8 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   const selectedFormSummary = useMemo(() => {
     if (selectedFormLabels.length === 0) return "No form selected";
     if (selectedFormLabels.length === 1) return selectedFormLabels[0];
-    if (selectedFormLabels.length === 2) return `${selectedFormLabels[0]} and ${selectedFormLabels[1]}`;
+    if (selectedFormLabels.length === 2)
+      return `${selectedFormLabels[0]} and ${selectedFormLabels[1]}`;
     return `${selectedFormLabels[0]} + ${selectedFormLabels.length - 1} more`;
   }, [selectedFormLabels]);
 
@@ -281,7 +294,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
       }
     }
     void loadServerValidations();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [formId]);
 
   useEffect(() => {
@@ -299,8 +314,12 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
       try {
         setValidationRunning(true);
         setRuntimeError("");
-        const validationIds = serverValidations.map(v => v.id);
-        const result = await runEncounterValidations(enccode, validationIds, hpercode);
+        const validationIds = serverValidations.map((v) => v.id);
+        const result = await runEncounterValidations(
+          enccode,
+          validationIds,
+          hpercode,
+        );
 
         if (!cancelled) {
           if (result?.ok) {
@@ -310,14 +329,18 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           } else {
             setRuntimeResults(null);
             setValidationData(null);
-            setRuntimeError(result?.error || "Validation returned an unexpected response.");
+            setRuntimeError(
+              result?.error || "Validation returned an unexpected response.",
+            );
           }
         }
       } catch (e) {
         console.error("Error running validations:", e);
         if (!cancelled) {
           setRuntimeResults(null);
-          setRuntimeError(e instanceof Error ? e.message : "Unable to run validations.");
+          setRuntimeError(
+            e instanceof Error ? e.message : "Unable to run validations.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -327,13 +350,24 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     }
 
     void runValidations();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [enccode, hpercode, serverValidations]);
 
   // Build validation results from server validations and runtime results
   const validationResults = useMemo(() => {
     if (!serverValidations || serverValidations.length === 0) {
-      return { checks: [], summary: { total: 0, passed: 0, failed: 0, allPassed: true, hasIssues: false } };
+      return {
+        checks: [],
+        summary: {
+          total: 0,
+          passed: 0,
+          failed: 0,
+          allPassed: true,
+          hasIssues: false,
+        },
+      };
     }
     return buildValidationResults(serverValidations, runtimeResults);
   }, [serverValidations, runtimeResults]);
@@ -365,7 +399,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     runtimeResults?.encounter?.resolvedEnccode ||
     enccode;
 
-  const hasRenderedChecks = validationResults.checks.some((check) => check.passed !== null);
+  const hasRenderedChecks = validationResults.checks.some(
+    (check) => check.passed !== null,
+  );
   const displayError = runtimeError || (!hasRenderedChecks ? error : "");
 
   const isLoading = loading || formsLoading || validationRunning;
@@ -400,86 +436,97 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         aria-hidden="true"
       />
       <main className="validation-layout">
-        <section className="validation-hero-wrap">
-          <div className="validation-hero">
-            <div className="validation-hero-left">
-              <div className="validation-hero-eyebrow">
-                <span className="validation-hero-system">Forms validation</span>
-                <span
-                  className={`validation-hero-status validation-hero-status--${statusTone}`}
-                >
-                  <span className="validation-hero-status-dot" />
-                  {statusLabel}
-                </span>
-              </div>
-              <h1 className="validation-hero-title">
-                Patient Record Verification
-              </h1>
-              <p className="validation-hero-sub">
-                Review incomplete form sections before generating the selected forms.
-              </p>
-              <div className="validation-hero-meta">
-                <span>Source: Validation API</span>
-                {resolvedEnccode ? (
-                  <span>Encounter: {resolvedEnccode}</span>
-                ) : null}
-                <span>Selected form: {selectedFormSummary}</span>
-              </div>
-            </div>
+        <h1 className="validation-page-title">Patient Record Verification</h1>
 
-            <div className="validation-hero-right">
-              <div className="validation-hero-patient">
-                <div className="validation-hero-avatar" aria-hidden="true">
+        {/* Header Section */}
+        <section className="validation-header">
+          <div className="validation-header-badge">
+            <span className="validation-header-system">Forms Validation</span>
+            <span
+              className={`validation-header-status validation-header-status--${statusTone}`}
+            >
+              <span className="validation-header-status-dot" />
+              {statusLabel}
+            </span>
+          </div>
+
+          <div className="validation-header-top">
+            <div className="validation-header-left">
+              <div className="validation-patient-badge">
+                <div className="validation-patient-avatar" aria-hidden="true">
                   {patientInitials}
                 </div>
-                <div className="validation-hero-patient-info">
-                  <span className="validation-hero-patient-label">
-                    Selected Patient
-                  </span>
-                  <span className="validation-hero-patient-name">
+                <div className="validation-patient-details">
+                  <span className="validation-patient-label">Patient</span>
+                  <span className="validation-patient-name">
                     {patientLabel.name}
                   </span>
-                  <span className="validation-hero-patient-meta">
-                    Patient ID: {patientLabel.hpercode || "N/A"}
+                  <span className="validation-patient-id">
+                    ID: {patientLabel.hpercode || "N/A"}
                   </span>
                 </div>
-              </div>
+              </div>  
             </div>
           </div>
 
-          <div className="validation-actions">
-            <button
-              type="button"
-              className="validation-btn validation-btn--ghost"
-              onClick={refresh}
-              disabled={loading}
-            >
-              Refresh
-            </button>
-            {onChangePatient ? (
+          <div className="validation-header-info">
+            <span className="validation-info-item">
+              <strong>API:</strong> Validation
+            </span>
+            {resolvedEnccode && (
+              <span className="validation-info-item">
+                <strong>Encounter:</strong> {resolvedEnccode}
+              </span>
+            )}
+            <span className="validation-info-item">
+              <strong>Form:</strong> {selectedFormSummary}
+            </span>
+          </div>
+
+          <p className="validation-header-description">
+            Review incomplete form sections before generating the selected
+            forms.
+          </p>
+
+          <div className="validation-action-bar">
+            <div className="validation-action-group">
               <button
                 type="button"
                 className="validation-btn validation-btn--ghost"
-                onClick={onChangePatient}
-              >
-                Change patient
-              </button>
-            ) : null}
-            {onBackToForms ? (
-              <button
-                type="button"
-                className="validation-btn validation-btn--ghost"
-                onClick={onBackToForms}
+                onClick={refresh}
                 disabled={loading}
               >
-                Back to Forms
+                Refresh
               </button>
-            ) : null}
+              {onChangePatient && (
+                <button
+                  type="button"
+                  className="validation-btn validation-btn--ghost"
+                  onClick={onChangePatient}
+                >
+                  Change Patient
+                </button>
+              )}
+              {onBackToForms && (
+                <button
+                  type="button"
+                  className="validation-btn validation-btn--ghost"
+                  onClick={onBackToForms}
+                  disabled={loading}
+                >
+                  Back to Forms
+                </button>
+              )}
+            </div>
             <button
               type="button"
               className="validation-btn validation-btn--primary"
               onClick={handleProceedClick}
-              disabled={!selectedPatient || loading || validationResults.summary.hasIssues}
+              disabled={
+                !selectedPatient ||
+                loading ||
+                validationResults.summary.hasIssues
+              }
               title={
                 validationResults.summary.hasIssues
                   ? "Complete missing data before proceeding"
@@ -492,26 +539,28 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         </section>
 
         <section className="validation-summary">
-          <SummaryCard label="Overall Status" value={statusLabel} tone={statusTone === "ready" ? "default" : "alert"} />
-          <SummaryCard
+          <StatCard
+            icon="☑"
             label="Forms Selected"
             value={validationStats.selectedForms}
-            tone={validationStats.selectedForms > 0 ? "default" : "alert"}
+            tone={validationStats.selectedForms > 0 ? "neutral" : "warning"}
           />
-          <SummaryCard
-            label="Validation Checks"
-            value={validationStats.totalChecks}
-            tone={validationStats.totalChecks > 0 ? "default" : "alert"}
-          />
-          <SummaryCard
-            label="Forms Ready"
+          <StatCard
+            icon="✓"
+            label="Checks Completed"
             value={validationStats.readyForms}
-            tone={validationStats.readyForms === validationStats.totalChecks ? "default" : "alert"}
+            sublabel={`of ${validationStats.totalChecks}`}
+            tone={
+              validationStats.readyForms === validationStats.totalChecks
+                ? "success"
+                : "warning"
+            }
           />
-          <SummaryCard
+          <StatCard
+            icon="⚠"
             label="Items to Review"
             value={validationStats.blockingChecks}
-            tone={validationStats.blockingChecks > 0 ? "alert" : "default"}
+            tone={validationStats.blockingChecks > 0 ? "danger" : "success"}
           />
         </section>
 
@@ -523,32 +572,76 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
 
         {loading || isLoading ? (
           <div className="validation-loading">
+            <span
+              style={{
+                fontSize: "2rem",
+                marginBottom: "1rem",
+                display: "block",
+              }}
+            >
+              ◐
+            </span>
             Checking validation status...
           </div>
         ) : validationResults.checks.length > 0 ? (
           <section className="validation-panel">
-            <h2 className="validation-panel-title">Validation Results</h2>
+            <h2 className="validation-panel-title">Validation Checklist</h2>
             <p className="validation-helper-text">
-              Review the validation status for each requirement below.
+              Review each validation requirement below. All items must be
+              complete before you can proceed.
             </p>
             <div className="validation-form-grid">
-              <article className={`validation-form-card ${validationResults.summary.hasIssues ? "validation-form-card--alert" : ""}`}>
+              <article
+                className={`validation-form-card ${validationResults.summary.hasIssues ? "validation-form-card--alert" : ""}`}
+              >
+                <div className="validation-form-card__header">
+                  <div>
+                    <h3>Required Checks</h3>
+                    <p
+                      className="validation-helper-text"
+                      style={{ marginTop: "0.25rem", marginBottom: "0" }}
+                    >
+                      {validationResults.summary.passed} of{" "}
+                      {validationResults.summary.total} complete
+                    </p>
+                  </div>
+                  <span
+                    className={`validation-badge ${validationResults.summary.hasIssues ? "validation-badge--alert" : "validation-badge--success"}`}
+                  >
+                    {validationResults.summary.hasIssues
+                      ? "⚠ Action Needed"
+                      : "✓ All Complete"}
+                  </span>
+                </div>
                 <div className="validation-step-list">
                   {validationResults.checks.map((check) => (
                     <div
                       key={check.id}
-                      className={`validation-check-row ${check.passed ? "validation-check-row--pass" : check.passed === false ? "validation-check-row--fail" : "validation-check-row--pending"}`}
+                      className={`validation-check-row ${check.passed === true ? "validation-check-row--pass" : check.passed === false ? "validation-check-row--fail" : "validation-check-row--pending"}`}
                     >
-                      <div className="validation-check-row__icon" aria-hidden="true">
-                        {check.passed === true ? "✓" : check.passed === false ? "●" : "—"}
+                      <div
+                        className="validation-check-row__icon"
+                        aria-hidden="true"
+                      >
+                        {check.passed === true
+                          ? "✓"
+                          : check.passed === false
+                            ? "●"
+                            : "—"}
                       </div>
                       <div className="validation-check-row__content">
                         <div className="validation-check-row__title-wrap">
-                          <div className="validation-check-row__title">{check.description}</div>
+                          <div className="validation-check-row__title">
+                            {check.description}
+                          </div>
                           <span
                             className={`validation-check-status ${check.passed === true ? "validation-check-status--pass" : check.passed === false ? "validation-check-status--fail" : ""}`}
                           >
-                            {check.passed === true ? "Complete" : check.passed === false ? "Missing" : "Pending"}
+                            {check.passed === true
+                              ? "Complete"
+                              : check.passed === false
+                                ? "Missing"
+                                : "Pending"}
                           </span>
                         </div>
                       </div>
@@ -560,6 +653,15 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           </section>
         ) : (
           <div className="validation-empty">
+            <span
+              style={{
+                fontSize: "2rem",
+                marginBottom: "1rem",
+                display: "block",
+              }}
+            >
+              ◊
+            </span>
             No validations available for this form.
           </div>
         )}

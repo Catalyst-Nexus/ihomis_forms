@@ -1,10 +1,7 @@
 .validation-module-shell {
   min-height: 100vh;
   padding: 16px;
-  background:
-    radial-gradient(circle at top left, rgba(113, 209, 201, 0.16), transparent 30%),
-    radial-gradient(circle at top right, rgba(246, 199, 143, 0.2), transparent 26%),
-    linear-gradient(180deg, #f5fbfa 0%, #f7f7f1 100%);
+  background: transparent;
 }
 
 .validation-module-switcher {
