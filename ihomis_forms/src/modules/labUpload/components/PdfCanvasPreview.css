@@ -1,0 +1,1356 @@
+/**
+ * PdfCanvasPreview.css
+ * Clinical Diagnostic PDF Preview
+ * Professional PACS-inspired medical document viewer
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap");
+
+/* ── Design Tokens ────────────────────────────────────────────── */
+.pdf-preview {
+  /* Clinical Navy Palette */
+  --med-navy-950: #020617;
+  --med-navy-900: #0a1628;
+  --med-navy-800: #0f2744;
+  --med-navy-700: #143660;
+  --med-navy-600: #1a4a7c;
+  --med-navy-500: #1e5f9e;
+  --med-navy-400: #2d7bc4;
+  --med-navy-300: #5a9ae0;
+  --med-navy-200: #8bbcf0;
+  --med-navy-100: #bdd9f8;
+  --med-navy-50: #e8f1fc;
+
+  /* Clinical Teal - Medical Accent */
+  --med-teal-800: #0d3d3d;
+  --med-teal-700: #115555;
+  --med-teal-600: #156b6b;
+  --med-teal-500: #198181;
+  --med-teal-400: #22a0a0;
+  --med-teal-300: #4fc4c4;
+  --med-teal-200: #8de0e0;
+  --med-teal-100: #c2f0f0;
+  --med-teal-50: #e8fafa;
+
+  /* Status Colors */
+  --med-success-700: #046a38;
+  --med-success-600: #05824a;
+  --med-success-500: #0a9a5c;
+  --med-success-400: #14b86e;
+  --med-success-100: #bbf7d0;
+  --med-success-50: #dcfce7;
+
+  --med-warning-700: #7c2d12;
+  --med-warning-600: #9a3412;
+  --med-warning-500: #c2410c;
+  --med-warning-400: #ea580c;
+  --med-warning-100: #fed7aa;
+  --med-warning-50: #fff7ed;
+
+  --med-error-700: #7f1d1d;
+  --med-error-600: #991b1b;
+  --med-error-500: #b91c1c;
+  --med-error-400: #dc2626;
+  --med-error-100: #fecaca;
+  --med-error-50: #fef2f2;
+
+  /* Neutrals */
+  --med-gray-950: #030712;
+  --med-gray-900: #0f172a;
+  --med-gray-800: #1e293b;
+  --med-gray-700: #334155;
+  --med-gray-600: #475569;
+  --med-gray-500: #64748b;
+  --med-gray-400: #94a3b8;
+  --med-gray-300: #cbd5e1;
+  --med-gray-200: #e2e8f0;
+  --med-gray-150: #e8edf3;
+  --med-gray-100: #f1f5f9;
+  --med-gray-75: #f5f7fa;
+  --med-gray-50: #f8fafc;
+  --med-gray-25: #fcfcfd;
+
+  /* Surfaces */
+  --med-white: #ffffff;
+  --med-surface: #f8fafc;
+  --med-surface-2: #f1f5f9;
+  --med-surface-3: #e8edf3;
+
+  /* Border Radius */
+  --med-radius-xs: 2px;
+  --med-radius-sm: 4px;
+  --med-radius-md: 6px;
+  --med-radius-lg: 8px;
+  --med-radius-xl: 12px;
+  --med-radius-2xl: 16px;
+  --med-radius-full: 9999px;
+
+  /* Typography */
+  --med-font-ui:
+    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  --med-font-data:
+    "IBM Plex Mono", "SF Mono", "Cascadia Code", "Consolas", monospace;
+
+  /* Shadows */
+  --med-shadow-xs: 0 1px 2px rgba(2, 6, 23, 0.04);
+  --med-shadow-sm:
+    0 1px 3px rgba(2, 6, 23, 0.06), 0 1px 2px rgba(2, 6, 23, 0.04);
+  --med-shadow-md:
+    0 4px 6px -1px rgba(2, 6, 23, 0.06), 0 2px 4px -2px rgba(2, 6, 23, 0.04);
+  --med-shadow-lg:
+    0 10px 15px -3px rgba(2, 6, 23, 0.08), 0 4px 6px -4px rgba(2, 6, 23, 0.04);
+  --med-shadow-xl:
+    0 20px 25px -5px rgba(2, 6, 23, 0.1), 0 8px 10px -6px rgba(2, 6, 23, 0.04);
+  --med-shadow-document:
+    0 0 0 1px rgba(2, 6, 23, 0.06), 0 4px 12px rgba(2, 6, 23, 0.08),
+    0 1px 3px rgba(2, 6, 23, 0.04);
+  --med-shadow-focus: 0 0 0 3px rgba(30, 95, 158, 0.15);
+
+  /* Transitions */
+  --med-transition-fast: 100ms ease;
+  --med-transition-base: 150ms ease;
+  --med-transition-slow: 200ms ease;
+  --med-transition-slower: 300ms ease;
+}
+
+/* ── Main Container ──────────────────────────────────────────── */
+.lab-pdf-renderer {
+  display: flex;
+  flex-direction: column;
+  background: var(--med-white);
+  border-radius: var(--med-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--med-shadow-md);
+  border: 1px solid var(--med-gray-200);
+  font-family: var(--med-font-ui);
+  position: relative;
+}
+
+/* Top accent line - clinical header indicator */
+.lab-pdf-renderer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--med-navy-600) 0%,
+    var(--med-navy-400) 50%,
+    var(--med-teal-500) 100%
+  );
+  z-index: 1;
+}
+
+/* ── Header Bar ─────────────────────────────────────────────── */
+.lab-pdf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--med-white);
+  border-bottom: 1px solid var(--med-gray-200);
+  min-height: 56px;
+  gap: 16px;
+}
+
+.lab-pdf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lab-pdf-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--med-navy-50) 0%,
+    var(--med-teal-50) 100%
+  );
+  border: 1px solid var(--med-navy-100);
+  border-radius: var(--med-radius-md);
+  color: var(--med-navy-600);
+}
+
+.lab-pdf-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lab-pdf-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--med-gray-800);
+  letter-spacing: -0.01em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.lab-pdf-header-subtitle {
+  font-size: 11px;
+  color: var(--med-gray-500);
+  font-family: var(--med-font-data);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.lab-pdf-header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+}
+
+.lab-pdf-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Navigation Controls ─────────────────────────────────────── */
+.lab-pdf-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--med-white);
+  border: 1px solid var(--med-gray-200);
+  border-radius: var(--med-radius-lg);
+  padding: 4px;
+  box-shadow: var(--med-shadow-sm);
+}
+
+.lab-pdf-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: var(--med-radius-md);
+  color: var(--med-gray-600);
+  cursor: pointer;
+  transition: all var(--med-transition-fast);
+}
+
+.lab-pdf-nav-btn:hover:not(:disabled) {
+  background: var(--med-navy-50);
+  color: var(--med-navy-600);
+}
+
+.lab-pdf-nav-btn:active:not(:disabled) {
+  background: var(--med-navy-100);
+  transform: scale(0.95);
+}
+
+.lab-pdf-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.lab-pdf-nav-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--med-gray-200);
+  margin: 0 4px;
+}
+
+.lab-pdf-page-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-family: var(--med-font-data);
+  color: var(--med-gray-700);
+}
+
+.lab-pdf-page-current {
+  font-weight: 600;
+  color: var(--med-navy-700);
+  min-width: 20px;
+  text-align: center;
+}
+
+.lab-pdf-page-total {
+  color: var(--med-gray-400);
+}
+
+/* ── Zoom Controls ──────────────────────────────────────────── */
+.lab-pdf-zoom {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--med-white);
+  border: 1px solid var(--med-gray-200);
+  border-radius: var(--med-radius-lg);
+  padding: 4px;
+  box-shadow: var(--med-shadow-sm);
+}
+
+.lab-pdf-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--med-radius-md);
+  color: var(--med-gray-600);
+  cursor: pointer;
+  transition: all var(--med-transition-fast);
+}
+
+.lab-pdf-zoom-btn:hover {
+  background: var(--med-navy-50);
+  color: var(--med-navy-600);
+}
+
+.lab-pdf-zoom-btn:active {
+  transform: scale(0.92);
+}
+
+.lab-pdf-zoom-value {
+  min-width: 52px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--med-font-data);
+  color: var(--med-teal-600);
+  padding: 0 4px;
+}
+
+/* ── Action Buttons ─────────────────────────────────────────── */
+.lab-pdf-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--med-gray-200);
+  background: var(--med-white);
+  border-radius: var(--med-radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--med-gray-700);
+  cursor: pointer;
+  transition: all var(--med-transition-fast);
+  box-shadow: var(--med-shadow-sm);
+}
+
+.lab-pdf-action-btn:hover {
+  background: var(--med-gray-50);
+  border-color: var(--med-gray-300);
+  color: var(--med-gray-800);
+}
+
+.lab-pdf-action-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--med-shadow-xs);
+}
+
+.lab-pdf-action-btn.primary {
+  background: linear-gradient(
+    135deg,
+    var(--med-navy-600) 0%,
+    var(--med-navy-500) 100%
+  );
+  border-color: var(--med-navy-600);
+  color: var(--med-white);
+  box-shadow: 0 2px 4px rgba(30, 95, 158, 0.2);
+}
+
+.lab-pdf-action-btn.primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--med-navy-700) 0%,
+    var(--med-navy-600) 100%
+  );
+  border-color: var(--med-navy-700);
+  color: var(--med-white);
+}
+
+.lab-pdf-action-btn.danger {
+  background: var(--med-white);
+  border-color: var(--med-error-200);
+  color: var(--med-error-600);
+}
+
+.lab-pdf-action-btn.danger:hover {
+  background: var(--med-error-50);
+  border-color: var(--med-error-300);
+}
+
+/* ── Canvas Container ────────────────────────────────────────── */
+.lab-pdf-canvas-shell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    linear-gradient(var(--med-gray-100) 1px, transparent 1px),
+    linear-gradient(90deg, var(--med-gray-100) 1px, transparent 1px),
+    linear-gradient(var(--med-gray-75) 0%, var(--med-gray-100) 100%);
+  background-size:
+    20px 20px,
+    20px 20px,
+    100% 100%;
+  min-height: 450px;
+  position: relative;
+  overflow: auto;
+}
+
+.lab-pdf-canvas-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── PDF Canvas ──────────────────────────────────────────────── */
+.lab-pdf-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: var(--med-white);
+  border-radius: var(--med-radius-sm);
+  box-shadow: var(--med-shadow-document);
+  transition: box-shadow var(--med-transition-slow);
+  position: relative;
+}
+
+.lab-pdf-canvas::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--med-radius-sm) + 1px);
+  border: 1px solid rgba(2, 6, 23, 0.08);
+  pointer-events: none;
+}
+
+.lab-pdf-canvas:hover {
+  box-shadow:
+    0 0 0 1px rgba(30, 95, 158, 0.12),
+    0 8px 24px rgba(2, 6, 23, 0.1),
+    0 4px 8px rgba(2, 6, 23, 0.06);
+}
+
+.lab-pdf-canvas-loading {
+  opacity: 0.6;
+  filter: blur(1px);
+  transition:
+    opacity var(--med-transition-slow),
+    filter var(--med-transition-slow);
+}
+
+.lab-pdf-canvas-ready {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── Status Badges ──────────────────────────────────────────── */
+.lab-pdf-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--med-radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lab-pdf-status.loading {
+  background: var(--med-navy-50);
+  color: var(--med-navy-700);
+  border: 1px solid var(--med-navy-100);
+}
+
+.lab-pdf-status.success {
+  background: var(--med-success-50);
+  color: var(--med-success-600);
+  border: 1px solid var(--med-success-100);
+}
+
+.lab-pdf-status.error {
+  background: var(--med-error-50);
+  color: var(--med-error-600);
+  border: 1px solid var(--med-error-100);
+}
+
+/* ── Error State ──────────────────────────────────────────────── */
+.lab-pdf-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 24px;
+  background: var(--med-error-50);
+  border: 1px solid var(--med-error-100);
+  border-radius: var(--med-radius-lg);
+  max-width: 360px;
+  text-align: center;
+}
+
+.lab-pdf-error-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--med-error-100);
+  border-radius: 50%;
+  color: var(--med-error-500);
+}
+
+.lab-pdf-error-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--med-error-700);
+}
+
+.lab-pdf-error-message {
+  font-size: 13px;
+  color: var(--med-gray-600);
+  line-height: 1.5;
+}
+
+/* ── Preloader / Loading State ────────────────────────────────── */
+.lab-pdf-preloader {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border-radius: var(--med-radius-lg);
+  box-shadow: var(--med-shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--med-transition-slow),
+    visibility var(--med-transition-slow);
+  z-index: 10;
+}
+
+.lab-pdf-preloader-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Clinical waveform preloader */
+.lab-pdf-preloader-spinner {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.lab-pdf-preloader-spinner span {
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(
+    180deg,
+    var(--med-navy-500) 0%,
+    var(--med-teal-500) 100%
+  );
+  border-radius: 2px;
+  animation: med-wave 1.2s ease-in-out infinite;
+}
+
+.lab-pdf-preloader-spinner span:nth-child(1) {
+  animation-delay: 0s;
+  height: 16px;
+}
+.lab-pdf-preloader-spinner span:nth-child(2) {
+  animation-delay: 0.1s;
+  height: 24px;
+}
+.lab-pdf-preloader-spinner span:nth-child(3) {
+  animation-delay: 0.2s;
+  height: 32px;
+}
+.lab-pdf-preloader-spinner span:nth-child(4) {
+  animation-delay: 0.3s;
+  height: 20px;
+}
+.lab-pdf-preloader-spinner span:nth-child(5) {
+  animation-delay: 0.4s;
+  height: 28px;
+}
+
+@keyframes med-wave {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.lab-pdf-preloader p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--med-gray-600);
+  font-family: var(--med-font-ui);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ── Fullscreen Mode ─────────────────────────────────────────── */
+.lab-pdf-renderer-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  border-radius: 0;
+  border: none;
+  animation: med-fs-enter 0.2s ease-out;
+  overflow: hidden;
+}
+
+@keyframes med-fs-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fullscreen Header - Clean, minimal */
+.lab-fs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  min-height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.lab-fs-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.lab-fs-icon {
+  color: #0f766e;
+  opacity: 0.8;
+}
+
+.lab-fs-bar-title {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #334155;
+  letter-spacing: -0.01em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.lab-fs-page-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.lab-fs-bar-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Fullscreen Buttons - Modern, compact */
+.lab-fs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 10px;
+  min-width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #475569;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lab-fs-btn:hover:not(:disabled) {
+  background: #f0fdfa;
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.lab-fs-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.lab-fs-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lab-fs-sep {
+  width: 1px;
+  height: 20px;
+  background: #e2e8f0;
+  margin: 0 4px;
+}
+
+/* Fullscreen Jump - Compact input */
+.lab-fs-jump {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 32px;
+}
+
+.lab-fs-jump-input {
+  width: 40px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  height: 100%;
+}
+
+.lab-fs-jump-input:focus {
+  outline: none;
+  background: #f0fdfa;
+}
+
+.lab-fs-jump-sep {
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 0 4px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.lab-fs-jump-total {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 0 8px 0 2px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Fullscreen Zoom - Compact group */
+.lab-fs-zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  height: 40px;
+}
+
+.lab-fs-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lab-fs-zoom-btn:hover {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.lab-fs-zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.lab-fs-zoom-label {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 10px;
+  color: #0f766e;
+  font-family: "JetBrains Mono", monospace;
+  min-width: 52px;
+  text-align: center;
+}
+
+/* Fullscreen Close - Subtle */
+.lab-fs-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.lab-fs-close:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.lab-fs-close:active {
+  transform: scale(0.97);
+}
+
+/* Fullscreen Body - Clean, allows scrolling for zoom */
+.lab-fs-body {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  background-color: #f8fafc;
+  /* Use text-align center to center the canvas wrap */
+  text-align: center;
+  /* Allow both horizontal and vertical scrolling */
+  overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-width: thin; /* Firefox - thin scrollbar */
+  -ms-overflow-style: scroll; /* IE/Edge */
+}
+/* Custom thin scrollbar for Chrome/Safari/Opera - both directions */
+.lab-fs-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.lab-fs-body::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 5px;
+}
+.lab-fs-body::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 5px;
+}
+.lab-fs-body::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.lab-fs-canvas-wrap {
+  /* No display flex needed - just text-align center will work */
+  display: inline-block;
+  text-align: left;
+}
+
+.lab-pdf-canvas-stage-fs {
+  display: inline-block;
+  text-align: left;
+}
+
+.lab-pdf-renderer-fullscreen .lab-pdf-canvas {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  /* CRITICAL: Remove all constraints - let canvas size from JS determine dimensions */
+  max-width: none !important;
+  max-height: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.lab-pdf-renderer-fullscreen .lab-pdf-canvas:hover {
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Fullscreen Preloader - Modern */
+.lab-pdf-preloader-fullscreen {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span {
+  background: linear-gradient(180deg, #0f766e 0%, #5eead4 100%);
+  height: 24px;
+}
+
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span:nth-child(1) {
+  height: 16px;
+}
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span:nth-child(2) {
+  height: 24px;
+}
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span:nth-child(3) {
+  height: 32px;
+}
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span:nth-child(4) {
+  height: 20px;
+}
+.lab-pdf-preloader-fullscreen .lab-pdf-preloader-spinner span:nth-child(5) {
+  height: 28px;
+}
+
+.lab-pdf-preloader-fullscreen p {
+  color: #64748b;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Lab Workflow Panel Styles ───────────────────────────────── */
+.lwp-fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lwp-fullscreen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.lwp-fullscreen-content {
+  position: relative;
+  z-index: 1;
+  width: 95vw;
+  height: 95vh;
+  max-width: 1400px;
+  background: var(--med-white);
+  border-radius: var(--med-radius-2xl);
+  box-shadow: var(--med-shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Avoid scale transform during open to prevent any perceived zoom distortion */
+  animation: lwp-modal-enter 0.2s ease-out;
+}
+
+@keyframes lwp-modal-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lwp-fullscreen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--med-white);
+  border-bottom: 1px solid var(--med-gray-200);
+  flex-shrink: 0;
+}
+
+.lwp-fullscreen-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--med-gray-800);
+}
+
+.lwp-fullscreen-title svg {
+  color: var(--med-navy-600);
+}
+
+.lwp-fullscreen-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lwp-fullscreen-hint {
+  font-size: 11px;
+  color: var(--med-gray-500);
+  padding: 6px 10px;
+  background: var(--med-gray-100);
+  border-radius: var(--med-radius-md);
+  font-family: var(--med-font-data);
+}
+
+.lwp-fullscreen-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--med-white);
+  border: 1px solid var(--med-gray-200);
+  border-radius: var(--med-radius-md);
+  color: var(--med-gray-600);
+  cursor: pointer;
+  transition: all var(--med-transition-fast);
+}
+
+.lwp-fullscreen-close:hover {
+  background: var(--med-error-50);
+  border-color: var(--med-error-200);
+  color: var(--med-error-600);
+}
+
+.lwp-fullscreen-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  background: var(--med-gray-100);
+}
+
+.lwp-fullscreen-body .pdf-canvas-preview,
+.lwp-fullscreen-body .lab-pdf-renderer {
+  height: 100%;
+  min-height: calc(95vh - 80px);
+}
+
+/* Fullscreen Button - Visible navy button with text */
+.lwp-preview-fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(
+    135deg,
+    var(--med-navy-600) 0%,
+    var(--med-navy-700) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: var(--med-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--med-transition-fast);
+  box-shadow: 0 2px 8px rgba(26, 74, 124, 0.3);
+  white-space: nowrap;
+  font-family: var(--med-font-ui);
+}
+
+.lwp-preview-fullscreen-btn:hover {
+  background: linear-gradient(
+    135deg,
+    var(--med-navy-700) 0%,
+    var(--med-navy-800) 100%
+  );
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 74, 124, 0.4);
+}
+
+.lwp-preview-fullscreen-btn:active {
+  transform: translateY(0);
+}
+
+.lwp-preview-fullscreen-btn svg {
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.lwp-preview-fullscreen-btn:hover svg {
+  color: var(--med-white);
+}
+
+/* ── Lab Upload Module Styles ─────────────────────────────────── */
+.lum-upload-preview-panel {
+  flex: 1;
+  min-width: 0;
+  background: var(--med-white);
+  border-radius: var(--med-radius-lg);
+  border: 1px solid var(--med-gray-200);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--med-shadow-sm);
+}
+
+.lum-preview-title {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--med-gray-700);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--med-gray-150);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lum-upload-preview-panel .lum-pdf-wrap {
+  flex: 1;
+  overflow: auto;
+  background: var(--med-surface);
+  border-radius: var(--med-radius-md);
+  min-height: 400px;
+}
+
+.lum-upload-preview-panel .lum-empty-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--med-gray-500);
+  background: var(--med-surface-2);
+  border-radius: var(--med-radius-md);
+  min-height: 400px;
+  gap: 12px;
+}
+
+.lum-upload-preview-panel .lum-empty-preview svg {
+  opacity: 0.4;
+  color: var(--med-gray-400);
+}
+
+.lum-upload-preview-panel .lum-empty-preview p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--med-gray-500);
+}
+
+/* ── Scrollbar Styling ───────────────────────────────────────── */
+/* Only style scrollbar for embedded canvas shell (fullscreen hides it) */
+.lab-pdf-canvas-shell::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.lab-pdf-canvas-shell::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lab-pdf-canvas-shell::-webkit-scrollbar-thumb {
+  background: var(--med-gray-300);
+  border-radius: 4px;
+}
+
+.lab-pdf-canvas-shell::-webkit-scrollbar-thumb:hover {
+  background: var(--med-gray-400);
+}
+
+/* ── Responsive Design ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .lab-pdf-header {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .lab-pdf-header-left {
+    order: 1;
+    flex: 1;
+  }
+
+  .lab-pdf-header-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .lab-pdf-header-right {
+    order: 2;
+  }
+
+  .lab-fs-bar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .lab-fs-bar-left {
+    order: 1;
+    flex: 1;
+  }
+
+  .lab-fs-bar-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .lab-fs-bar-right {
+    order: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .lab-pdf-nav {
+    padding: 2px;
+  }
+
+  .lab-pdf-nav-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .lab-pdf-zoom {
+    padding: 2px;
+  }
+
+  .lab-pdf-zoom-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .lab-pdf-action-btn span {
+    display: none;
+  }
+
+  .lab-pdf-canvas-shell {
+    padding: 12px;
+    min-height: 300px;
+  }
+
+  .lab-fs-bar {
+    padding: 10px 12px;
+  }
+
+  .lab-fs-btn {
+    padding: 6px 8px;
+    min-width: 32px;
+    height: 32px;
+  }
+
+  .lab-fs-close {
+    padding: 6px 10px;
+  }
+
+  .lab-fs-close span {
+    display: none;
+  }
+
+  .lab-fs-zoom-group {
+    padding: 2px;
+    height: 32px;
+  }
+
+  .lwp-fullscreen-content {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* ── Reduced Motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lab-pdf-canvas,
+  .lab-pdf-preloader,
+  .lab-fs-btn,
+  .lab-fs-close,
+  .lab-pdf-nav-btn,
+  .lab-pdf-zoom-btn,
+  .lab-pdf-action-btn {
+    transition: none;
+  }
+
+  .lab-pdf-preloader-spinner span {
+    animation: none;
+    height: 24px;
+  }
+
+  .lab-pdf-renderer-fullscreen,
+  .lwp-fullscreen-content {
+    animation: none;
+  }
+}

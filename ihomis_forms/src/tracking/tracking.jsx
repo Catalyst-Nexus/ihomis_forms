@@ -28,14 +28,17 @@ function Toast({ message, type = "success", onDone }) {
 
 // Helpers
 function extractAdmittedDate(encoCode = "") {
-  const m = String(encoCode).match(/(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/);
+  const m = String(encoCode).match(
+    /(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/,
+  );
   if (!m) return "—";
   return m[2] ? `${m[1]} ${m[2]}` : m[1];
 }
 
 function calculateRemainingDays(dischargedDate) {
   if (!dischargedDate || dischargedDate === "—") return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const d = new Date(dischargedDate);
   if (isNaN(d.getTime())) return null;
   return 60 - Math.floor((today - d) / 86400000);
@@ -43,7 +46,10 @@ function calculateRemainingDays(dischargedDate) {
 
 function fmt(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-PH", { dateStyle: "short", timeStyle: "short" });
+  return new Date(iso).toLocaleString("en-PH", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 }
 
 function fmtDate(iso) {
@@ -82,7 +88,9 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
 
   const history = Object.entries(row._stepLogs ?? {})
     .filter(([, l]) => l.status === "done")
-    .sort(([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at));
+    .sort(
+      ([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at),
+    );
 
   const nextSequenceId = getNextSequenceId(steps, sequenceId);
   const nextStepLabel = nextSequenceId ? getStepLabel(steps, nextSequenceId) : "next step";
@@ -164,7 +172,7 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
             rows={4}
             placeholder="Type your remarks or notes for this step…"
             value={remarks}
-            onChange={e => setRemarks(e.target.value)}
+            onChange={(e) => setRemarks(e.target.value)}
             autoFocus
           />
         </div>
@@ -200,7 +208,11 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
           <button className="mbtn mbtn--ghost" onClick={() => onClose(null)} disabled={saving}>
             Cancel
           </button>
-          <button className="mbtn mbtn--outline" onClick={handleSaveOnly} disabled={saving}>
+          <button
+            className="mbtn mbtn--outline"
+            onClick={handleSaveOnly}
+            disabled={saving}
+          >
             Save Remarks Only
           </button>
           <button
@@ -218,6 +230,30 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
     </div>
   );
 }
+
+ProcessModal.propTypes = {
+  ctx: PropTypes.shape({
+    row: PropTypes.shape({
+      patientName: PropTypes.string,
+      hospitalNo: PropTypes.string,
+      admittedDate: PropTypes.string,
+      _stepLogs: PropTypes.object,
+    }).isRequired,
+    stepKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      .isRequired,
+    stepLabel: PropTypes.string.isRequired,
+    existingLog: PropTypes.shape({
+      remarks: PropTypes.string,
+      done_by: PropTypes.string,
+      done_at: PropTypes.string,
+    }),
+    currentUserId: PropTypes.string,
+    currentUserName: PropTypes.string,
+  }).isRequired,
+  stepKeyToUsers: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Component
@@ -243,9 +279,6 @@ export default function Tracking({
   const [isSuperUser,        setIsSuperUser]        = useState(false);
   const [sequenceIdToUsers,  setSequenceIdToUsers]  = useState({});
 
-  const [loadingApi,  setLoadingApi]  = useState(false);
-  const [syncing,     setSyncing]     = useState(false);
-  const [error,       setError]       = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [modal,       setModal]       = useState(null);
   const [toast,       setToast]       = useState(null);
@@ -794,9 +827,12 @@ export default function Tracking({
         assigned_to: null, // keep group access even when just saving remarks
       };
       if (existing?.id) {
-        await supabase.from("workflow_step_log").update(activePayload).eq("id", existing.id);
+        await supabase
+          .from("tracking_log")
+          .update(payload)
+          .eq("id", existing.id);
       } else {
-        await supabase.from("workflow_step_log").insert(activePayload);
+        await supabase.from("tracking_log").insert(payload);
       }
       await reloadDb();
       return null;
@@ -843,7 +879,11 @@ export default function Tracking({
                 : null
               }
               {" · "}
-              <button type="button" className="tracking-switch-user-link" onClick={onSwitchUser}>
+              <button
+                type="button"
+                className="tracking-switch-user-link"
+                onClick={onSwitchUser}
+              >
                 Switch user
               </button>
             </small>
@@ -904,7 +944,7 @@ export default function Tracking({
         <div className="tracking-status-bar">
           {isLoading
             ? "⏳ Syncing records from API…"
-            : `${filteredRows.length} record${filteredRows.length!==1?"s":""}  ·  Page ${currentPage} of ${totalPages || 1}`}
+            : `${filteredRows.length} record${filteredRows.length !== 1 ? "s" : ""}  ·  Page ${currentPage} of ${totalPages || 1}`}
         </div>
 
         {/* Table */}

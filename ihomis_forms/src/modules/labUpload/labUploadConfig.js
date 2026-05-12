@@ -24,15 +24,6 @@ const LAB_UPLOAD_SUPABASE_TABLE = (
   import.meta.env.VITE_SUPABASE_LAB_RESULTS_TABLE || "lab_result_uploads"
 ).trim();
 
-const LAB_UPLOAD_SUPABASE_USE_SIGNED_URL =
-  String(
-    import.meta.env.VITE_SUPABASE_LAB_RESULTS_USE_SIGNED_URL || "true",
-  ).toLowerCase() === "true";
-
-const LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL = Number(
-  import.meta.env.VITE_SUPABASE_LAB_RESULTS_SIGNED_URL_TTL || 3600,
-);
-
 const defaultRequestContext = {
   panelName: "Laboratory Request",
   requestedAt: "",
@@ -57,7 +48,5 @@ export {
   LAB_UPLOAD_PATIENT_SEARCH_URL,
   LAB_UPLOAD_SUPABASE_BUCKET,
   LAB_UPLOAD_SUPABASE_TABLE,
-  LAB_UPLOAD_SUPABASE_USE_SIGNED_URL,
-  LAB_UPLOAD_SUPABASE_SIGNED_URL_TTL,
   defaultRequestContext,
 };
