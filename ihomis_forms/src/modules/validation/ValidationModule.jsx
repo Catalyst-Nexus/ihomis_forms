@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import ValidationPage from "./ValidationPage.jsx";
 import { buildFallbackForms } from "../forms/formCatalog.js";
+import { supabase } from "../../lib/supabaseClient.js";
 import "./ValidationModule.css";
 
 function ValidationAdminPanel() {
@@ -20,15 +21,47 @@ function ValidationAdminPanel() {
   const fallbackForms = useMemo(() => buildFallbackForms(), []);
 
   const loadMappings = useCallback(async (formId) => {
-    if (!formId) {
+    if (!formId || !supabase) {
       setMappings([]);
       return;
     }
 
-    const res = await fetch(`/api/validation/form/${encodeURIComponent(formId)}`);
-    const data = await res.json();
-    if (data.ok) {
-      setMappings(data.validations || []);
+    try {
+      // Get form-validation mappings from Supabase
+      const { data: mappingData, error: mapError } = await supabase
+        .from("formvalidator")
+        .select("*")
+        .eq("formid", Number(formId));
+
+      if (mapError) throw mapError;
+
+      if (!mappingData || mappingData.length === 0) {
+        setMappings([]);
+        return;
+      }
+
+      // Get the associated validation rules
+      const validationIds = mappingData.map((m) => m.validationid).filter(Boolean);
+      const { data: validationData, error: valError } = await supabase
+        .from("validation")
+        .select("*")
+        .in("id", validationIds);
+
+      if (valError) throw valError;
+
+      // Merge mapping and validation data
+      const merged = mappingData.map((mapping) => {
+        const validation = validationData?.find((v) => v.id === mapping.validationid) || {};
+        return {
+          ...validation,
+          mappingId: mapping.id,
+        };
+      });
+
+      setMappings(merged);
+    } catch (error) {
+      console.error("Error loading mappings:", error);
+      setMappings([]);
     }
   }, []);
 
@@ -37,40 +70,47 @@ function ValidationAdminPanel() {
       setLoading(true);
       setErrorMessage("");
       try {
-        const [formsResponse, validationsResponse] = await Promise.all([
-          fetch("/api/validation/forms"),
-          fetch("/api/validation/validations"),
-        ]);
-
-        if (!formsResponse.ok) {
-          throw new Error(`Failed to load hospital forms (${formsResponse.status})`);
+        if (!supabase) {
+          throw new Error("Supabase client not configured");
         }
 
-        if (!validationsResponse.ok) {
-          throw new Error(`Failed to load validations (${validationsResponse.status})`);
-        }
+        // Fetch hospital forms from Supabase
+        const { data: formsData, error: formsError } = await supabase
+          .from("hospital_forms")
+          .select("*")
+          .order("id", { ascending: true });
 
-        const formsData = await formsResponse.json();
-        const validationsData = await validationsResponse.json();
+        if (formsError) throw formsError;
 
-        const loadedForms = formsData.ok && Array.isArray(formsData.forms) && formsData.forms.length > 0
-          ? formsData.forms
-          : fallbackForms;
+        // Fetch all validations from Supabase
+        const { data: validationsData, error: validationsError } = await supabase
+          .from("validation")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (validationsError) throw validationsError;
+
+        const loadedForms = formsData && formsData.length > 0 ? formsData : fallbackForms;
+        const loadedValidations = validationsData && Array.isArray(validationsData) ? validationsData : [];
 
         if (loadedForms.length > 0) {
           setForms(loadedForms);
           setSelectedFormId((currentValue) => currentValue || String(loadedForms[0]?.id || ""));
         }
 
-        if (validationsData.ok) {
-          const loadedValidations = Array.isArray(validationsData.validations) ? validationsData.validations : [];
+        if (loadedValidations.length > 0) {
           setValidations(loadedValidations);
           setSelectedValidationId((currentValue) => currentValue || String(loadedValidations[0]?.id || ""));
         }
       } catch (error) {
+        console.error("Error loading data from Supabase:", error);
         setForms(fallbackForms);
         setSelectedFormId((currentValue) => currentValue || String(fallbackForms[0]?.id || ""));
-        setErrorMessage(error instanceof Error ? error.message : "Failed to load dropdown data.");
+        setErrorMessage(
+          error instanceof Error 
+            ? error.message 
+            : "Failed to load data from Supabase. Check if tables exist and RLS policies allow access."
+        );
       } finally {
         setLoading(false);
       }
@@ -89,73 +129,107 @@ function ValidationAdminPanel() {
   );
 
   async function createMapping() {
-    if (!selectedFormId || !selectedValidationId) return;
+    if (!selectedFormId || !selectedValidationId || !supabase) return;
     setLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch("/api/validation/map", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          formId: Number(selectedFormId),
-          validationId: Number(selectedValidationId),
-        }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setStatusMessage("Validation linked to form successfully.");
-        await loadMappings(selectedFormId);
-      }
+      const { data, error } = await supabase
+        .from("formvalidator")
+        .insert([{
+          formid: Number(selectedFormId),
+          validationid: Number(selectedValidationId),
+        }])
+        .select();
+
+      if (error) throw error;
+
+      setStatusMessage("Validation linked to form successfully.");
+      await loadMappings(selectedFormId);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to create mapping");
+      console.error("Error creating mapping:", error);
     } finally {
       setLoading(false);
     }
   }
 
   async function deleteMapping(mappingId) {
+    if (!supabase) return;
     setLoading(true);
+    setErrorMessage("");
     try {
-      const res = await fetch(`/api/validation/form/${encodeURIComponent(mappingId)}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setStatusMessage("Validation mapping removed.");
-        await loadMappings(selectedFormId);
-      }
+      const { error } = await supabase
+        .from("formvalidator")
+        .delete()
+        .eq("id", mappingId);
+
+      if (error) throw error;
+
+      setStatusMessage("Validation mapping removed.");
+      await loadMappings(selectedFormId);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to delete mapping");
+      console.error("Error deleting mapping:", error);
     } finally {
       setLoading(false);
     }
   }
 
   async function addValidation() {
-    if (!newQuery) return;
+    if (!newQuery || !supabase) return;
     setLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch("/api/validation/form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          formId: selectedFormId,
-          description: newDesc,
+      // Insert new validation rule
+      const { data: validationData, error: valError } = await supabase
+        .from("validation")
+        .insert([{
+          description: newDesc || null,
           query: newQuery,
-        }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setNewDesc("");
-        setNewQuery("");
-        setStatusMessage("Validation created and linked.");
+        }])
+        .select();
 
-        const validationsResponse = await fetch("/api/validation/validations");
-        const validationsData = await validationsResponse.json();
-        if (validationsData.ok) {
-          setValidations(validationsData.validations || []);
-          setSelectedValidationId((currentValue) => currentValue || String(validationsData.validations?.[0]?.id || ""));
-        }
+      if (valError) throw valError;
 
+      const newValidationId = validationData?.[0]?.id;
+      if (!newValidationId) throw new Error("Failed to create validation rule");
+
+      // Create mapping if formId is selected
+      if (selectedFormId) {
+        const { error: mapError } = await supabase
+          .from("formvalidator")
+          .insert([{
+            formid: Number(selectedFormId),
+            validationid: newValidationId,
+          }]);
+
+        if (mapError) throw mapError;
+      }
+
+      setNewDesc("");
+      setNewQuery("");
+      setStatusMessage("Validation created and linked successfully.");
+
+      // Reload validations
+      const { data: allValidations, error: allValError } = await supabase
+        .from("validation")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (allValError) throw allValError;
+
+      if (allValidations) {
+        setValidations(allValidations);
+        setSelectedValidationId((currentValue) => currentValue || String(newValidationId));
+      }
+
+      // Reload mappings
+      if (selectedFormId) {
         await loadMappings(selectedFormId);
       }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to add validation");
+      console.error("Error adding validation:", error);
     } finally {
       setLoading(false);
     }
@@ -166,13 +240,78 @@ function ValidationAdminPanel() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch("/api/validation/run", {
+      // Get encounter data from backend
+      const dataRes = await fetch("/api/validation/data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formId: Number(selectedFormId), enccode }),
+        body: JSON.stringify({ enccode }),
       });
-      const data = await res.json();
-      setResults(data);
+
+      if (!dataRes.ok) throw new Error("Failed to fetch encounter data");
+      const dataPayload = await dataRes.json();
+
+      if (!dataPayload.ok) throw new Error(dataPayload.error || "Failed to get encounter data");
+
+      const encounterData = dataPayload.data;
+      const formMappings = mappings;
+
+      if (formMappings.length === 0) {
+        setResults({
+          ok: true,
+          enccode,
+          encounter: encounterData,
+          results: [],
+          summary: { total: 0, passed: 0, failed: 0, allPassed: true, missing: [] },
+        });
+        return;
+      }
+
+      // Execute validations in parallel
+      const executionPromises = formMappings.map((validation) =>
+        fetch("/api/validation/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: validation.query,
+            enccode: encounterData.enccode,
+            hpercode: encounterData.hpercode,
+            validationId: validation.id,
+            description: validation.description,
+          }),
+        })
+          .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+          .catch((err) => ({
+            ok: false,
+            validationId: validation.id,
+            description: validation.description,
+            success: false,
+            error: err.message || "Execution failed",
+          }))
+      );
+
+      const results = await Promise.all(executionPromises);
+      const passed = results.filter((r) => r.success).length;
+      const failed = results.length - passed;
+
+      setResults({
+        ok: true,
+        enccode,
+        encounter: encounterData,
+        results,
+        summary: {
+          total: results.length,
+          passed,
+          failed,
+          allPassed: failed === 0,
+          missing: results
+            .filter((r) => !r.success)
+            .map((r) => r.description)
+            .filter(Boolean),
+        },
+      });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to run validations");
+      console.error("Error running validations:", error);
     } finally {
       setLoading(false);
     }

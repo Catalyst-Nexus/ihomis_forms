@@ -2,6 +2,8 @@
 // This module provides utilities for working with server-driven validations.
 // All validation definitions and requirements come from Supabase, not hardcoded.
 
+import { supabase } from "../../lib/supabaseClient.js";
+
 /**
  * Build a dynamic validation result from server validations and runtime results.
  */
@@ -113,37 +115,156 @@ export function mergeServerValidations(serverValidations = [], results = null) {
 }
 
 /**
- * Fetch form -> validation mappings from the backend.
- * Backend route: GET `/api/validation/form/:formId` (returns validations array)
- * Returns: { ok: true, formId, validations: [...] } or throws.
+ * Fetch form -> validation mappings from Supabase.
+ * Queries formvalidator table WHERE formid = ?
+ * Then joins with validation table to get validation details.
+ * Returns: { ok: true, formId, validations: [...] } or { ok: false, error }
  */
 export async function fetchFormValidations(formId) {
-  if (!formId) return null;
-  const resp = await fetch(`/api/validation/form/${encodeURIComponent(formId)}`);
-  if (!resp.ok) throw new Error(`Failed to load validations for form ${formId}: ${resp.statusText}`);
-  return resp.json();
+  if (!formId || !supabase) {
+    return { ok: false, error: "formId or supabase client not available" };
+  }
+
+  try {
+    // Get form-validation mappings from formvalidator table
+    const { data: mappingData, error: mapError } = await supabase
+      .from("formvalidator")
+      .select("*")
+      .eq("formid", Number(formId));
+
+    if (mapError) throw mapError;
+
+    if (!mappingData || mappingData.length === 0) {
+      return { ok: true, formId, validations: [] };
+    }
+
+    // Get the validation details for each mapping
+    const validationIds = mappingData.map((m) => m.validationid).filter(Boolean);
+    const { data: validationData, error: valError } = await supabase
+      .from("validation")
+      .select("*")
+      .in("id", validationIds);
+
+    if (valError) throw valError;
+
+    // Merge mapping and validation data
+    const validations = mappingData.map((mapping) => {
+      const validation = validationData?.find((v) => v.id === mapping.validationid) || {};
+      return {
+        ...validation,
+        mappingId: mapping.id,
+      };
+    });
+
+    return { ok: true, formId, validations };
+  } catch (error) {
+    console.error("Error fetching form validations from Supabase:", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
 }
 
 /**
  * Run validations for an encounter.
- * Calls POST /api/validation/validate with enccode and validation IDs.
+ * Step 1: Fetch encounter data from backend /api/validation/data
+ * Step 2: Execute each validation query against encounter data
+ * Step 3: Return aggregated results
  */
-export async function runEncounterValidations(enccode, validationIds = []) {
+export async function runEncounterValidations(enccode, validationIds = [], hpercode = "") {
   if (!enccode || !Array.isArray(validationIds) || validationIds.length === 0) {
-    return { ok: false, error: 'enccode and validationIds required' };
+    return { ok: false, error: "enccode and validationIds required" };
   }
 
-  const resp = await fetch('/api/validation/validate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ enccode, validationIds })
-  });
+  try {
+    // Step 1: Get encounter data from backend
+    const dataRes = await fetch("/api/validation/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enccode, hpercode }),
+    });
 
-  if (!resp.ok) {
-    throw new Error(`Validation failed: ${resp.statusText}`);
+    if (!dataRes.ok) {
+      throw new Error(`Failed to fetch encounter data: ${dataRes.status}`);
+    }
+
+    const dataPayload = await dataRes.json();
+    if (!dataPayload.ok) {
+      throw new Error(dataPayload.error || "Failed to get encounter data");
+    }
+
+    const encounterData = dataPayload.data;
+
+    // Step 2: Get validation rules from Supabase
+    if (!supabase) {
+      throw new Error("Supabase client not configured");
+    }
+
+    const { data: validations, error: valError } = await supabase
+      .from("validation")
+      .select("*")
+      .in("id", validationIds);
+
+    if (valError) throw valError;
+
+    if (!validations || validations.length === 0) {
+      return {
+        ok: true,
+        enccode,
+        encounter: encounterData,
+        results: [],
+        summary: { total: 0, passed: 0, failed: 0, allPassed: true, missing: [] }
+      };
+    }
+
+    // Step 3: Execute validations in parallel
+    const executionPromises = validations.map((validation) =>
+      fetch("/api/validation/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: validation.query,
+          enccode: encounterData.enccode,
+          hpercode: encounterData.hpercode,
+          validationId: validation.id,
+          description: validation.description,
+        }),
+      })
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        .catch((err) => ({
+          ok: false,
+          validationId: validation.id,
+          description: validation.description,
+          success: false,
+          error: err.message || "Execution failed",
+        }))
+    );
+
+    const results = await Promise.all(executionPromises);
+    const passed = results.filter((r) => r.success).length;
+    const failed = results.length - passed;
+
+    return {
+      ok: true,
+      enccode,
+      encounter: encounterData,
+      results,
+      summary: {
+        total: results.length,
+        passed,
+        failed,
+        allPassed: failed === 0,
+        missing: results
+          .filter((r) => !r.success)
+          .map((r) => r.description)
+          .filter(Boolean),
+      },
+    };
+  } catch (error) {
+    console.error("Error running encounter validations:", error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
-
-  return resp.json();
 }
 
 /**

@@ -1,12 +1,12 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { useMemo, useState, useEffect} from "react";
-import { useFormValidation } from "./hooks/useFormValidation.js";
 import { buildFallbackForms } from "../forms/formCatalog.js";
 import {
   buildValidationResults,
   fetchFormValidations,
   runEncounterValidations,
 } from "./validationScope.js";
+import { supabase } from "../../lib/supabaseClient.js";
 import "./Validation.css";
 
 function SummaryCard({ label, value, tone = "default" }) {
@@ -29,8 +29,8 @@ SummaryCard.propTypes = {
   tone: PropTypes.string,
 };
 
-function resolvePatientLabel(selectedPatient) {
-  const raw = selectedPatient?.rawData || {};
+function resolvePatientLabel(selectedPatient, patientData = null) {
+  const raw = patientData || selectedPatient?.rawData || {};
   const name =
     selectedPatient?.displayName ||
     raw.patient_name ||
@@ -48,6 +48,17 @@ function resolvePatientLabel(selectedPatient) {
     name,
     hpercode,
   };
+}
+
+function resolvePatientHpercode(selectedPatient, patientData = null) {
+  const raw = patientData || selectedPatient?.rawData || {};
+  return String(
+    raw.hpercode ||
+      selectedPatient?.contextParams?.hpercode ||
+      (selectedPatient?.idSource === "hpercode" ? selectedPatient.id : "") ||
+      selectedPatient?.id ||
+      "",
+  ).trim();
 }
 
 function getPatientInitials(label) {
@@ -135,7 +146,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     return `${selectedFormLabels[0]} + ${selectedFormLabels.length - 1} more`;
   }, [selectedFormLabels]);
 
-  // Resolve form ID by looking up the form name in the hospital_forms table
+  // Resolve form ID by looking up the form name in Supabase
   useEffect(() => {
     const resolveFormId = async () => {
       if (selectedFormItems.length === 0) {
@@ -145,14 +156,6 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
 
       try {
         setFormsLoading(true);
-        const response = await fetch("/api/validation/forms");
-        const data = await response.json();
-
-        const loadedForms = data.ok && Array.isArray(data.forms) && data.forms.length > 0
-          ? data.forms
-          : fallbackForms;
-
-        // Resolve the first selected form name for the active validation set.
         const selectedFormName = selectedFormItems[0]?.label || "";
 
         if (!selectedFormName) {
@@ -160,15 +163,37 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
           return;
         }
 
-        // Find the matching form by description or component_name
-        const matchedForm = loadedForms.find(
+        // Try to fetch from Supabase if available
+        if (supabase) {
+          const { data: loadedForms, error } = await supabase
+            .from("hospital_forms")
+            .select("*");
+
+          if (!error && loadedForms && Array.isArray(loadedForms)) {
+            // Find the matching form by description or component_name
+            const matchedForm = loadedForms.find(
+              (form) =>
+                form.description === selectedFormName ||
+                form.component_name === selectedFormName ||
+                form.description?.includes(selectedFormName),
+            );
+
+            if (matchedForm) {
+              setFormId(matchedForm.id);
+              return;
+            }
+          }
+        }
+
+        // Fallback: search in fallback forms
+        const matchedFallback = fallbackForms.find(
           (form) =>
             form.description === selectedFormName ||
             form.component_name === selectedFormName ||
             form.description?.includes(selectedFormName),
         );
 
-        setFormId(matchedForm?.id || null);
+        setFormId(matchedFallback?.id || null);
       } catch (error) {
         console.error("Error resolving form ID:", error);
         const selectedFormName = selectedFormItems[0]?.label || "";
@@ -189,11 +214,51 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     resolveFormId();
   }, [fallbackForms, selectedFormItems]);
 
-  const { enccode, loading, error, refresh, validationData } = useFormValidation({
-    selectedPatient,
-    enccode: enccodeOverride || undefined,
-    formId,
-  });
+  // Resolve enccode from selectedPatient or use override
+  function normalizeEncounterCode(rawValue) {
+    const text = String(rawValue || "").trim();
+    if (!text) return "";
+    const firstToken = text.split(/[\s/]/)[0].trim();
+    return firstToken || text;
+  }
+
+  function resolveEnccode(selectedPatient) {
+    return normalizeEncounterCode(
+      selectedPatient?.rawData?.enccode ||
+        selectedPatient?.contextParams?.enccode ||
+        selectedPatient?.contextParams?.enc ||
+        selectedPatient?.selectedEncounter?.enccode ||
+        (selectedPatient?.idSource === "enccode" ? selectedPatient.id : "") ||
+        selectedPatient?.id ||
+        "",
+    );
+  }
+
+  const enccode = useMemo(
+    () => enccodeOverride || resolveEnccode(selectedPatient),
+    [enccodeOverride, selectedPatient],
+  );
+
+  const [validationData, setValidationData] = useState(null);
+  const hpercode = useMemo(
+    () => resolvePatientHpercode(selectedPatient, validationData?.patient),
+    [selectedPatient, validationData?.patient],
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Load and run validations dynamically
+  const [runtimeResults, setRuntimeResults] = useState(null);
+  const [validationRunning, setValidationRunning] = useState(false);
+  const [runtimeError, setRuntimeError] = useState("");
+
+  // Refresh function to re-run validations
+  const refresh = useCallback(() => {
+    setRuntimeResults(null);
+    setRuntimeError("");
+    setError("");
+    // Re-trigger the validation by clearing and re-fetching
+  }, []);
 
   const [serverValidations, setServerValidations] = useState([]);
 
@@ -219,11 +284,6 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
     return () => { cancelled = true; };
   }, [formId]);
 
-  // Load and run validations dynamically
-  const [runtimeResults, setRuntimeResults] = useState(null);
-  const [validationRunning, setValidationRunning] = useState(false);
-  const [runtimeError, setRuntimeError] = useState("");
-
   useEffect(() => {
     let cancelled = false;
 
@@ -240,14 +300,16 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
         setValidationRunning(true);
         setRuntimeError("");
         const validationIds = serverValidations.map(v => v.id);
-        const result = await runEncounterValidations(enccode, validationIds);
+        const result = await runEncounterValidations(enccode, validationIds, hpercode);
 
         if (!cancelled) {
           if (result?.ok) {
             setRuntimeResults(result);
+            setValidationData(result?.encounter || null);
             setRuntimeError("");
           } else {
             setRuntimeResults(null);
+            setValidationData(null);
             setRuntimeError(result?.error || "Validation returned an unexpected response.");
           }
         }
@@ -266,7 +328,7 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
 
     void runValidations();
     return () => { cancelled = true; };
-  }, [enccode, serverValidations]);
+  }, [enccode, hpercode, serverValidations]);
 
   // Build validation results from server validations and runtime results
   const validationResults = useMemo(() => {
@@ -288,8 +350,8 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   }, [validationResults, selectedFormItems.length]);
 
   const patientLabel = useMemo(
-    () => resolvePatientLabel(selectedPatient),
-    [selectedPatient],
+    () => resolvePatientLabel(selectedPatient, validationData?.patient),
+    [selectedPatient, validationData?.patient],
   );
 
   const patientInitials = useMemo(
@@ -298,8 +360,9 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
   );
 
   const resolvedEnccode =
+    validationData?.encounter?.resolvedEnccode ||
+    validationData?.resolvedEnccode ||
     runtimeResults?.encounter?.resolvedEnccode ||
-    validationData?.details?.DEBUG_INFO?.resolvedEnccode ||
     enccode;
 
   const hasRenderedChecks = validationResults.checks.some((check) => check.passed !== null);
@@ -488,20 +551,6 @@ function ValidationPage({ selectedPatient, enccode: enccodeOverride, selectedFor
                             {check.passed === true ? "Complete" : check.passed === false ? "Missing" : "Pending"}
                           </span>
                         </div>
-                        {check.info && Object.keys(check.info).length > 0 ? (
-                          <div className="validation-check-row__message">
-                            {Object.entries(check.info)
-                              .filter(([key]) => {
-                                const lowerKey = String(key).toLowerCase();
-                                return lowerKey !== "rowcount" && lowerKey !== "sample";
-                              })
-                              .map(([key, val]) => {
-                                const displayVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
-                                return `${key}: ${displayVal}`;
-                              })
-                              .join(", ")}
-                          </div>
-                        ) : null}
                       </div>
                     </div>
                   ))}
