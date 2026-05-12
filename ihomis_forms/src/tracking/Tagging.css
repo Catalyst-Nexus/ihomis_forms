@@ -306,7 +306,108 @@
 
 /* Add row */
 .tg-add-row {
-  display: flex; gap: .5rem; align-items: center;
+  display: flex;
+  gap: .5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.tg-user-picker {
+  position: relative;
+  flex: 1 1 360px;
+  min-width: 0;
+}
+.tg-user-picker-trigger {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+}
+.tg-user-picker-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  text-transform: uppercase;
+}
+.tg-user-picker-caret {
+  color: #5a8a8f;
+  font-size: .9rem;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+.tg-user-picker-trigger--open .tg-user-picker-caret {
+  transform: rotate(180deg);
+}
+.tg-user-picker-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + .45rem);
+  z-index: 25;
+  background: #fff;
+  border: 1.5px solid rgba(16,54,63,.12);
+  box-shadow: 0 20px 48px rgba(16,54,63,.18);
+  padding: .65rem;
+  display: grid;
+  gap: .55rem;
+}
+.tg-user-picker-list {
+  max-height: 240px;
+  overflow-y: auto;
+  display: grid;
+  gap: .25rem;
+}
+.tg-user-picker-option {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: .55rem .65rem;
+  text-align: left;
+  font-family: inherit;
+  font-size: .82rem;
+  color: #0e3a42;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  text-transform: uppercase;
+}
+.tg-user-picker-option:hover,
+.tg-user-picker-option:focus {
+  outline: none;
+  background: rgba(31,157,149,.08);
+}
+.tg-user-picker-option--selected {
+  background: rgba(27,127,121,.12);
+  color: #0f7a6e;
+  font-weight: 700;
+}
+.tg-user-picker-empty {
+  padding: .55rem .65rem;
+  color: #7a9ea4;
+  font-size: .8rem;
+  font-style: italic;
+}
+.tg-user-search {
+  width: 100%;
+  border: 1.5px solid rgba(16,54,63,.12);
+  padding: .45rem .65rem;
+  font-family: inherit;
+  font-size: .82rem;
+  color: #0e3a42;
+  background: #fff;
+  min-height: 38px;
+  transition: all 180ms ease;
+}
+.tg-user-search:focus {
+  outline: none;
+  border-color: #1f9d95;
+  box-shadow: 0 0 0 3px rgba(31,157,149,.12);
+}
+.tg-user-search::placeholder {
+  color: #7a9ea4;
 }
 /* ── Step grid ────────────────────────────────────────────────────────────── */
 .tg-step-grid {

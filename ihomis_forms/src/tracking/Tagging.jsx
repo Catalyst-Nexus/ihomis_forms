@@ -99,8 +99,6 @@ function AccessDenied({ userName, onSwitchUser, onBack }) {
     </div>
   );
 }
-
-// ════════════════════════════════════════════════════════════════════════════
 export default function Tagging({
   selectedPatient,
   trackingRows = [],
@@ -215,9 +213,6 @@ export default function Tagging({
         setSelectedRecordId(firstId);
       }
       setInitComplete(true);
-      
-      // Note: fetchAllData will be triggered by the useEffect that depends on fetchAllData
-      // which will run when selectedRecordId changes
     })();
     return () => { live = false; };
   }, [trackingRows, selectedPatient]);
@@ -353,6 +348,9 @@ export default function Tagging({
   const [drafts,      setDrafts]      = useState({});
   const [saving,      setSaving]      = useState({});
   const [pendingUser, setPendingUser] = useState("");
+  const [userSearch,  setUserSearch]  = useState("");
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userDropdownRef = useRef(null);
   const prevRecordIdRef = useRef(selectedRecordId);
 
   useEffect(() => {
@@ -360,16 +358,98 @@ export default function Tagging({
       prevRecordIdRef.current = selectedRecordId;
       setDrafts({});
       setSaving({});
+      setPendingUser("");
+      setUserSearch("");
+      setUserDropdownOpen(false);
     }
   }, [selectedRecordId]);
+
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+
+    const handlePointerDown = (event) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+        setUserSearch("");
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setUserDropdownOpen(false);
+        setUserSearch("");
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [userDropdownOpen]);
 
   const unusedUsers = useMemo(
     () => users.filter((u) => !taggedUsers.some((t) => t.userId === u.id)),
     [users, taggedUsers]
   );
 
+  const filteredUnusedUsers = useMemo(() => {
+    const query = userSearch.trim().toLowerCase();
+    if (!query) return unusedUsers;
+
+    const filtered = unusedUsers.filter((u) =>
+      String(u.label ?? "").toLowerCase().includes(query) ||
+      String(u.id ?? "").toLowerCase().includes(query)
+    );
+
+    if (pendingUser) {
+      const selected = unusedUsers.find((u) => String(u.id) === String(pendingUser));
+      if (selected && !filtered.some((u) => String(u.id) === String(selected.id))) {
+        return [selected, ...filtered];
+      }
+    }
+
+    return filtered;
+  }, [unusedUsers, userSearch, pendingUser]);
+
   const canAddUser = unusedUsers.length > 0;
   const taggingDisabled = !selectedRecordId || usersLoading || !users.length || !initComplete;
+
+  const selectedPendingUser = useMemo(
+    () => unusedUsers.find((u) => String(u.id) === String(pendingUser)) ?? null,
+    [unusedUsers, pendingUser]
+  );
+
+  const pendingUserLabel = selectedPendingUser?.label ?? (pendingUser || "+ Add User");
+
+  const openUserDropdown = useCallback(() => {
+    if (taggingDisabled) return;
+    setUserSearch("");
+    setUserDropdownOpen(true);
+  }, [taggingDisabled]);
+
+  const closeUserDropdown = useCallback(() => {
+    setUserDropdownOpen(false);
+    setUserSearch("");
+  }, []);
+
+  const toggleUserDropdown = useCallback(() => {
+    if (taggingDisabled) return;
+    if (userDropdownOpen) {
+      closeUserDropdown();
+      return;
+    }
+    openUserDropdown();
+  }, [taggingDisabled, userDropdownOpen, closeUserDropdown, openUserDropdown]);
+
+  const handlePickUser = useCallback((userId) => {
+    setPendingUser(userId);
+    closeUserDropdown();
+  }, [closeUserDropdown]);
 
   // ── Handlers ──────────────────────────────────────────────────────────
 
@@ -511,6 +591,8 @@ export default function Tagging({
     const uLabel = users.find((u) => u.id === pendingUser)?.label ?? pendingUser;
     push(`Tagged ${uLabel} as #${newOrder} — ${tagCfg(newOrder).label}`);
     setPendingUser("");
+    setUserSearch("");
+    setUserDropdownOpen(false);
     onAccessChanged?.();
   }
 
@@ -643,6 +725,13 @@ export default function Tagging({
     });
     push(`Removed assignment from "${step.label}"`, "info");
     onAccessChanged?.();
+  }
+
+  function handleUserSearchChange(value) {
+    setUserSearch(value);
+    if (!userDropdownOpen) {
+      setUserDropdownOpen(true);
+    }
   }
 
   // ── Access gate: checking ─────────────────────────────────────────────────
@@ -802,23 +891,60 @@ export default function Tagging({
 
                 {taggedUsers.length === 0 && (
                   <div className="tg-notice tg-notice--hint">
-                    💡 No users tagged yet. Add the first user below to begin.
+                    No users tagged yet. Add the first user below to begin.
                   </div>
                 )}
 
                 {canAddUser && canManageTagging && (
                   <div className="tg-add-row">
-                    <select
-                      className="tg-select tg-select--flex"
-                      value={pendingUser}
-                      onChange={(e) => setPendingUser(e.target.value)}
-                      disabled={taggingDisabled}
-                    >
-                      <option value="">+ Add user…</option>
-                      {unusedUsers.map((u) => (
-                        <option key={u.id} value={u.id}>{u.label}</option>
-                      ))}
-                    </select>
+                    <div className="tg-user-picker" ref={userDropdownRef}>
+                      <button
+                        type="button"
+                        className={`tg-select tg-select--flex tg-user-picker-trigger ${userDropdownOpen ? "tg-user-picker-trigger--open" : ""}`}
+                        onClick={toggleUserDropdown}
+                        disabled={taggingDisabled}
+                        aria-expanded={userDropdownOpen}
+                        aria-haspopup="listbox"
+                      >
+                        <span className="tg-user-picker-trigger-label">{pendingUserLabel}</span>
+                        <span className="tg-user-picker-caret">▾</span>
+                      </button>
+
+                      {userDropdownOpen && !taggingDisabled && (
+                        <div className="tg-user-picker-panel">
+                          <input
+                            className="tg-user-search"
+                            type="text"
+                            placeholder="Search user to add…"
+                            value={userSearch}
+                            onChange={(e) => handleUserSearchChange(e.target.value)}
+                            autoFocus
+                          />
+                          <div className="tg-user-picker-list" role="listbox" aria-label="Users">
+                            {filteredUnusedUsers.length > 0 ? (
+                              filteredUnusedUsers.map((u) => {
+                                const isSelected = String(pendingUser) === String(u.id);
+                                return (
+                                  <button
+                                    key={u.id}
+                                    type="button"
+                                    className={`tg-user-picker-option ${isSelected ? "tg-user-picker-option--selected" : ""}`}
+                                    onClick={() => handlePickUser(u.id)}
+                                    role="option"
+                                    aria-selected={isSelected}
+                                  >
+                                    {u.label}
+                                  </button>
+                                );
+                              })
+                            ) : (
+                              <div className="tg-user-picker-empty">No matching users</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <button
                       className="tg-btn tg-btn--primary"
                       onClick={handleAddUser}
@@ -852,7 +978,7 @@ export default function Tagging({
 
                   {!stepsEnabled && taggedUsers.length > 0 && (
                     <div className="tg-notice tg-notice--hint">
-                      💡 Tag a 2nd user above to start assigning specific steps to them.
+                      Tag a 2nd user above to start assigning specific steps to them.
                     </div>
                   )}
 
