@@ -72,6 +72,9 @@
   color: #3a6870; 
   font-size: .82rem; 
 }
+.tracking-title-box small strong {
+  text-transform: uppercase;
+}
 
 .badge-super {
   display: inline-block; 
@@ -255,18 +258,43 @@
 }
 
 /* ── Table ──────────────────────────────────────────────────────── */
-.tracking-table-wrap {
+.tracking-table-container {
   border: 1px solid rgba(16,54,63,.10);
-  overflow: visible;
   background: #fff;
   box-shadow: 
     0 8px 32px rgba(16,54,63,.08),
     0 2px 8px rgba(16,54,63,.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+.tracking-table-wrap {
+  overflow-x: auto;
+  overflow-y: visible;
+  width: 100%;
+  background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(31,157,149,.35) rgba(16,54,63,.06);
+}
+.tracking-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+.tracking-table-wrap::-webkit-scrollbar-track {
+  background: rgba(16,54,63,.06);
+}
+.tracking-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(31,157,149,.4);
+  border-radius: 999px;
+}
+.tracking-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(31,157,149,.65);
+}
+
 .tracking-table { 
-  width: 100%; 
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse; 
-  min-width: 1100px; 
 }
 .tracking-table th,
 .tracking-table td {
@@ -284,12 +312,21 @@
   text-align: left; 
   position: sticky; 
   top: 0; 
-  z-index: 1;
+  z-index: 2;
   border-bottom: 2px solid rgba(16,54,63,.08);
+}
+.tracking-table tbody tr {
+  background: rgba(31,157,149,.015);
+}
+.tracking-table tbody tr:nth-child(odd) {
+  background: rgba(31,157,149,.025);
+}
+.tracking-table tbody tr:hover {
+  background: rgba(31,157,149,.05);
 }
 .th-step   { 
   text-align: center; 
-  min-width: 100px; 
+  min-width: 110px; 
   font-size: .72rem; 
 }
 .td-mono   { 
@@ -446,6 +483,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   display: block;
+  text-transform: uppercase;
 }
 .wf-meta {
   font-size: .58rem; 
@@ -850,8 +888,9 @@
   gap: 1.5rem;
   padding: .8rem 1rem;
   background: linear-gradient(165deg, #fff 0%, #f8fdfc 100%);
-  border: 1px solid rgba(16,54,63,.08);
-  box-shadow: 0 2px 8px rgba(16,54,63,.04);
+  border-top: 1px solid rgba(16,54,63,.08);
+  box-shadow: inset 0 2px 8px rgba(16,54,63,.02);
+  flex-shrink: 0;
 }
 .tracking-pagination-btn {
   font-family: inherit; 
