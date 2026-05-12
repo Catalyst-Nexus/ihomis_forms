@@ -106,10 +106,10 @@ export default function UserPicker({ onSelect }) {
                   className={`up-user-btn${chosen === u.id ? " up-user-btn--selected" : ""}`}
                   onClick={() => setChosen(u.id)}
                 >
-                  <span className="up-avatar" aria-hidden="true">
+                  <span className="up-avatar" style={{ fontFamily: "inherit" }} aria-hidden="true">
                     {u.label.charAt(0).toUpperCase()}
                   </span>
-                  <span className="up-user-name">{u.label.toUpperCase()}</span>
+                  <span className="up-user-name" style={{ fontFamily: "inherit" }}>{u.label.toUpperCase()}</span>
                   {chosen === u.id && (
                     <span className="up-check" aria-hidden="true">✓</span>
                   )}
