@@ -120,17 +120,3 @@
 .cpwp-sig-label-left {
   font-size: 10.5pt;
 }
-
-/* ── Footer ── */
-.cpwp-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 18mm;
-  right: 18mm;
-  border-top: 1px solid #000;
-  padding-top: 1.5px;
-  font-size: 9pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

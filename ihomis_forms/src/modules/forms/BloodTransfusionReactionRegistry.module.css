@@ -1,4 +1,4 @@
-/* BloodTransfusionReactionRegistry CSS Module */
+/* BloodTransfusionSheet CSS Module */
 /* NO global selectors */
 
 /* ─── WRAPPER ─────────────────────────────────────────────── */
@@ -15,37 +15,35 @@
   margin: 0 auto;
   padding: 5mm 10mm;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt; /* Standardized for clean print */
-  line-height: 1.3; /* Tightened slightly */
+  font-size: 10pt;
+  line-height: 1.35;
   color: #000;
   background-color: #fff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  min-height: 297mm;
 }
 
 /* ─── META ────────────────────────────────────────────────── */
 .metaSection {
-  margin-bottom: 0.15rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2mm;
 }
 
-.metaRow {
+.metaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.metaItem {
   display: flex;
   align-items: baseline;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: 4px;
-  margin-bottom: 2px;
-}
-
-.metaCell {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.metaCellWide {
-  min-width: 280px;
+  gap: 0.5rem;
 }
 
 .label {
@@ -53,12 +51,8 @@
   white-space: nowrap;
 }
 
-/* ─── INLINE ROWS ─────────────────────────────────────────── */
-.inlineRow {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-  margin-bottom: 1px;
+.value {
+  font-weight: 500;
 }
 
 /* ─── LINES ───────────────────────────────────────────────── */
@@ -69,214 +63,48 @@
   flex-shrink: 0;
 }
 
-.lineSm   { width: 70px; }
-.lineMd   { width: 130px; }
-.lineLg   { width: 180px; }
-.lineXl   { flex: 1; min-width: 200px; }
-.lineFill { flex: 1; min-width: 60px; }
-
-/* ─── GAPS ────────────────────────────────────────────────── */
-.gap     { height: 0.2rem; } /* Reduced from 0.25rem */
-.gapSm   { height: 0.15rem; }
-.gapTall { height: 0.4rem; } /* Reduced drastically from 0.8rem to stop spillover */
-.spacer  { flex: 1; }
-
-/* ─── SECTION LABELS ──────────────────────────────────────── */
-.sectionLabel {
-  margin: 0 0 0.1rem 0;
-  font-weight: 700;
+.lineMd {
+  width: 130px;
 }
 
-.sectionBold {
-  font-weight: 700;
-  margin: 0 0 0.15rem 0;
-}
-
-.plain {
-  margin: 0;
-}
-
-.italicNote {
-  font-style: italic;
-}
-
-/* ─── DIVIDER ─────────────────────────────────────────────── */
-.divider {
-  border-top: 1px solid #000;
-  margin: 0;
-}
-
-/* ─── SYMPTOMS GRID ───────────────────────────────────────── */
-.symptomsSection {
-  margin-bottom: 0;
-}
-
-.symptomsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px 0;
-  padding-left: 0.4rem;
-}
-
-.othersRow {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-/* ─── CLERICAL ROW ────────────────────────────────────────── */
-.clericalRow {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.1rem;
-}
-
-/* ─── MEDTECH ROW ─────────────────────────────────────────── */
-.medtechRow {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 2px;
-}
-
-.medtechLabel {
-  white-space: nowrap;
-}
-
-/* ─── CENTERED FIELDS ─────────────────────────────────────── */
-.centeredFields {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin: 0.2rem 0;
-}
-
-.centeredFieldsNarrow {
-  align-items: flex-start;
-  padding-left: 2rem;
-}
-
-.centeredFieldsRight {
-  align-items: flex-end;
-}
-
-.centeredField {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-/* ─── REVIEWED ROW ────────────────────────────────────────── */
-.reviewedRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-  margin-bottom: 0.3rem;
-}
-
-.reviewedRight {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  flex: 1;
-}
-
-.sigLabelRight {
-  margin: 2px 0 0 0;
-  font-size: 0.82rem;
-  text-align: right;
-  width: 100%;
-}
-
-/* ─── IMPORTANT ───────────────────────────────────────────── */
-.important {
-  font-weight: 700;
-  margin: 0;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-/* ─── TABLES ──────────────────────────────────────────────── */
+/* ─── TABLE ───────────────────────────────────────────────── */
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10pt;
-  margin-bottom: 0.1rem;
+  table-layout: fixed;
+  font-size: 8pt;
+  margin-bottom: 2mm;
 }
 
 .table th,
 .table td {
   border: 1px solid #000;
-  padding: 1px 4px; /* Tightened padding to save vertical space */
+  padding: 1px 4px;
+  text-align: center;
   vertical-align: middle;
 }
 
 .table th {
+  font-size: 7.5pt;
   font-weight: 700;
-  text-align: center;
   background: transparent;
+  padding: 3px 4px;
 }
 
-/* Vitals table */
-.vitalsTable th:first-child,
-.vitalsTable td:first-child {
-  width: 40%;
-  text-align: left;
+.table tbody td {
+  height: 7.5mm;
 }
 
-/* Units table */
-.unitsTable th,
-.unitsTable td {
-  text-align: center;
-}
-
-.unitsTable th:first-child,
-.unitsTable td:first-child {
-  text-align: left;
-}
-
-/* Bilirubin table */
-.bilirubinTable {
-  width: 60%;
-}
-
-.rowLabel {
-  width: 50%;
-}
-
-/* Urine table */
-.urineTable {
-  width: 80%;
-  margin: 0 auto;
-}
-
-.urineTable th:first-child,
-.urineTable td:first-child {
-  width: 35%;
-}
-
-/* Repeat testing table */
-.repeatTable td:first-child {
-  white-space: nowrap;
-  text-align: left;
-  padding-left: 4px;
-}
-
-.repeatTable th,
-.repeatTable td {
-  text-align: center;
-}
-
-.groupHeader {
-  border-bottom: 1px solid #000;
-}
-
-/* Compatibility table */
-.compatTable {
-  width: 70%;
-}
+/* COLUMN WIDTHS */
+.colBag      { width: 8%; }
+.colDate     { width: 12%; }
+.colBlood    { width: 16%; }
+.colType     { width: 7%; }
+.colSerial   { width: 9%; }
+.colExpiry   { width: 12%; }
+.colDateTime { width: 12%; }
+.colNurse    { width: 14%; }
+.colRemarks  { width: 10%; }
 
 /* ─── FOOTER ──────────────────────────────────────────────── */
 .footer {
@@ -286,6 +114,7 @@
   text-align: right;
   font-size: 0.72rem;
   font-style: italic;
+  font-weight: bold;
   color: #000;
 }
 
@@ -299,18 +128,13 @@
     box-shadow: none;
   }
 
-  .metaCellWide {
-    min-width: auto;
+  .metaSection {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .symptomsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .urineTable,
-  .bilirubinTable,
-  .compatTable {
-    width: 100%;
+  .table {
+    font-size: 0.6rem;
   }
 }
 
@@ -318,24 +142,19 @@
 @media print {
   @page {
     size: A4;
-    margin: 10mm; /* Standardized hardware margin */
+    margin: 0;
   }
 
   .page {
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 10mm;
+    min-height: 0;
     box-shadow: none;
   }
 
-  .pageP2 {
-    page-break-before: always; /* Strict cutoff for page 2 */
-    padding-top: 0; /* REMOVED extra 10mm padding that was pushing content to page 3 */
-  }
-
-  /* Prevent elements from awkwardly breaking inside */
-  .table, .symptomsSection, .centeredFields, .reviewedRow {
+  .table {
     page-break-inside: avoid;
   }
 

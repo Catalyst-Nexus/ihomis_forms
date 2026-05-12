@@ -271,13 +271,6 @@
   background: #8db6e6;
 }
 
-.ccs-footer {
-  padding: 4px 6px;
-  text-align: right;
-  font-size: 8pt;
-  font-style: italic;
-}
-
 @media print {
   .ccs-page {
     box-shadow: none;

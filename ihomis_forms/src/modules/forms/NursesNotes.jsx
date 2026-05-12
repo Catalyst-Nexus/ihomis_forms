@@ -10,7 +10,7 @@ export default function NursesNotes({ patientName, patientData }) {
   const room           = patientData?.room           || "";
   const rows           = patientData?.rows           || [];
 
-  const ROW_COUNT = 27;
+  const ROW_COUNT = 26;
   const tableRows = Array.from({ length: ROW_COUNT }, (_, i) => rows[i] || {});
 
   return (

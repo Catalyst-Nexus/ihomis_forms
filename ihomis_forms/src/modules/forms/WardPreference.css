@@ -153,17 +153,3 @@
 .wp-sig-label-left {
   font-size: 9pt;
 }
-
-/* ── Footer ── */
-.wp-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 12mm;
-  right: 12mm;
-  border-top: 1px solid #000;
-  padding-top: 1.5px;
-  font-size: 7.5pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

@@ -40,16 +40,6 @@
 
 
 
-.btl-header-spacer {
-
-  height: 23.5mm;
-
-  flex-shrink: 0;
-
-}
-
-
-
 .btl-form-meta {
 
   width: max-content;
@@ -372,7 +362,7 @@
 
     margin: 0 !important;
 
-    padding: 10mm 14mm 7mm !important;
+    padding: 10mm !important;
 
     font-size: 14px !important;       
 
@@ -381,14 +371,6 @@
     box-shadow: none !important;
 
     overflow: visible !important;
-
-  }
-
-
-
-  .btl-header-spacer {
-
-    height: 23.5mm !important;
 
   }
 

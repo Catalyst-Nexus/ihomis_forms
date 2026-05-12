@@ -56,20 +56,6 @@
   white-space: nowrap;
 }
 
-/* ── Footer ── */
-.ir-footer {
-  position: absolute;
-  bottom: 8mm;
-  left: 14mm;
-  right: 14mm;
-  border-top: 1.5px solid #000;
-  padding-top: 2px;
-  font-size: 7.5pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}
-
 /* ── Print ── */
 @media print {
   .ir-page {

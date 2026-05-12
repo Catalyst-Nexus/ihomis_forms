@@ -112,7 +112,7 @@
   .page {
     width: 100%;
     max-width: none;
-    margin: 0;
+    margin: 1mm;
     padding: 0;
     min-height: 0;
     box-shadow: none;

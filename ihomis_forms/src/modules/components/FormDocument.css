@@ -109,14 +109,18 @@
 }
 
 .form-document [class*='-header-spacer'],
-.form-document .header-spacer {
+.form-document {
   display: none;
   height: 0;
 }
 
+.header-spacer {
+  height: 0 !important;
+}
+
 @page {
   size: A4;
-  margin: 0;
+  margin: 12mm 12mm 8mm 12mm !important;
 }
 
 @media print {
