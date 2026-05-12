@@ -3,10 +3,7 @@ import {
   LAB_UPLOAD_SUPABASE_BUCKET,
   LAB_UPLOAD_SUPABASE_TABLE,
 } from "../labUploadConfig.js";
-import {
-  getFileKey,
-  normalizeLabContextParams,
-} from "../utils/labUploadUtils.js";
+import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 
 function isConfigured() {
   return Boolean(
@@ -259,71 +256,4 @@ export async function softDeleteLabResult(id) {
   }
 
   return { ok: true };
-}
-
-export async function uploadLabResultBatchSupabase({
-  resultFiles,
-  remarks,
-  contextParams,
-  patient,
-  onProgress,
-}) {
-  if (!isConfigured()) {
-    throw new Error(
-      "Supabase is not configured. Set VITE_SUPABASE_LAB_RESULTS_BUCKET and VITE_SUPABASE_LAB_RESULTS_TABLE.",
-    );
-  }
-
-  const files = Array.isArray(resultFiles) ? resultFiles : [];
-  const successes = [];
-  const failures = [];
-  const total = files.length;
-
-  for (let index = 0; index < files.length; index += 1) {
-    const currentFile = files[index];
-
-    try {
-      const response = await uploadLabResult({
-        file: currentFile,
-        contextParams,
-        patient,
-        remarks,
-      });
-
-      successes.push({
-        payload: response.payload,
-        uploadedPdfUrl: response.uploadedPdfUrl,
-        file: currentFile,
-        fileKey: getFileKey(currentFile),
-        fileName: currentFile.name,
-        fileSize: currentFile.size,
-        uploadedAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      failures.push({
-        file: currentFile,
-        fileKey: getFileKey(currentFile),
-        fileName: currentFile.name,
-        fileSize: currentFile.size,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Upload failed for this PDF file.",
-      });
-    } finally {
-      if (typeof onProgress === "function") {
-        onProgress({
-          current: index + 1,
-          total,
-          successCount: successes.length,
-          failureCount: failures.length,
-        });
-      }
-    }
-  }
-
-  return {
-    successes,
-    failures,
-  };
 }
