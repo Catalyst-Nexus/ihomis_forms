@@ -120,7 +120,55 @@ export function useLabUploadWorkflow() {
 
         let result;
 
-        try {
+        if (canUseSupabaseUploads()) {
+          try {
+            const supabaseResult = await uploadLabResultToSupabase({
+              file,
+              contextParams: enrichedContextParams,
+              patient,
+              remarks,
+            });
+
+            result = {
+              ok: true,
+              docointkey: enrichedContextParams.docointkey || null,
+              uploadedPdfUrl: supabaseResult.uploadedPdfUrl,
+              fileName: file.name,
+              fileSize: file.size,
+              patientId:
+                enrichedContextParams.hpercode ||
+                patient?.rawData?.hpercode ||
+                patient?.contextParams?.hpercode ||
+                null,
+              encounterCode: enrichedContextParams.enccode || null,
+              orderCode: enrichedContextParams.orcode || null,
+              procedureInstanceId:
+                enrichedContextParams.docointkey ||
+                enrichedContextParams.procedureInstanceId ||
+                null,
+              message: "Lab result uploaded successfully.",
+            };
+          } catch (supabaseError) {
+            const fallbackMessage =
+              supabaseError instanceof Error ? supabaseError.message : "";
+            const shouldFallbackToApi =
+              /fetch failed/i.test(fallbackMessage) ||
+              /network error/i.test(fallbackMessage) ||
+              /failed to fetch/i.test(fallbackMessage);
+
+            if (!shouldFallbackToApi) {
+              throw supabaseError;
+            }
+
+            result = await uploadMappedLabResult({
+              file,
+              contextParams: enrichedContextParams,
+              patient,
+              remarks,
+              token,
+            });
+          }
+        } else {
           result = await uploadMappedLabResult({
             file,
             contextParams: enrichedContextParams,
@@ -128,47 +176,6 @@ export function useLabUploadWorkflow() {
             remarks,
             token,
           });
-        } catch (uploadError) {
-          const message =
-            uploadError instanceof Error ? uploadError.message : "";
-          const shouldFallbackToSupabase =
-            canUseSupabaseUploads() &&
-            (/route not found/i.test(message) ||
-              /supabase is not configured/i.test(message) ||
-              /404/.test(message) ||
-              /server error:\s*5\d\d/i.test(message) ||
-              /not found/i.test(message));
-
-          if (!shouldFallbackToSupabase) {
-            throw uploadError;
-          }
-
-          const supabaseResult = await uploadLabResultToSupabase({
-            file,
-            contextParams: enrichedContextParams,
-            patient,
-            remarks,
-          });
-
-          result = {
-            ok: true,
-            docointkey: enrichedContextParams.docointkey || null,
-            uploadedPdfUrl: supabaseResult.uploadedPdfUrl,
-            fileName: file.name,
-            fileSize: file.size,
-            patientId:
-              enrichedContextParams.hpercode ||
-              patient?.rawData?.hpercode ||
-              patient?.contextParams?.hpercode ||
-              null,
-            encounterCode: enrichedContextParams.enccode || null,
-            orderCode: enrichedContextParams.orcode || null,
-            procedureInstanceId:
-              enrichedContextParams.docointkey ||
-              enrichedContextParams.procedureInstanceId ||
-              null,
-            message: "Lab result uploaded successfully via Supabase fallback.",
-          };
         }
 
         setUploadResults((prev) => [
