@@ -255,14 +255,45 @@ export async function printForms(formConfigs, options = {}) {
   triggerPrint();
 
   // Step 11: Cleanup after print dialog closes
-  // Using timeout since we can't reliably detect dialog close
-  setTimeout(() => {
+  // Use afterprint + media query fallback to avoid cleanup during heavy renders
+  let mediaQuery = null;
+  let handleMediaChange = null;
+  let didCleanup = false;
+  let fallbackTimerId = null;
+
+  const cleanupOnce = () => {
+    if (didCleanup) return;
+    didCleanup = true;
+    if (mediaQuery?.removeEventListener && handleMediaChange) {
+      mediaQuery.removeEventListener("change", handleMediaChange);
+    }
+    if (fallbackTimerId) {
+      clearTimeout(fallbackTimerId);
+    }
     cleanup(container, root);
-    
-    if (typeof onAfterPrint === 'function') {
+    if (typeof onAfterPrint === "function") {
       onAfterPrint();
     }
-  }, 2000);
+  };
+
+  const handleAfterPrint = () => cleanupOnce();
+  window.addEventListener("afterprint", handleAfterPrint, { once: true });
+
+  mediaQuery = window.matchMedia?.("print");
+  handleMediaChange = (event) => {
+    if (!event.matches) {
+      cleanupOnce();
+    }
+  };
+
+  if (mediaQuery?.addEventListener) {
+    mediaQuery.addEventListener("change", handleMediaChange);
+  }
+
+  // Fallback in case afterprint is not fired (older browsers)
+  fallbackTimerId = setTimeout(() => {
+    cleanupOnce();
+  }, 15000);
 }
 
 /**
