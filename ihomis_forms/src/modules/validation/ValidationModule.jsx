@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ValidationPage from "./ValidationPage.jsx";
 import { buildFallbackForms } from "../forms/formCatalog.js";
 import { supabase } from "../../lib/supabaseClient.js";
+import { getValidationApiBaseUrl } from "./validationApiConfig.js";
 import "./ValidationModule.css";
 
 function ValidationAdminPanel() {
@@ -240,8 +241,10 @@ function ValidationAdminPanel() {
     setLoading(true);
     setErrorMessage("");
     try {
+      const validationApiBase = getValidationApiBaseUrl();
+
       // Get encounter data from backend
-      const dataRes = await fetch("/api/validation/data", {
+      const dataRes = await fetch(validationApiBase ? `${validationApiBase}/data` : "/api/validation/data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enccode }),
@@ -268,7 +271,7 @@ function ValidationAdminPanel() {
 
       // Execute validations in parallel
       const executionPromises = formMappings.map((validation) =>
-        fetch("/api/validation/execute", {
+        fetch(validationApiBase ? `${validationApiBase}/execute` : "/api/validation/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

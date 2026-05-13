@@ -3,6 +3,7 @@
 // All validation definitions and requirements come from Supabase, not hardcoded.
 
 import { supabase } from "../../lib/supabaseClient.js";
+import { getValidationApiBaseUrl } from "./validationApiConfig.js";
 
 /**
  * Build a dynamic validation result from server validations and runtime results.
@@ -175,8 +176,10 @@ export async function runEncounterValidations(enccode, validationIds = [], hperc
   }
 
   try {
+    const validationApiBase = getValidationApiBaseUrl();
+
     // Step 1: Get encounter data from backend
-    const dataRes = await fetch("/api/validation/data", {
+    const dataRes = await fetch(validationApiBase ? `${validationApiBase}/data` : "/api/validation/data", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enccode, hpercode }),
@@ -217,7 +220,7 @@ export async function runEncounterValidations(enccode, validationIds = [], hperc
 
     // Step 3: Execute validations in parallel
     const executionPromises = validations.map((validation) =>
-      fetch("/api/validation/execute", {
+      fetch(validationApiBase ? `${validationApiBase}/execute` : "/api/validation/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

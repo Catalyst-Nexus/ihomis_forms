@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { getValidationApiBaseUrl } from "../validationApiConfig.js";
 
 /**
  * Extract enccode from selected patient data
@@ -50,10 +51,7 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode, formI
     [normalizedPropEnccode, selectedPatient],
   );
 
-  const validationApiBase =
-    import.meta.env.VITE_VALIDATION_API_URL ||
-    import.meta.env.VITE_VALIDATION_API ||
-    "http://localhost:3000/api/validation";
+  const validationApiBase = getValidationApiBaseUrl();
 
   const refresh = useCallback(async () => {
     if (!enccode || !formId) {
@@ -67,7 +65,7 @@ export function useFormValidation({ selectedPatient, enccode: propEnccode, formI
 
     try {
       // Single endpoint: POST /api/validation/run
-      const response = await fetch(`${validationApiBase}/run`, {
+      const response = await fetch(validationApiBase ? `${validationApiBase}/run` : "/api/validation/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formId: Number(formId), enccode }),
