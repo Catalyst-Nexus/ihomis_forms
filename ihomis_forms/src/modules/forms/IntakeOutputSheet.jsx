@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./IntakeOutputSheet.css";
 
 export default function IntakeOutputSheet({ patientName, patientData }) {
-	const name       = patientName;
-	const sex        = patientData?.sex;
-	const age        = patientData?.age;
-	const caseNum    = patientData?.caseNum;
-	const hospitalNo = patientData?.hospitalNo;
+	const name       = patientName || "";
+	const sex        = patientData?.sex || "";
+	const age        = patientData?.age || "";
+	const caseNum    = patientData?.caseNum || "";
+	const hospitalNo = patientData?.hospitalNo || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();

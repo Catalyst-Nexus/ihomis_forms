@@ -131,30 +131,6 @@ function buildLatestEncounterUrl({ apiBaseUrl, patientSearchUrl, hpercode }) {
   return `${normalizedBase}/${encodeURIComponent(trimmed)}/encounters/latest`;
 }
 
-function resolveUploadedPdfUrl(payload) {
-  if (!payload || typeof payload !== "object") {
-    return "";
-  }
-
-  const candidatePaths = [
-    "pdfUrl",
-    "fileUrl",
-    "url",
-    "documentUrl",
-    "resultUrl",
-    "data.pdfUrl",
-    "data.fileUrl",
-    "data.url",
-    "data.documentUrl",
-    "data.resultUrl",
-    "result.pdfUrl",
-    "result.fileUrl",
-    "response.pdfUrl",
-  ];
-
-  return resolveFirstString(payload, candidatePaths);
-}
-
 function buildErrorMessage(response, payload) {
   if (typeof payload === "string" && payload.trim()) {
     return payload.trim();
@@ -168,10 +144,6 @@ function buildErrorMessage(response, payload) {
   }
 
   return `Request failed with status ${response.status}.`;
-}
-
-function createFileKey(file) {
-  return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
 function buildPatientCandidate(source, fallbackIndex = 0) {
@@ -549,6 +521,7 @@ export async function fetchLatestEncounterForPatient({
 
   const response = await fetch(requestUrl, {
     method: "GET",
+    cache: "no-store",
     headers,
   });
 
@@ -826,125 +799,11 @@ export async function fetchLabRequestContext({
   };
 }
 
-export async function uploadLabResult({
-  uploadUrl,
-  token,
-  resultFile,
-  remarks,
-  contextParams,
-}) {
-  const normalizedContextParams = normalizeLabContextParams(contextParams);
-  const payload = new FormData();
-  payload.append("resultFile", resultFile);
-
-  ["enccode", "enc", "fhud", "docointkey", "user"].forEach((key) => {
-    const value = normalizedContextParams[key];
-
-    if (typeof value === "string" && value.trim()) {
-      payload.append(key, value.trim());
-    }
-  });
-
-  if (remarks?.trim()) {
-    payload.append("remarks", remarks.trim());
-  }
-
-  const headers = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  const requestUrl = buildRequestUrl(uploadUrl, normalizedContextParams);
-  const response = await fetch(requestUrl, {
-    method: "POST",
-    headers,
-    body: payload,
-  });
-
-  const responseText = await response.text();
-  const responsePayload = parseResponsePayload(responseText);
-
-  if (!response.ok) {
-    throw new Error(buildErrorMessage(response, responsePayload));
-  }
-
-  return {
-    payload: responsePayload,
-    uploadedPdfUrl: resolveUploadedPdfUrl(responsePayload),
-    requestContext: resolveRequestContext(responsePayload),
-  };
-}
-
-export async function uploadLabResultBatch({
-  uploadUrl,
-  token,
-  resultFiles,
-  remarks,
-  contextParams,
-  onProgress,
-}) {
-  const files = Array.isArray(resultFiles) ? resultFiles : [];
-  const successes = [];
-  const failures = [];
-  const total = files.length;
-
-  for (let index = 0; index < files.length; index += 1) {
-    const currentFile = files[index];
-
-    try {
-      const response = await uploadLabResult({
-        uploadUrl,
-        token,
-        resultFile: currentFile,
-        remarks,
-        contextParams,
-      });
-
-      successes.push({
-        payload: response.payload,
-        uploadedPdfUrl: response.uploadedPdfUrl,
-        requestContext: response.requestContext,
-        file: currentFile,
-        fileKey: createFileKey(currentFile),
-        fileName: currentFile.name,
-        fileSize: currentFile.size,
-        uploadedAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      failures.push({
-        file: currentFile,
-        fileKey: createFileKey(currentFile),
-        fileName: currentFile.name,
-        fileSize: currentFile.size,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Upload failed for this PDF file.",
-      });
-    } finally {
-      if (typeof onProgress === "function") {
-        onProgress({
-          current: index + 1,
-          total,
-          successCount: successes.length,
-          failureCount: failures.length,
-        });
-      }
-    }
-  }
-
-  return {
-    successes,
-    failures,
-  };
-}
-
 /**
  * ============================================================
  * Lab Upload Workflow API functions
  * Step 2: Fetch Orders for an Encounter
  * Step 3: Fetch Procedures for an Order
- * Step 5: Upload Lab Result (via backend → Supabase)
  * ============================================================
  */
 
@@ -973,10 +832,9 @@ export async function fetchEncounterOrders({
     throw new Error("enccode is required to fetch encounter orders.");
   }
 
-  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    "",
-  );
+  const baseUrl = String(
+    apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "",
+  ).replace(/\/+$/, "");
   // Replace /patients suffix with empty to get base API URL
   // Double-encode the enccode since it may contain special chars like / and :
   const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
@@ -1021,65 +879,72 @@ export async function fetchEncounterOrders({
   // Normalize to array
   const rawOrders = Array.isArray(data?.data) ? data.data : [];
 
+  // Extract full enccode from response (backend returns enccodeFull)
+  const fullEnccode = data?.enccodeFull || data?.enccode || trimmedEnccode;
+
   return {
     ok: data?.ok ?? true,
     enccode: trimmedEnccode,
+    enccodeFull: fullEnccode,
     orderType: type,
     count: rawOrders.length,
     data: rawOrders.map((order) => ({
       orcode: order.orcode,
-      enccode: order.enccode,
+      enccode: order.enccode, // Full hdocord enccode
+      enccodeShort: trimmedEnccode, // Short henctr enccode for reference
       ordcode: order.ordcode,
       oritem: order.oritem,
       ordate: order.ordate || order.ordates,
       ortime: order.ortime,
-      estatus: order.estatus,
+      procstat: order.procstat,
       entryby: order.entryby,
       docointkey: order.docointkey,
       hpercode: order.hpercode,
       patlast: order.patlast,
       patfirst: order.patfirst,
       patmiddle: order.patmiddle,
+      procdesc: order.procdesc,
+      proccode: order.proccode,
     })),
   };
 }
 
 /**
- * GET /api/db/encounters/:enccode/orders/:docointkey/procedures
+ * GET /api/db/encounters/:enccode/orders/:orcode/procedures
  *
  * Fetch procedures/line items for a specific order (from pcchrgcod table).
- * Note: pcchrgcod.orcode references hdocord.docointkey
  *
  * @param {Object} options
  * @param {string} options.enccode - Encounter ID (required)
- * @param {string} options.docointkey - Order ID from hdocord.docointkey (required)
+ * @param {string} options.orcode - Order ID (required)
  * @param {string} [options.procedureInstanceId] - Filter by specific procedure ID
  * @param {string} [options.token] - Auth token
  * @param {string} [options.apiBaseUrl] - Override API base URL
  */
 export async function fetchOrderProcedures({
   enccode,
-  docointkey,
+  orcode,
   procedureInstanceId,
   token,
   apiBaseUrl = LAB_UPLOAD_PATIENT_SEARCH_URL,
 }) {
   const trimmedEnccode = String(enccode || "").trim();
-  const trimmedDocointkey = String(docointkey || "").trim();
+  const trimmedOrcode = String(orcode || "").trim();
 
-  if (!trimmedEnccode || !trimmedDocointkey) {
-    throw new Error("Both enccode and docointkey are required to fetch procedures.");
+  if (!trimmedEnccode || !trimmedOrcode) {
+    throw new Error(
+      "Both enccode and orcode are required to fetch procedures.",
+    );
   }
 
-  const baseUrl = String(apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(
-    /\/+$/,
-    "",
-  );
-  // Double-encode both enccode and docointkey since they may contain special chars
+  const baseUrl = String(
+    apiBaseUrl || LAB_UPLOAD_PATIENT_SEARCH_URL || "",
+  ).replace(/\/+$/, "");
+  // Double-encode both enccode and orcode since they may contain special chars
   const encodedEnccode = encodeURIComponent(encodeURIComponent(trimmedEnccode));
-  const encodedDocointkey = encodeURIComponent(encodeURIComponent(trimmedDocointkey));
+  const encodedOrcode = encodeURIComponent(encodeURIComponent(trimmedOrcode));
   const requestUrl = buildRequestUrl(
-    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedDocointkey}/procedures`,
+    `${baseUrl.replace(/\/patients$/, "")}/encounters/${encodedEnccode}/orders/${encodedOrcode}/procedures`,
     { procedureInstanceId },
   );
 
@@ -1121,7 +986,7 @@ export async function fetchOrderProcedures({
   return {
     ok: data?.ok ?? true,
     enccode: trimmedEnccode,
-    docointkey: trimmedDocointkey,
+    orcode: trimmedOrcode,
     count: rawProcedures.length,
     data: rawProcedures.map((proc) => ({
       procedureInstanceId: proc.procedureInstanceId,
@@ -1139,133 +1004,6 @@ export async function fetchOrderProcedures({
       ordcode: proc.ordcode,
       oritem: proc.oritem,
     })),
-  };
-}
-
-/**
- * POST /api/db/lab-results
- *
- * Upload a lab result PDF via the backend (which handles Supabase storage).
- * This is the FINALIZE step in the workflow:
- *   1. Backend validates patient + encounter in MySQL
- *   2. Backend uploads PDF to Supabase
- *   3. Backend inserts metadata with auto-generated docointkey
- *   4. Backend returns docointkey for tracking
- *
- * @param {Object} options
- * @param {File} options.file - PDF File object (required)
- * @param {Object} options.contextParams - { hpercode, enccode, orcode, procedureInstanceId, docointkey, user }
- * @param {Object} options.patient - Patient object (for name/ID resolution)
- * @param {string} [options.remarks] - Upload remarks
- * @param {string} [options.token] - Auth token
- * @param {string} [options.uploadUrl] - Override upload URL
- */
-export async function uploadMappedLabResult({
-  file,
-  contextParams = {},
-  patient = null,
-  remarks = "",
-  token,
-  uploadUrl,
-}) {
-  const resolvedUploadUrl =
-    uploadUrl ||
-    `${String(LAB_UPLOAD_PATIENT_SEARCH_URL || "").replace(/\/+$/, "").replace(/\/patients$/, "")}/lab-results`;
-
-  if (!file) {
-    throw new Error("A PDF file is required for lab result upload.");
-  }
-
-  const normalizedContextParams = normalizeLabContextParams(contextParams);
-
-  // Resolve hpercode from patient if not in contextParams
-  const resolvedHpercode =
-    normalizedContextParams.hpercode ||
-    (patient
-      ? patient.rawData?.hpercode || patient.contextParams?.hpercode || ""
-      : "");
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  // Required fields
-  formData.append("hpercode", resolvedHpercode);
-  formData.append("enccode", normalizedContextParams.enccode || "");
-
-  // Optional fields
-  if (normalizedContextParams.orcode) {
-    formData.append("orcode", normalizedContextParams.orcode);
-  }
-  if (normalizedContextParams.procode) {
-    formData.append("procode", normalizedContextParams.procode);
-  }
-  if (normalizedContextParams.procedureInstanceId) {
-    formData.append("procedureInstanceId", normalizedContextParams.procedureInstanceId);
-  }
-  if (normalizedContextParams.docointkey) {
-    formData.append("docointkey", normalizedContextParams.docointkey);
-  }
-  if (normalizedContextParams.user) {
-    formData.append("uploadedBy", normalizedContextParams.user);
-  }
-  if (remarks) {
-    formData.append("remarks", remarks);
-  }
-
-  const headers = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  // NOTE: Do NOT set Content-Type: multipart/form-data — the browser
-  // automatically sets the correct Content-Type with boundary.
-
-  let response;
-  let responsePayload;
-
-  try {
-    response = await fetch(resolvedUploadUrl, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-    responsePayload = await response.text();
-  } catch (networkError) {
-    throw new Error(
-      `Network error uploading lab result: ${networkError.message}`,
-    );
-  }
-
-  if (!response.ok) {
-    let parsed;
-    try {
-      parsed = JSON.parse(responsePayload);
-    } catch {
-      parsed = {};
-    }
-    const message =
-      parsed?.message ||
-      `Server error: ${response.status} — ${responsePayload}`.slice(0, 200);
-    throw new Error(message);
-  }
-
-  let result;
-  try {
-    result = JSON.parse(responsePayload);
-  } catch {
-    throw new Error("Invalid JSON response when parsing lab upload result.");
-  }
-
-  return {
-    ok: result?.ok ?? true,
-    docointkey: result?.docointkey,
-    uploadedPdfUrl: result?.uploadedPdfUrl,
-    fileName: result?.fileName,
-    fileSize: result?.fileSize,
-    patientId: result?.patientId,
-    encounterCode: result?.encounterCode,
-    orderCode: result?.orderCode,
-    procedureInstanceId: result?.procedureInstanceId,
-    message: result?.message || "Lab result uploaded successfully.",
   };
 }
 

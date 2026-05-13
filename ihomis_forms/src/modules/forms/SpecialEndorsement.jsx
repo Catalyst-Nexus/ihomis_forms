@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./SpecialEndorsement.css";
 
 export default function SpecialEndorsement({ patientName, patientData }) {
-  const hospitalNumber = patientData?.hospitalNumber || "000000000021041";
-  const caseNumber     = patientData?.caseNumber     || "ADM-2026-010651";
-  const name           = patientName                 || "BAYSA , BABY BOY";
-  const dateOfBirth    = patientData?.dateOfBirth    || "04:10 AM";
+  const hospitalNumber = patientData?.hospitalNumber || "";
+  const caseNumber     = patientData?.caseNumber     || "";
+  const name           = patientName                 || "";
+  const dateOfBirth    = patientData?.dateOfBirth    || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();

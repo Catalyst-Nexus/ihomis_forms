@@ -2,12 +2,16 @@ import { useMemo } from "react";
 import "./SpongeCountSheet.css";
 
 export default function SpongeCountSheet({ patientName, patientData }) {
-  const caseNumber       = patientData?.caseNumber       || "ADM-2026-010651";
-  const name             = patientName                   || "BAYSA , BABY BOY";
+  const caseNumber       = patientData?.caseNumber       || "";
+  const name             = patientName                   || "";
   const department       = patientData?.department       || "";
-  const date             = patientData?.date             || "";
-  const age              = patientData?.age              || "1 hour(s)";
-  const sex              = patientData?.sex              || "M";
+  const date = patientData?.date || new Date().toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  }); 
+  const age              = patientData?.age              || "";
+  const sex              = patientData?.sex              || "";
   const anesthesia       = patientData?.anesthesia       || "";
   const surgeon          = patientData?.surgeon          || "";
   const anesthesiologist = patientData?.anesthesiologist || "";

@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./DoctorsOrderPedia.css";
 
 export default function DoctorsOrderPedia({ patientName, patientData }) {
-  const name       = patientName             || "SALUCANA , NELLY JEAN LOFRANCO";
-  const hospitalNo = patientData?.hospitalNo || "000000000021386";
-  const caseNo     = patientData?.caseNo     || "ADM-2026-010707";
-  const sex        = patientData?.sex        || "F";
-  const age        = patientData?.age        || "32";
+  const name       = patientName             || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const caseNo     = patientData?.caseNo     || "";
+  const sex        = patientData?.sex        || "";
+  const age        = patientData?.age        || "";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();

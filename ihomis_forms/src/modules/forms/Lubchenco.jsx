@@ -3,9 +3,9 @@ import './Lubchenco.css';
 import chartPlaceholderSrc from './img/lubchenco chart.png';
 
 const Lubchenco = ({ patientName, patientData }) => {
-  const name = patientName || "FELISELDA , CIAN REIN BAYSA";
-  const caseNum = patientData?.caseNum || "ADM-2026-010651";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
+  const name = patientName || "";
+  const caseNum = patientData?.caseNum || "";
+  const hospitalNo = patientData?.hospitalNo || "";
   const dateOfBirth = patientData?.dateOfBirth || "";
   const timeOfBirth = patientData?.timeOfBirth || "";
 

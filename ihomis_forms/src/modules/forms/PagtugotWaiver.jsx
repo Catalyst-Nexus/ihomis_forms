@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./PagtugotWaiver.css";
 
 export default function PagtugotWaiver({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
-  const caseNo = patientData?.caseNo || "ADM-2026-010707";
-  const hospitalNo = patientData?.hospitalNo || "000000000021386";
-  const sex = patientData?.sex || "F";
-  const age = patientData?.age || "32 year(s)";
+  const name = patientName || "";
+  const caseNo = patientData?.caseNo || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const sex = patientData?.sex || "";
+  const age = patientData?.age || "";
 
   const { dateStr, generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();

@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import "./PreOperativeChecklist.css";
 
 export default function PreOperativeChecklist({ patientName, patientData }) {
-	const name       = patientName             || "BAYSA , BABY BOY";
-	const sex        = patientData?.sex        || "M";
-	const age        = patientData?.age        || "0";
-	const caseNum    = patientData?.caseNum    || "ADM-2026-010651";
-	const hospitalNo = patientData?.hospitalNo || "000000000021041";
-	const dept       = patientData?.dept       || "NEWBORN Department";
+	const name       = patientName             || "";
+	const sex        = patientData?.sex        || "";
+	const age        = patientData?.age        || "";
+	const caseNum    = patientData?.caseNum    || "";
+	const hospitalNo = patientData?.hospitalNo || "";
+	const dept       = patientData?.dept       || "";
 
 	const { dateStr, generatedOn } = useMemo(() => {
 		const now  = new Date();

@@ -2,15 +2,15 @@ import { useMemo } from "react";
 import "./RadiologyRequestOutside.css";
 
 export default function RadiologyRequestOutside({ patientName, patientData }) {
-  const name        = patientName              || "SALUCANA , NELLY JEAN LOFRANCO";
-  const age         = patientData?.age         || "32 year(s)";
-  const sex         = patientData?.sex         || "F";
-  const civilStatus = patientData?.civilStatus || "M";
-  const birthdate   = patientData?.birthdate   || "July 27, 1993";
-  const address     = patientData?.address     || "P-1E, AMPAYON, BUTUAN CITY (Capital), AGUSAN DEL NORTE";
-  const ward        = patientData?.ward        || "OB GYNE - POST-OP OB - BED 07";
-  const caseNo      = patientData?.caseNo      || "ADM-2026-010707";
-  const category    = patientData?.category    || "OBSTETRICS";
+  const name        = patientName              || "";
+  const age         = patientData?.age         || "";
+  const sex         = patientData?.sex         || "";
+  const civilStatus = patientData?.civilStatus || "";
+  const birthdate   = patientData?.birthdate   || "";
+  const address     = patientData?.address     || "";
+  const ward        = patientData?.ward        || "";
+  const caseNo      = patientData?.caseNo      || "";
+  const category    = patientData?.category    || "";
 
   const { dateStr, generatedOn } = useMemo(() => {
     const now = new Date();

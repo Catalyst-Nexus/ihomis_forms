@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import "./NursesNotes.css";
 
 export default function NursesNotes({ patientName, patientData }) {
-  const caseNumber     = patientData?.caseNumber     || "ADM-2026-010651";
-  const hospitalNumber = patientData?.hospitalNumber || "000000000021041";
-  const name           = patientName                 || "BAYSA , BABY BOY";
-  const sex            = patientData?.sex            || "M";
-  const age            = patientData?.age            || "0";
-  const room           = patientData?.room           || "OB GYNE - OB 2 - BED 03 - NB";
+  const caseNumber     = patientData?.caseNumber     || "";
+  const hospitalNumber = patientData?.hospitalNumber || "";
+  const name           = patientName                 || "";
+  const sex            = patientData?.sex            || "";
+  const age            = patientData?.age            || "";
+  const room           = patientData?.room           || "";
   const rows           = patientData?.rows           || [];
 
   const { generatedOn, generatedBy } = useMemo(() => {

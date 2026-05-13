@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./IVFSheet.css";
 
 export default function IVFSheet({ patientName, patientData }) {
-  const name       = patientName            || "BAYSA , BABY BOY";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
-  const sex        = patientData?.sex       || "M";
-  const age        = patientData?.age       || "0";
-  const caseNo     = patientData?.caseNo    || "ADM-2026-010651";
+  const name       = patientName            || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const sex        = patientData?.sex       || "";
+  const age        = patientData?.age       || "";
+  const caseNo     = patientData?.caseNo    || "";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();

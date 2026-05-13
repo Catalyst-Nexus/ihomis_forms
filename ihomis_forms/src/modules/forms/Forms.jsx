@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useState, useMemo, useEffect } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
+import { supabase } from "../../lib/supabaseClient.js";
 import DNRForm from "./DNRForm";
 import FormDocument from "../components/FormDocument.jsx";
 import ApgarScoring from "./ApgarScoring";
@@ -72,7 +73,6 @@ import MedicationSheet from "./MedicationSheet";
 import DoctorsOrderPedia from "./DoctorsOrderPedia";
 import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
 import AldreteScore from "./AldreteScore";
-import { FORM_CATALOG } from "./formCatalog.js";
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -450,7 +450,77 @@ ThemeToggle.propTypes = {
   onToggle: PropTypes.func,
 };
 
-const FORMS_LIST = FORM_CATALOG;
+const FORMS_LIST = [
+  "ABTC Form",
+  "ABTC Treatment Record",
+  "Advance Directive Do Not Resuscitate (DNR) / Do not Intubate Form",
+  "Aldrete Score (Post Anesthesia Recovery Score) Form",
+  "Anesthesia Record",
+  "APGAR Score Form",
+  "Ballard Score",
+  "Blood Cancellation Form",
+  "Blood Request Form (Adult)",
+  "Blood Request Form (Pedia)",
+  "Blood Transfusion Reaction Registry",
+  "Blood Transfusion Sheet",
+  "BTL Consent Form",
+  "Cardio-Pulmonary Clearance Form",
+  "Certificate of No Vacancy",
+  "Certificate of Patient Ward Preference",
+  "Certificate of Ward Preference",
+  "Certification of Isolation Recommendation",
+  "Chest Tube Thoracostomy Sheet",
+  "Child Immunization Record",
+  "Claim of Cadaver",
+  "Clinical Cover Sheet",
+  "Clinical Referral Slip",
+  "Commitment to Breastfeeding",
+  "Consent to Care",
+  "Consent to Surgery and Anesthesia Form",
+  "Daily Weight and Abdominal Girth",
+  "Discharge Against Medical Advice (DAMA) / Out on Pass Form",
+  "Discharge Plan/Referral Slip",
+  "Doctor's Order (for pedia)",
+  "Doctor's Order Form",
+  "ECG TRACING",
+  "Family Planning",
+  "Histopathology/Cytology Request Form",
+  "Intake and Output Sheet",
+  "IVF Sheet",
+  "Kardex Sheet",
+  "Laboratory Request Form (outside)",
+  "Laboratory Results",
+  "Lubchenco",
+  "Medical Abstract / Discharge Summary Form",
+  "Medication Sheet",
+  "MIS Safety Checklist",
+  "Monitoring Sheet",
+  "Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old",
+  "Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old",
+  "Neurologic Examination Form",
+  "Newborn Personal Information Sheet",
+  "Newborn Physical Examination Sheet",
+  "Newborn Tag",
+  "Nurse's Notes Form",
+  "Other Laboratory Request",
+  "Otoacoustic Emission Results",
+  "Oxygen Consumption Sheet",
+  "Pagtugot (Waiver)",
+  "Partograph",
+  "Phototherapy Form",
+  "Post Anesthesia Care Unit Nurse's Notes Form",
+  "Pre-Operative Checklist",
+  "Radiology Request Form (Outside)",
+  "Random Blood Sugar",
+  "Refusal to Treatment and Procedure Form",
+  "Request for Blood Compatibility Testing Form",
+  "Special Endorsements (Transient)",
+  "Sponge Count Sheet",
+  "Surgical Memorandum",
+  "Surgical Memorandum Umbi Cat",
+  "Surgical Safety Checklist",
+  "TPR Sheet",
+];
 
 export default function Forms({
   isDarkMode,
@@ -466,6 +536,7 @@ export default function Forms({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
+  const [dbForms, setDbForms] = useState([]);
   const patientData = useMemo(
     () => buildPatientFormData(selectedPatient),
     [selectedPatient],
@@ -473,19 +544,44 @@ export default function Forms({
   const patientName =
     patientData.fullName || selectedPatient?.displayName || "DOE, JHON";
 
-  const filteredForms = useMemo(() => {
-    if (!searchTerm) return FORMS_LIST;
-    return FORMS_LIST.filter((form) =>
-      form.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [searchTerm]);
+  // Fetch forms from Supabase
+  useEffect(() => {
+    const fetchForms = async () => {
+      if (!supabase) {
+        console.warn("Supabase client not configured");
+        return;
+      }
 
-  const handleSelectForm = (formName) => {
+      const { data, error } = await supabase
+        .from("hospital_forms")
+        .select("*")
+        .eq("is_active", true)
+        .order("description", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching forms:", error);
+        return;
+      }
+
+      setDbForms(data || []);
+    };
+
+    fetchForms();
+  }, []);
+
+  const filteredForms = useMemo(() => {
+    if (!searchTerm) return dbForms;
+    return dbForms.filter((form) =>
+      form.description.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [dbForms, searchTerm]);
+
+  const handleSelectForm = (formId) => {
     const newSelected = new Set(selectedForms);
-    if (newSelected.has(formName)) {
-      newSelected.delete(formName);
+    if (newSelected.has(formId)) {
+      newSelected.delete(formId);
     } else {
-      newSelected.add(formName);
+      newSelected.add(formId);
     }
     setSelectedForms(newSelected);
   };
@@ -494,7 +590,7 @@ export default function Forms({
     if (selectedForms.size === filteredForms.length) {
       setSelectedForms(new Set());
     } else {
-      setSelectedForms(new Set(filteredForms));
+      setSelectedForms(new Set(filteredForms.map((form) => form.id)));
     }
   };
 
@@ -510,14 +606,20 @@ export default function Forms({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSelectedForms]);
 
-  const getHeaderConfig = (formName) => {
-    const normalizedName = formName || "";
-    const headerTitle =
-      normalizedName === "Blood Request Form (Pedia)"
-        ? "BLOOD REQUEST FORM (PEDIATRIC)"
-        : normalizedName === "Clinical Cover Sheet"
-          ? ""
-          : normalizedName.toUpperCase();
+  const getHeaderConfig = (formObject) => {
+    if (!formObject) {
+      return { formNo: "", revised: "", title: "", leftLogoSrc: "", rightLogoSrc: "" };
+    }
+
+    const dbDescription = formObject.description;
+    let headerTitle = dbDescription.toUpperCase();
+
+    // Edge cases
+    if (dbDescription === "Blood Request Form (Pedia)") {
+      headerTitle = "BLOOD REQUEST FORM (PEDIATRIC)";
+    } else if (dbDescription === "Clinical Cover Sheet") {
+      headerTitle = "";
+    }
 
     return {
       formNo: "",
@@ -528,453 +630,39 @@ export default function Forms({
     };
   };
 
-  const renderFormBody = (formName) => {
-    const formRendererMap = {
-      "Advance Directive Do Not Resuscitate (DNR) / Do not Intubate Form":
-        () => <DNRForm patientName={patientName} patientData={patientData} />,
-    };
+  const renderFormBody = (formObject) => {
+    const FormComponent = COMPONENT_MAP[formObject.component_name];
 
-    const renderer = formRendererMap[formName];
-    if (renderer) {
-      return renderer();
-    }
-    if (formName === "Aldrete Score (Post Anesthesia Recovery Score) Form") {
+    if (!FormComponent) {
       return (
-        <AldreteScore patientName={patientName} patientData={patientData} />
+        <div style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+          <p>Form component "{formObject.component_name}" not found.</p>
+          <p>Please ensure the component is imported and mapped.</p>
+        </div>
       );
     }
-    if (formName === "APGAR Score Form") {
-      return <ApgarScoring apiResponse={patientData} />;
-    }
-    if (formName === "BTL Consent Form") {
-      return <BTLConsent patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Cardio-Pulmonary Clearance Form") {
-      return <CardioPulmonaryClearance patientData={patientData} />;
-    }
-    if (formName === "Blood Cancellation Form") {
-      return (
-        <BloodCancellation patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Blood Request Form (Adult)") {
-      return (
-        <BloodRequestAdult patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Blood Request Form (Pedia)") {
-      return (
-        <BloodRequestPediatric
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Blood Transfusion Reaction Registry") {
-      return (
-        <BloodTransfusionReactionRegistry
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "ABTC Form") {
-      return <Abtcform patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Blood Transfusion Sheet") {
-      return (
-        <BloodTransfusionSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Clinical Referral Slip") {
-      return <ClinicalReferralSlip patientName={patientName} />;
-    }
-    if (formName === "Clinical Cover Sheet") {
-      return (
-        <ClinicalCoverSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Random Blood Sugar") {
-      return (
-        <RandomBloodSugar patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Doctor's Order Form") {
-      return (
-        <DoctorsOrder patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Oxygen Consumption Sheet") {
-      return (
-        <OxygenConsumptionSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Other Laboratory Request") {
-      return (
-        <OtherLaboratoryRequest
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Consent to Care") {
-      return (
-        <ConsentToCare patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Refusal to Treatment and Procedure Form") {
-      return (
-        <RefusalToTreatment
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Intake and Output Sheet") {
-      return (
-        <IntakeOutputSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Certificate of No Vacancy") {
-      return (
-        <CertificateOfNoVacancy
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Family Planning") {
-      return (
-        <FamilyPlanning patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Kardex Sheet") {
-      return (
-        <KardexSheet patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Newborn Tag") {
-      return <NewbornTag patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Laboratory Request Form (outside)") {
-      return (
-        <LaboratoryRequestOutside
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Certificate of Ward Preference") {
-      return (
-        <WardPreference patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Certificate of Patient Ward Preference") {
-      return (
-        <CertificatePatientWardPreference
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Claim of Cadaver") {
-      return (
-        <ClaimOfCadaver patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Discharge Plan/Referral Slip") {
-      return (
-        <DischargePlanReferralSlip
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Consent to Surgery and Anesthesia Form") {
-      return (
-        <ConsentToSurgery patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "IVF Sheet") {
-      return <IVFSheet patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Commitment to Breastfeeding") {
-      return (
-        <CommitmentToBreastfeeding
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Newborn Physical Examination Sheet") {
-      return (
-        <NewbornPhysicalExamination
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Daily Weight and Abdominal Girth") {
-      return (
-        <NewbornDailyWeightAbdominalGirth
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Special Endorsements (Transient)") {
-      return (
-        <SpecialEndorsement
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Surgical Memorandum") {
-      return (
-        <SurgicalMemorandum
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Surgical Memorandum Umbi Cat") {
-      return (
-        <SurgicalMemorandumUmbiCat
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Sponge Count Sheet") {
-      return (
-        <SpongeCountSheet patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Phototherapy Form") {
-      return (
-        <PhototherapyForm patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Nurse's Notes Form") {
-      return (
-        <NursesNotes patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Otoacoustic Emission Results") {
-      return (
-        <OtoacousticEmissionResults
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Medical Abstract / Discharge Summary Form") {
-      return (
-        <MedicalAbstractDischargeSummary
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "ECG TRACING") {
-      return <ECGTracing patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Pre-Operative Checklist") {
-      return (
-        <PreOperativeChecklist
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Certification of Isolation Recommendation") {
-      return (
-        <IsolationRecommendation
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (
-      formName === "Discharge Against Medical Advice (DAMA) / Out on Pass Form"
-    ) {
-      return <DAMAForm patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Histopathology/Cytology Request Form") {
-      return (
-        <HistopathologyCytology
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Laboratory Results") {
-      return (
-        <LaboratoryResults
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Chest Tube Thoracostomy Sheet") {
-      return (
-        <ChestTubeThoracostomy
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Ballard Score") {
-      return (
-        <BallardScore patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (
-      formName ===
-      "Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old"
-    ) {
-      return (
-        <NeuroVitalSignsLessThan
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (
-      formName ===
-      "Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old"
-    ) {
-      return (
-        <NeuroVitalSignsMoreThan
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Neurologic Examination Form") {
-      return <Neurologic patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Partograph") {
-      return <Partograph patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Post Anesthesia Care Unit Nurse's Notes Form") {
-      return (
-        <PostAnesthesiaSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Lubchenco") {
-      return <Lubchenco patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Anesthesia Record") {
-      return (
-        <AnesthesiaRecord patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Child Immunization Record") {
-      return (
-        <ChildImmunizationRecord
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "MIS Safety Checklist") {
-      return <MIS patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "TPR Sheet") {
-      return <TPRSheet patientName={patientName} patientData={patientData} />;
-    }
-    if (formName === "Surgical Safety Checklist") {
-      return (
-        <SurgicalSafetyChecklist
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Request for Blood Compatibility Testing Form") {
-      return (
-        <RequestBloodCompatibility
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Radiology Request Form (Outside)") {
-      return (
-        <RadiologyRequestOutside
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Pagtugot (Waiver)") {
-      return (
-        <PagtugotWaiver patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Newborn Personal Information Sheet") {
-      return (
-        <NewbornPersonalInfoSheet
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "Monitoring Sheet") {
-      return (
-        <MonitoringSheet patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Medication Sheet") {
-      return (
-        <MedicationSheet patientName={patientName} patientData={patientData} />
-      );
-    }
-    if (formName === "Doctor's Order (for pedia)") {
-      return (
-        <DoctorsOrderPedia
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    if (formName === "ABTC Treatment Record") {
-      return (
-        <AnimalBiteTreatmentRecord
-          patientName={patientName}
-          patientData={patientData}
-        />
-      );
-    }
-    // Add more forms here
-    return <div>Form template to be defined</div>;
+
+    // Edge case: ApgarScoring uses apiResponse prop
+    if (formObject.component_name === "ApgarScoring") {
+      return <FormComponent apiResponse={patientData} />;
+    }
+
+    // Edge case: ClinicalReferralSlip uses only patientName prop
+    if (formObject.component_name === "ClinicalReferralSlip") {
+      return <FormComponent patientName={patientName} />;
+    }
+
+    // Default: most forms use patientName and patientData props
+    return <FormComponent patientName={patientName} patientData={patientData} />;
   };
 
-  const renderFormDocument = (formName) => (
-    <FormDocument headerConfig={getHeaderConfig(formName)}>
-      {renderFormBody(formName)}
+  const renderFormDocument = (formObject) => (
+    <FormDocument headerConfig={getHeaderConfig(formObject)}>
+      {renderFormBody(formObject)}
     </FormDocument>
   );
 
   return (
-    // ✅ ONLY CHANGE: added data-theme attribute so CSS dark vars activate
     <div
       className="forms-container"
       data-theme={isDarkMode ? "dark" : undefined}
@@ -1004,7 +692,7 @@ export default function Forms({
         </div>
         <div className="form-stats">
           <span>
-            Showing {filteredForms.length} of {FORMS_LIST.length} items
+            Showing {filteredForms.length} of {dbForms.length} items
           </span>
           <span className="selected-count">{selectedForms.size} selected</span>
         </div>
@@ -1020,13 +708,7 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={() => {
-              if (typeof onBeforeGenerate === "function") {
-                onBeforeGenerate(Array.from(selectedForms));
-                return;
-              }
-              setOpenForm(Array.from(selectedForms)[0]);
-            }}
+            onClick={() => setOpenForm(Array.from(selectedForms)[0])}
           >
             Generate Selected Forms ({selectedForms.size})
           </button>
@@ -1052,9 +734,9 @@ export default function Forms({
             </tr>
           </thead>
           <tbody>
-            {filteredForms.map((form, index) => (
+            {filteredForms.map((form) => (
               <tr
-                key={index}
+                key={form.id}
                 className="form-row"
                 onClick={() => {
                   if (typeof onBeforeGenerate === "function") {
@@ -1070,19 +752,19 @@ export default function Forms({
                 >
                   <input
                     type="checkbox"
-                    checked={selectedForms.has(form)}
-                    onChange={() => handleSelectForm(form)}
-                    aria-label={`Select ${form}`}
+                    checked={selectedForms.has(form.id)}
+                    onChange={() => handleSelectForm(form.id)}
+                    aria-label={`Select ${form.description}`}
                   />
                 </td>
-                <td className="form-col">{form}</td>
+                <td className="form-col">{form.description}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {filteredForms.length === 0 && (
           <div className="no-results">
-            <p>No forms found matching &quot;{searchTerm}&quot;</p>
+            <p>No forms found matching "{searchTerm}"</p>
           </div>
         )}
       </div>
@@ -1090,7 +772,7 @@ export default function Forms({
       <Modal
         isOpen={!!openForm}
         onClose={() => setOpenForm(null)}
-        title={openForm}
+        title={openForm?.description}
       >
         {openForm && renderFormDocument(openForm)}
       </Modal>

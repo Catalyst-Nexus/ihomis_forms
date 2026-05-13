@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import "./NewbornTag.css";
 
 export default function NewbornTag({ patientName, patientData }) {
-  const name       = patientName             || "BAYSA , BABY BOY";
-  const hospitalNo = patientData?.hospitalNo || "000000000021041";
-  const weight     = patientData?.weight     || "3800";
-  const dob        = patientData?.dob        || "04-22-2026 04:10 AM";
+  const name       = patientName             || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const weight     = patientData?.weight     || "";
+  const dob        = patientData?.dob        || "";
 
   const { generatedOn } = useMemo(() => {
     const now = new Date();

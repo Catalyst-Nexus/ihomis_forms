@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./MedicationSheet.css";
 
 export default function MedicationSheet({ patientName, patientData }) {
-  const name = patientName || "SALUCANA , NELLY JEAN LOFRANCO";
-  const caseNum = patientData?.caseNum || "ADM-2026-010707";
-  const hospitalNo = patientData?.hospitalNo || "000000000021386";
-  const sex = patientData?.sex || "F";
-  const age = patientData?.age || "32 year(s)";
+  const name = patientName || "";
+  const caseNum = patientData?.caseNum || "";
+  const hospitalNo = patientData?.hospitalNo || "";
+  const sex = patientData?.sex || "";
+  const age = patientData?.age || "";
 
   const { generatedOn, generatedBy } = useMemo(() => {
     const now = new Date();

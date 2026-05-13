@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import "./LaboratoryResults.css";
 
 export default function LaboratoryResults({ patientName, patientData }) {
-  const name   = patientName             || "FELISELDA , CIAN REIN BAYSA";
-  const caseNo = patientData?.caseNo     || "ADM-2026-010651";
-  const hospNo = patientData?.hospitalNo || "000000000021041";
-  const sex    = patientData?.sex        || "M";
-  const age    = patientData?.age        || "1 hour(s)";
+  const name   = patientName             || "";
+  const caseNo = patientData?.caseNo     || "";
+  const hospNo = patientData?.hospitalNo || "";
+  const sex    = patientData?.sex        || "";
+  const age    = patientData?.age        || "";
 
   const { generatedOn } = useMemo(() => {
     const now  = new Date();

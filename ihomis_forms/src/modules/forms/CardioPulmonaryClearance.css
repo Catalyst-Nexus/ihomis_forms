@@ -6,8 +6,10 @@
   box-sizing: border-box;
   background: #fff;
   color: #000;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  font-size: 12px;
   line-height: 1.25;
   display: flex;
   flex-direction: column;
@@ -19,34 +21,38 @@
   flex-direction: column;
 }
 
-.cardio-header-spacer {
-  height: 6mm;
-  flex-shrink: 0;
-}
-
 .cardio-title {
   margin: 0 0 5mm;
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.2px;
   line-height: 1;
+}
+
+.cardio-top-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8mm;
+  row-gap: 1.9mm;
+  margin-bottom: 3mm;
 }
 
 .cardio-top-row {
   display: flex;
   align-items: flex-end;
   gap: 2.3mm;
-  margin-bottom: 1.9mm;
+  margin-bottom: 0;
 }
 
 .cardio-top-row-last {
-  margin-bottom: 3mm;
+  margin-bottom: 0;
+  margin-top: 2mm;
 }
 
 .cardio-label {
   font-weight: 700;
-  font-size: 13px;
+  white-space: nowrap;
 }
 
 .cardio-date-label {
@@ -78,7 +84,7 @@
 
 .cardio-section-title {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 
@@ -88,7 +94,7 @@
 
 .cardio-subheading {
   margin: 1.3mm 0 0.6mm 3.8mm;
-  font-size: 12.5px;
+  font-size: 11.5px;
 }
 
 .cardio-subheading-gap {
@@ -166,8 +172,6 @@
 
 .cardio-recommendations-line {
   width: 100%;
-  min-height: 10px;
-  padding-top: 2px;
 }
 
 .cardio-physician-wrap {
@@ -183,7 +187,7 @@
 }
 
 .cardio-physician-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -192,7 +196,7 @@
   border-top: 1px solid #000;
   padding-top: 1.4mm;
   text-align: right;
-  font-size: 12px;
+  font-size: 11px;
   font-style: italic;
   font-weight: 700;
   flex-shrink: 0;
@@ -203,12 +207,12 @@
     width: 100%;
     min-height: auto;
     padding: 14px 14px 12px;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1.25;
   }
 
   .cardio-title {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .cardio-date-label {
@@ -260,19 +264,29 @@
 }
 
 @media print {
+  .cardio-top-section {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    column-gap: 8mm !important;
+    row-gap: 1.5mm !important;
+    margin-bottom: 2.5mm !important;
+  }
+
+  .cardio-top-row-last {
+    margin-top: 1.5mm !important;
+  }
+
   /*
    * The page itself has zero browser margins.
    * All visual margins come from the form's internal padding below.
    */
   .cardio-clearance-page {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 100% !important;
-    max-height: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
     margin: 0 !important;
-    /* Keep the page compact so the full form fits on one printed sheet. */
-    padding: 5mm 10mm 5mm !important;
-    font-size: 11px !important;
+    /* 8mm top · 14mm sides · 6mm bottom — matches the on-screen modal view */
+    padding: 8mm 14mm 6mm !important;
+    font-size: 10.5px !important;
     line-height: 1.1 !important;
     box-shadow: none !important;
     border: none !important;
@@ -280,16 +294,16 @@
     display: flex !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
-    overflow: visible !important;
+    page-break-after: avoid !important;
   }
 
   .cardio-header-spacer {
-    height: 3mm !important;
+    height: 6mm !important;
   }
 
   .cardio-title {
-    font-size: 18px !important;
-    margin: 0 0 3mm !important;
+    font-size: 20px !important;
+    margin: 0 0 5mm !important;
   }
 
   .cardio-check-row,
@@ -298,86 +312,34 @@
   .cardio-three-line-row,
   .cardio-vitals-row,
   .cardio-lab-triple-row {
-    margin-left: 8mm !important;
-    margin-bottom: 0.7mm !important;
+    margin-left: 11.4mm !important;
+    margin-bottom: 0.8mm !important;
   }
 
+  /*
+   * Main body contains all form content.
+   * Uses flex to ensure proper distribution.
+   */
   .cardio-clearance-main {
-    flex: 0 1 auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
+    flex: 1 1 auto !important;
     display: flex !important;
     flex-direction: column !important;
-    padding-bottom: 0 !important;
+    min-height: 0 !important;
   }
 
+  /*
+   * Footer displays at the bottom of the page.
+   * Shrinks to accommodate all content on single page.
+   */
   .cardio-footer {
-    position: static !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    margin-top: 4mm !important;
+    margin-top: auto !important;
     flex-shrink: 0 !important;
     background: #fff !important;
     border-top: 1px solid #000 !important;
-    padding-top: 1mm !important;
+    padding-top: 1.4mm !important;
     text-align: right !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-style: italic !important;
     font-weight: 700 !important;
-  }
-
-  .cardio-section-gap {
-    margin-top: 1.8mm !important;
-  }
-
-  .cardio-subheading {
-    margin: 0.8mm 0 0.4mm 3mm !important;
-    font-size: 11px !important;
-  }
-
-  .cardio-top-row {
-    gap: 1.5mm !important;
-    margin-bottom: 1mm !important;
-  }
-
-  .cardio-top-row-last {
-    margin-bottom: 1.6mm !important;
-  }
-
-  .cardio-label {
-    font-size: 11px !important;
-  }
-
-  .cardio-section-title {
-    font-size: 11.5px !important;
-  }
-
-  .cardio-check-row,
-  .cardio-line-row,
-  .cardio-two-line-row,
-  .cardio-three-line-row,
-  .cardio-vitals-row,
-  .cardio-lab-triple-row {
-    column-gap: 3mm !important;
-  }
-
-  .cardio-recommendations-block {
-    gap: 3mm !important;
-    min-height: 0 !important;
-    margin-top: 1mm !important;
-  }
-
-  .cardio-recommendations-line {
-    min-height: 12px !important;
-    padding-top: 3px !important;
-  }
-
-  .cardio-physician-wrap {
-    margin-top: 4mm !important;
-  }
-
-  .cardio-physician-label {
-    font-size: 11px !important;
   }
 }

@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import "./ECGTracing.css";
 
 export default function ECGTracing({ patientName, patientData }) {
-	const name       = patientName             || "BAYSA , BABY BOY";
-	const age        = patientData?.age        || "1 hour(s)";
-	const sex        = patientData?.sex        || "M";
-	const caseNum    = patientData?.caseNum    || "ADM-2026-010651";
-	const hospitalNo = patientData?.hospitalNo || "000000000021041";
-	const address    = patientData?.address    || "P10, DOÑA TELESFORA, TUBAY, AGUSAN DEL NORTE";
-	const pertinent  = patientData?.pertinent  || "TERM MALE NEONATE DELIVERED NSVD CEPHALIC WITH AS 8,9 BS 40 WEEKS, BW 3.8 KGS, AGA";
+	const name       = patientName             || "";
+	const age        = patientData?.age        || "";
+	const sex        = patientData?.sex        || "";
+	const caseNum    = patientData?.caseNum    || "";
+	const hospitalNo = patientData?.hospitalNo || "";
+	const address    = patientData?.address    || "";
+	const pertinent  = patientData?.pertinent  || "";
 
 	const { generatedOn } = useMemo(() => {
 		const now = new Date();
