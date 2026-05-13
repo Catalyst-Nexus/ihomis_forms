@@ -119,11 +119,12 @@
   }
 
   .page {
-    width: 100%;
-    max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 10mm 15mm 20mm 15mm;
     box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+    height: 297mm;
   }
   
   /* Remove focus background highlights for printing */

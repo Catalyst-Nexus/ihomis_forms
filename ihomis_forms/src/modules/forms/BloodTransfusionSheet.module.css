@@ -30,13 +30,13 @@
   display: flex;
   justify-content: space-between;
   gap: 1.5rem;
-  margin-bottom: 2mm; /* Tightened from 4mm */
+  margin-bottom: 2mm;
 }
 
 .metaCol {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem; /* Tightened slightly */
+  gap: 0.25rem;
   flex: 1;
 }
 
@@ -79,7 +79,7 @@
 .table th,
 .table td {
   border: 1px solid #000;
-  padding: 1px 4px; /* Tightened vertical padding */
+  padding: 1px 4px;
   text-align: center;
   vertical-align: middle;
 }
@@ -92,7 +92,7 @@
 }
 
 .table tbody td {
-  height: 7.5mm; /* Reduced from 9.3mm to ensure all 23 rows fit perfectly with the hospital header */
+  height: 7.5mm;
 }
 
 /* COLUMN WIDTHS */
@@ -106,17 +106,6 @@
 .colNurse    { width: 14%; }
 .colRemarks  { width: 10%; }
 
-/* ─── FOOTER ──────────────────────────────────────────────── */
-.footer {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  border-top: 1px solid #000;
-  text-align: right;
-  font-size: 0.72rem;
-  font-style: italic;
-  font-weight: bold;
-  color: #000;
-}
 
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 760px) {
@@ -142,14 +131,14 @@
 @media print {
   @page {
     size: A4;
-    margin: 10mm;
+    margin: 0;
   }
 
   .page {
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 10mm;
     min-height: 0;
     box-shadow: none;
   }
@@ -158,8 +147,4 @@
     page-break-inside: avoid;
   }
 
-  .footer {
-    position: static;
-    margin-top: auto;
-  }
 }

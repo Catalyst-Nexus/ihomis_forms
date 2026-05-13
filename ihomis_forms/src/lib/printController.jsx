@@ -23,7 +23,7 @@ const GLOBAL_PRINT_STYLES = `
   /* A4 Page Setup */
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 8mm 8mm 10mm 8mm;
   }
 
   /* Screen: Hide print container from view but keep it in DOM */
