@@ -1,0 +1,143 @@
+/* AnesthesiaRecord CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt; /* Standardized to 10pt print scale */
+  line-height: 1.35;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── META / HEADER ───────────────────────────────────────── */
+.metaSection {
+  margin-bottom: 3mm;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.metaCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── INTERACTIVE INPUTS (Styled as Print Lines) ──────────── */
+.inputFill,
+.inputSm,
+.inputXs {
+  border: none;
+  border-bottom: 1px solid #000; /* Acts as the fill-in blank line */
+  background: transparent;
+  font-size: 10pt;
+  font-family: inherit;
+  color: #000;
+  padding: 0 2px 2px 2px;
+  border-radius: 0;
+}
+
+.inputFill {
+  flex: 1;
+  width: 100%;
+  min-width: 50px;
+}
+
+.inputSm {
+  width: 60px;
+}
+
+.inputXs {
+  width: 35px; /* Perfect for vitals like HT, WT, PR */
+  text-align: center;
+}
+
+.inputFill:focus,
+.inputSm:focus,
+.inputXs:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ─── CHART SECTION ───────────────────────────────────────── */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 4mm; /* Added a bit more breathing room from the form */
+  width: 100%;
+  flex: 1; /* Allows it to fill the remaining vertical space */
+}
+
+.chartImage {
+  width: 100%;
+  max-width: 100%; /* Let it expand to the absolute edge of the padding */
+  height: auto; 
+  /* Removed max-height so the browser doesn't artificially shrink it */
+  display: block;
+  object-fit: contain;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .inputFill, .inputSm, .inputXs {
+    font-size: 0.9rem;
+  }
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm; /* Standardized hardware margin */
+  }
+
+  .page {
+    margin: 0;
+    padding: 10mm 15mm 20mm 15mm;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+    height: 297mm;
+  }
+  
+  /* Remove focus background highlights for printing */
+  .inputFill, .inputSm, .inputXs {
+    background: transparent !important;
+  }
+
+  .chartSection {
+    margin-top: 5mm !important;
+  }
+
+  .chartImage {
+    width: 105% !important; /* Forces it to stretch slightly wider in print */
+    margin-left: -2.5%; /* Centers the widened image */
+  }
+}

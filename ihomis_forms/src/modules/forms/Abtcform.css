@@ -185,19 +185,6 @@
   margin-bottom: 100mm;
 }
 
-.abtc-footer {
-  position: absolute;
-  bottom: 6mm;
-  left: 15mm;
-  right: 15mm;
-  border-top: 1.5px solid #000;
-  padding-top: 2px;
-  font-size: 8pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}
-
 /* ══ PRINT ══ */
 @media print {
   .abtc-page {

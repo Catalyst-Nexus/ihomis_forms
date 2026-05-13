@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
 import { supabase } from "../../lib/supabaseClient.js";
-import DNRForm from "./DNRForm";
+// Native Browser Print imports
+import { printForms as nativePrintForms } from "../../lib/printController.jsx";
+import { getComponentProps, getFormComponent } from "../../lib/formRegistry.js";
 import FormDocument from "../components/FormDocument.jsx";
 import ApgarScoring from "./ApgarScoring";
 import BTLConsent from "./BTLConsent";
@@ -191,6 +193,21 @@ function calculateAgeFromBirthDate(value) {
   }
 
   return `${age} year(s)`;
+}
+
+function sanitizeFileName(value) {
+  const text = toSafeString(value).toLowerCase();
+
+  if (!text) {
+    return "forms";
+  }
+
+  return (
+    text
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .replace(/_{2,}/g, "_") || "forms"
+  );
 }
 
 function normalizeSexValue(value) {
@@ -536,6 +553,7 @@ export default function Forms({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [dbForms, setDbForms] = useState([]);
   const patientData = useMemo(
     () => buildPatientFormData(selectedPatient),
@@ -631,7 +649,7 @@ export default function Forms({
   };
 
   const renderFormBody = (formObject) => {
-    const FormComponent = COMPONENT_MAP[formObject.component_name];
+    const FormComponent = getFormComponent(formObject.component_name);
 
     if (!FormComponent) {
       return (
@@ -642,18 +660,7 @@ export default function Forms({
       );
     }
 
-    // Edge case: ApgarScoring uses apiResponse prop
-    if (formObject.component_name === "ApgarScoring") {
-      return <FormComponent apiResponse={patientData} />;
-    }
-
-    // Edge case: ClinicalReferralSlip uses only patientName prop
-    if (formObject.component_name === "ClinicalReferralSlip") {
-      return <FormComponent patientName={patientName} />;
-    }
-
-    // Default: most forms use patientName and patientData props
-    return <FormComponent patientName={patientName} patientData={patientData} />;
+    return <FormComponent {...getComponentProps(formObject.component_name, patientName, patientData)} />;
   };
 
   const renderFormDocument = (formObject) => (
@@ -661,6 +668,63 @@ export default function Forms({
       {renderFormBody(formObject)}
     </FormDocument>
   );
+
+  /**
+   * Native Browser Print Handler
+   * 
+   * Uses the browser's native print engine to render forms with proper CSS support.
+   * This replaces the html2canvas/jsPDF approach which failed to handle CSS Modules.
+   * 
+   * Key benefits:
+   * - Full CSS support (including CSS Modules)
+   * - Proper page breaks (break-after: page)
+   * - 210mm width constraint maintained
+   * - Combined preview of all selected forms
+   */
+  const handlePrintSelectedForms = useCallback(async () => {
+    const selectedFormObjects = dbForms.filter((form) => selectedForms.has(form.id));
+
+    if (selectedFormObjects.length === 0) {
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+
+    try {
+      // Build form configurations from selected forms
+      // Pass the actual form objects directly - PrintRegistry handles component mapping
+      const formConfigs = selectedFormObjects.map(formObject => ({
+        id: formObject.id,
+        component_name: formObject.component_name,
+        description: formObject.description,
+      }));
+
+      if (formConfigs.length === 0) {
+        window.alert("No valid forms could be printed.");
+        return;
+      }
+
+      // Use the native print controller with PrintRegistry
+      await nativePrintForms(formConfigs, {
+        patientName,
+        patientData,
+        onBeforePrint: () => {
+          console.log("Opening print dialog for", formConfigs.length, "forms");
+        },
+        onAfterPrint: () => {
+          console.log("Print job completed");
+        },
+      });
+    } catch (error) {
+      console.error("Print error:", error);
+      window.alert("Failed to print forms. Please try again.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }, [selectedForms, dbForms, patientName, patientData]);
+
+  // Legacy handler name for backwards compatibility (can be removed later)
+  const handleGenerateSelectedFormsPdf = handlePrintSelectedForms;
 
   return (
     <div
@@ -782,12 +846,15 @@ export default function Forms({
         isOpen={!!openForm}
         onClose={() => setOpenForm(null)}
         title={openForm?.description}
+        formConfig={openForm}
+        patientName={patientName}
+        patientData={patientData}
       >
         {openForm && renderFormDocument(openForm)}
       </Modal>
     </div>
   );
-}
+};
 
 Forms.propTypes = {
   isDarkMode: PropTypes.bool,

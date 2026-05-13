@@ -1,20 +1,6 @@
 import { useMemo } from 'react';
-import './Neurologic.css';
 import chartPlaceholderSrc from './img/neurologic examination.png';
-
-const chartSectionStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '2mm',
-};
-
-const chartImageStyle = {
-  width: '100%',
-  height: 'auto',
-  display: 'block',
-  objectFit: 'contain',
-};
+import styles from './Neurologic.module.css';
 
 const Neurological = ({ patientName, patientData }) => {
   const name      = patientName            || "";
@@ -26,76 +12,61 @@ const Neurological = ({ patientName, patientData }) => {
   });
   const diagnosis = patientData?.diagnosis || "";
 
-  const { generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    return {
-      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
-      generatedBy: "TCP T. TCP"
-    };
-  }, []);
-
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <section className="form-intro" aria-label="Form title and patient details">
-          <div className="patient-header">
-            {/* Row 1: Case Number — centered */}
-            <div className="header-row header-row-1">
-              <span className="header-label">Case Number:</span>
-              <span className="header-value">{caseNo}</span>
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+          
+          {/* Preserved spacer for hospital letterhead */}
+          <div className={styles.headerSpacer} aria-hidden="true" />
+
+          {/* META SECTION - Standardized */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNo}</span>
+              </span>
+            </div>
+            
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Patient's Name:</span>
+                <span>{name}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Age:</span>
+                <span>{age}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Sex:</span>
+                <span>{sex}</span>
+              </span>
             </div>
 
-            {/* Row 2: Patient Name, Age, Sex — centered */}
-            <div className="header-row header-row-2">
-              <div className="header-item">
-                <span className="header-label">Patient's Name :</span>
-                <span className="header-value">{name}</span>
-              </div>
-              <div className="header-item header-item-inline">
-                <span className="header-label">Age :</span>
-                <span className="header-value">{age}</span>
-              </div>
-              <div className="header-item header-item-inline">
-                <span className="header-label">Sex :</span>
-                <span className="header-value">{sex}</span>
-              </div>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Impression/Diagnosis:</span>
+                <span className={styles.value}>{diagnosis || <span className={styles.lineFull} />}</span>
+              </span>
+              <span className={styles.metaCell} style={{ marginLeft: '40px' }}>
+                <span className={styles.label}>Date:</span>
+                <span>{date}</span>
+              </span>
             </div>
-
-            {/* Row 3: Impression/Diagnosis and Date — centered together */}
-            <div className="header-row header-row-3">
-              <div className="header-item">
-                <span className="header-label">Impression/Diagnosis:</span>
-              </div>
-              <div className="header-item">
-                <span className="header-label">Date:</span>
-                <span className="header-value">{date}</span>
-              </div>
-            </div>
-
-            {/* Row 4 & 5: Diagnosis underlines */}
-            <div className="header-row header-row-4">
-              <span className="header-underline-full">{diagnosis}</span>
-            </div>
-            <div className="header-row header-row-4">
-              <span className="header-underline-full"></span>
-            </div>
-
+            {/* Secondary line for long diagnosis */}
+            {!diagnosis && <div className={styles.metaRow}><span className={styles.lineFull} /></div>}
           </div>
-        </section>
 
-        <section aria-label="Neuro vital signs chart image" style={chartSectionStyle}>
-          <img
-            src={chartPlaceholderSrc}
-            alt="Neuro vital signs status chart placeholder"
-            style={chartImageStyle}
-          />
-        </section>
-
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
+          {/* CHART SECTION - Fills available space */}
+          <section aria-label="Neuro vital signs chart" className={styles.chartSection}>
+            <img
+              src={chartPlaceholderSrc}
+              alt="Neurologic Examination Chart"
+              className={styles.chartImage}
+            />
+          </section>
+        </div>
       </div>
     </div>
   );

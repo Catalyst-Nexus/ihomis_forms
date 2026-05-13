@@ -1,113 +1,103 @@
-import { useMemo } from 'react';
-import './PostAnesthesiaSheet.css';
 import chartPlaceholderSrc from './img/post anesthesia sheet.png';
-
-const chartSectionStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '2mm',
-};
-
-const chartImageStyle = {
-  width: '190mm',
-  height: '180mm',
-  display: 'block',
-  objectFit: 'fill',
-};
+import styles from './PostAnesthesiaSheet.module.css';
 
 const PostAnesthesiaSheet = ({ patientName, patientData }) => {
   const name = patientName || "";
   const caseNo = patientData?.caseNo || "";
   const hospitalNo = patientData?.hospitalNo || "";
 
-  const generatedOn = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`;
-  }, []);
-
-  const generatedBy = "TCP T. TCP";
-
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <section className="form-intro pacu-header" aria-label="Form title and patient details">
-          <div className="pacu-panel">
-            <div className="pacu-row pacu-row--top">
-              <div className="pacu-cell">
-                <span className="pacu-label">Hospital No.:</span>
-                <span className="pacu-value">{hospitalNo}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Case Number:</span>
-                <span className="pacu-value">{caseNo}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--right"></div>
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+          
+          {/* Preserved spacer for hospital letterhead */}
+          <div className={styles.headerSpacer} aria-hidden="true" />
+
+          {/* META SECTION - Standardized flex layout */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Hospital No.:</span>
+                <span>{hospitalNo}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNo}</span>
+              </span>
+              <span className={styles.metaCell}>
+                {/* Right alignment placeholder */}
+              </span>
             </div>
 
-            <div className="pacu-row pacu-row--patient">
-              <div className="pacu-cell">
-                <span className="pacu-label">NAME:</span>
-                <span className="pacu-value">{name}</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">DATE:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-check">[ ] CHARITY</span>
-              </div>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>NAME:</span>
+                <span>{name}</span>
+              </span>
+              <span className={styles.metaCell} style={{ width: '40mm' }}>
+                <span className={styles.label}>DATE:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ width: '30mm' }}>
+                <span>[ ] CHARITY</span>
+              </span>
             </div>
 
-            <div className="pacu-row pacu-row--procedure">
-              <div className="pacu-cell">
-                <span className="pacu-label">PROCEDURE</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">TIME:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-check">[ ] PHIC</span>
-              </div>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>PROCEDURE:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ width: '40mm' }}>
+                <span className={styles.label}>TIME:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ width: '30mm' }}>
+                <span>[ ] PHIC</span>
+              </span>
             </div>
 
-            <div className="pacu-row pacu-row--surgeon">
-              <div className="pacu-cell">
-                <span className="pacu-label">SURGEON/S:</span>
-              </div>
-              <div className="pacu-cell">
-                <span className="pacu-label">Blood Transfusion Site:</span>
-              </div>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>SURGEON/S:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Blood Transfusion Site:</span>
+                <span className={styles.lineFill} />
+              </span>
             </div>
 
-            <div className="pacu-row pacu-row--anesthesia">
-              <div className="pacu-cell">
-                <span className="pacu-label">ANESTHESIOLOGIST/S:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Component:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Blood Type:</span>
-              </div>
-              <div className="pacu-cell pacu-cell--center">
-                <span className="pacu-label">Serial #:</span>
-              </div>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell} style={{ width: '40%' }}>
+                <span className={styles.label}>ANESTHESIOLOGIST/S:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Component:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ width: '30mm' }}>
+                <span className={styles.label}>Blood Type:</span>
+                <span className={styles.lineFill} />
+              </span>
+              <span className={styles.metaCell} style={{ width: '35mm' }}>
+                <span className={styles.label}>Serial #:</span>
+                <span className={styles.lineFill} />
+              </span>
             </div>
           </div>
-        </section>
 
-        <section aria-label="Post-Anesthesia Sheet chart image" style={chartSectionStyle}>
-          <img
-            src={chartPlaceholderSrc}
-            alt="Post-Anesthesia Sheet status chart placeholder"
-            style={chartImageStyle}
-          />
-        </section>
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
+          {/* CHART SECTION - Fills available vertical space */}
+          <section className={styles.chartSection} aria-label="Anesthesia chart">
+            <img
+              src={chartPlaceholderSrc}
+              alt="Post-Anesthesia Sheet Chart"
+              className={styles.chartImage}
+            />
+          </section>
+        </div>
       </div>
     </div>
   );

@@ -1,22 +1,14 @@
+/**
+ * Partograph - Converted to CSS Module
+ * 
+ * FIX: Removed global style injection that was causing layout conflicts
+ * FIX: Now uses CSS Module for scoped styling
+ * FIX: Layout optimized to fit within FormDocument wrapper
+ */
+
 import { useMemo } from 'react';
-import './Partograph.css';
-
 import chartPlaceholderSrc from './img/PARTOGRAPH.png';
-
-const chartSectionStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '2mm',
-};
-
-const chartImageStyle = {
-  width: '100%',
-  height: '200mm',
-  display: 'block',
-  objectFit: 'fill',
-  border: 0,
-};
+import styles from './Partograph.module.css';
 
 const Partograph = ({ patientName, patientData }) => {
   const name = patientName || "";
@@ -38,75 +30,71 @@ const Partograph = ({ patientName, patientData }) => {
   const generatedBy = "TCP T. TCP";
 
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
-        <div className="header-reserved-space" aria-hidden="true" />
-        <section className="form-intro partograph-header" aria-label="Form title and patient details">
-          <div className="patient-header partograph-meta">
-            <div className="partograph-meta-row partograph-meta-row--top">
-              <div className="partograph-meta-item partograph-meta-item--left">
-                <span className="header-label">Hospital No.:</span>
-                <span className="header-value">{hospitalNo}</span>
-              </div>
-              <div className="partograph-meta-item partograph-meta-item--center">
-                <span className="header-label">Date/Time Admitted:</span>
-                <span className="header-value">{dateTimeAdmitted}</span>
-              </div>
-              <div className="partograph-meta-item partograph-meta-item--right">
-                <span className="header-label">Case Number:</span>
-                <span className="header-value">{caseNo}</span>
-              </div>
-            </div>
-
-            <div className="partograph-meta-row partograph-meta-row--patient">
-              <div className="partograph-meta-item partograph-meta-item--patient">
-                <span className="header-label">Patient Name:</span>
-                <span className="header-value">{name}</span>
-              </div>
-              <div className="partograph-meta-item partograph-meta-item--inline">
-                <span className="header-label">Age:</span>
-                <span className="header-value">{age}</span>
-              </div>
-              <div className="partograph-meta-item partograph-meta-item--inline">
-                <span className="header-label">Sex:</span>
-                <span className="header-value">{sex}</span>
-              </div>
-            </div>
-
-            <div className="partograph-meta-row partograph-meta-row--blank">
-              <div className="partograph-blank-field">
-                <span className="header-label">LMP:</span>
-                <span className="partograph-blank-line partograph-blank-line--sm" aria-hidden="true" />
-              </div>
-              <div className="partograph-blank-field">
-                <span className="header-label">AOG:</span>
-                <span className="partograph-blank-line partograph-blank-line--sm" aria-hidden="true" />
-              </div>
-              <div className="partograph-blank-field">
-                <span className="header-label">EDC:</span>
-                <span className="partograph-blank-line partograph-blank-line--sm" aria-hidden="true" />
-              </div>
-              <div className="partograph-blank-field">
-                <span className="header-label">FH:</span>
-                <span className="partograph-blank-line partograph-blank-line--xs" aria-hidden="true" />
-              </div>
-              <div className="partograph-blank-field partograph-blank-field--group">
-                <span className="header-label">G__P__</span>
-                <span className="partograph-tpal-label">(TPAL)</span>
-                <span className="partograph-blank-line partograph-blank-line--xs" aria-hidden="true" />
-              </div>
-            </div>
+    <div className={styles.page}>
+      <div className={styles.headerSpace} aria-hidden="true" />
+      
+      <div className={styles.partographMeta}>
+        <div className={`${styles.partographMetaRow} ${styles.partographMetaRowTop}`}>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemLeft}`}>
+            <span className={styles.headerLabel}>Hospital No.:</span>
+            <span className={styles.headerValue}>{hospitalNo}</span>
           </div>
-        </section>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemCenter}`}>
+            <span className={styles.headerLabel}>Date/Time Admitted:</span>
+            <span className={styles.headerValue}>{dateTimeAdmitted}</span>
+          </div>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemRight}`}>
+            <span className={styles.headerLabel}>Case Number:</span>
+            <span className={styles.headerValue}>{caseNo}</span>
+          </div>
+        </div>
 
-        <section aria-label="Partograph chart image" style={chartSectionStyle}>
-          <img
-            src={chartPlaceholderSrc}
-            alt="Partograph status chart placeholder"
-            style={chartImageStyle}
-          />
-        </section>
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
+        <div className={`${styles.partographMetaRow} ${styles.partographMetaRowPatient}`}>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemPatient}`}>
+            <span className={styles.headerLabel}>Patient Name:</span>
+            <span className={styles.headerValue}>{name}</span>
+          </div>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemInline}`}>
+            <span className={styles.headerLabel}>Age:</span>
+            <span className={styles.headerValue}>{age}</span>
+          </div>
+          <div className={`${styles.partographMetaItem} ${styles.partographMetaItemInline}`}>
+            <span className={styles.headerLabel}>Sex:</span>
+            <span className={styles.headerValue}>{sex}</span>
+          </div>
+        </div>
+
+        <div className={`${styles.partographMetaRow} ${styles.partographMetaRowBlank}`}>
+          <div className={styles.blankField}>
+            <span className={styles.headerLabel}>LMP:</span>
+            <span className={`${styles.blankLine} ${styles.blankLineSm}`} aria-hidden="true" />
+          </div>
+          <div className={styles.blankField}>
+            <span className={styles.headerLabel}>AOG:</span>
+            <span className={`${styles.blankLine} ${styles.blankLineSm}`} aria-hidden="true" />
+          </div>
+          <div className={styles.blankField}>
+            <span className={styles.headerLabel}>EDC:</span>
+            <span className={`${styles.blankLine} ${styles.blankLineSm}`} aria-hidden="true" />
+          </div>
+          <div className={styles.blankField}>
+            <span className={styles.headerLabel}>FH:</span>
+            <span className={`${styles.blankLine} ${styles.blankLineXs}`} aria-hidden="true" />
+          </div>
+          <div className={`${styles.blankField} ${styles.blankFieldGroup}`}>
+            <span className={styles.headerLabel}>G__P__</span>
+            <span className={styles.tpalLabel}>(TPAL)</span>
+            <span className={`${styles.blankLine} ${styles.blankLineXs}`} aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.chartSection}>
+        <img
+          src={chartPlaceholderSrc}
+          alt="Partograph status chart placeholder"
+          className={styles.chartImage}
+        />
       </div>
     </div>
   );

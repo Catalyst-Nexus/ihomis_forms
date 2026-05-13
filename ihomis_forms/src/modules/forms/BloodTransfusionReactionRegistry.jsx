@@ -1,99 +1,85 @@
-import "./BloodTransfusionReactionRegistry.css";
+import styles from "./BloodTransfusionReactionRegistry.module.css";
 
-const formatGeneratedOn = (date = new Date()) => {
-  const pad = (value) => String(value).padStart(2, "0");
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  const hour12 = String(hours % 12 || 12).padStart(2, "0");
-
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${hour12}:${pad(minutes)} ${ampm}`;
-};
 
 export default function BloodTransfusionReactionRegistry({ patientName, patientData = {} }) {
   const caseNum = patientData.caseNum || patientData.caseNo || "";
-  const hospitalNo =
-    patientData.hospitalNo || patientData.hospNo || patientData.hospitalNumber || "";
+  const hospitalNo = patientData.hospitalNo || patientData.hospNo || patientData.hospitalNumber || "";
   const age = patientData.age || "";
-  const birthDate =
-    patientData.birthDate || patientData.birthdate || patientData.dob || "";
+  const birthDate = patientData.birthDate || patientData.birthdate || patientData.dob || "";
   const name = patientName || patientData.patientName || patientData.fullName || "";
   const sex = patientData.sex || "";
-  const generatedOn = patientData.generatedOn || formatGeneratedOn();
 
   return (
-    <div className="btrr-wrap">
+    <div className={styles.wrap}>
 
       {/* ═══════════════ PAGE 1 ═══════════════ */}
-      <div className="btrr-page btrr-page--p2">
-
+      <div className={styles.page}>
 
         {/* META TOP */}
-        <div className="btrr-meta-section">
-          <div className="btrr-meta-row">
-            <span className="btrr-label">Case Number:</span>
+        <div className={styles.metaSection}>
+          <div className={styles.metaRow}>
+            <span className={styles.label}>Case Number:</span>
             <span>{caseNum}</span>
           </div>
 
-          <div className="btrr-meta-row btrr-meta-row--4col">
-            <div className="btrr-meta-cell">
-              <span className="btrr-label">Hospital No.:</span>
+          <div className={styles.metaRow}>
+            <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+              <span className={styles.label}>Hospital No.:</span>
               <span>{hospitalNo}</span>
-            </div>
-            <div className="btrr-meta-cell">
-              <span className="btrr-label">Age:</span>
+            </span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>Age:</span>
               <span>{age}</span>
-            </div>
-            <div className="btrr-meta-cell btrr-meta-cell--dob">
-              <span className="btrr-label">Date of Birth:</span>
+            </span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Date of Birth:</span>
               <span>{birthDate}</span>
-            </div>
+            </span>
           </div>
 
-          <div className="btrr-meta-row btrr-meta-row--name">
-            <div className="btrr-meta-cell btrr-meta-cell--name">
-              <span className="btrr-label">Name:</span>
+          <div className={styles.metaRow}>
+            <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+              <span className={styles.label}>Name:</span>
               <span>{name}</span>
-            </div>
-            <div className="btrr-meta-cell">
-              <span className="btrr-label">Sex:</span>
+            </span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+              <span className={styles.label}>Sex:</span>
               <span>{sex}</span>
-            </div>
-            <div className="btrr-meta-cell btrr-meta-cell--requesting">
-              <span className="btrr-label">Requesting</span><br />
-              <span className="btrr-label">Physician:</span>
-              <span className="btrr-line btrr-line--sm" />
-            </div>
+            </span>
+            <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+              <span className={styles.label}>Requesting Physician:</span>
+              <span className={`${styles.line} ${styles.lineSm}`} />
+            </span>
           </div>
         </div>
 
         {/* TRANSFUSION DATES */}
-        <div className="btrr-gap-sm" />
-        <div className="btrr-field-row">
+        <div className={styles.gapSm} />
+        <div className={styles.inlineRow}>
           <span>Transfusion began date:</span>
-          <span className="btrr-line btrr-line--md" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineMd}`} />
+          <span className={styles.spacer} />
           <span>Time:</span>
-          <span className="btrr-line btrr-line--sm" />
+          <span className={`${styles.line} ${styles.lineSm}`} />
         </div>
-        <div className="btrr-field-row">
+        <div className={styles.inlineRow}>
           <span>Transfusion ended date:</span>
-          <span className="btrr-line btrr-line--md" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineMd}`} />
+          <span className={styles.spacer} />
           <span>Time:</span>
-          <span className="btrr-line btrr-line--sm" />
+          <span className={`${styles.line} ${styles.lineSm}`} />
         </div>
-        <div className="btrr-field-row">
+        <div className={styles.inlineRow}>
           <span>Date of BTR:</span>
-          <span className="btrr-line btrr-line--md" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineMd}`} />
+          <span className={styles.spacer} />
           <span>Time:</span>
-          <span className="btrr-line btrr-line--sm" />
+          <span className={`${styles.line} ${styles.lineSm}`} />
         </div>
 
         {/* VITALS TABLE */}
-        <div className="btrr-gap" />
-        <table className="btrr-table btrr-vitals-table">
+        <div className={styles.gap} />
+        <table className={`${styles.table} ${styles.vitalsTable}`}>
           <thead>
             <tr>
               <th></th>
@@ -122,10 +108,10 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* SYMPTOMS */}
-        <div className="btrr-gap" />
-        <div className="btrr-symptoms-section">
-          <p className="btrr-section-label">Symptoms:</p>
-          <div className="btrr-symptoms-grid">
+        <div className={styles.gapSm} />
+        <div className={styles.symptomsSection}>
+          <p className={styles.sectionLabel}>Symptoms:</p>
+          <div className={styles.symptomsGrid}>
             <span>[ ] Hives</span>
             <span>[ ] Pain (Location)</span>
             <span>[ ] Itchiness</span>
@@ -134,54 +120,52 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
             <span>[ ] Rash</span>
             <span>[ ] Fever</span>
             <span>[ ] Hematuria</span>
-            <span className="btrr-others-row">
-              [ ]Others:
-              <span className="btrr-line btrr-line--fill" />
+            <span className={styles.othersRow}>
+              [ ] Others:
+              <span className={`${styles.line} ${styles.lineFill}`} />
             </span>
           </div>
         </div>
 
         {/* ACTIONS */}
-        <div className="btrr-gap" />
-        <div className="btrr-field-row">
-          <span>Action:Anti-Histamine given:</span>
-          <span className="btrr-line btrr-line--lg" />
-          <span className="btrr-spacer" />
+        <div className={styles.gap} />
+        <div className={styles.inlineRow}>
+          <span>Action: Anti-Histamine given:</span>
+          <span className={`${styles.line} ${styles.lineLg}`} />
+          <span className={styles.spacer} />
           <span>Medicine given:</span>
-          <span className="btrr-line btrr-line--lg" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
         </div>
-        <div className="btrr-field-row">
+        <div className={styles.inlineRow}>
           <span>Volume received by patient:</span>
-          <span className="btrr-line btrr-line--lg" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
+          <span className={styles.spacer} />
           <span>Response to Medicine:</span>
-          <span className="btrr-line btrr-line--lg" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
         </div>
-        <div className="btrr-field-row">
+        <div className={styles.inlineRow}>
           <span>Nurse on-duty:</span>
-          <span className="btrr-line btrr-line--lg" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
         </div>
-        <br></br>
-        <br></br>
+
         {/* DIVIDER */}
-        <div className="btrr-gap" />
-        <div className="btrr-divider" />
-        <div className="btrr-gap-sm" />
+        <div className={styles.gap} />
+        <div className={styles.divider} />
+        <div className={styles.gap} />
 
         {/* BLOOD BANK USE */}
-        <p className="btrr-section-bold">BLOOD BANK USE</p>
-        <br></br>
-        <div className="btrr-field-row">
+        <p className={styles.sectionBold}>BLOOD BANK USE</p>
+        <div className={styles.inlineRow}>
           <span>Blood Bank notified: Date &amp; Time:</span>
-          <span className="btrr-line btrr-line--lg" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
+          <span className={styles.spacer} />
           <span>BTR form received: Date &amp; Time:</span>
-          <span className="btrr-line btrr-line--lg" />
+          <span className={`${styles.line} ${styles.lineLg}`} />
         </div>
-            <br></br>
+
         {/* BLOOD UNITS TABLE */}
-        <div className="btrr-gap-sm" />
-        <table className="btrr-table btrr-units-table">
+        <div className={styles.gap} />
+        <table className={`${styles.table} ${styles.unitsTable}`}>
           <thead>
             <tr>
               <th>Blood Unit No.</th>
@@ -210,63 +194,61 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* STEPS */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">Complete steps 1-3 on all reported reactions:</p>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
+        <div className={styles.gap} />
+        <p className={styles.plain}>Complete steps 1-3 on all reported reactions:</p>
+        <div className={styles.gapSm} />
+        <p className={styles.plain}>
           1. Clerical check: Check patient and donor ID on all labels and records (include all blood
           components transfused in the last 24 hours)
         </p>
-        <div className="btrr-gap-sm" />
-        <div className="btrr-clerical-row">
+        <div className={styles.gapSm} />
+        <div className={styles.clericalRow}>
           <span>[ ] No clerical error detected</span>
           <span>[ ] Clerical error detected</span>
         </div>
-        <div className="btrr-field-row btrr-field-row--mt">
+        <div className={styles.inlineRow} style={{ marginTop: "0.25rem" }}>
           <span>Explanation:</span>
-          <span className="btrr-line btrr-line--xl" />
+          <span className={`${styles.line} ${styles.lineXl}`} />
         </div>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">2. Check for patient sample</p>
-        <div className="btrr-field-row">
+        
+        <div className={styles.gap} />
+        <p className={styles.plain}>2. Check for patient sample</p>
+        <div className={styles.inlineRow}>
           <span>2.1 Check for visible hemolysis:</span>
-          <span className="btrr-line btrr-line--md" />
+          <span className={`${styles.line} ${styles.lineMd}`} />
         </div>
-        <div className="btrr-field-row">
+        <div className={styles.inlineRow}>
           <span>2.2 Check for visible hemolysis:</span>
-          <span className="btrr-line btrr-line--md" />
+          <span className={`${styles.line} ${styles.lineMd}`} />
         </div>
-        <p className="btrr-plain">2.3 Collect blood sample. Test for the following:</p>
+        <p className={styles.plain}>2.3 Collect blood sample. Test for the following:</p>
 
-        <div className="btrr-footer">
-          Generated by: TCP T. TCP on {generatedOn}
-        </div>
+        
       </div>
 
       {/* ═══════════════ PAGE 2 ═══════════════ */}
-      <div className="btrr-page">
-
+      <div className={`${styles.page} ${styles.pageP2}`}>
 
         {/* BILIRUBIN TEST */}
-        <div className="btrr-field-row">
-          <span className="btrr-label">Bilirubin Test:</span>
+        <div className={styles.inlineRow}>
+          <span className={styles.label}>Bilirubin Test:</span>
           <span>&nbsp; Result</span>
         </div>
-        <div className="btrr-gap-sm" />
-        <table className="btrr-table btrr-bilirubin-table">
+        <div className={styles.gapSm} />
+        <table className={`${styles.table} ${styles.bilirubinTable}`}>
           <tbody>
             <tr>
-              <td className="btrr-row-label">Total Bilirubin:</td>
+              <td className={styles.rowLabel}>Total Bilirubin:</td>
               <td></td>
               <td></td>
             </tr>
             <tr>
-              <td className="btrr-row-label">B1(conjugated)</td>
+              <td className={styles.rowLabel}>B1(conjugated)</td>
               <td></td>
               <td></td>
             </tr>
             <tr>
-              <td className="btrr-row-label">B2(unconjugated)</td>
+              <td className={styles.rowLabel}>B2(unconjugated)</td>
               <td></td>
               <td></td>
             </tr>
@@ -274,12 +256,12 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* URINE */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
+        <div className={styles.gap} />
+        <p className={styles.plain}>
           2.4 Collect 1st hour and 5th hour urine. Test for the following:
         </p>
-        <div className="btrr-gap-sm" />
-        <table className="btrr-table btrr-urine-table">
+        <div className={styles.gapSm} />
+        <table className={`${styles.table} ${styles.urineTable}`}>
           <thead>
             <tr>
               <th>Urine</th>
@@ -302,69 +284,69 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* NOTE */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
+        <div className={styles.gap} />
+        <p className={styles.plain}>
           Note: Attached copy of laboratory test results. Save patient blood and urine sample
           for pathologist verification.
         </p>
 
         {/* DAT */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">3. DIRECT ANTIGLOUBIN TEST: (Recepient)</p>
-        <div className="btrr-field-row btrr-field-row--mt">
+        <div className={styles.gap} />
+        <p className={styles.plain}>3. DIRECT ANTIGLOUBIN TEST: (Recepient)</p>
+        <div className={styles.inlineRow} style={{ marginTop: "0.25rem" }}>
           <span>Post Transfusion:</span>
-          <span className="btrr-line btrr-line--sm" />
-          <span className="btrr-spacer" />
+          <span className={`${styles.line} ${styles.lineSm}`} />
+          <span className={styles.spacer} />
           <span>If positive, Pre Transfusion:</span>
-          <span className="btrr-line btrr-line--sm" />
+          <span className={`${styles.line} ${styles.lineSm}`} />
         </div>
 
         {/* MED TECH */}
-        <div className="btrr-gap-sm" />
-        <div className="btrr-medtech-row">
-          <span className="btrr-label btrr-medtech-label">MEDICAL TECHNOLOGIST:</span>
-          <span className="btrr-line btrr-line--lg" />
-          <span className="btrr-spacer" />
-          <span className="btrr-label">DATE:</span>
-          <span className="btrr-line btrr-line--lg" />
+        <div className={styles.gap} />
+        <div className={styles.medtechRow}>
+          <span className={`${styles.label} ${styles.medtechLabel}`}>MEDICAL TECHNOLOGIST:</span>
+          <span className={`${styles.line} ${styles.lineLg}`} />
+          <span className={styles.spacer} />
+          <span className={styles.label}>DATE:</span>
+          <span className={`${styles.line} ${styles.lineLg}`} />
         </div>
 
         {/* PATHOLOGIST */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">4. Refer to Pathologist on duty (Recepient)</p>
-        <div className="btrr-centered-fields">
-          <div className="btrr-centered-field">
+        <div className={styles.gap} />
+        <p className={styles.plain}>4. Refer to Pathologist on duty (Recepient)</p>
+        <div className={styles.centeredFields}>
+          <div className={styles.centeredField}>
             <span>Name of Pathologist:</span>
-            <span className="btrr-line btrr-line--md" />
+            <span className={`${styles.line} ${styles.lineMd}`} />
           </div>
-          <div className="btrr-centered-field">
+          <div className={styles.centeredField}>
             <span>Findings:</span>
-            <span className="btrr-line btrr-line--md" />
+            <span className={`${styles.line} ${styles.lineMd}`} />
           </div>
-          <div className="btrr-centered-field">
+          <div className={styles.centeredField}>
             <span>Recommendation:</span>
-            <span className="btrr-line btrr-line--md" />
+            <span className={`${styles.line} ${styles.lineMd}`} />
           </div>
         </div>
 
         {/* HEMOLYTIC NOTE */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain btrr-italic-note">
+        <div className={styles.gap} />
+        <p className={`${styles.plain} ${styles.italicNote}`}>
           If the above does not indicate a hemolytic reaction, further testing not required. If there is evidence of hemolysis of patient's
           condition indicates a hemolytic reaction continue with the following:
         </p>
 
         {/* REPEAT TESTING TABLE */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">4. Repeat Testing</p>
-        <div className="btrr-gap-sm" />
-        <table className="btrr-table btrr-repeat-table">
+        <div className={styles.gap} />
+        <p className={styles.plain}>4. Repeat Testing</p>
+        <div className={styles.gapSm} />
+        <table className={`${styles.table} ${styles.repeatTable}`}>
           <thead>
             <tr>
               <th rowSpan={2}></th>
-              <th colSpan={3} className="btrr-group-header">CELLS</th>
-              <th colSpan={2} className="btrr-group-header">SERUM</th>
-              <th colSpan={3} className="btrr-group-header">INTERPRETATION</th>
+              <th colSpan={3} className={styles.groupHeader}>CELLS</th>
+              <th colSpan={2} className={styles.groupHeader}>SERUM</th>
+              <th colSpan={3} className={styles.groupHeader}>INTERPRETATION</th>
             </tr>
             <tr>
               <th>Anti A</th>
@@ -406,10 +388,10 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* COMPATIBILITY TABLE */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">5. Repeat Compatibility Testing</p>
-        <div className="btrr-gap-sm" />
-        <table className="btrr-table btrr-compat-table">
+        <div className={styles.gap} />
+        <p className={styles.plain}>5. Repeat Compatibility Testing</p>
+        <div className={styles.gapSm} />
+        <table className={`${styles.table} ${styles.compatTable}`}>
           <thead>
             <tr>
               <th></th>
@@ -431,70 +413,71 @@ export default function BloodTransfusionReactionRegistry({ patientName, patientD
         </table>
 
         {/* NOTES */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
+        <div className={styles.gap} />
+        <p className={styles.plain}>
           Crossmatches should be repeated on all units transfused within 24 hours prior to reaction. Record on daily logbook.
         </p>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
+        <div className={styles.gapSm} />
+        <p className={styles.plain}>
           All units on hold for future transfusion MUST be crossmatched with patient's post reaction specimen.
         </p>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">6. Other laboratory test performed:(Only if there is a 2C temperature rise)</p>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">a. Bacteriology Specimen: Blood segment/ Bag for:</p>
-        <div className="btrr-centered-fields btrr-centered-fields--narrow">
-          <div className="btrr-centered-field">
+        <div className={styles.gap} />
+        <p className={styles.plain}>6. Other laboratory test performed: (Only if there is a 2C temperature rise)</p>
+        <div className={styles.gapSm} />
+        <p className={styles.plain}>a. Bacteriology Specimen: Blood segment/ Bag for:</p>
+        <div className={`${styles.centeredFields} ${styles.centeredFieldsNarrow}`}>
+          <div className={styles.centeredField}>
             <span>Gram's Stain</span>
-            <span className="btrr-line btrr-line--lg" />
+            <span className={`${styles.line} ${styles.lineLg}`} />
           </div>
-          <div className="btrr-centered-field">
+          <div className={styles.centeredField}>
             <span>Culture</span>
-            <span className="btrr-line btrr-line--lg" />
+            <span className={`${styles.line} ${styles.lineLg}`} />
           </div>
         </div>
-        <div className="btrr-gap-sm" />
-        <div className="btrr-field-row">
+
+        <div className={styles.gap} />
+        <div className={styles.inlineRow}>
           <span>7. Additional tests:</span>
-          <span className="btrr-line btrr-line--xl" />
+          <span className={`${styles.line} ${styles.lineXl}`} />
         </div>
-        <div className="btrr-gap-sm" />
-        <p className="btrr-plain">
-          If there is evidenc of hemolytic reaction, notify the Blood Bank Head (Pathologist) immediately
+        
+        <div className={styles.gap} />
+        <p className={styles.plain}>
+          If there is evidence of hemolytic reaction, notify the Blood Bank Head (Pathologist) immediately
         </p>
-        <br></br>
- {/* TECHNOLOGIST / DATE */}
-        <div className="btrr-centered-fields btrr-centered-fields--right">
-          <div className="btrr-centered-field">
+
+        {/* TECHNOLOGIST / DATE */}
+        <div className={styles.gapTall} />
+        <div className={`${styles.centeredFields} ${styles.centeredFieldsRight}`}>
+          <div className={styles.centeredField}>
             <span>Technologist:</span>
-            <span className="btrr-line btrr-line--lg" />
+            <span className={`${styles.line} ${styles.lineLg}`} />
           </div>
-          <div className="btrr-centered-field">
+          <div className={styles.centeredField}>
             <span>Date:</span>
-            <span className="btrr-line btrr-line--lg" />
+            <span className={`${styles.line} ${styles.lineLg}`} />
           </div>
         </div>
 
         {/* COMMENTS */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-label">COMMENTS/RECOMMENDATIONS:</p>
-        <br></br>
-        <div className="btrr-reviewed-row">
+        <div className={styles.gapTall} />
+        <p className={styles.label}>COMMENTS/RECOMMENDATIONS:</p>
+        <div className={styles.gapTall} />
+        <div className={styles.reviewedRow}>
           <span>REVIEWD BY:</span>
-          <div className="btrr-reviewed-right">
-            <span className="btrr-line btrr-line--xl" />
-            <p className="btrr-sig-label-right">Head, Blood Transfusion Service</p>
+          <div className={styles.reviewedRight}>
+            <span className={`${styles.line} ${styles.lineXl}`} />
+            <p className={styles.sigLabelRight}>Head, Blood Transfusion Service</p>
           </div>
         </div>
 
         {/* IMPORTANT */}
-        <div className="btrr-gap-sm" />
-        <p className="btrr-important">
+        <div className={styles.gapTall} />
+        <p className={styles.important}>
           IMPORTANT: To be accomplished in DUPLICATE: Please attach the ORIGINAL copy in chart
         </p>
-           <div className="btrr-footer">
-          Generated by: TCP T. TCP on {generatedOn}
-        </div>
+        
       </div>
 
     </div>

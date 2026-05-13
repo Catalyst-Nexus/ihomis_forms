@@ -13,18 +13,18 @@
 }
 
 @media print {
-  @page { size: 210mm 297mm; margin: 0; }
   .kardex-page {
     margin: 0;
     box-shadow: none;
     width: 210mm;
-    height: 297mm;
+    height: auto;
+    min-height: 0;
     padding: 6mm 10mm 14mm 10mm;
     position: relative;
     overflow: hidden;
     page-break-inside: avoid;
-    page-break-after: avoid;
-    page-break-before: avoid;
+    page-break-after: auto;
+    page-break-before: auto;
   }
   .kardex-table td { height: 14mm !important; }
 }
@@ -124,23 +124,3 @@
 .kardex-col-diag      { width: 54mm; }
 .kardex-col-iv        { width: 54mm; }
 .kardex-col-diet      { width: 20mm; }
-
-/* ══ FOOTER ══ */
-.kardex-footer {
-  position: absolute;
-  bottom: 5mm;
-  left: 10mm;
-  right: 10mm;
-}
-
-.kardex-footer-line {
-  border-top: 1px solid #000;
-  margin-bottom: 1px;
-}
-
-.kardex-footer-text {
-  font-size: 7.5pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

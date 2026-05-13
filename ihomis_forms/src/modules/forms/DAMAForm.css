@@ -80,17 +80,3 @@
   margin: 6mm 0 8mm 0;
   text-align: justify;
 }
-
-/* ── Footer ── */
-.dama-footer {
-  position: absolute;
-  bottom: 8mm;
-  left: 14mm;
-  right: 14mm;
-  border-top: 1.5px solid #000;
-  padding-top: 2px;
-  font-size: 8pt;
-  font-weight: bold;
-  font-style: italic;
-  text-align: right;
-}

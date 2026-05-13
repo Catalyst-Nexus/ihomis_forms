@@ -1,0 +1,183 @@
+/* Lubchenco CSS Module */
+/* NO global selectors */
+
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: block;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  /* 0 top padding since global header handles it */
+  padding: 0mm 10mm 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 297mm;
+}
+
+/* ─── MAIN CONTENT ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── META / HEADER SECTION ───────────────────────────────── */
+.metaRowOutside {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2.5mm;
+  margin-top: 4mm; /* Small top margin to detach from the global header */
+}
+
+.tableBorder {
+  border: 1px solid #000;
+  margin-bottom: 2mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.metaRow {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #000;
+}
+
+.metaRow:last-child {
+  border-bottom: none;
+}
+
+.metaCellHalf {
+  width: 50%;
+  padding: 3px 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.metaCellHalfWithBorder {
+  width: 50%;
+  padding: 3px 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  border-right: 1px solid #000;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.value {
+  font-weight: 400;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 9.5pt;
+  font-weight: 700;
+  margin-top: 2mm;
+}
+
+/* ─── CHART SECTION ───────────────────────────────────────── */
+.chartSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 4mm;
+  width: 100%;
+  flex: 1;
+}
+
+.chartImage {
+  width: 100%;
+  max-height: 195mm; /* Relaxed max-height to use the new freed-up space */
+  display: block;
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.signatureWrap {
+  margin-top: 8mm;
+  margin-left: auto;
+  width: 60mm;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.signatureLine {
+  width: 100%;
+  border-bottom: 1px solid #000;
+  margin-bottom: 4px;
+}
+
+.signatureLabel {
+  font-size: 9pt;
+  font-weight: 700;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 1rem;
+    box-shadow: none;
+  }
+  
+  .metaRow {
+    flex-direction: column;
+    border-bottom: none;
+  }
+  
+  .metaCellHalf, .metaCellHalfWithBorder {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #000;
+  }
+  
+  .metaRow:last-child .metaCellHalf:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm; /* Standardized hardware margin */
+  }
+
+  .wrap, .page, .main {
+    /* Critical fix: Forces Chrome to render immediately under the header without flex gaps */
+    display: block !important; 
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+
+  .chartImage {
+    /* Limits image size strictly so Chrome doesn't push it to page 2 */
+    max-height: 185mm !important; 
+  }
+}

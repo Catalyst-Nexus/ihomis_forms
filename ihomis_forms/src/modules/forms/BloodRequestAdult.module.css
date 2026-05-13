@@ -1,0 +1,275 @@
+/* BloodRequestAdult CSS Module */
+/* NO global selectors */
+
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 5mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt; /* Optimal size to fit Page 1 content cleanly */
+  line-height: 1.35; /* Tighter vertical rhythm */
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+/* ─── HEADER ──────────────────────────────────────────────── */
+.headerSpacer {
+  height: 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.titleMain {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.titleSub {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── META ────────────────────────────────────────────────── */
+.metaSection {
+  margin-bottom: 0.15rem;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 4px;
+  margin-bottom: 2px; /* Reduced to prevent vertical overflow */
+}
+
+.metaCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.metaCellWide {
+  min-width: 280px;
+}
+
+.metaCellRest {
+  flex: 1;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── INLINE ROWS ─────────────────────────────────────────── */
+.inlineRow {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 1px;
+}
+
+.ml4  { margin-left: 0.25rem; }
+.ml8  { margin-left: 0.6rem; }
+
+.indentWhere {
+  padding-left: 11.8rem;
+}
+
+/* ─── UNDERLINES ──────────────────────────────────────────── */
+.line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.lineSm   { width: 70px; }
+.lineMd   { width: 130px; }
+.lineFill { flex: 1; min-width: 60px; }
+.lineSig  { width: 190px; display: block; }
+.lineFull { flex: 1; display: inline-block; }
+
+/* ─── GAPS ────────────────────────────────────────────────── */
+/* Compressed slightly to keep Page 1 from spilling over */
+.gap     { height: 0.25rem; }
+.gapSm   { height: 0.15rem; }
+.gapTall { height: 0.35rem; }
+
+/* ─── SECTION HEADING ─────────────────────────────────────── */
+.sectionHeading {
+  font-weight: 700;
+  margin: 0 0 0.15rem 0;
+  text-decoration: underline;
+}
+
+/* ─── COMPONENT ROWS ──────────────────────────────────────── */
+.compRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.chk {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── ITEM ROWS (sub-items) ───────────────────────────────── */
+.itemRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 0;
+  padding-left: 0.5rem;
+}
+
+.code {
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 5.8rem;
+  display: inline-block;
+}
+
+/* ─── NOTE BLOCKS ─────────────────────────────────────────── */
+.noteBlock {
+  margin: 0.2rem 0;
+}
+
+.noteTitle {
+  font-weight: 700;
+  margin: 0;
+}
+
+.noteItem {
+  margin: 0;
+  padding-left: 0.5rem;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.plainLabel {
+  margin: 0 0 0.3rem 0;
+}
+
+.sigRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.sigBlock {
+  flex: 1;
+  text-align: center;
+}
+
+.sigLineWithMd {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sigMd {
+  white-space: nowrap;
+}
+
+.sigLabel {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  border-top: 1px solid #000;
+  padding-top: 2px;
+  text-align: center;
+}
+
+/* ─── REMARKS ─────────────────────────────────────────────── */
+.remarksRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  border-top: 1px solid #000;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #000;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    box-shadow: none;
+  }
+
+  .metaCellWide {
+    min-width: auto;
+  }
+
+  .footer {
+    font-size: 0.68rem;
+  }
+
+  .lineSig {
+    width: 140px;
+  }
+}
+
+/* ─── PRINT ──────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm; /* Reduced hardware margin to give Page 1 more vertical room */
+  }
+
+  .page {
+    width: 100%; 
+    max-width: none;
+    margin: 0;
+    padding: 10mm 15mm 20mm 15mm; 
+    box-shadow: none;
+  }
+
+  .pageP2 {
+    page-break-before: always; /* Strict cutoff for page 2 */
+    padding-top: 10mm; 
+  }
+
+  /* Prevent awkward splits inside crucial elements just in case */
+  .metaSection, .compRow, .itemRow, .noteBlock {
+    page-break-inside: avoid;
+  }
+
+  .footer {
+    position: static;
+    margin-top: auto;
+  }
+}

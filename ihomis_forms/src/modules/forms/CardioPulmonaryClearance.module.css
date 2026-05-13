@@ -1,0 +1,225 @@
+/* CardioPulmonaryClearance CSS Module */
+/* NO global selectors */
+
+/* ─── WRAPPER ─────────────────────────────────────────────── */
+.wrap {
+  display: block; /* Switched to block to prevent Chrome print overflow issues */
+}
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  /* Removed top padding so the text starts right below the global header */
+  padding: 0mm 10mm 4mm 10mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt; /* Condensed slightly to guarantee single page fit */
+  line-height: 1.2; /* Tightened line-height */
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 297mm;
+}
+
+/* ─── MAIN CONTENT ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: block; /* Switch to block to ensure natural text flow in print */
+}
+/* ─── META / HEADER SECTION ───────────────────────────────── */
+.metaSection {
+  margin-bottom: 2mm;
+  width: 100%;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.metaRowTight {
+  display: flex;
+  width: 100%;
+  margin-bottom: 2px;
+  margin-top: 3px;
+}
+
+.metaCellHalf {
+  width: 48%;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.metaCellFull {
+  width: 100%;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── LINES ───────────────────────────────────────────────── */
+.line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  vertical-align: bottom;
+  flex-shrink: 0;
+}
+
+.lineSm   { width: 30px; }
+.lineMd   { width: 80px; }
+.lineLg   { width: 130px; }
+.lineXl   { flex: 1; min-width: 180px; }
+.lineFill { flex: 1; min-width: 60px; }
+
+/* ─── SECTION HEADINGS ────────────────────────────────────── */
+.sectionTitle {
+  font-weight: 700;
+  font-size: 9.5pt;
+  margin: 3mm 0 1mm 0;
+  text-transform: uppercase;
+}
+
+.subHeading {
+  font-size: 9pt;
+  margin: 1.5mm 0 1mm 4mm;
+}
+
+/* ─── CHECKBOX & FILL-IN ROWS ─────────────────────────────── */
+.checkRow {
+  display: flex;
+  align-items: baseline;
+  padding-left: 12mm;
+  margin-bottom: 0px; /* Tightened */
+  gap: 10px;
+}
+
+.checkLabel {
+  flex: 1;
+}
+
+.checkOpt {
+  width: 15mm;
+  white-space: nowrap;
+}
+
+.checkOptLong {
+  width: 35mm;
+  white-space: nowrap;
+}
+
+.multiLineRow {
+  display: flex;
+  align-items: baseline;
+  padding-left: 12mm;
+  margin-bottom: 1.5mm;
+  gap: 8px;
+}
+
+.multiLineLabel {
+  white-space: nowrap;
+}
+
+.vitalsRow {
+  display: flex;
+  align-items: baseline;
+  padding-left: 12mm;
+  margin-bottom: 1.5mm;
+  gap: 6px;
+  width: 100%;
+}
+
+.vitalsRow span {
+  white-space: nowrap;
+}
+
+/* ─── RECOMMENDATIONS & SIGNATURE ─────────────────────────── */
+.recommendationsBlock {
+  margin-top: 1.5mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.recLine {
+  width: 100%;
+  display: block;
+  margin-bottom: 3.5mm;
+}
+
+.physicianWrap {
+  margin-top: 6mm;
+  margin-left: auto;
+  width: 75mm;
+  text-align: center;
+}
+
+.physicianLabel {
+  font-size: 8pt;
+  font-weight: 700;
+  margin-top: 4px;
+}
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 1rem;
+    box-shadow: none;
+  }
+
+  .metaRow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .metaCellHalf {
+    width: 100%;
+  }
+
+  .checkRow {
+    flex-wrap: wrap;
+    padding-left: 0;
+  }
+
+  .multiLineRow, .vitalsRow {
+    flex-wrap: wrap;
+    padding-left: 0;
+  }
+
+  .physicianWrap {
+    width: 100%;
+  }
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0; /* Standardized hardware margin */
+  }
+
+  .wrap, .page, .main {
+    /* Critical fix: Forces Chrome to render immediately under the header */
+    display: block !important; 
+  }
+
+  .page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 10mm;
+    min-height: 0;
+    box-shadow: none;
+  }
+}

@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import "./RadiologyRequestOutside.css";
+import styles from "./RadiologyRequestOutside.module.css";
 
 export default function RadiologyRequestOutside({ patientName, patientData }) {
   const name        = patientName              || "";
@@ -12,115 +11,100 @@ export default function RadiologyRequestOutside({ patientName, patientData }) {
   const caseNo      = patientData?.caseNo      || "";
   const category    = patientData?.category    || "";
 
-  const { dateStr, generatedOn } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const ampm = h >= 12 ? "pm" : "am";
-    const hh = String(h % 12 || 12).padStart(2, "0");
-    const dateStr = now.toLocaleDateString("en-US", {
-      year: "numeric", month: "long", day: "numeric",
-    });
-    const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${hh}:${pad(m)} ${ampm}`;
-    return { dateStr, generatedOn };
-  }, []);
+  const dateStr = new Date().toLocaleDateString("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+  });
 
   return (
-    <div className="rro-page">
+    <div className={styles.page}>
       <br />
-      <div className="rro-date-row">
+      <div className={styles.dateRow}>
         <strong>Date ordered:</strong> {dateStr}
       </div>
       {/* ── Patient details ── */}
-      <div className="rro-patient-grid">
-        <div className="rro-patient-row">
-          <div className="rro-field">
-            <span className="rro-lbl">Name of the Patient:</span>
-            <span className="rro-val">{name}</span>
+      <div className={styles.patientGrid}>
+        <div className={styles.patientRow}>
+          <div className={styles.field}>
+            <span className={styles.label}>Name of the Patient:</span>
+            <span className={styles.value}>{name}</span>
           </div>
-          <div className="rro-field rro-field-right">
-            <span className="rro-lbl">Sex:</span>
-            <span className="rro-val">{sex}</span>
-          </div>
-        </div>
-
-        <div className="rro-patient-row">
-          <div className="rro-field">
-            <span className="rro-lbl">Address:</span>
-            <span className="rro-val">{address}</span>
-          </div>
-          <div className="rro-field rro-field-right">
-            <span className="rro-lbl">Civil Status:</span>
-            <span className="rro-val">{civilStatus}</span>
+          <div className={`${styles.field} ${styles.fieldRight}`}>
+            <span className={styles.label}>Sex:</span>
+            <span className={styles.value}>{sex}</span>
           </div>
         </div>
 
-        <div className="rro-patient-row">
-          <div className="rro-field">
-            <span className="rro-lbl">Ward:</span>
-            <span className="rro-val">{ward}</span>
+        <div className={styles.patientRow}>
+          <div className={styles.field}>
+            <span className={styles.label}>Address:</span>
+            <span className={styles.value}>{address}</span>
           </div>
-          <div className="rro-field rro-field-right">
-            <span className="rro-lbl">Birthdate:</span>
-            <span className="rro-val">{birthdate}</span>
+          <div className={`${styles.field} ${styles.fieldRight}`}>
+            <span className={styles.label}>Civil Status:</span>
+            <span className={styles.value}>{civilStatus}</span>
           </div>
         </div>
 
-        <div className="rro-patient-row">
-          <div className="rro-field">
-            <span className="rro-lbl">Case Number:</span>
-            <span className="rro-val">{caseNo}</span>
+        <div className={styles.patientRow}>
+          <div className={styles.field}>
+            <span className={styles.label}>Ward:</span>
+            <span className={styles.value}>{ward}</span>
           </div>
-          <div className="rro-field rro-field-right">
-            <span className="rro-lbl">Category:</span>
-            <span className="rro-val">{category}</span>
+          <div className={`${styles.field} ${styles.fieldRight}`}>
+            <span className={styles.label}>Birthdate:</span>
+            <span className={styles.value}>{birthdate}</span>
+          </div>
+        </div>
+
+        <div className={styles.patientRow}>
+          <div className={styles.field}>
+            <span className={styles.label}>Case Number:</span>
+            <span className={styles.value}>{caseNo}</span>
+          </div>
+          <div className={`${styles.field} ${styles.fieldRight}`}>
+            <span className={styles.label}>Category:</span>
+            <span className={styles.value}>{category}</span>
           </div>
         </div>
       </div>
 
       {/* ── Age row ── */}
-      <div className="rro-age-row">
-        <span className="rro-lbl">Age:</span>
-        <span className="rro-val">{age}</span>
+      <div className={styles.ageRow}>
+        <span className={styles.label}>Age:</span>
+        <span className={styles.value}>{age}</span>
       </div>
 
       {/* ── History of Present Illness ── */}
-      <div className="rro-history-label">History of Present Illness:</div>
+      <div className={styles.historyLabel}>History of Present Illness:</div>
 
-      <hr className="rro-divider" />
+      <hr className={styles.divider} />
 
       {/* ── Title ── */}
-      <div className="rro-title">X-RAY/ULTRASONOGRAPHY REQUEST</div>
+      <div className={styles.title}>X-RAY/ULTRASONOGRAPHY REQUEST</div>
 
-      <hr className="rro-divider" />
+      <hr className={styles.divider} />
 
       {/* ── Blank request lines ── */}
-      <div className="rro-blank-line" />
-      <div className="rro-blank-line" />
-      <div className="rro-blank-line" />
+      <div className={styles.blankLine} />
+      <div className={styles.blankLine} />
+      <div className={styles.blankLine} />
       <br />
 
       {/* ── Signature row ── */}
-      <div className="rro-sig-row">
-        <div className="rro-sig-left">
-          <span className="rro-sig-line-left" />
-          <span className="rro-sig-suffix">,M.D.</span>
+      <div className={styles.sigRow}>
+        <div className={styles.sigLeft}>
+          <span className={styles.sigLineLeft} />
+          <span className={styles.sigSuffix}>,M.D.</span>
         </div>
-        <span className="rro-sig-line-right" />
+        <span className={styles.sigLineRight} />
       </div>
 
       {/* ── Sig labels ── */}
-      <div className="rro-sig-labels-row">
-        <div className="rro-sig-label-left">Requesting Physician</div>
-        <div className="rro-sig-label-right">Rad. Tech on duty</div>
+      <div className={styles.sigLabelsRow}>
+        <div className={styles.sigLabelLeft}>Requesting Physician</div>
+        <div className={styles.sigLabelRight}>Rad. Tech on duty</div>
       </div>
       <br />
-
-      {/* ── Footer ── */}
-      <div className="rro-footer">
-        Generated by: TCP T. TCP on {generatedOn}
-      </div>
 
     </div>
   );

@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import "./MedicationSheet.css";
+import styles from "./MedicationSheet.module.css";
 
 export default function MedicationSheet({ patientName, patientData }) {
   const name = patientName || "";
@@ -8,36 +7,24 @@ export default function MedicationSheet({ patientName, patientData }) {
   const sex = patientData?.sex || "";
   const age = patientData?.age || "";
 
-  const { generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const hh = String(h % 12 || 12).padStart(2, "0");
-    const ampm = h < 12 ? "am" : "pm";
-    const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${hh}:${pad(m)} ${ampm}`;
-    return { generatedOn, generatedBy: "TCP T. TCP" };
-  }, []);
-
   const DATA_ROWS = 18;
   const DATE_COLS = 7;
 
   return (
-    <div className="ms-page">
-      <br />
-      <table className="ms-table">
+    <div className={styles.page}>
+      <table className={styles.table}>
         <thead>
           <tr>
-            <td className="ms-th-med" style={{ border: "1px solid #000" }}></td>
+            <td className={styles.thMed} style={{ border: "1px solid #000" }}></td>
             <td style={{ border: "1px solid #000" }}></td>
-            <td colSpan={DATE_COLS} className="ms-th-date" style={{ border: "1px solid #000" }}>DATE</td>
+            <td colSpan={DATE_COLS} className={styles.thDate} style={{ border: "1px solid #000" }}>DATE</td>
           </tr>
           {/* Row 2: MEDICATION ORDER | TIME | date col headers */}
           <tr>
-            <th className="ms-th-med">MEDICATION ORDER</th>
-            <th className="ms-th-time">TIME</th>
+            <th className={styles.thMed}>MEDICATION ORDER</th>
+            <th className={styles.thTime}>TIME</th>
             {Array.from({ length: DATE_COLS }).map((_, i) => (
-              <th key={i} className="ms-th-date-col"></th>
+              <th key={i} className={styles.thDateCol}></th>
             ))}
           </tr>
         </thead>
@@ -45,7 +32,7 @@ export default function MedicationSheet({ patientName, patientData }) {
         <tbody>
           {/* Data rows */}
           {Array.from({ length: DATA_ROWS }).map((_, i) => (
-            <tr key={i} className="ms-data-row">
+            <tr key={i} className={styles.dataRow}>
               <td></td>
               <td></td>
               {Array.from({ length: DATE_COLS }).map((_, j) => (
@@ -55,13 +42,13 @@ export default function MedicationSheet({ patientName, patientData }) {
           ))}
 
           {/* SHIFT | SPECIMEN SIGNATURES header */}
-          <tr className="ms-shift-header">
+          <tr className={styles.shiftHeader}>
             <td>SHIFT</td>
             <td colSpan={DATE_COLS + 1}>SPECIMEN SIGNATURES</td>
           </tr>
 
           {/* DAWN row */}
-          <tr className="ms-shift-row">
+          <tr className={styles.shiftRow}>
             <td>DAWN</td>
             <td></td>
             {Array.from({ length: DATE_COLS }).map((_, i) => (
@@ -70,7 +57,7 @@ export default function MedicationSheet({ patientName, patientData }) {
           </tr>
 
           {/* AM row */}
-          <tr className="ms-shift-row">
+          <tr className={styles.shiftRow}>
             <td>AM</td>
             <td></td>
             {Array.from({ length: DATE_COLS }).map((_, i) => (
@@ -79,7 +66,7 @@ export default function MedicationSheet({ patientName, patientData }) {
           </tr>
 
           {/* PM row */}
-          <tr className="ms-shift-row">
+          <tr className={styles.shiftRow}>
             <td>PM</td>
             <td></td>
             {Array.from({ length: DATE_COLS }).map((_, i) => (
@@ -90,37 +77,32 @@ export default function MedicationSheet({ patientName, patientData }) {
       </table>
 
       {/* ── Patient info ── */}
-      <div className="ms-patient-info">
-        <div className="ms-info-row">
-          <span className="ms-info-label">Case No.</span>
-          <span className="ms-info-colon">:</span>
+      <div className={styles.patientInfo}>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Case No.</span>
+          <span className={styles.infoColon}>:</span>
           <span>{caseNum}</span>
         </div>
-        <div className="ms-info-row">
-          <span className="ms-info-label">Hospital No.</span>
-          <span className="ms-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Hospital No.</span>
+          <span className={styles.infoColon}>:</span>
           <span>{hospitalNo}</span>
         </div>
-        <div className="ms-info-row">
-          <span className="ms-info-label">Patient's Name</span>
-          <span className="ms-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Patient's Name</span>
+          <span className={styles.infoColon}>:</span>
           <span>{name}</span>
         </div>
-        <div className="ms-info-row">
-          <span className="ms-info-label">Sex</span>
-          <span className="ms-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Sex</span>
+          <span className={styles.infoColon}>:</span>
           <span>{sex}</span>
         </div>
-        <div className="ms-info-row">
-          <span className="ms-info-label">Age</span>
-          <span className="ms-info-colon">:</span>
+        <div className={styles.infoRow}>
+          <span className={styles.infoLabel}>Age</span>
+          <span className={styles.infoColon}>:</span>
           <span>{age}</span>
         </div>
-      </div>
-
-      {/* ── Footer ── */}
-      <div className="ms-footer">
-        Generated by: {generatedBy} on {generatedOn}
       </div>
 
     </div>

@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import "./AldreteScore.css";
+import React, { useMemo, Fragment } from "react";
+import styles from "./AldreteScore.module.css";
 
 export default function AldreteScore({ patientName, patientData }) {
   const name = patientName || patientData?.patientName || patientData?.fullName || "";
@@ -8,20 +8,18 @@ export default function AldreteScore({ patientName, patientData }) {
   const sex = patientData?.sex || "";
   const room = patientData?.room || patientData?.ward || "";
 
-  const { dateTimeStr, generatedOn } = useMemo(() => {
+  const { dateTimeStr } = useMemo(() => {
     const now = new Date();
     const pad = (n) => String(n).padStart(2, "0");
     const h = now.getHours();
     const m = now.getMinutes();
     const hh = String(h % 12 || 12).padStart(2, "0");
-    const ampm = h < 12 ? "am" : "pm";
     const AMPM = h < 12 ? "AM" : "PM";
 
     const dateStr = now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     const timeStr = `${hh}:${pad(m)} ${AMPM}`;
     const dateTimeStr = `Date: ${dateStr} Time: ${timeStr}`;
-    const generatedOn = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${hh}:${pad(m)} ${ampm}`;
-    return { dateTimeStr, generatedOn };
+    return { dateTimeStr };
   }, []);
 
   const categories = [
@@ -68,35 +66,41 @@ export default function AldreteScore({ patientName, patientData }) {
   ];
 
   return (
-    <div className="ald-page">
-      <br />
-
-      {/* ── Header ── */}
-      <div className="ald-header">
-        <div className="ald-header-grid">
-          <div className="ald-header-cell">
-            <span className="ald-bold">Case Number:</span>&nbsp;{caseNum}
-          </div>
-          <div className="ald-header-cell">
-            <span className="ald-bold">Age:</span>&nbsp;{age}
-          </div>
-          <div className="ald-header-cell">
-            <span className="ald-bold">Name of Patient:</span>&nbsp;{name}
-          </div>
-          <div className="ald-header-cell">
-            <span className="ald-bold">Sex:</span>&nbsp;{sex}
-          </div>
-          <div className="ald-header-cell ald-header-cell--full">
-            <span className="ald-bold">ROOM:</span>&nbsp;{room}
-          </div>
+    <div className={styles.page}>
+      
+      {/* ── Header (Standardized to Blood Request style) ── */}
+      <div className={styles.metaSection}>
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+            <span className={styles.label}>Name of Patient:</span>
+            <span>{name}</span>
+          </span>
+          <span className={styles.metaCell} style={{ flex: 1, justifyContent: "center" }}>
+            <span className={styles.label}>Sex:</span>
+            <span>{sex}</span>
+          </span>
+          <span className={styles.metaCell} style={{ flex: 1, justifyContent: "flex-end" }}>
+            <span className={styles.label}>Age:</span>
+            <span>{age}</span>
+          </span>
+        </div>
+        <div className={styles.metaRow}>
+          <span className={`${styles.metaCell} ${styles.metaCellWide}`}>
+            <span className={styles.label}>Case Number:</span>
+            <span>{caseNum}</span>
+          </span>
+          <span className={`${styles.metaCell} ${styles.metaCellRest}`} style={{ flex: 1, justifyContent: "flex-end" }}>
+            <span className={styles.label}>ROOM:</span>
+            <span>{room}</span>
+          </span>
         </div>
       </div>
 
       {/* ── Discharge note ── */}
-      <div className="ald-note">*Patient discharged when the score is 10</div>
+      <div className={styles.note}>*Patient discharged when the score is 10</div>
 
       {/* ── Score table ── */}
-      <table className="ald-table">
+      <table className={styles.table}>
         <thead>
           <tr>
             <th style={{ textAlign: "left", width: "80%" }}></th>
@@ -105,41 +109,35 @@ export default function AldreteScore({ patientName, patientData }) {
         </thead>
         <tbody>
           {categories.map((cat, ci) => (
-            <>
+            <Fragment key={`cat-group-${ci}`}>
               {/* Category header row */}
-              <tr key={`cat-${ci}`} className="ald-cat-row">
+              <tr className={styles.catRow}>
                 <td colSpan={2}>{cat.name}</td>
               </tr>
               {/* Item rows */}
               {cat.items.map((item, ii) => (
-                <tr key={`item-${ci}-${ii}`} className="ald-item-row">
+                <tr key={`item-${ci}-${ii}`} className={styles.itemRow}>
                   <td>{item.label}</td>
                   <td>{item.value}</td>
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
           {/* Total row */}
-          <tr className="ald-total-row">
+          <tr className={styles.totalRow}>
             <td>Total</td>
             <td></td>
           </tr>
         </tbody>
       </table>
-      <br />
 
-      {/* ── Signature ── */}
-      <div className="ald-sig-section">
-        <div className="ald-sig-block">
-          <div className="ald-sig-line" />
-          <div className="ald-sig-label">Signature over Printed Name of PACU Nurse</div>
-          <div className="ald-sig-date">{dateTimeStr}</div>
+      {/* ── Signature (Standardized to Blood Request style) ── */}
+      <div className={styles.sigSection}>
+        <div className={styles.sigBlock}>
+          <div className={styles.sigLine} />
+          <div className={styles.sigLabel}>Signature over Printed Name of PACU Nurse</div>
+          <div className={styles.sigDate}>{dateTimeStr}</div>
         </div>
-      </div>
-
-      {/* ── Footer ── */}
-      <div className="ald-footer">
-        Generated by: TCP T. TCP on {generatedOn}
       </div>
 
     </div>

@@ -1,33 +1,8 @@
-import { useEffect, useMemo } from 'react';
-import './NeuroVitalSignsLessThan.css';
+import { useMemo } from 'react';
 import chartPlaceholderSrc from './img/NEURO VITAL SIGNS STATUS.png';
+import styles from './NeuroVitalSignsMoreThan.module.css';
 
-const PRINT_STYLE_ID = 'neuro-print-clamp';
-
-const injectPrintClamp = () => {
-  if (document.getElementById(PRINT_STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = PRINT_STYLE_ID;
-  style.textContent = `
-    @media print {
-      @page { size: A4; margin: 0; }
-      html, body, #root {
-        height: 297mm !important;
-        max-height: 297mm !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-};
-
-const removePrintClamp = () => {
-  document.getElementById(PRINT_STYLE_ID)?.remove();
-};
-
-const NeuroVitalSignsLessThan = ({ patientName, patientData }) => {
+const NeuroVitalSignsMoreThan = ({ patientName, patientData }) => {
   const caseNum = patientData?.caseNum || "";
   const hospitalNo = patientData?.hospitalNo || "";
   const name = patientName || "";
@@ -35,84 +10,70 @@ const NeuroVitalSignsLessThan = ({ patientName, patientData }) => {
   const age = patientData?.age || "";
   const date = patientData?.date || "";
 
-  const patientFields = [
-    { label: 'Case Number:', value: caseNum },
-    { label: 'Hospital No.', value: hospitalNo },
-  ];
-
-  const { generatedOn, generatedBy } = useMemo(() => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const timeStr = now.toLocaleTimeString("en-US", {
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    }).toLowerCase();
-    return {
-      generatedOn: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${timeStr}`,
-      generatedBy: "TCP T. TCP"
-    };
-  }, []);
-  useEffect(() => {
-    injectPrintClamp();
-    return () => removePrintClamp();
-  }, []);
 
   return (
-    <div className="neuro-vital-signs-container">
-      <div className="neuro-vital-signs">
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+          
+          {/* Preserved spacer for hospital letterhead */}
+          <div className={styles.headerSpacer} aria-hidden="true" />
 
-        <section className="form-intro" aria-label="Form title and patient details">
-          <div className="patient-meta patient-meta-grid">
-
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">{patientFields[0].label}</span>
-              <span className="meta-value meta-value-inline">{patientFields[0].value}</span>
+          {/* META SECTION - Standardized Header */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNum}</span>
+              </span>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>Hospital No.:</span>
+                <span>{hospitalNo}</span>
+              </span>
             </div>
 
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">{patientFields[1].label}</span>
-              <span className="meta-value meta-value-inline">{patientFields[1].value}</span>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell} style={{ flex: 1 }}>
+                <span className={styles.label}>NAME OF PATIENT:</span>
+                <span>{name}</span>
+              </span>
+              <span className={styles.metaCell} style={{ width: '75mm' }}>
+                <span className={styles.label}>PHYSICIAN:</span>
+                <span className={styles.lineFill} />
+              </span>
             </div>
 
-            <div className="meta-row meta-row-split">
-              <div className="meta-left-block">
-                <span className="meta-label">NAME OF PATIENT:</span>
-                <span className="meta-value meta-value-name">{name}</span>
-              </div>
-              <div className="meta-right-block meta-right-physician">
-                <span className="meta-label">PHYSICIAN:</span>
-                <span className="meta-line-fill" />
-              </div>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Room:</span>
+                <span>{room}</span>
+              </span>
             </div>
 
-            <div className="meta-row meta-row-left">
-              <span className="meta-label">Room: {room}</span>
+            <div className={styles.metaRowSpaceBetween}>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Age:</span>
+                <span>{age}</span>
+              </span>
+              <span className={styles.metaCell}>
+                <span className={styles.label}>Date:</span>
+                <span>{date}</span>
+              </span>
             </div>
-
-            <div className="meta-row meta-row-split meta-row-age-date">
-              <div className="meta-left-block">
-                <span className="meta-label">Age:</span>
-                <span className="meta-value meta-value-inline">{age}</span>
-              </div>
-              <div className="meta-right-block meta-right-physician">
-                <span className="meta-label">Date: {date}</span>
-              </div>
-            </div>
-
           </div>
-        </section>
 
-        <section className="chart-section" aria-label="Neuro vital signs chart image">
-          <img
-            src={chartPlaceholderSrc}
-            alt="Neuro vital signs status chart"
-            className="chart-image"
-          />
-        </section>
-
-        <div className="form-footer">Generated by: {generatedBy} on {generatedOn}</div>
+          {/* CHART SECTION - Auto-scales to fill 1 page */}
+          <section className={styles.chartSection} aria-label="Neuro vital signs chart">
+            <img
+              src={chartPlaceholderSrc}
+              alt="Neuro vital signs status chart"
+              className={styles.chartImage}
+            />
+          </section>
+        </div>
       </div>
     </div>
   );
 };
 
-export default NeuroVitalSignsLessThan;
+export default NeuroVitalSignsMoreThan;

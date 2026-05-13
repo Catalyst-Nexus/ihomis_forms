@@ -1,40 +1,37 @@
 import { useRef } from 'react';
 import './Modal.css';
+import { printForms as nativePrintForms } from '../../lib/printController.jsx';
 
-export default function Modal({ isOpen, onClose, title, children }) {
+export default function Modal({ isOpen, onClose, title, formConfig, patientName, patientData, children }) {
   const contentRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const handlePrint = () => {
-    if (!contentRef.current) return;
+  const handlePrint = async () => {
+    if (!formConfig) return;
 
-    let printContainer = document.getElementById('print-container');
-    if (!printContainer) {
-      printContainer = document.createElement('div');
-      printContainer.id = 'print-container';
-      document.body.appendChild(printContainer);
+    // Build form config for print controller
+    const formConfigs = [{
+      id: formConfig.id || 'modal-form',
+      component_name: formConfig.component_name,
+      description: formConfig.description || title,
+    }];
+
+    try {
+      // Use the same print controller as the bulk print - ensures consistent A4 sandboxing
+      await nativePrintForms(formConfigs, {
+        patientName,
+        patientData,
+        onBeforePrint: () => {
+          console.log('Modal print: Opening print dialog');
+        },
+        onAfterPrint: () => {
+          console.log('Modal print: Print job completed');
+        },
+      });
+    } catch (error) {
+      console.error('Modal print error:', error);
     }
-
-    const printableRoot = contentRef.current.firstElementChild
-      ? contentRef.current.firstElementChild.cloneNode(true)
-      : contentRef.current.cloneNode(true);
-
-    const previousTitle = document.title;
-    document.title = '';
-
-    printContainer.replaceChildren(printableRoot);
-
-    const cleanup = () => {
-      document.title = previousTitle;
-      printContainer.replaceChildren();
-    };
-
-    window.addEventListener('afterprint', cleanup, { once: true });
-
-    requestAnimationFrame(() => {
-      window.print();
-    });
   };
 
   return (

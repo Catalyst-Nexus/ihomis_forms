@@ -1,0 +1,170 @@
+/* AldreteScore CSS Module */
+/* NO global selectors */
+
+/* ─── PAGE ────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 10mm 15mm 20mm 15mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt; /* Standardized for clean print */
+  line-height: 1.35;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── META / HEADER ───────────────────────────────────────── */
+.metaSection {
+  margin-bottom: 2.5mm;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.metaCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.metaCellWide {
+  min-width: 280px;
+}
+
+.metaCellRest {
+  flex: 1;
+}
+
+.label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─── DISCHARGE NOTE ──────────────────────────────────────── */
+.note {
+  font-style: italic;
+  margin-bottom: 2mm;
+}
+
+/* ─── SCORE TABLE ─────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 4mm;
+}
+
+.table td,
+.table th {
+  border: 1px solid #000;
+  padding: 1.5mm 3mm;
+  vertical-align: middle;
+}
+
+.table th {
+  font-weight: bold;
+  background: #fff;
+}
+
+/* Category row */
+.catRow td {
+  font-weight: bold;
+  background: #fff;
+}
+
+/* Item row */
+.itemRow td:first-child {
+  padding-left: 8mm;
+}
+
+.itemRow td:last-child {
+  text-align: center;
+}
+
+/* Total row */
+.totalRow td {
+  font-weight: bold;
+}
+
+.totalRow td:last-child {
+  text-align: center;
+}
+
+/* ─── SIGNATURE ───────────────────────────────────────────── */
+.sigSection {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8mm;
+  margin-bottom: 2mm;
+}
+
+.sigBlock {
+  width: 70mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sigLine {
+  border-bottom: 1px solid #000;
+  width: 100%;
+  min-height: 1.6rem;
+}
+
+.sigLabel {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  text-align: center;
+  width: 100%;
+}
+
+.sigDate {
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .page {
+    width: 100%;
+    min-height: auto;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .metaCellWide {
+    min-width: auto;
+  }
+}
+
+/* ─── PRINT ───────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm; /* Standardized hardware margin */
+  }
+
+  .page {
+    margin: 0;
+    padding: 10mm 15mm 20mm 15mm;
+    box-shadow: none;
+    width: 210mm;
+    min-height: 297mm;
+    height: 297mm;
+  }
+
+  /* Prevent awkward page breaks inside table rows just in case */
+  .catRow, .itemRow {
+    page-break-inside: avoid;
+  }
+}

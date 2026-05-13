@@ -1,213 +1,222 @@
 import PropTypes from "prop-types";
 import { useMemo } from "react";
-import './CardioPulmonaryClearance.css';
-
-const formatGeneratedOn = (date = new Date()) => {
-  const pad = (value) => String(value).padStart(2, "0");
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  const hour12 = String(hours % 12 || 12).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${hour12}:${pad(minutes)} ${ampm}`;
-};
+import styles from './CardioPulmonaryClearance.module.css';
 
 export default function CardioPulmonaryClearance({ patientData = {} }) {
-  const caseNumber        = patientData?.caseNumber        || "";
-  const from_             = patientData?.from              || "MEDICAL";
-  const department        = patientData?.department        || "";
-  const date              = patientData?.date              || "";
-  const hospitalNo        = patientData?.hospitalNo        || "";
-  const patientName       = patientData?.patientName       || "";
-  const sex               = patientData?.sex               || "";
-  const age               = patientData?.age               || "";
+  const caseNumber         = patientData?.caseNumber        || "";
+  const from_              = patientData?.from              || "MEDICAL";
+  const department         = patientData?.department        || "";
+  const date               = patientData?.date              || "";
+  const hospitalNo         = patientData?.hospitalNo        || "";
+  const patientName        = patientData?.patientName       || "";
+  const sex                = patientData?.sex               || "";
+  const age                = patientData?.age               || "";
   const surgeryContemplated   = patientData?.surgeryContemplated   || "";
   const anesthesiaContemplated = patientData?.anesthesiaContemplated || "";
-  const generatedBy       = patientData?.generatedBy       || "TCP T. TCP";
-  const generatedOn       = useMemo(
-    () => patientData?.generatedOn || formatGeneratedOn(),
-    [patientData?.generatedOn]
-  );
+  const generatedBy        = patientData?.generatedBy       || "TCP T. TCP";
 
   return (
-    <div className="cardio-clearance-page">
-      <div className="cardio-clearance-main">
-        <br />
-        <div className="cardio-top-section">
-          <div className="cardio-top-row">
-            <span className="cardio-label">Case Number:</span>
-            <span>{caseNumber}</span>
+    <div className={styles.wrap}>
+      <div className={styles.page}>
+        <div className={styles.main}>
+          {/* META SECTION (Strict 2-Column) */}
+          <div className={styles.metaSection}>
+            <div className={styles.metaRow}>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Case Number:</span>
+                <span>{caseNumber}</span>
+              </span>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>From:</span>
+                <span>{from_}</span>
+              </span>
+            </div>
+
+            <div className={styles.metaRow}>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Hospital No.:</span>
+                <span>{hospitalNo}</span>
+              </span>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Department:</span>
+                {department ? <span>{department}</span> : <span className={`${styles.line} ${styles.lineXl}`} />}
+              </span>
+            </div>
+
+            <div className={styles.metaRow}>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Patient Name:</span>
+                <span>{patientName}</span>
+              </span>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Date:</span>
+                <span>{date}</span>
+              </span>
+            </div>
+
+            <div className={styles.metaRow}>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Sex:</span>
+                <span>{sex}</span>
+              </span>
+              <span className={styles.metaCellHalf}>
+                <span className={styles.label}>Age:</span>
+                <span>{age ? `${age} year(s)` : ""}</span>
+              </span>
+            </div>
+
+            <div className={styles.metaRowTight}>
+              <span className={styles.metaCellFull}>
+                <span className={styles.label}>Surgery Contemplated:</span>
+                {surgeryContemplated ? <span>{surgeryContemplated}</span> : <span className={`${styles.line} ${styles.lineFill}`} />}
+              </span>
+            </div>
+
+            <div className={styles.metaRowTight}>
+              <span className={styles.metaCellFull}>
+                <span className={styles.label}>Anesthesia Contemplated:</span>
+                {anesthesiaContemplated ? <span>{anesthesiaContemplated}</span> : <span className={`${styles.line} ${styles.lineFill}`} />}
+              </span>
+            </div>
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">From:</span>
-            <span>{from_}</span>
+          {/* REVIEW OF SYSTEMS */}
+          <div className={styles.sectionTitle}>REVIEW OF SYSTEMS:</div>
+
+          {/* Cardiovascular */}
+          <div className={styles.subHeading}>Cardiovascular</div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Hypertension/Hypotension</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Chest Pain</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Exertional Dyspnea</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Orthopnea</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Paroxysmal Nocturnal Dyspnea</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Ankle Swelling</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No</span></div>
+
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Other:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Medications Taken:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Hospital No.:</span>
-            <span>{hospitalNo}</span>
+          {/* Chest & Lungs */}
+          <div className={styles.subHeading}>Chest &amp; Lungs</div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Cough</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Fever</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>(+) Hx of PTB</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Treated?</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Asthma</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Smoker</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOptLong}>[ ] No&nbsp;&nbsp;Pack-years:___</span></div>
+
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Last sick smoke when?</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Department:</span>
-            <span>{department || <span className="cardio-short-line" aria-hidden="true" />}</span>
+          {/* Other Problems */}
+          <div className={styles.subHeading}>Other Problems:</div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Diabetes</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>How long?</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={styles.multiLineLabel}>Medications:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Patient Name:</span>
-            <span className="cardio-name-value">{patientName}</span>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Renal failure</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>on Dialysis:</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Anemia</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Bleeding Tendencies</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Stroke</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+          <div className={styles.checkRow}><span className={styles.checkLabel}>Allergies</span><span className={styles.checkOpt}>[ ] Yes</span><span className={styles.checkOpt}>[ ] No___</span></div>
+
+          {/* PHYSICAL EXAMINATION */}
+          <div className={styles.sectionTitle}>PHYSICAL EXAMINATION</div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>General Survey:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Date:</span>
-            <span>{date}</span>
+          <div className={styles.vitalsRow}>
+            <span>Vital Signs: BP:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span>CHR:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span>RR:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span>TEMP:</span><span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Sex:</span>
-            <span>{sex}</span>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>SHEENT:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>CVS:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Chest/Lungs:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Abdomen:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Extremities:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
           </div>
 
-          <div className="cardio-top-row">
-            <span className="cardio-label">Age:</span>
-            <span>{age ? `${age} year(s)` : ""}</span>
+          {/* LABORATORY DATA */}
+          <div className={styles.sectionTitle}>LABORATORY DATA</div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Chest Xray:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
           </div>
-        </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>ECG:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>CBC:</span>
+            <span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} /><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
 
-        <div className="cardio-top-row">
-          <span className="cardio-label">Surgery Contemplated:</span>
-          <span>{surgeryContemplated || <span className="cardio-long-line" aria-hidden="true" />}</span>
-        </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>Urinalysis:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={styles.multiLineLabel}>ABG:</span><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.multiLineRow}>
+            <span className={styles.multiLineLabel}>RBS/FBS:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span className={styles.multiLineLabel}>S. Electrolytes:</span><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
+          <div className={styles.vitalsRow}>
+            <span>APTT:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span>PTw/INR:</span><span className={`${styles.line} ${styles.lineFill}`} />
+            <span>CTBT:</span><span className={`${styles.line} ${styles.lineFill}`} />
+          </div>
 
-        <div className="cardio-top-row cardio-top-row-last">
-          <span className="cardio-label">Anesthesia Contemplated:</span>
-          <span>{anesthesiaContemplated || <span className="cardio-long-line" aria-hidden="true" />}</span>
-        </div>
-        <br />
+          {/* RECOMMENDATIONS */}
+          <div className={styles.sectionTitle}>RECOMMENDATIONS:</div>
+          <div className={styles.recommendationsBlock}>
+            <span className={`${styles.line} ${styles.lineFill} ${styles.recLine}`} />
+            <span className={`${styles.line} ${styles.lineFill} ${styles.recLine}`} />
+            <span className={`${styles.line} ${styles.lineFill}`} style={{ width: '100%', display: 'block' }} />
+          </div>
 
-        <div className="cardio-section-title">REVIEW OF SYSTEMS:</div>
-
-        <div className="cardio-subheading">Cardiovascular</div>
-        <div className="cardio-check-row"><span>Hypertension/Hypotension</span><span>[ ] Yes</span><span>[ ] No</span></div>
-        <div className="cardio-check-row"><span>Chest Pain</span><span>[ ] Yes</span><span>[ ] No</span></div>
-        <div className="cardio-check-row"><span>Exertional Dyspnea</span><span>[ ] Yes</span><span>[ ] No</span></div>
-        <div className="cardio-check-row"><span>Orthopnea</span><span>[ ] Yes</span><span>[ ] No</span></div>
-        <div className="cardio-check-row"><span>Paroxysmal Nocturnal Dyspnea</span><span>[ ] Yes</span><span>[ ] No</span></div>
-        <div className="cardio-check-row"><span>Ankle Swelling</span><span>[ ] Yes</span><span>[ ] No</span></div>
-
-        <div className="cardio-line-row">
-          <span>Other:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-line-row cardio-line-row-tight">
-          <span>Medications Taken:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-subheading cardio-subheading-gap">Chest &amp; Lungs</div>
-        <div className="cardio-check-row"><span>Cough</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Fever</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>(+) Hx of PTB</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Treated?</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Asthma</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Smoker</span><span>[ ] Yes</span><span>[ ] No&nbsp;&nbsp;Pack-years:___</span></div>
-
-        <div className="cardio-line-row cardio-line-row-double">
-          <span>Last sick smoke when?</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-subheading cardio-subheading-gap">Other Problems:</div>
-        <div className="cardio-check-row"><span>Diabetes</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-
-        <div className="cardio-two-line-row">
-          <span>How long?</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>Medications:</span>
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-check-row"><span>Renal failure</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>on Dialysis:</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Anemia</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Bleeding Tendencies</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Stroke</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-        <div className="cardio-check-row"><span>Allergies</span><span>[ ] Yes</span><span>[ ] No___</span></div>
-
-        <div className="cardio-section-title cardio-section-gap">PHYSICAL EXAMINATION</div>
-        <div className="cardio-three-line-row">
-          <span>General Survey:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-vitals-row">
-          <span>Vital Signs: BP:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>CHR:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>RR:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>TEMP:</span>
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-three-line-row"><span>SHEENT:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>CVS:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>Chest/Lungs:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>Abdomen:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>Extremities:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-
-        <div className="cardio-section-title cardio-section-gap">LABORATORY DATA</div>
-        <div className="cardio-three-line-row"><span>Chest Xray:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>ECG:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-        <div className="cardio-three-line-row"><span>CBC:</span><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /><span className="cardio-line" aria-hidden="true" /></div>
-
-        <div className="cardio-two-line-row">
-          <span>Urinalysis:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>ABG:</span>
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-two-line-row">
-          <span>RBS/FBS:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>S. Electrolytes:</span>
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-lab-triple-row">
-          <span>APTT:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>PTw/INR:</span>
-          <span className="cardio-line" aria-hidden="true" />
-          <span>CTBT:</span>
-          <span className="cardio-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-section-title cardio-section-gap">RECOMMENDATIONS:</div>
-        <div className="cardio-recommendations-block">
-          <span className="cardio-recommendations-line" aria-hidden="true" />
-          <span className="cardio-recommendations-line" aria-hidden="true" />
-          <span className="cardio-recommendations-line" aria-hidden="true" />
-        </div>
-
-        <div className="cardio-physician-wrap">
-          <div className="cardio-physician-line" aria-hidden="true" />
-          <div className="cardio-physician-label">NAME &amp; SIGNATURE OF PHYSICIAN</div>
+          {/* PHYSICIAN SIGNATURE */}
+          <div className={styles.physicianWrap}>
+            <span className={`${styles.line} ${styles.lineFill}`} style={{ width: '100%', display: 'block' }} />
+            <div className={styles.physicianLabel}>NAME &amp; SIGNATURE OF PHYSICIAN</div>
+          </div>
         </div>
       </div>
-
-      <div className="cardio-footer">Generated by: {generatedBy} on {generatedOn}</div>
     </div>
   );
 }
@@ -224,7 +233,5 @@ CardioPulmonaryClearance.propTypes = {
     age:                     PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     surgeryContemplated:     PropTypes.string,
     anesthesiaContemplated:  PropTypes.string,
-    generatedOn:             PropTypes.string,
-    generatedBy:             PropTypes.string,
   }),
 };
