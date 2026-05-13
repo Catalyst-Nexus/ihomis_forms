@@ -795,7 +795,7 @@ export default function Tagging({
             <small>
               Viewing as: <strong>{taggingUserName?.toUpperCase()}</strong>
               {taggedUsers.find(t => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
-                <span className="badge-super">1ST TAG USER</span>
+                <span className="badge-super">SUPER USER</span>
               )}
               {" · "}
               <button type="button" className="tg-switch-user-link" onClick={handleSwitchUser}>
