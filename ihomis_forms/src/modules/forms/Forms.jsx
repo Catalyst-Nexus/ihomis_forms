@@ -5,151 +5,9 @@ import Modal from "./Modal";
 import { supabase } from "../../lib/supabaseClient.js";
 // Native Browser Print imports
 import { printForms as nativePrintForms } from "../../lib/printController.jsx";
-import DNRForm from "./DNRForm";
+import { getComponentProps, getFormComponent } from "../../lib/formRegistry.js";
 import FormDocument from "../components/FormDocument.jsx";
-import ApgarScoring from "./ApgarScoring";
-import BTLConsent from "./BTLConsent";
-import CardioPulmonaryClearance from "./CardioPulmonaryClearance";
-import BloodCancellation from "./BloodCancellation";
-import BloodRequestAdult from "./BloodRequestAdult";
-import BloodRequestPediatric from "./BloodRequestPediatric";
-import BloodTransfusionReactionRegistry from "./BloodTransfusionReactionRegistry";
-import Abtcform from "./Abtcform";
-import BloodtransfusionSheet from "./BloodTransfusionSheet";
-import ClinicalReferralSlip from "./ClinicalReferralSlip";
-import ClinicalCoverSheet from "./ClinicalCoverSheet";
-import RandomBloodSugar from "./RandomBloodSugar";
-import DoctorsOrder from "./DoctorsOrder";
-import OxygenConsumptionSheet from "./OxygenConsumptionSheet";
-import OtherLaboratoryRequest from "./OtherLaboratoryRequest";
-import ConsentToCare from "./ConsentToCare";
-import RefusalToTreatment from "./RefusalToTreatment";
-import IntakeOutputSheet from "./IntakeOutputSheet";
-import CertificateOfNoVacancy from "./CertificateOfNoVacancy";
-import FamilyPlanning from "./FamilyPlanning";
-import KardexSheet from "./KardexSheet";
-import NewbornTag from "./NewbornTag";
-import LaboratoryRequestOutside from "./LaboratoryRequestOutside";
-import WardPreference from "./WardPreference";
-import CertificatePatientWardPreference from "./CertificatePatientWardPreference";
-import ClaimOfCadaver from "./ClaimOfCadaver";
-import DischargePlanReferralSlip from "./DischargePlanReferralSlip";
-import ConsentToSurgery from "./ConsentToSurgery";
-import IVFSheet from "./IVFSheet";
-import CommitmentToBreastfeeding from "./CommitmentToBreastfeeding";
-import NewbornPhysicalExamination from "./NewbornPhysicalExamination";
-import NewbornDailyWeightAbdominalGirth from "./NewbornDailyWeightAbdominalGirth";
-import SpecialEndorsement from "./SpecialEndorsement";
-import SurgicalMemorandum from "./SurgicalMemorandum";
-import SurgicalMemorandumUmbiCat from "./SurgicalMemorandumUmbiCat";
-import SpongeCountSheet from "./SpongeCountSheet";
-import PhototherapyForm from "./PhototherapyForm";
-import NursesNotes from "./NursesNotes";
-import OtoacousticEmissionResults from "./OtoacousticEmissionResults";
-import MedicalAbstractDischargeSummary from "./MedicalAbstractDischargeSummary";
-import ECGTracing from "./ECGTracing";
-import PreOperativeChecklist from "./PreOperativeChecklist";
-import IsolationRecommendation from "./IsolationRecommendation";
-import DAMAForm from "./DAMAForm";
-import HistopathologyCytology from "./HistopathologyCytology";
-import LaboratoryResults from "./LaboratoryResults";
-import ChestTubeThoracostomy from "./ChestTubeThoracostomy";
-import BallardScore from "./BallardScore";
-import NeuroVitalSignsLessThan from "./NeuroVitalSignsLessThan";
-import NeuroVitalSignsMoreThan from "./NeuroVitalSignsMoreThan";
-import Neurologic from "./Neurologic";
-import Partograph from "./Partograph";
-import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
-import Lubchenco from "./Lubchenco";
-import AnesthesiaRecord from "./AnesthesiaRecord";
-import ChildImmunizationRecord from "./ChildImmunizationRecord";
-import MIS from "./MIS";
-import TPRSheet from "./TPRSheet";
-import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
-import RequestBloodCompatibility from "./RequestBloodCompatibility";
-import RadiologyRequestOutside from "./RadiologyRequestOutside";
-import PagtugotWaiver from "./PagtugotWaiver";
-import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
-import MonitoringSheet from "./MonitoringSheet";
-import MedicationSheet from "./MedicationSheet";
-import DoctorsOrderPedia from "./DoctorsOrderPedia";
-import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
-import AldreteScore from "./AldreteScore";
-
-// Component map for dynamic form rendering
-const COMPONENT_MAP = {
-  DNRForm,
-  ApgarScoring,
-  BTLConsent,
-  CardioPulmonaryClearance,
-  BloodCancellation,
-  BloodRequestAdult,
-  BloodRequestPediatric,
-  BloodTransfusionReactionRegistry,
-  Abtcform,
-  BloodtransfusionSheet,
-  // Alias for database component_name
-  BloodTransfusionSheet: BloodtransfusionSheet,
-  ClinicalReferralSlip,
-  ClinicalCoverSheet,
-  RandomBloodSugar,
-  DoctorsOrder,
-  OxygenConsumptionSheet,
-  OtherLaboratoryRequest,
-  ConsentToCare,
-  RefusalToTreatment,
-  IntakeOutputSheet,
-  CertificateOfNoVacancy,
-  FamilyPlanning,
-  KardexSheet,
-  NewbornTag,
-  LaboratoryRequestOutside,
-  WardPreference,
-  CertificatePatientWardPreference,
-  ClaimOfCadaver,
-  DischargePlanReferralSlip,
-  ConsentToSurgery,
-  IVFSheet,
-  CommitmentToBreastfeeding,
-  NewbornPhysicalExamination,
-  NewbornDailyWeightAbdominalGirth,
-  SpecialEndorsement,
-  SurgicalMemorandum,
-  SurgicalMemorandumUmbiCat,
-  SpongeCountSheet,
-  PhototherapyForm,
-  NursesNotes,
-  OtoacousticEmissionResults,
-  MedicalAbstractDischargeSummary,
-  ECGTracing,
-  PreOperativeChecklist,
-  IsolationRecommendation,
-  DAMAForm,
-  HistopathologyCytology,
-  LaboratoryResults,
-  ChestTubeThoracostomy,
-  BallardScore,
-  NeuroVitalSignsLessThan,
-  NeuroVitalSignsMoreThan,
-  Neurologic,
-  Partograph,
-  PostAnesthesiaSheet,
-  Lubchenco,
-  AnesthesiaRecord,
-  ChildImmunizationRecord,
-  MIS,
-  TPRSheet,
-  SurgicalSafetyChecklist,
-  RequestBloodCompatibility,
-  RadiologyRequestOutside,
-  PagtugotWaiver,
-  NewbornPersonalInfoSheet,
-  MonitoringSheet,
-  MedicationSheet,
-  DoctorsOrderPedia,
-  AnimalBiteTreatmentRecord,
-  AldreteScore,
-};
+ 
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -634,7 +492,7 @@ export default function Forms({
   };
 
   const renderFormBody = (formObject) => {
-    const FormComponent = COMPONENT_MAP[formObject.component_name];
+    const FormComponent = getFormComponent(formObject.component_name);
 
     if (!FormComponent) {
       return (
@@ -645,18 +503,7 @@ export default function Forms({
       );
     }
 
-    // Edge case: ApgarScoring uses apiResponse prop
-    if (formObject.component_name === "ApgarScoring") {
-      return <FormComponent apiResponse={patientData} />;
-    }
-
-    // Edge case: ClinicalReferralSlip uses only patientName prop
-    if (formObject.component_name === "ClinicalReferralSlip") {
-      return <FormComponent patientName={patientName} />;
-    }
-
-    // Default: most forms use patientName and patientData props
-    return <FormComponent patientName={patientName} patientData={patientData} />;
+    return <FormComponent {...getComponentProps(formObject.component_name, patientName, patientData)} />;
   };
 
   const renderFormDocument = (formObject) => (
