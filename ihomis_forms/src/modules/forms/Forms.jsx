@@ -400,10 +400,88 @@ ThemeToggle.propTypes = {
   onToggle: PropTypes.func,
 };
 
+const FORMS_LIST = [
+  "ABTC Form",
+  "ABTC Treatment Record",
+  "Advance Directive Do Not Resuscitate (DNR) / Do not Intubate Form",
+  "Aldrete Score (Post Anesthesia Recovery Score) Form",
+  "Anesthesia Record",
+  "APGAR Score Form",
+  "Ballard Score",
+  "Blood Cancellation Form",
+  "Blood Request Form (Adult)",
+  "Blood Request Form (Pedia)",
+  "Blood Transfusion Reaction Registry",
+  "Blood Transfusion Sheet",
+  "BTL Consent Form",
+  "Cardio-Pulmonary Clearance Form",
+  "Certificate of No Vacancy",
+  "Certificate of Patient Ward Preference",
+  "Certificate of Ward Preference",
+  "Certification of Isolation Recommendation",
+  "Chest Tube Thoracostomy Sheet",
+  "Child Immunization Record",
+  "Claim of Cadaver",
+  "Clinical Cover Sheet",
+  "Clinical Referral Slip",
+  "Commitment to Breastfeeding",
+  "Consent to Care",
+  "Consent to Surgery and Anesthesia Form",
+  "Daily Weight and Abdominal Girth",
+  "Discharge Against Medical Advice (DAMA) / Out on Pass Form",
+  "Discharge Plan/Referral Slip",
+  "Doctor's Order (for pedia)",
+  "Doctor's Order Form",
+  "ECG TRACING",
+  "Family Planning",
+  "Histopathology/Cytology Request Form",
+  "Intake and Output Sheet",
+  "IVF Sheet",
+  "Kardex Sheet",
+  "Laboratory Request Form (outside)",
+  "Laboratory Results",
+  "Lubchenco",
+  "Medical Abstract / Discharge Summary Form",
+  "Medication Sheet",
+  "MIS Safety Checklist",
+  "Monitoring Sheet",
+  "Neuro Vital Signs Stats Glasgow Coma Scale Less Than 2 years old",
+  "Neuro Vital Signs Stats Glasgow Coma Scale More Than 2 years old",
+  "Neurologic Examination Form",
+  "Newborn Personal Information Sheet",
+  "Newborn Physical Examination Sheet",
+  "Newborn Tag",
+  "Nurse's Notes Form",
+  "Other Laboratory Request",
+  "Otoacoustic Emission Results",
+  "Oxygen Consumption Sheet",
+  "Pagtugot (Waiver)",
+  "Partograph",
+  "Phototherapy Form",
+  "Post Anesthesia Care Unit Nurse's Notes Form",
+  "Pre-Operative Checklist",
+  "Radiology Request Form (Outside)",
+  "Random Blood Sugar",
+  "Refusal to Treatment and Procedure Form",
+  "Request for Blood Compatibility Testing Form",
+  "Special Endorsements (Transient)",
+  "Sponge Count Sheet",
+  "Surgical Memorandum",
+  "Surgical Memorandum Umbi Cat",
+  "Surgical Safety Checklist",
+  "TPR Sheet",
+];
+
 export default function Forms({
   isDarkMode,
   setIsDarkMode,
   selectedPatient = null,
+  // Optional: initial selected forms (array or Set) applied when component mounts
+  initialSelectedForms = null,
+  // If true and initialSelectedForms provided, auto-open the first selected form
+  autoOpen = false,
+  // Optional callback invoked before generating selected forms: (selectedFormsArray) => void
+  onBeforeGenerate = null,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
@@ -466,6 +544,18 @@ export default function Forms({
       setSelectedForms(new Set(filteredForms.map((form) => form.id)));
     }
   };
+
+  // Apply initial selection when provided from parent (e.g., after validation)
+  useEffect(() => {
+    if (initialSelectedForms) {
+      const setValue = initialSelectedForms instanceof Set ? initialSelectedForms : new Set(initialSelectedForms);
+      setSelectedForms(setValue);
+      if (autoOpen && setValue.size > 0) {
+        setOpenForm(Array.from(setValue)[0]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedForms]);
 
   const getHeaderConfig = (formObject) => {
     if (!formObject) {
@@ -648,7 +738,13 @@ export default function Forms({
               <tr
                 key={form.id}
                 className="form-row"
-                onClick={() => setOpenForm(form)}
+                onClick={() => {
+                  if (typeof onBeforeGenerate === "function") {
+                    onBeforeGenerate([form]);
+                    return;
+                  }
+                  setOpenForm(form);
+                }}
               >
                 <td
                   className="checkbox-col"
@@ -695,4 +791,7 @@ Forms.propTypes = {
     id: PropTypes.string,
     contextParams: PropTypes.object,
   }),
+  initialSelectedForms: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  autoOpen: PropTypes.bool,
+  onBeforeGenerate: PropTypes.func,
 };

@@ -18,18 +18,12 @@ import { useLabUploadWorkflow } from "../hooks/useLabUploadWorkflow.js";
 import usePdfQueue from "../hooks/usePdfQueue.js";
 import PdfCanvasPreview from "./PdfCanvasPreview.jsx";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
+import { fetchPatientUploadedFilesSupabase } from "../api/labUploadSupabase.js";
 import "./LabWorkflowPanel.css";
 
 // Shared status mapping helper used across this component
 function getStatusInfo(status) {
-  const statusMap = {
-    P: { label: "Pending", class: "pending" },
-    D: { label: "Done", class: "done" },
-    C: { label: "Cancelled", class: "cancelled" },
-    IP: { label: "In Progress", class: "progress" },
-    S: { label: "Signed", class: "done" },
-  };
-  return statusMap[status] || { label: status || "Pending", class: "pending" };
+  return { label: status, class: "" };
 }
 
 const STEP_ORDER = ["encounter", "order", "procedure", "upload"];
@@ -168,137 +162,91 @@ WorkflowStepIndicator.propTypes = {
   currentStep: PropTypes.string.isRequired,
 };
 
-function OrderCard({ order, isSelected, onSelect }) {
-  // Get order type label
-  const getOrderTypeLabel = (code) => {
-    const types = {
-      LAB: "Laboratory",
-      RAD: "Radiology",
-      MED: "Medications",
-      PROC: "Procedure",
-      SP: "Supply",
-    };
-    return types[code] || code || "Order";
-  };
+function ProcedureCard({
+  procedure,
+  isSelected,
+  onSelect,
+  pdfCount = 0,
+  onOpenPdfHistory,
+  selectedOrcode = null,
+}) {
+  const dateTime = [procedure.ordate, procedure.ortime]
+    .filter(Boolean)
+    .join(" · ");
 
-  // Get order status
-  const getStatusBadge = (status) => {
-    const statusMap = {
-      P: { label: "Pending", class: "pending" },
-      D: { label: "Done", class: "done" },
-      C: { label: "Cancelled", class: "cancelled" },
-      IP: { label: "In Progress", class: "progress" },
-    };
-    return statusMap[status] || { label: status || "Active", class: "pending" };
-  };
-
-  const orderType = getOrderTypeLabel(order.ordcode);
-  const status = getStatusBadge(order.estatus);
-
-  return (
-    <div
-      className={`lwp-card ${isSelected ? "selected" : ""}`}
-      onClick={() => onSelect(order)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onSelect(order)}
-    >
-      <div className="lwp-card-accent" />
-      <div className="lwp-card-content">
-        <div className="lwp-card-header">
-          <span className="lwp-card-code">{order.orcode}</span>
-          <div className="lwp-card-badges">
-            <span className="lwp-card-badge type">{orderType}</span>
-            <span className={`lwp-card-badge status ${status.class}`}>
-              {status.label}
-            </span>
-          </div>
-        </div>
-        <p className="lwp-card-title">{order.oritem}</p>
-        {order.procdesc && order.procdesc !== order.oritem && (
-          <p className="lwp-card-desc">{order.procdesc}</p>
-        )}
-        <div className="lwp-card-meta">
-          <span className="lwp-meta-item">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            {order.ordate}
-          </span>
-          <span className="lwp-meta-item">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            {order.ortime}
-          </span>
-          {order.entryby && (
-            <span className="lwp-meta-item">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              {order.entryby}
-            </span>
-          )}
-        </div>
-      </div>
-      {isSelected && <div className="lwp-card-check">✓</div>}
-    </div>
-  );
-}
-
-OrderCard.propTypes = {
-  order: PropTypes.object.isRequired,
-  isSelected: PropTypes.bool.isRequired,
-  onSelect: PropTypes.func.isRequired,
-};
-
-function ProcedureCard({ procedure, isSelected, onSelect }) {
   return (
     <div
       role="button"
       tabIndex={0}
-      className={`lwp-card ${isSelected ? "selected" : ""}`}
+      className={`lwp-proc-card ${isSelected ? "selected" : ""}`}
       onClick={() => onSelect && onSelect(procedure)}
       onKeyDown={(e) => e.key === "Enter" && onSelect && onSelect(procedure)}
     >
-      <div className="lwp-card-body">
-        <div className="lwp-card-main">
-          <div className="lwp-card-title">
-            {procedure.procdesc || "Procedure"}
-          </div>
-          <div className="lwp-card-sub">{procedure.ortime || ""}</div>
-        </div>
-        <div className="lwp-card-meta">
-          <span className="lwp-meta-item">{procedure.entryby || ""}</span>
-        </div>
+      <div className="lwp-proc-card-header">
+        <span className="lwp-proc-card-title">
+          {procedure.procdesc || "Procedure"}
+        </span>
+        {procedure.procstat && (
+          <span
+            className={`lwp-proc-card-status ${getStatusInfo(procedure.procstat).class}`}
+          >
+            {procedure.procstat}
+          </span>
+        )}
       </div>
-      {isSelected && <div className="lwp-card-check">✓</div>}
+      <div className="lwp-proc-card-body">
+        {dateTime && (
+          <div className="lwp-proc-card-row">
+            <span className="lwp-proc-card-label">Date:</span>
+            <span className="lwp-proc-card-value">{dateTime}</span>
+          </div>
+        )}
+        {procedure.entryby && (
+          <div className="lwp-proc-card-row">
+            <span className="lwp-proc-card-label">Provider:</span>
+            <span className="lwp-proc-card-value">{procedure.entryby}</span>
+          </div>
+        )}
+        {procedure.proccode && (
+          <div className="lwp-proc-card-row">
+            <span className="lwp-proc-card-label">Proccode:</span>
+            <span className="lwp-proc-card-value lwp-proc-card-code">
+              {procedure.proccode}
+            </span>
+          </div>
+        )}
+      </div>
+      {onOpenPdfHistory && (
+        <button
+          type="button"
+          className="lwp-proc-card-pdf-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenPdfHistory({
+              orcode: selectedOrcode,
+              proccode: procedure.proccode,
+              procedureInstanceId: procedure.docointkey,
+            });
+          }}
+          title="View uploaded PDFs for this procedure"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          {pdfCount > 0
+            ? `${pdfCount} PDF${pdfCount > 1 ? "s" : ""}`
+            : "No PDFs"}
+        </button>
+      )}
+      {isSelected && <div className="lwp-proc-card-check">✓</div>}
     </div>
   );
 }
@@ -307,6 +255,9 @@ ProcedureCard.propTypes = {
   procedure: PropTypes.object.isRequired,
   isSelected: PropTypes.bool,
   onSelect: PropTypes.func,
+  pdfCount: PropTypes.number,
+  onOpenPdfHistory: PropTypes.func,
+  selectedOrcode: PropTypes.string,
 };
 
 export default function LabWorkflowPanel({
@@ -317,6 +268,7 @@ export default function LabWorkflowPanel({
   onRequestPatientChange = null,
   onRequestEncounterChange = null,
   onPreviewFile = null,
+  onOpenPdfHistory = null,
 }) {
   const {
     selectedOrder,
@@ -343,7 +295,44 @@ export default function LabWorkflowPanel({
   // ── Order selection state (two-level) ───────────────────────
   const [selectedOrcode, setSelectedOrcode] = useState(null);
 
+  // ── PDF counts per procedure ─────────────────────────────
+  const [procedurePdfCounts, setProcedurePdfCounts] = useState({});
+
   const enccode = contextParams?.enccode || "";
+  const hpercode =
+    contextParams?.hpercode || patient?.contextParams?.hpercode || "";
+
+  const fetchProcedurePdfCounts = useCallback(async () => {
+    if (!hpercode || !enccode) return;
+
+    try {
+      const response = await fetchPatientUploadedFilesSupabase({
+        hpercode,
+        enccode,
+      });
+
+      const files = response.data || [];
+      const counts = {};
+      files.forEach((file) => {
+        const key =
+          file.procedure_instance_id ||
+          file.docointkey ||
+          file.proccode ||
+          "unknown";
+        counts[key] = (counts[key] || 0) + 1;
+      });
+      setProcedurePdfCounts(counts);
+    } catch {
+      // Silently fail - counts just won't show
+    }
+  }, [hpercode, enccode]);
+
+  useEffect(() => {
+    if (orders.length > 0) {
+      fetchProcedurePdfCounts();
+    }
+  }, [orders, fetchProcedurePdfCounts]);
+
   const facilityName =
     contextParams?.facility_name ||
     patient?.contextParams?.facility_name ||
@@ -412,8 +401,9 @@ export default function LabWorkflowPanel({
         proccode: order.proccode || "",
         procdesc: order.procdesc || order.oritem || "",
         docointkey: order.docointkey,
-        estatus: order.estatus || "",
+        procstat: order.procstat || "",
         ortime: order.ortime || "",
+        ordate: order.ordate || "",
         entryby: order.entryby || "",
       });
     });
@@ -495,6 +485,7 @@ export default function LabWorkflowPanel({
         if (onUploadComplete) {
           onUploadComplete(result);
         }
+        fetchProcedurePdfCounts();
       } catch (err) {
         errors.push({
           fileName: file.name,
@@ -918,11 +909,11 @@ export default function LabWorkflowPanel({
                               {proc.proccode || "N/A"}
                             </span>
                             {(() => {
-                              const s = getStatusInfo(proc.estatus);
+                              const s = getStatusInfo(proc.procstat);
                               return (
                                 <span
                                   className={`lwp-card-badge status ${s.class}`}
-                                  title={proc.estatus || s.label}
+                                  title={proc.procstat || s.label}
                                 >
                                   {s.label}
                                 </span>
@@ -1017,7 +1008,7 @@ export default function LabWorkflowPanel({
             </span>
           </div>
 
-          <div className="lwp-card-grid">
+          <div className="lwp-proc-grid">
             {selectedOrcodeDetails?.procedures.map((proc, idx) => {
               const fullOrder = orders.find(
                 (o) => o.docointkey === proc.docointkey,
@@ -1026,6 +1017,7 @@ export default function LabWorkflowPanel({
                 orcode: selectedOrcode,
                 enccode: contextParams?.enccode || "",
               };
+              const pdfCount = procedurePdfCounts[proc.docointkey] || 0;
               return (
                 <ProcedureCard
                   key={proc.docointkey || idx}
@@ -1034,6 +1026,9 @@ export default function LabWorkflowPanel({
                   onSelect={() => {
                     setSelectedOrder(fullOrder);
                   }}
+                  onOpenPdfHistory={onOpenPdfHistory}
+                  selectedOrcode={selectedOrcode}
+                  pdfCount={pdfCount}
                 />
               );
             })}
@@ -1091,18 +1086,27 @@ export default function LabWorkflowPanel({
             {/* Order Info Card */}
             <div className="lwp-info-card">
               <div className="lwp-info-card-header">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-                <span>Order Details</span>
+                <div className="lwp-info-card-header-left">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  <span>Order Details</span>
+                </div>
+                {selectedOrder?.procstat && (
+                  <span
+                    className={`lwp-info-badge ${getStatusInfo(selectedOrder?.procstat).class}`}
+                  >
+                    {selectedOrder?.procstat}
+                  </span>
+                )}
               </div>
               <div className="lwp-info-card-body">
                 <div className="lwp-info-row">
@@ -1112,31 +1116,21 @@ export default function LabWorkflowPanel({
                   </span>
                 </div>
                 <div className="lwp-info-row">
-                  <span className="lwp-info-label">Order Item</span>
-                  <span className="lwp-info-value">
-                    {selectedOrder?.oritem || "—"}
-                  </span>
-                </div>
-                <div className="lwp-info-row">
                   <span className="lwp-info-label">Procedure</span>
                   <span className="lwp-info-value">
                     {selectedOrder?.procdesc || selectedOrder?.oritem || "—"}
                   </span>
                 </div>
-                <div className="lwp-info-row">
-                  <span className="lwp-info-label">Status</span>
-                  {(() => {
-                    const s = getStatusInfo(selectedOrder?.estatus);
-                    return (
-                      <span
-                        className={`lwp-info-badge ${s.class}`}
-                        title={selectedOrder?.estatus || s.label}
-                      >
-                        {s.label}
-                      </span>
-                    );
-                  })()}
-                </div>
+                {(selectedOrder?.ordate || selectedOrder?.ortime) && (
+                  <div className="lwp-info-row">
+                    <span className="lwp-info-label">Procedure Date</span>
+                    <span className="lwp-info-value">
+                      {[selectedOrder?.ordate, selectedOrder?.ortime]
+                        .filter(Boolean)
+                        .join(" · ") || "—"}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1546,4 +1540,5 @@ LabWorkflowPanel.propTypes = {
   onRequestPatientChange: PropTypes.func,
   onRequestEncounterChange: PropTypes.func,
   onPreviewFile: PropTypes.func,
+  onOpenPdfHistory: PropTypes.func,
 };

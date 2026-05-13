@@ -98,10 +98,10 @@ export default function TaggingUserPicker({
                   className={`tg-up-user-btn${chosen === u.id ? " tg-up-user-btn--selected" : ""}`}
                   onClick={() => setChosen(u.id)}
                 >
-                  <span className="tg-up-avatar" aria-hidden="true">
+                  <span className="tg-up-avatar" style={{ fontFamily: "inherit" }} aria-hidden="true">
                     {u.label.charAt(0).toUpperCase()}
                   </span>
-                  <span className="tg-up-user-name">{u.label.toUpperCase()}</span>
+                  <span className="tg-up-user-name" style={{ fontFamily: "inherit" }}>{u.label.toUpperCase()}</span>
                   {chosen === u.id && (
                     <span className="tg-up-check" aria-hidden="true">✓</span>
                   )}

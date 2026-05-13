@@ -8,6 +8,7 @@ import {
 import {
   canUseSupabaseUploads,
   fetchPatientUploadedFilesSupabase,
+  softDeleteLabResult,
 } from "../api/labUploadSupabase.js";
 import useLabRequestContext from "../hooks/useLabRequestContext.js";
 import "../LabUploadModule.css";
@@ -31,7 +32,7 @@ function LabUploadModule({
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState("");
   const [historyFiles, setHistoryFiles] = useState([]);
-  const [historyCount, setHistoryCount] = useState(0);
+  const [historyFilter, setHistoryFilter] = useState(null);
   const historyRefreshRequestRef = useRef(0);
 
   const patientName = useMemo(() => {
@@ -130,13 +131,12 @@ function LabUploadModule({
     contextParams?.enccode || selectedContextParams?.enccode || "";
 
   const fetchUploadedPdfHistory = useCallback(
-    async ({ includeFiles = false } = {}) => {
+    async ({ includeFiles = false, filter = null } = {}) => {
       const requestId = historyRefreshRequestRef.current + 1;
       historyRefreshRequestRef.current = requestId;
 
       if (!selectedPatientHpercode || !selectedEnccode) {
         if (historyRefreshRequestRef.current === requestId) {
-          setHistoryCount(0);
           if (includeFiles) {
             setHistoryFiles([]);
             setCurrentPage(1);
@@ -176,8 +176,6 @@ function LabUploadModule({
         const visibleFiles =
           filteredFiles.length > 0 ? filteredFiles : rawFiles;
 
-        setHistoryCount(visibleFiles.length);
-
         if (includeFiles) {
           setHistoryFiles(visibleFiles);
           setCurrentPage(1);
@@ -188,16 +186,24 @@ function LabUploadModule({
       };
 
       try {
-        // Fetch directly from Supabase in the frontend
-        const response = await fetchPatientUploadedFilesSupabase({
+        const fetchParams = {
           hpercode: selectedPatientHpercode,
           enccode: selectedEnccodeRaw,
-        });
+        };
+
+        if (filter) {
+          if (filter.orcode) fetchParams.orcode = filter.orcode;
+          if (filter.proccode) fetchParams.proccode = filter.proccode;
+          if (filter.procedureInstanceId) {
+            fetchParams.procedureInstanceId = filter.procedureInstanceId;
+          }
+        }
+
+        const response = await fetchPatientUploadedFilesSupabase(fetchParams);
 
         return applyResponse(response.data);
       } catch (error) {
         if (historyRefreshRequestRef.current === requestId) {
-          setHistoryCount(0);
           if (includeFiles) {
             setHistoryFiles([]);
             setCurrentPage(1);
@@ -220,30 +226,36 @@ function LabUploadModule({
 
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const openHistoryModal = useCallback(async () => {
-    if (!selectedPatientHpercode) return;
+  const openHistoryModal = useCallback(
+    async (filter = null) => {
+      if (!selectedPatientHpercode) return;
 
-    setIsHistoryModalOpen(true);
+      setHistoryFilter(filter);
+      setIsHistoryModalOpen(true);
 
-    setHistoryLoading(true);
-    setHistoryError("");
+      setHistoryLoading(true);
+      setHistoryError("");
 
-    try {
-      await fetchUploadedPdfHistory({ includeFiles: true });
-    } finally {
-      setHistoryLoading(false);
-    }
-  }, [fetchUploadedPdfHistory, selectedPatientHpercode]);
+      try {
+        await fetchUploadedPdfHistory({ includeFiles: true, filter });
+      } finally {
+        setHistoryLoading(false);
+      }
+    },
+    [fetchUploadedPdfHistory, selectedPatientHpercode],
+  );
 
   const closeHistoryModal = useCallback(() => {
     setIsHistoryModalOpen(false);
+    setHistoryFilter(null);
   }, []);
 
   useEffect(() => {
     // Reset loaded history when the selected patient or encounter changes.
     setHistoryFiles([]);
-    setHistoryCount(0);
     setHistoryError("");
     setIsHistoryModalOpen(false);
   }, [selectedPatientHpercode, selectedEnccode]);
@@ -262,7 +274,7 @@ function LabUploadModule({
       if (!isActive) return;
       setHistoryLoading(true);
       try {
-        await fetchUploadedPdfHistory({ includeFiles: true });
+        await fetchUploadedPdfHistory({ includeFiles: true, filter: historyFilter });
       } finally {
         if (isActive) {
           setHistoryLoading(false);
@@ -277,7 +289,7 @@ function LabUploadModule({
       isActive = false;
       window.clearInterval(intervalId);
     };
-  }, [fetchUploadedPdfHistory, isHistoryModalOpen]);
+  }, [fetchUploadedPdfHistory, isHistoryModalOpen, historyFilter]);
 
   useEffect(() => {
     if (!isHistoryModalOpen) return undefined;
@@ -319,6 +331,46 @@ function LabUploadModule({
     const start = (currentPage - 1) * pageSize;
     return historyFiles.slice(start, start + pageSize);
   }, [historyFiles, currentPage, pageSize]);
+
+  const handleDeleteFile = useCallback(
+    async (fileId) => {
+      if (!fileId || deletingIds.has(fileId)) return;
+
+      setDeleteConfirm({
+        fileId,
+        fileName: pagedFiles.find((f) => f.id === fileId)?.file_name || "this file",
+      });
+    },
+    [deletingIds, pagedFiles],
+  );
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteConfirm) return;
+    const { fileId } = deleteConfirm;
+
+    setDeletingIds((prev) => new Set([...prev, fileId]));
+    setDeleteConfirm(null);
+
+    try {
+      const result = await softDeleteLabResult(fileId);
+      if (result.ok) {
+        setHistoryFiles((prev) => prev.filter((f) => String(f.id) !== String(fileId)));
+      }
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+      setHistoryError(`Delete failed: ${error.message}`);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(fileId);
+        return next;
+      });
+    }
+  }, [deleteConfirm]);
+
+  const cancelDelete = useCallback(() => {
+    setDeleteConfirm(null);
+  }, []);
 
   useLabRequestContext({
     contextUrl: LAB_UPLOAD_CONTEXT_URL,
@@ -433,32 +485,6 @@ function LabUploadModule({
                     </svg>
                     Change Encounter
                   </button>
-                  <button
-                    type="button"
-                    className="lab-action-btn secondary lab-action-btn--history"
-                    onClick={openHistoryModal}
-                    disabled={!selectedPatientHpercode}
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <path d="M8 13h2" />
-                      <path d="M8 17h8" />
-                    </svg>
-                    Uploaded PDFs
-                    <span className="lab-action-btn__count">
-                      {historyCount}
-                    </span>
-                  </button>
                 </div>
               )}
             </div>
@@ -550,6 +576,7 @@ function LabUploadModule({
             onUploadComplete={handleUploadComplete}
             onRequestPatientChange={handleRequestPatientChange}
             onRequestEncounterChange={onRequestEncounterChange}
+            onOpenPdfHistory={openHistoryModal}
           />
         </section>
       </main>
@@ -593,6 +620,11 @@ function LabUploadModule({
                     className="lab-history-modal__title"
                   >
                     Uploaded PDFs
+                    {historyFilter && (
+                      <span className="lab-history-modal__filter-badge">
+                        Filtered
+                      </span>
+                    )}
                   </h2>
                   <div className="lab-history-modal__patient-info">
                     <span className="lab-history-modal__patient-name">
@@ -610,6 +642,22 @@ function LabUploadModule({
                     <span className="lab-history-modal__patient-code">
                       Enc <code>{selectedEnccode || "—"}</code>
                     </span>
+                    {historyFilter && (
+                      <>
+                        <span className="lab-history-modal__patient-separator">
+                          ·
+                        </span>
+                        <span className="lab-history-modal__patient-code">
+                          {historyFilter.orcode && (
+                            <code>{historyFilter.orcode}</code>
+                          )}
+                          {historyFilter.orcode && historyFilter.proccode && " / "}
+                          {historyFilter.proccode && (
+                            <code>{historyFilter.proccode}</code>
+                          )}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -617,7 +665,7 @@ function LabUploadModule({
                 <button
                   type="button"
                   className="lab-action-btn secondary"
-                  onClick={openHistoryModal}
+                  onClick={() => openHistoryModal(historyFilter)}
                   disabled={historyLoading}
                   style={{ padding: "0.375rem 0.75rem", fontSize: "0.75rem" }}
                 >
@@ -795,8 +843,10 @@ function LabUploadModule({
                   )}
 
                   {/* File List */}
-                  <div className="lab-history-list">
-                    {pagedFiles.map((file, index) => {
+                  <div className="lab-history-grid">
+                    {pagedFiles.map((file) => {
+                      const fileId = file.id;
+                      const isDeleting = deletingIds.has(fileId);
                       const docointkey =
                         file.docointkey || file.procedure_instance_id || "—";
                       const orderCode = file.orcode || file.order_code || "—";
@@ -812,46 +862,61 @@ function LabUploadModule({
 
                       return (
                         <article
-                          key={`${docointkey}-${index}`}
-                          className="lab-history-item"
+                          key={fileId}
+                          className="lab-history-card"
                         >
-                          <div
-                            className="lab-history-item__icon"
-                            aria-hidden="true"
-                          >
-                            <svg
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
+                          <div className="lab-history-card__header">
+                            <div
+                              className="lab-history-card__icon"
+                              aria-hidden="true"
                             >
-                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                              <polyline points="14 2 14 8 20 8" />
-                              <line x1="9" y1="13" x2="15" y2="13" />
-                              <line x1="9" y1="17" x2="15" y2="17" />
-                            </svg>
-                          </div>
-
-                          <div className="lab-history-item__content">
-                            <div className="lab-history-item__topline">
-                              <h3>
-                                {formatReadableValue(
-                                  file.file_name || file.fileName,
-                                )}
-                              </h3>
-                              <a
-                                href={file.file_url || file.uploadedPdfUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="lab-history-item__link"
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                               >
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="9" y1="13" x2="15" y2="13" />
+                                <line x1="9" y1="17" x2="15" y2="17" />
+                              </svg>
+                            </div>
+                            <h3 className="lab-history-card__filename">
+                              {formatReadableValue(
+                                file.file_name || file.fileName,
+                              )}
+                            </h3>
+                            <button
+                              type="button"
+                              className="lab-history-card__delete"
+                              onClick={() => handleDeleteFile(fileId)}
+                              disabled={isDeleting}
+                              aria-label="Delete file"
+                              title="Soft delete this file"
+                            >
+                              {isDeleting ? (
                                 <svg
-                                  width="12"
-                                  height="12"
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="lab-history-card__spinner"
+                                >
+                                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  width="14"
+                                  height="14"
                                   viewBox="0 0 24 24"
                                   fill="none"
                                   stroke="currentColor"
@@ -859,74 +924,145 @@ function LabUploadModule({
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                 >
-                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                  <polyline points="15 3 21 3 21 9" />
-                                  <line x1="10" y1="14" x2="21" y2="3" />
+                                  <polyline points="3 6 5 6 21 6" />
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                  <line x1="10" y1="11" x2="10" y2="17" />
+                                  <line x1="14" y1="11" x2="14" y2="17" />
                                 </svg>
-                                Open
-                              </a>
-                            </div>
+                              )}
+                            </button>
+                          </div>
 
-                            <div className="lab-history-item__meta-grid">
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  docointkey
-                                </span>
-                                <code className="lab-history-meta__code">
-                                  {formatReadableValue(docointkey)}
-                                </code>
-                              </div>
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  Order
-                                </span>
-                                <span className="lab-history-meta__value">
-                                  {formatReadableValue(orderCode)}
-                                </span>
-                              </div>
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  Procedure
-                                </span>
-                                <span className="lab-history-meta__value">
-                                  {formatReadableValue(procedureCode)}
-                                </span>
-                              </div>
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  Uploaded
-                                </span>
-                                <span className="lab-history-meta__value">
-                                  {formatHistoryDate(uploadedAt)}
-                                </span>
-                              </div>
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  Uploaded By
-                                </span>
-                                <span className="lab-history-meta__value">
-                                  {formatReadableValue(
-                                    file.uploaded_by ||
-                                      file.uploadedBy ||
-                                      file.source,
-                                  )}
-                                </span>
-                              </div>
-                              <div className="lab-history-meta">
-                                <span className="lab-history-meta__label">
-                                  Remarks
-                                </span>
-                                <span className="lab-history-meta__value">
-                                  {formatReadableValue(remarks)}
-                                </span>
-                              </div>
+                          <div className="lab-history-card__body">
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                docointkey
+                              </span>
+                              <code className="lab-history-card__code">
+                                {formatReadableValue(docointkey)}
+                              </code>
                             </div>
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                Order
+                              </span>
+                              <span className="lab-history-card__value">
+                                {formatReadableValue(orderCode)}
+                              </span>
+                            </div>
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                Procedure
+                              </span>
+                              <span className="lab-history-card__value">
+                                {formatReadableValue(procedureCode)}
+                              </span>
+                            </div>
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                Uploaded
+                              </span>
+                              <span className="lab-history-card__value">
+                                {formatHistoryDate(uploadedAt)}
+                              </span>
+                            </div>
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                By
+                              </span>
+                              <span className="lab-history-card__value">
+                                {formatReadableValue(
+                                  file.uploaded_by ||
+                                    file.uploadedBy ||
+                                    file.source,
+                                )}
+                              </span>
+                            </div>
+                            <div className="lab-history-card__row">
+                              <span className="lab-history-card__label">
+                                Remarks
+                              </span>
+                              <span className="lab-history-card__value">
+                                {formatReadableValue(remarks)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="lab-history-card__footer">
+                            <a
+                              href={file.file_url || file.uploadedPdfUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="lab-history-card__open"
+                            >
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <polyline points="15 3 21 3 21 9" />
+                                <line x1="10" y1="14" x2="21" y2="3" />
+                              </svg>
+                              Open PDF
+                            </a>
                           </div>
                         </article>
                       );
                     })}
                   </div>
                 </>
+              )}
+
+              {deleteConfirm && (
+                <div className="lab-history-confirm-overlay">
+                  <div className="lab-history-confirm-dialog">
+                    <div className="lab-history-confirm-icon">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                    </div>
+                    <h3 className="lab-history-confirm-title">Delete File?</h3>
+                    <p className="lab-history-confirm-message">
+                      Are you sure you want to delete <strong>{deleteConfirm.fileName}</strong>?
+                      This action cannot be undone.
+                    </p>
+                    <div className="lab-history-confirm-actions">
+                      <button
+                        type="button"
+                        className="lab-action-btn secondary"
+                        onClick={cancelDelete}
+                        disabled={deletingIds.size > 0}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="lab-action-btn danger"
+                        onClick={confirmDelete}
+                        disabled={deletingIds.size > 0}
+                      >
+                        {deletingIds.size > 0 ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>

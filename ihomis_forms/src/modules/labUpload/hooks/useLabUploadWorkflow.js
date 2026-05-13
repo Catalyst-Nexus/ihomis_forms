@@ -6,58 +6,35 @@
  *   Step 1: PATIENT_SELECTED  (handled by useLabPatientPicker)
  *   Step 2: ENCOUNTER_SELECTED (handled by useLabPatientPicker)
  *   Step 3: ORDER_SELECTED     ← managed here
- *   Step 4: PROCEDURE_SELECTED ← managed here
- *   Step 5: UPLOAD             ← managed here (calls uploadMappedLabResult)
- *   Step 6: FINALIZED          ← docointkey returned, upload complete
+ *   Step 4: UPLOAD             ← managed here (Supabase-only)
+ *   Step 5: FINALIZED          ← docointkey returned, upload complete
  *
  * Usage:
  *   const {
- *     selectedOrder, selectedProcedure,
- *     orders, procedures,
- *     ordersLoading, proceduresLoading,
- *     ordersError, proceduresError,
+ *     selectedOrder,
+ *     orders,
+ *     ordersLoading,
+ *     ordersError,
  *     uploadResults,
  *     uploading,
  *     workflowError,
- *     setSelectedOrder, setSelectedProcedure,
- *     setProcedures,
+ *     setSelectedOrder,
  *     fetchOrdersForEncounter,
  *     submitLabResult, resetWorkflow,
  *   } = useLabUploadWorkflow();
  */
 
 import { useCallback, useState } from "react";
-import {
-  fetchEncounterOrders,
-  uploadMappedLabResult,
-} from "../api/labUploadApi.js";
-import {
-  canUseSupabaseUploads,
-  uploadLabResult as uploadLabResultToSupabase,
-} from "../api/labUploadSupabase.js";
+import { fetchEncounterOrders } from "../api/labUploadApi.js";
+import { uploadLabResult as uploadLabResultToSupabase } from "../api/labUploadSupabase.js";
 import { normalizeLabContextParams } from "../utils/labUploadUtils.js";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig.js";
 
-export const WORKFLOW_STEPS = {
-  PATIENT_SELECTED: "PATIENT_SELECTED",
-  ENCOUNTER_SELECTED: "ENCOUNTER_SELECTED",
-  ORDER_SELECTED: "ORDER_SELECTED",
-  PROCEDURE_SELECTED: "PROCEDURE_SELECTED",
-  UPLOADING: "UPLOADING",
-  FINALIZED: "FINALIZED",
-};
-
 export function useLabUploadWorkflow() {
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedProcedure, setSelectedProcedure] = useState(null);
-
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState(null);
-
-  const [procedures, setProcedures] = useState([]);
-  const [proceduresLoading, setProceduresLoading] = useState(false);
-  const [proceduresError, setProceduresError] = useState(null);
 
   const [uploadResults, setUploadResults] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -69,8 +46,6 @@ export function useLabUploadWorkflow() {
       setOrdersError(null);
       setOrders([]);
       setSelectedOrder(null);
-      setProcedures([]);
-      setSelectedProcedure(null);
       setWorkflowError(null);
 
       try {
@@ -103,8 +78,6 @@ export function useLabUploadWorkflow() {
       setWorkflowError(null);
 
       try {
-        const token = LAB_UPLOAD_API_TOKEN || contextParams?.token || "";
-
         const enrichedContextParams = {
           ...normalizeLabContextParams(contextParams),
           enccode: selectedOrder?.enccode || contextParams?.enccode || "",
@@ -113,63 +86,37 @@ export function useLabUploadWorkflow() {
           docointkey:
             selectedOrder?.docointkey || contextParams?.docointkey || null,
           procedureInstanceId:
-            selectedProcedure?.procedureInstanceId ||
             contextParams?.procedureInstanceId ||
+            selectedOrder?.docointkey ||
             null,
         };
 
-        let result;
+        const supabaseResult = await uploadLabResultToSupabase({
+          file,
+          contextParams: enrichedContextParams,
+          patient,
+          remarks,
+        });
 
-        try {
-          result = await uploadMappedLabResult({
-            file,
-            contextParams: enrichedContextParams,
-            patient,
-            remarks,
-            token,
-          });
-        } catch (uploadError) {
-          const message =
-            uploadError instanceof Error ? uploadError.message : "";
-          const shouldFallbackToSupabase =
-            canUseSupabaseUploads() &&
-            (/route not found/i.test(message) ||
-              /supabase is not configured/i.test(message) ||
-              /404/.test(message) ||
-              /server error:\s*5\d\d/i.test(message) ||
-              /not found/i.test(message));
-
-          if (!shouldFallbackToSupabase) {
-            throw uploadError;
-          }
-
-          const supabaseResult = await uploadLabResultToSupabase({
-            file,
-            contextParams: enrichedContextParams,
-            patient,
-            remarks,
-          });
-
-          result = {
-            ok: true,
-            docointkey: enrichedContextParams.docointkey || null,
-            uploadedPdfUrl: supabaseResult.uploadedPdfUrl,
-            fileName: file.name,
-            fileSize: file.size,
-            patientId:
-              enrichedContextParams.hpercode ||
-              patient?.rawData?.hpercode ||
-              patient?.contextParams?.hpercode ||
-              null,
-            encounterCode: enrichedContextParams.enccode || null,
-            orderCode: enrichedContextParams.orcode || null,
-            procedureInstanceId:
-              enrichedContextParams.docointkey ||
-              enrichedContextParams.procedureInstanceId ||
-              null,
-            message: "Lab result uploaded successfully via Supabase fallback.",
-          };
-        }
+        const result = {
+          ok: true,
+          docointkey: enrichedContextParams.docointkey || null,
+          uploadedPdfUrl: supabaseResult.uploadedPdfUrl,
+          fileName: file.name,
+          fileSize: file.size,
+          patientId:
+            enrichedContextParams.hpercode ||
+            patient?.rawData?.hpercode ||
+            patient?.contextParams?.hpercode ||
+            null,
+          encounterCode: enrichedContextParams.enccode || null,
+          orderCode: enrichedContextParams.orcode || null,
+          procedureInstanceId:
+            enrichedContextParams.docointkey ||
+            enrichedContextParams.procedureInstanceId ||
+            null,
+          message: "Lab result uploaded successfully.",
+        };
 
         setUploadResults((prev) => [
           ...prev,
@@ -196,18 +143,14 @@ export function useLabUploadWorkflow() {
         setUploading(false);
       }
     },
-    [selectedOrder, selectedProcedure],
+    [selectedOrder],
   );
 
   const resetWorkflow = useCallback(() => {
     setSelectedOrder(null);
-    setSelectedProcedure(null);
     setOrders([]);
-    setProcedures([]);
     setOrdersLoading(false);
-    setProceduresLoading(false);
     setOrdersError(null);
-    setProceduresError(null);
     setUploadResults([]);
     setUploading(false);
     setWorkflowError(null);
@@ -216,12 +159,6 @@ export function useLabUploadWorkflow() {
   return {
     selectedOrder,
     setSelectedOrder,
-    selectedProcedure,
-    setSelectedProcedure,
-    procedures,
-    setProcedures,
-    proceduresLoading,
-    proceduresError,
     orders,
     ordersLoading,
     ordersError,
