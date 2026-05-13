@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { buildFallbackForms } from "../forms/formCatalog.js";
 import {
   buildValidationResults,
   fetchFormValidations,
   runEncounterValidations,
 } from "./validationScope.js";
-import { supabase } from "../../lib/supabaseClient.js";
 import "./Validation.css";
 
 function StatCard({ icon, label, value, tone = "neutral", sublabel = "" }) {
@@ -132,6 +130,10 @@ function normalizeSelectedForms(selectedFormsValue) {
     .filter(Boolean);
 }
 
+function normalizeValidationId(validation) {
+  return String(validation?.id ?? validation?.validationId ?? "");
+}
+
 function ValidationPage({
   selectedPatient,
   enccode: enccodeOverride,
@@ -140,9 +142,7 @@ function ValidationPage({
   onBackToForms,
   onChangePatient,
 }) {
-  const [formId, setFormId] = useState(null);
   const [formsLoading, setFormsLoading] = useState(false);
-  const fallbackForms = useMemo(() => buildFallbackForms(), []);
   const selectedFormItems = useMemo(
     () => normalizeSelectedForms(selectedForms),
     [selectedForms],
@@ -159,73 +159,71 @@ function ValidationPage({
     return `${selectedFormLabels[0]} + ${selectedFormLabels.length - 1} more`;
   }, [selectedFormLabels]);
 
-  // Resolve form ID by looking up the form name in Supabase
+  const [serverValidationGroups, setServerValidationGroups] = useState([]);
+
   useEffect(() => {
-    const resolveFormId = async () => {
+    let cancelled = false;
+
+    const loadServerValidations = async () => {
       if (selectedFormItems.length === 0) {
-        setFormId(null);
+        setServerValidationGroups([]);
         return;
       }
 
       try {
         setFormsLoading(true);
-        const selectedFormName = selectedFormItems[0]?.label || "";
+        const loadedGroups = await Promise.all(
+          selectedFormItems.map(async (formItem) => {
+            const formId = formItem?.id ?? null;
 
-        if (!selectedFormName) {
-          setFormId(null);
-          return;
-        }
-
-        // Try to fetch from Supabase if available
-        if (supabase) {
-          const { data: loadedForms, error } = await supabase
-            .from("hospital_forms")
-            .select("*");
-
-          if (!error && loadedForms && Array.isArray(loadedForms)) {
-            // Find the matching form by description or component_name
-            const matchedForm = loadedForms.find(
-              (form) =>
-                form.description === selectedFormName ||
-                form.component_name === selectedFormName ||
-                form.description?.includes(selectedFormName),
-            );
-
-            if (matchedForm) {
-              setFormId(matchedForm.id);
-              return;
+            if (!formId) {
+              return {
+                formId: null,
+                formLabel: formItem.label,
+                validations: [],
+              };
             }
-          }
+
+            const response = await fetchFormValidations(formId);
+
+            return {
+              formId,
+              formLabel: formItem.label,
+              validations:
+                response?.ok && Array.isArray(response.validations)
+                  ? response.validations
+                  : [],
+            };
+          }),
+        );
+
+        if (!cancelled) {
+          setServerValidationGroups(loadedGroups);
         }
-
-        // Fallback: search in fallback forms
-        const matchedFallback = fallbackForms.find(
-          (form) =>
-            form.description === selectedFormName ||
-            form.component_name === selectedFormName ||
-            form.description?.includes(selectedFormName),
-        );
-
-        setFormId(matchedFallback?.id || null);
       } catch (error) {
-        console.error("Error resolving form ID:", error);
-        const selectedFormName = selectedFormItems[0]?.label || "";
-
-        const matchedFallback = fallbackForms.find(
-          (form) =>
-            form.description === selectedFormName ||
-            form.component_name === selectedFormName ||
-            form.description?.includes(selectedFormName),
-        );
-
-        setFormId(matchedFallback?.id || null);
+        console.error("Error loading form validations:", error);
+        if (!cancelled) {
+          setServerValidationGroups(
+            selectedFormItems.map((formItem) => ({
+              formId: formItem?.id ?? null,
+              formLabel: formItem.label,
+              validations: [],
+            })),
+          );
+        }
       } finally {
-        setFormsLoading(false);
+        if (!cancelled) {
+          setFormsLoading(false);
+        }
       }
     };
 
-    resolveFormId();
-  }, [fallbackForms, selectedFormItems]);
+    void loadServerValidations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedFormItems]);
 
   // Resolve enccode from selectedPatient or use override
   function normalizeEncounterCode(rawValue) {
@@ -273,31 +271,28 @@ function ValidationPage({
     // Re-trigger the validation by clearing and re-fetching
   }, []);
 
-  const [serverValidations, setServerValidations] = useState([]);
+  const serverValidations = useMemo(() => {
+    const seenIds = new Set();
+    const flattened = [];
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadServerValidations() {
-      if (!formId) {
-        setServerValidations([]);
-        return;
-      }
-      try {
-        const resp = await fetchFormValidations(formId);
-        if (!resp || !resp.ok) {
-          setServerValidations([]);
+    serverValidationGroups.forEach((group) => {
+      group.validations.forEach((validation) => {
+        const validationId = normalizeValidationId(validation);
+        if (!validationId || seenIds.has(validationId)) {
           return;
         }
-        if (!cancelled) setServerValidations(resp.validations || []);
-      } catch {
-        setServerValidations([]);
-      }
-    }
-    void loadServerValidations();
-    return () => {
-      cancelled = true;
-    };
-  }, [formId]);
+
+        seenIds.add(validationId);
+        flattened.push({
+          ...validation,
+          sourceFormId: group.formId,
+          sourceFormLabel: group.formLabel,
+        });
+      });
+    });
+
+    return flattened;
+  }, [serverValidationGroups]);
 
   useEffect(() => {
     let cancelled = false;
@@ -372,6 +367,50 @@ function ValidationPage({
     return buildValidationResults(serverValidations, runtimeResults);
   }, [serverValidations, runtimeResults]);
 
+  const validationResultById = useMemo(
+    () =>
+      new Map(
+        (validationResults.checks || []).map((check) => [String(check.id), check]),
+      ),
+    [validationResults.checks],
+  );
+
+  const groupedValidationResults = useMemo(() => {
+    return serverValidationGroups.map((group) => {
+      const checks = group.validations.map((validation) => {
+        const validationId = normalizeValidationId(validation);
+        const matched = validationResultById.get(validationId);
+
+        return (
+          matched || {
+            id: validation.id,
+            validationId: validation.id,
+            description: validation.description || `Validation ${validation.id}`,
+            query: validation.query || null,
+            mappingId: validation.mappingId || null,
+            passed: null,
+            info: {},
+          }
+        );
+      });
+
+      const passed = checks.filter((check) => check.passed === true).length;
+      const failed = checks.filter((check) => check.passed === false).length;
+
+      return {
+        ...group,
+        checks,
+        summary: {
+          total: checks.length,
+          passed,
+          failed,
+          allPassed: failed === 0,
+          hasIssues: failed > 0,
+        },
+      };
+    });
+  }, [serverValidationGroups, validationResultById]);
+
   const validationStats = useMemo(() => {
     const summary = validationResults.summary;
     return {
@@ -417,9 +456,14 @@ function ValidationPage({
       : "Ready";
 
   const handleProceedClick = () => {
+    const overallCanProceed = groupedValidationResults.length > 0
+      ? groupedValidationResults.every((g) => !g.summary.hasIssues)
+      : !validationResults.summary.hasIssues;
+
     if (onProceed) {
+      console.debug("ValidationPage: onProceed called", { overallCanProceed, selectedForms });
       onProceed({
-        canProceed: !validationResults.summary.hasIssues,
+        canProceed: Boolean(overallCanProceed),
         selectedForms,
       });
     }
@@ -525,10 +569,14 @@ function ValidationPage({
               disabled={
                 !selectedPatient ||
                 loading ||
-                validationResults.summary.hasIssues
+                !(groupedValidationResults.length > 0
+                  ? groupedValidationResults.every((g) => !g.summary.hasIssues)
+                  : !validationResults.summary.hasIssues)
               }
               title={
-                validationResults.summary.hasIssues
+                (groupedValidationResults.length > 0
+                  ? groupedValidationResults.some((g) => g.summary.hasIssues)
+                  : validationResults.summary.hasIssues)
                   ? "Complete missing data before proceeding"
                   : "Proceed to forms"
               }
@@ -583,72 +631,79 @@ function ValidationPage({
             </span>
             Checking validation status...
           </div>
-        ) : validationResults.checks.length > 0 ? (
+        ) : groupedValidationResults.length > 0 ? (
           <section className="validation-panel">
             <h2 className="validation-panel-title">Validation Checklist</h2>
             <p className="validation-helper-text">
-              Review each validation requirement below. All items must be
-              complete before you can proceed.
+              Review the validation requirements for each selected form below.
+              All items must be complete before you can proceed.
             </p>
             <div className="validation-form-grid">
-              <article
-                className={`validation-form-card ${validationResults.summary.hasIssues ? "validation-form-card--alert" : ""}`}
-              >
-                <div className="validation-form-card__header">
-                  <div>
-                    <h3>Required Checks</h3>
-                    <p
-                      className="validation-helper-text"
-                      style={{ marginTop: "0.25rem", marginBottom: "0" }}
-                    >
-                      {validationResults.summary.passed} of{" "}
-                      {validationResults.summary.total} complete
-                    </p>
-                  </div>
-                  <span
-                    className={`validation-badge ${validationResults.summary.hasIssues ? "validation-badge--alert" : "validation-badge--success"}`}
-                  >
-                    {validationResults.summary.hasIssues
-                      ? "⚠ Action Needed"
-                      : "✓ All Complete"}
-                  </span>
-                </div>
-                <div className="validation-step-list">
-                  {validationResults.checks.map((check) => (
-                    <div
-                      key={check.id}
-                      className={`validation-check-row ${check.passed === true ? "validation-check-row--pass" : check.passed === false ? "validation-check-row--fail" : "validation-check-row--pending"}`}
-                    >
-                      <div
-                        className="validation-check-row__icon"
-                        aria-hidden="true"
+              {groupedValidationResults.map((group) => (
+                <article
+                  key={`${group.formId ?? group.formLabel}`}
+                  className={`validation-form-card ${group.summary.hasIssues ? "validation-form-card--alert" : ""}`}
+                >
+                  <div className="validation-form-card__header">
+                    <div>
+                      <h3>{group.formLabel}</h3>
+                      <p
+                        className="validation-helper-text"
+                        style={{ marginTop: "0.25rem", marginBottom: "0" }}
                       >
-                        {check.passed === true
-                          ? "✓"
-                          : check.passed === false
-                            ? "●"
-                            : "—"}
-                      </div>
-                      <div className="validation-check-row__content">
-                        <div className="validation-check-row__title-wrap">
-                          <div className="validation-check-row__title">
-                            {check.description}
-                          </div>
-                          <span
-                            className={`validation-check-status ${check.passed === true ? "validation-check-status--pass" : check.passed === false ? "validation-check-status--fail" : ""}`}
+                        {group.summary.passed} of {group.summary.total} complete
+                      </p>
+                    </div>
+                    <span
+                      className={`validation-badge ${group.summary.hasIssues ? "validation-badge--alert" : "validation-badge--success"}`}
+                    >
+                      {group.summary.hasIssues ? "⚠ Action Needed" : "✓ All Complete"}
+                    </span>
+                  </div>
+
+                  {group.checks.length > 0 ? (
+                    <div className="validation-step-list">
+                      {group.checks.map((check) => (
+                        <div
+                          key={`${group.formId ?? group.formLabel}-${check.id}`}
+                          className={`validation-check-row ${check.passed === true ? "validation-check-row--pass" : check.passed === false ? "validation-check-row--fail" : "validation-check-row--pending"}`}
+                        >
+                          <div
+                            className="validation-check-row__icon"
+                            aria-hidden="true"
                           >
                             {check.passed === true
-                              ? "Complete"
+                              ? "✓"
                               : check.passed === false
-                                ? "Missing"
-                                : "Pending"}
-                          </span>
+                                ? "●"
+                                : "—"}
+                          </div>
+                          <div className="validation-check-row__content">
+                            <div className="validation-check-row__title-wrap">
+                              <div className="validation-check-row__title">
+                                {check.description}
+                              </div>
+                              <span
+                                className={`validation-check-status ${check.passed === true ? "validation-check-status--pass" : check.passed === false ? "validation-check-status--fail" : ""}`}
+                              >
+                                {check.passed === true
+                                  ? "Complete"
+                                  : check.passed === false
+                                    ? "Missing"
+                                    : "Pending"}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </article>
+                  ) : (
+                    <div className="validation-empty-group">
+                      No validations configured for this form.
+                    </div>
+                  )}
+                </article>
+              ))}
             </div>
           </section>
         ) : (
@@ -662,7 +717,7 @@ function ValidationPage({
             >
               ◊
             </span>
-            No validations available for this form.
+            No validations available for the selected forms.
           </div>
         )}
       </main>

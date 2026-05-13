@@ -673,6 +673,14 @@
   color: var(--danger-700);
 }
 
+.validation-empty-group {
+  padding: 1rem 1.5rem 1.25rem;
+  background: white;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .validation-pill {
   display: inline-flex;
   align-items: center;
