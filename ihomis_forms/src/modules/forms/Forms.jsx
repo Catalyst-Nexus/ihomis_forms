@@ -7,6 +7,9 @@ import { supabase } from "../../lib/supabaseClient.js";
 import { printForms as nativePrintForms } from "../../lib/printController.jsx";
 import { getComponentProps, getFormComponent } from "../../lib/formRegistry.js";
 import FormDocument from "../components/FormDocument.jsx";
+// Form Bundling imports
+import { useFormBundles } from "../../lib/formBundleQueries.js";
+import FormBundleButtons from "./components/FormBundleButtons.jsx";
  
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
@@ -488,6 +491,17 @@ export default function Forms({
   const [openForm, setOpenForm] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [dbForms, setDbForms] = useState([]);
+
+  // Form Bundling: Use the hook to manage bundle functionality
+  // This integrates with the existing selectedForms state
+  const {
+    bundles,
+    toggleBundle,
+    isBundleSelected,
+    getBundleSelectionCount,
+    loading: bundlesLoading,
+  } = useFormBundles(selectedForms, setSelectedForms);
+
   const patientData = useMemo(
     () => buildPatientFormData(selectedPatient),
     [selectedPatient],
@@ -713,6 +727,16 @@ export default function Forms({
               : `Generate Selected Forms (${selectedForms.size})`}
           </button>
         )}
+        
+        {/* Form Bundle Buttons - Dynamically rendered from database */}
+        <FormBundleButtons
+          bundles={bundles}
+          onToggleBundle={toggleBundle}
+          isBundleSelected={isBundleSelected}
+          getBundleSelectionCount={getBundleSelectionCount}
+          loading={bundlesLoading}
+          disabled={isGeneratingPdf}
+        />
       </div>
 
       <div className="forms-table-wrapper">
