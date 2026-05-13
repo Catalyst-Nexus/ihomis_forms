@@ -7,74 +7,10 @@ import { supabase } from "../../lib/supabaseClient.js";
 import { printForms as nativePrintForms } from "../../lib/printController.jsx";
 import { getComponentProps, getFormComponent } from "../../lib/formRegistry.js";
 import FormDocument from "../components/FormDocument.jsx";
-import ApgarScoring from "./ApgarScoring";
-import BTLConsent from "./BTLConsent";
-import CardioPulmonaryClearance from "./CardioPulmonaryClearance";
-import BloodCancellation from "./BloodCancellation";
-import BloodRequestAdult from "./BloodRequestAdult";
-import BloodRequestPediatric from "./BloodRequestPediatric";
-import BloodTransfusionReactionRegistry from "./BloodTransfusionReactionRegistry";
-import Abtcform from "./Abtcform";
-import BloodTransfusionSheet from "./BloodTransfusionSheet";
-import ClinicalReferralSlip from "./ClinicalReferralSlip";
-import ClinicalCoverSheet from "./ClinicalCoverSheet";
-import RandomBloodSugar from "./RandomBloodSugar";
-import DoctorsOrder from "./DoctorsOrder";
-import OxygenConsumptionSheet from "./OxygenConsumptionSheet";
-import OtherLaboratoryRequest from "./OtherLaboratoryRequest";
-import ConsentToCare from "./ConsentToCare";
-import RefusalToTreatment from "./RefusalToTreatment";
-import IntakeOutputSheet from "./IntakeOutputSheet";
-import CertificateOfNoVacancy from "./CertificateOfNoVacancy";
-import FamilyPlanning from "./FamilyPlanning";
-import KardexSheet from "./KardexSheet";
-import NewbornTag from "./NewbornTag";
-import LaboratoryRequestOutside from "./LaboratoryRequestOutside";
-import WardPreference from "./WardPreference";
-import CertificatePatientWardPreference from "./CertificatePatientWardPreference";
-import ClaimOfCadaver from "./ClaimOfCadaver";
-import DischargePlanReferralSlip from "./DischargePlanReferralSlip";
-import ConsentToSurgery from "./ConsentToSurgery";
-import IVFSheet from "./IVFSheet";
-import CommitmentToBreastfeeding from "./CommitmentToBreastfeeding";
-import NewbornPhysicalExamination from "./NewbornPhysicalExamination";
-import NewbornDailyWeightAbdominalGirth from "./NewbornDailyWeightAbdominalGirth";
-import SpecialEndorsement from "./SpecialEndorsement";
-import SurgicalMemorandum from "./SurgicalMemorandum";
-import SurgicalMemorandumUmbiCat from "./SurgicalMemorandumUmbiCat";
-import SpongeCountSheet from "./SpongeCountSheet";
-import PhototherapyForm from "./PhototherapyForm";
-import NursesNotes from "./NursesNotes";
-import OtoacousticEmissionResults from "./OtoacousticEmissionResults";
-import MedicalAbstractDischargeSummary from "./MedicalAbstractDischargeSummary";
-import ECGTracing from "./ECGTracing";
-import PreOperativeChecklist from "./PreOperativeChecklist";
-import IsolationRecommendation from "./IsolationRecommendation";
-import DAMAForm from "./DAMAForm";
-import HistopathologyCytology from "./HistopathologyCytology";
-import LaboratoryResults from "./LaboratoryResults";
-import ChestTubeThoracostomy from "./ChestTubeThoracostomy";
-import BallardScore from "./BallardScore";
-import NeuroVitalSignsLessThan from "./NeuroVitalSignsLessThan";
-import NeuroVitalSignsMoreThan from "./NeuroVitalSignsMoreThan";
-import Neurologic from "./Neurologic";
-import Partograph from "./Partograph";
-import PostAnesthesiaSheet from "./PostAnesthesiaSheet";
-import Lubchenco from "./Lubchenco";
-import AnesthesiaRecord from "./AnesthesiaRecord";
-import ChildImmunizationRecord from "./ChildImmunizationRecord";
-import MIS from "./MIS";
-import TPRSheet from "./TPRSheet";
-import SurgicalSafetyChecklist from "./SurgicalSafetyChecklist";
-import RequestBloodCompatibility from "./RequestBloodCompatibility";
-import RadiologyRequestOutside from "./RadiologyRequestOutside";
-import PagtugotWaiver from "./PagtugotWaiver";
-import NewbornPersonalInfoSheet from "./NewbornPersonalInfoSheet";
-import MonitoringSheet from "./MonitoringSheet";
-import MedicationSheet from "./MedicationSheet";
-import DoctorsOrderPedia from "./DoctorsOrderPedia";
-import AnimalBiteTreatmentRecord from "./AnimalBiteTreatmentRecord";
-import AldreteScore from "./AldreteScore";
+// Form Bundling imports
+import { useFormBundles } from "../../lib/formBundleQueries.js";
+import FormBundleButtons from "./components/FormBundleButtons.jsx";
+ 
 
 const ThemeToggle = ({ isDarkMode, onToggle }) => (
   <button
@@ -555,6 +491,17 @@ export default function Forms({
   const [openForm, setOpenForm] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [dbForms, setDbForms] = useState([]);
+
+  // Form Bundling: Use the hook to manage bundle functionality
+  // This integrates with the existing selectedForms state
+  const {
+    bundles,
+    toggleBundle,
+    isBundleSelected,
+    getBundleSelectionCount,
+    loading: bundlesLoading,
+  } = useFormBundles(selectedForms, setSelectedForms);
+
   const patientData = useMemo(
     () => buildPatientFormData(selectedPatient),
     [selectedPatient],
@@ -772,20 +719,22 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={() => {
-              const selectedFormsArray = dbForms.filter((form) =>
-                selectedForms.has(form.id)
-              );
-              if (typeof onBeforeGenerate === "function") {
-                onBeforeGenerate(selectedFormsArray);
-                return;
-              }
-              setOpenForm(selectedFormsArray[0]);
-            }}
+            onClick={handleGenerateSelectedFormsPdf}
+            disabled={isGeneratingPdf}
           >
             Generate Selected Forms ({selectedForms.size})
           </button>
         )}
+        
+        {/* Form Bundle Buttons - Dynamically rendered from database */}
+        <FormBundleButtons
+          bundles={bundles}
+          onToggleBundle={toggleBundle}
+          isBundleSelected={isBundleSelected}
+          getBundleSelectionCount={getBundleSelectionCount}
+          loading={bundlesLoading}
+          disabled={isGeneratingPdf}
+        />
       </div>
 
       <div className="forms-table-wrapper">
