@@ -708,7 +708,16 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={() => setOpenForm(Array.from(selectedForms)[0])}
+            onClick={() => {
+              const selectedFormsArray = dbForms.filter((form) =>
+                selectedForms.has(form.id)
+              );
+              if (typeof onBeforeGenerate === "function") {
+                onBeforeGenerate(selectedFormsArray);
+                return;
+              }
+              setOpenForm(selectedFormsArray[0]);
+            }}
           >
             Generate Selected Forms ({selectedForms.size})
           </button>
