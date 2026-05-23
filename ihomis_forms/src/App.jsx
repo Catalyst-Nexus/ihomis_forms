@@ -219,7 +219,7 @@ function usePatientTrackingData() {
 }
 
 // ── Page: Patient Selection ────────────────────────────────────────────────────
-function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter, currentUserName }) {
+function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter, fullName }) {
   const navigate = useNavigate();
   const hasSelection = Boolean(patientPicker.selectedPatientId);
 
@@ -263,7 +263,7 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEnco
                   System Ready
                 </span>
               </div>
-              <h1 className="app-hero-title">Welcome, {currentUserName || 'user'}</h1>
+              <h1 className="app-hero-title">Welcome, {fullName }</h1>
               <p className="app-hero-description">
                 Search and confirm patient record to proceed with form management
               </p>
@@ -511,48 +511,6 @@ function TrackingRoute() {
   );
 }
 
-// ── Session Cleanup Helper ─────────────────────────────────────────────────────
-function destroyAllSessions() {
-  // Clear user session storage keys
-  const sessionKeysToRemove = [
-    "ihomis_user_id",
-    "ihomis_user_name",
-    "ihomis_session",
-    "ihomis_access_token",
-    "ihomis_patient_session",
-    "ihomis_selected_patient",
-    "ihomis_selected_encounter",
-    "ihomis_context_params",
-  ];
-
-  // Remove specific session keys
-  sessionKeysToRemove.forEach((key) => {
-    localStorage.removeItem(key);
-    sessionStorage.removeItem(key);
-  });
-
-  // Clear all localStorage entries that start with common prefixes
-  const prefixesToClean = ["ihomis_", "labUpload_", "patientPicker_", "form_", "tracking_", "tagging_"];
-  Object.keys(localStorage).forEach((key) => {
-    if (prefixesToClean.some((prefix) => key.startsWith(prefix))) {
-      localStorage.removeItem(key);
-    }
-  });
-
-  // Clear all sessionStorage entries
-  Object.keys(sessionStorage).forEach((key) => {
-    sessionStorage.removeItem(key);
-  });
-
-  // Clear any app-related cookies
-  document.cookie.split(";").forEach((cookie) => {
-    const cookieName = cookie.split("=")[0]?.trim();
-    if (cookieName && (cookieName.startsWith("ihomis_") || prefixesToClean.some((p) => cookieName.startsWith(p)))) {
-      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    }
-  });
-}
-
 // ── Main App Shell ─────────────────────────────────────────────────────────────
 function AppShell() {
   const navigate = useNavigate();
@@ -564,29 +522,6 @@ function AppShell() {
   const [landingPage, setLandingPage] = useState(LANDING_PAGE.USER_PICKER);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [accessVersion, setAccessVersion] = useState(0);
-  const [sessionsDestroyed, setSessionsDestroyed] = useState(false);
-
-  // ── Destroy all sessions on initial mount ──
-  useEffect(() => {
-    if (!sessionsDestroyed) {
-      destroyAllSessions();
-      setSessionsDestroyed(true);
-      // Reset to user picker state
-      clearUser();
-      setLandingPage(LANDING_PAGE.USER_PICKER);
-      setActiveModuleId(null);
-      setReturnModuleIdAfterEncounterChange(null);
-    }
-  }, [sessionsDestroyed, clearUser]);
-
-  // Skip rendering until session cleanup is complete
-  if (!sessionsDestroyed) {
-    return (
-      <div className="app-loading" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-        <span>Clearing sessions...</span>
-      </div>
-    );
-  }
 
   const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
   const { patientPicker, trackingRows } = usePatientTrackingData();
@@ -806,12 +741,24 @@ function AppShell() {
   }
 
   // 6. Patient Selection (default)
+
+
+
+
+
+
+
+        // Determine full_name based on VITE_TRACKING_USERS
+    const fullName = import.meta.env.VITE_TRACKING_USERS
+      ? localStorage.getItem('full_name') || currentUserName
+      : currentUserName;
+
     return (
       <PatientSelectionPage
         patientPicker={patientPicker}
         onConfirmSelection={handleConfirmPatientSelection}
         onConfirmEncounter={handleEncounterConfirmed}
-        currentUserName={currentUserName}
+        fullName={fullName}
       />
     );
 }
