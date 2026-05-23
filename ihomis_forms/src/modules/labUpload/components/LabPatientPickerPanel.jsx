@@ -236,11 +236,13 @@ function LabPatientPickerPanel({
               type="search"
               className="pk-search-input"
               value={searchTerm}
-              onChange={(e) => onSearchTermChange(e.target.value)}
-              placeholder="Search by name, hospital number, or encounter code..."
+              onChange={(e) => onSearchTermChange(e.target.value.replace(/\D/g, ""))}
+              placeholder="Search by hospital number (hpercode)..."
               aria-label="Search patients"
               autoComplete="off"
-            />
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                          />
             {searchTerm && (
               <button
                 type="button"
