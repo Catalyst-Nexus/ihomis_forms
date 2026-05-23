@@ -19,6 +19,84 @@ import { useUserSession } from "./tracking/hooks/useUserSession.js";
 import "./modules/labUpload/LabUploadModule.css";
 import "./App.css";
 
+// ── Utility Functions for Encounter Display ─────────────────────────────────────
+function formatDate(dateString, includeTime = false, timeString = null) {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    const dateStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    
+    if (includeTime && timeString) {
+      const timeStr = formatTime(timeString);
+      return `${dateStr} ${timeStr}`;
+    }
+    
+    return dateStr;
+  } catch {
+    return dateString;
+  }
+}
+
+function formatTime(timeString) {
+  if (!timeString) return "";
+  try {
+    const [hours, minutes] = timeString.split(":");
+    if (!hours || !minutes) return timeString;
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    return timeString;
+  }
+}
+
+function getEncounterTypeLabel(type) {
+  const typeMap = {
+    adm: "Admission",
+    er: "Emergency Room",
+    eradm: "Emergency Room",
+    opd: "Outpatient",
+    1: "Outpatient",
+    2: "Inpatient",
+    3: "Emergency",
+    op: "Outpatient",
+    ip: "Inpatient",
+    inpatient: "Inpatient",
+    outpatient: "Outpatient",
+    emergency: "Emergency",
+  };
+  return typeMap[String(type).toLowerCase()] || type || "Encounter";
+}
+
+function getEncounterTypeColor(type) {
+  const colorMap = {
+    adm: "enc-type--adm",
+    er: "enc-type--er",
+    eradm: "enc-type--eradm",
+    opd: "enc-type--opd",
+    1: "enc-type--opd",
+    2: "enc-type--adm",
+    3: "enc-type--er",
+    op: "enc-type--opd",
+    ip: "enc-type--adm",
+    inpatient: "enc-type--adm",
+    outpatient: "enc-type--opd",
+    emergency: "enc-type--er",
+  };
+  return colorMap[String(type).toLowerCase()] || "enc-type--default";
+}
+
 // ── Icon Components (inline SVG for consistency) ───────────────────────────────
 const Icon = ({ name, size = 20 }) => {
   const icons = {
@@ -369,11 +447,19 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
               <div className="app-hero-patient-avatar" aria-hidden="true">
                 {patientInitials}
               </div>
-              <div className="app-hero-patient-info">
+                            <div className="app-hero-patient-info">
                 <span className="app-hero-patient-label">Selected Patient</span>
                 <span className="app-hero-patient-name">
                   {selectedPatient?.displayName || "—"}
                 </span>
+                                {selectedPatient?.contextParams && (
+                                  <span className={`app-hero-patient-encounter ${getEncounterTypeColor(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}`}>
+                                    {getEncounterTypeLabel(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}
+                                    {selectedPatient.contextParams.encdates && (
+                                      <> • {formatDate(selectedPatient.contextParams.encdates, true, selectedPatient.contextParams.toa)}</>
+                                    )}
+                                  </span>
+                                )}
               </div>
               {typeof onChangePatient === "function" && (
                 <button
@@ -669,11 +755,16 @@ function AppShell() {
             <div className="app-module-header-icon">
               <Icon name={activeModule.icon} size={20} />
             </div>
-            <div className="app-module-header-info">
+                                                <div className="app-module-header-info">
               <span className="app-module-header-title">{activeModule.name}</span>
               {patientPicker.selectedPatient && (
                 <span className="app-module-header-subtitle">
                   Patient: {patientPicker.selectedPatient.displayName}
+                  {patientPicker.activeContextParams && (
+                    <span className={`app-header-enc-badge ${getEncounterTypeColor(patientPicker.activeContextParams.toecode || patientPicker.activeContextParams.type || "")}`}>
+                      {getEncounterTypeLabel(patientPicker.activeContextParams.toecode || patientPicker.activeContextParams.type || "")} {formatDate(patientPicker.activeContextParams.encdates, true, patientPicker.activeContextParams.toa)}
+                    </span>
+                  )}
                 </span>
               )}
             </div>

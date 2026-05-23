@@ -27,6 +27,7 @@ function getFileKey(file) {
 //   user     ← userid, username, account
 //   orcode   ← order_code, orderCode
 //   proccode  ← procedure_id, procedureInstanceId, procedureCode
+//   toecode  ← encounter_type, encounterType, type
 // ============================================================
 function normalizeLabContextParams(contextParams = {}) {
   const normalized = { ...contextParams };
@@ -85,6 +86,18 @@ function normalizeLabContextParams(contextParams = {}) {
     "";
   if (resolvedProccode) {
     normalized.proccode = resolvedProccode;
+  }
+
+  // Normalize encounter type
+  const encounterType =
+    normalized.toecode ||
+    normalized.encounter_type ||
+    normalized.encounterType ||
+    normalized.type ||
+    "";
+  if (encounterType) {
+    normalized.toecode = encounterType;
+    normalized.type = encounterType;
   }
 
   return normalized;

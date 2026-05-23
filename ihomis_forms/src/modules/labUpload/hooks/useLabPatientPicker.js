@@ -208,7 +208,7 @@ function useLabPatientPicker({
     [patients, selectedPatientId],
   );
 
-  const activeContextParams = useMemo(() => {
+    const activeContextParams = useMemo(() => {
     if (!selectionConfirmed || !selectedPatient) {
       return normalizedInitialContextParams;
     }
@@ -219,10 +219,20 @@ function useLabPatientPicker({
       (selectedPatient.idSource === "hpercode" ? selectedPatient.id : "") ||
       "";
 
+    // Get encounter type from selectedEncounter or contextParams
+    const encounterType =
+      selectedPatient.selectedEncounter?.toecode ||
+      selectedPatient.selectedEncounter?.type ||
+      selectedPatient.contextParams?.toecode ||
+      selectedPatient.contextParams?.type ||
+      "";
+
     return normalizeLabContextParams({
       ...normalizedInitialContextParams,
       ...selectedPatient.contextParams,
       hpercode: resolvedHpercode,
+      toecode: encounterType,
+      type: encounterType,
       user: explicitUserFilter || normalizedInitialContextParams.user || "",
     });
   }, [
@@ -358,7 +368,7 @@ function useLabPatientPicker({
     setSelectedEncounter(encounter);
   }
 
-  // Confirm encounter selection and close modal
+    // Confirm encounter selection and close modal
   function confirmEncounterSelection() {
     if (!selectedEncounter || !patientForEncounterSelection) {
       return;
@@ -377,6 +387,8 @@ function useLabPatientPicker({
         toa: selectedEncounter.toa || "",
         tod: selectedEncounter.tod || "",
         fhud: selectedEncounter.fhud || patient.contextParams?.fhud || "",
+        toecode: selectedEncounter.toecode || selectedEncounter.type || "",
+        type: selectedEncounter.type || selectedEncounter.toecode || "",
       },
       selectedEncounter,
     };
