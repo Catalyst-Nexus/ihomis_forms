@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { Navigate, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import LabUploadModule from "./modules/labUpload/components/LabUploadModule.jsx";
@@ -12,7 +12,6 @@ import {
 } from "./modules/labUpload/labUploadConfig.js";
 import Tracking from "./tracking/tracking.jsx";
 import Tagging from "./tracking/Tagging.jsx";
-import UserPicker from "./tracking/UserPicker.jsx";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker.js";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils.js";
 import { useUserSession } from "./tracking/hooks/useUserSession.js";
@@ -200,66 +199,103 @@ const LANDING_PAGE = {
   TAGGING: "tagging",
 };
 
-// ── Custom Hook: Fetch users list ───────────────────────────────────────────────
-function useUsersList() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+// ── Custom Hook: Validate UID from URL ─────────────────────────────────────────
+function useValidateUid({ onValidUser }) {
+  const [validationState, setValidationState] = useState(() => {
+    // Check immediately if there's no uid
+    const params = new URLSearchParams(window.location.search);
+    return params.get("uid") ? 'validating' : 'no_uid';
+  });
+  const [validatedUser, setValidatedUser] = useState(null);
+  const onValidUserRef = useRef(onValidUser);
+  onValidUserRef.current = onValidUser;
 
   useEffect(() => {
-    const url = import.meta.env.VITE_TRACKING_USERS;
-    if (!url) { setLoading(false); return; }
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get("uid");
+
+    if (!uid) {
+      setValidationState('no_uid');
+      return;
+    }
+
+    let cancelled = false;
+    setValidationState('validating');
+
+    const baseUrl = import.meta.env.VITE_TRACKING_USERS;
+    if (!baseUrl) {
+      setValidationState('invalid');
+      return;
+    }
+
+    // Extract base API URL and construct user validation endpoint
+    const apiBase = baseUrl.replace(/\/users\/?$/, '');
+    const validateUrl = `${apiBase}/users/${uid}`;
 
     (async () => {
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const raw = await res.json();
-        const list = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.data) ? raw.data
-          : Array.isArray(raw?.users) ? raw.users
-          : [];
-
-        setUsers(list.map((u, i) => {
-          const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
-          const label =
-            u?.full_name ??
-            u?.displayName ??
-            u?.fullName ??
-            (u?.first_name || u?.firstName
-              ? `${u.first_name ?? u.firstName} ${u.last_name ?? u.lastName ?? ""}`.trim()
-              : null) ??
-            u?.name ??
-            u?.username ??
-            u?.email ??
-            String(i);
-          return { id, label };
-        }));
+        const res = await fetch(validateUrl);
+        if (cancelled) return;
+        
+        if (!res.ok) {
+          setValidationState('invalid');
+          return;
+        }
+        const data = await res.json();
+        if (cancelled) return;
+        
+        if (data.ok && data.data) {
+          const user = data.data;
+          const userName = user.full_name || user.username || uid;
+          setValidatedUser({ id: uid, name: userName, data: user });
+          setValidationState('valid');
+          onValidUserRef.current(uid, userName);
+        } else {
+          setValidationState('invalid');
+        }
       } catch {
-        // ignore errors — users stays empty
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setValidationState('invalid');
+        }
       }
     })();
+
+    return () => { cancelled = true; };
   }, []);
 
-  return { users, loading };
+  return { validationState, validatedUser };
 }
 
-// ── Custom Hook: Auto-select user from URL ─────────────────────────────────────
-function useUrlUserAutoSelect({ users, onAutoSelect }) {
-  useEffect(() => {
-    if (users.length === 0) return; // wait for users to load
+// ── Component: Login Required Message ──────────────────────────────────────────
+function LoginRequiredMessage({ state = 'no_uid' }) {
+  const messages = {
+    no_uid: { icon: '🔒', title: 'Access Required', text: 'Login in the ihomis first' },
+    validating: { icon: '⏳', title: 'Validating...', text: 'Please wait while we verify your session' },
+    invalid: { icon: '❌', title: 'Invalid User', text: 'User not found. Please login in the ihomis first' },
+  };
+  const msg = messages[state] || messages.no_uid;
 
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get("uid");
-    if (uid) {
-      const user = users.find((u) => u.id === uid);
-      onAutoSelect(uid, user?.label ?? uid);
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, [users, onAutoSelect]);
+  return (
+    <div className="app-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '2rem', 
+        backgroundColor: '#fff', 
+        borderRadius: '8px', 
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        maxWidth: '400px'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '1rem' }}>{msg.icon}</div>
+        <h2 style={{ margin: '0 0 1rem 0', color: '#333' }}>{msg.title}</h2>
+        <p style={{ margin: 0, color: '#666' }}>{msg.text}</p>
+      </div>
+    </div>
+  );
 }
+
+LoginRequiredMessage.propTypes = {
+  state: PropTypes.oneOf(['no_uid', 'validating', 'invalid']),
+};
 
 // ── Custom Hook: Patient Tracking Data ─────────────────────────────────────────
 function usePatientTrackingData() {
@@ -539,15 +575,23 @@ function TaggingRoute() {
   const { currentUserId, currentUserName, setUser } = useUserSession();
   const { patientPicker, trackingRows } = usePatientTrackingData();
 
+  const handleValidUser = useCallback((id, name) => {
+    setUser(id, name);
+  }, [setUser]);
+
+  const { validationState } = useValidateUid({ onValidUser: handleValidUser });
+
+  // Show appropriate message based on validation state
   if (!currentUserId) {
-    return (
-      <UserPicker
-        onSelect={(id, name) => {
-          setUser(id, name);
-          navigate("/tagging");
-        }}
-      />
-    );
+    if (validationState === 'validating' || validationState === 'idle') {
+      return <LoginRequiredMessage state="validating" />;
+    }
+    if (validationState === 'invalid') {
+      return <LoginRequiredMessage state="invalid" />;
+    }
+    if (validationState === 'no_uid') {
+      return <LoginRequiredMessage state="no_uid" />;
+    }
   }
 
   return (
@@ -567,15 +611,23 @@ function TrackingRoute() {
   const navigate = useNavigate();
   const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
 
+  const handleValidUser = useCallback((id, name) => {
+    setUser(id, name);
+  }, [setUser]);
+
+  const { validationState } = useValidateUid({ onValidUser: handleValidUser });
+
+  // Show appropriate message based on validation state
   if (!currentUserId) {
-    return (
-      <UserPicker
-        onSelect={(id, name) => {
-          setUser(id, name);
-          navigate("/tracking");
-        }}
-      />
-    );
+    if (validationState === 'validating' || validationState === 'idle') {
+      return <LoginRequiredMessage state="validating" />;
+    }
+    if (validationState === 'invalid') {
+      return <LoginRequiredMessage state="invalid" />;
+    }
+    if (validationState === 'no_uid') {
+      return <LoginRequiredMessage state="no_uid" />;
+    }
   }
 
   return (
@@ -608,32 +660,7 @@ function AppShell() {
 
   const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
   const { patientPicker, trackingRows } = usePatientTrackingData();
-  const { users } = useUsersList();
   const hasConfirmedPatient = Boolean(patientPicker.selectionConfirmed && patientPicker.selectedPatient);
-
-  useUrlUserAutoSelect({
-    users,
-    onAutoSelect: (userId, userName) => {
-      setUser(userId, userName);
-    },
-  });
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get("uid");
-    if (!uid) return;
-
-    if (!currentUserId) {
-      const user = users.find((u) => u.id === uid);
-      setUser(uid, user?.label ?? uid);
-      window.history.replaceState({}, "", window.location.pathname);
-    } else if (currentUserId === uid && users.length > 0) {
-      const user = users.find((u) => u.id === uid);
-      if (user?.label && user.label !== currentUserId) {
-        setUser(uid, user.label);
-      }
-    }
-  }, [users, currentUserId, setUser]);
 
   useEffect(() => {
     if (location?.pathname === "/" && !activeModuleId && location.state?.activeModuleId) {
@@ -720,16 +747,24 @@ function AppShell() {
     patientPicker.reopenSelection();
   }
 
-  // 1. No user session
-  if (!currentUserId || landingPage === LANDING_PAGE.USER_PICKER) {
-    return (
-      <UserPicker
-        onSelect={(id, name) => {
-          setUser(id, name);
-          navigate("/tracking");
-        }}
-      />
-    );
+  const handleValidUser = useCallback((id, name) => {
+    setUser(id, name);
+    setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+  }, [setUser]);
+
+  const { validationState } = useValidateUid({ onValidUser: handleValidUser });
+
+  // 1. No user session - require uid parameter and validate
+  if (!currentUserId) {
+    if (validationState === 'validating' || validationState === 'idle') {
+      return <LoginRequiredMessage state="validating" />;
+    }
+    if (validationState === 'invalid') {
+      return <LoginRequiredMessage state="invalid" />;
+    }
+    if (validationState === 'no_uid') {
+      return <LoginRequiredMessage state="no_uid" />;
+    }
   }
 
   // 2. Active module
