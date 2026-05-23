@@ -122,6 +122,58 @@ const LANDING_PAGE = {
   TAGGING: "tagging",
 };
 
+// ── Custom Hook: Fetch users list ───────────────────────────────────────────────
+function useUsersList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const url = import.meta.env.VITE_TRACKING_USERS;
+    if (!url) { setLoading(false); return; }
+
+    (async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data) ? raw.data
+          : Array.isArray(raw?.users) ? raw.users
+          : [];
+
+        setUsers(list.map((u, i) => {
+          const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
+          const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? String(i);
+          return { id, label };
+        }));
+      } catch {
+        // ignore errors — users stays empty
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return { users, loading };
+}
+
+// ── Custom Hook: Auto-select user from URL ─────────────────────────────────────
+function useUrlUserAutoSelect({ users, onAutoSelect }) {
+  useEffect(() => {
+    if (users.length === 0) return; // wait for users to load
+
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get("uid");
+    if (uid) {
+      const user = users.find((u) => u.id === uid);
+      onAutoSelect(uid, user?.label ?? uid);
+      // Clean URL without reload
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [users, onAutoSelect]);
+}
+
 // ── Custom Hook: Patient Tracking Data ─────────────────────────────────────────
 function usePatientTrackingData() {
   const initialContextParams = useMemo(() => getContextParamsFromLocation(), []);
@@ -156,7 +208,7 @@ function usePatientTrackingData() {
 }
 
 // ── Page: Patient Selection ────────────────────────────────────────────────────
-function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter }) {
+function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter, currentUserName }) {
   const navigate = useNavigate();
   const hasSelection = Boolean(patientPicker.selectedPatientId);
 
@@ -200,7 +252,7 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEnco
                   System Ready
                 </span>
               </div>
-              <h1 className="app-hero-title">Patient Selection</h1>
+              <h1 className="app-hero-title">Welcome, {currentUserName || 'user'}</h1>
               <p className="app-hero-description">
                 Search and confirm patient record to proceed with form management
               </p>
@@ -265,6 +317,7 @@ PatientSelectionPage.propTypes = {
   patientPicker: PropTypes.object.isRequired,
   onConfirmSelection: PropTypes.func.isRequired,
   onConfirmEncounter: PropTypes.func.isRequired,
+  currentUserName: PropTypes.string,
 };
 
 // ── Page: Module Navigator ─────────────────────────────────────────────────────
@@ -459,9 +512,18 @@ function AppShell() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [accessVersion, setAccessVersion] = useState(0);
 
-  const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
+    const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
   const { patientPicker, trackingRows } = usePatientTrackingData();
+  const { users } = useUsersList();
   const hasConfirmedPatient = Boolean(patientPicker.selectionConfirmed && patientPicker.selectedPatient);
+
+  // Auto-select user from URL uid param
+  useUrlUserAutoSelect({
+    users,
+    onAutoSelect: (userId, userName) => {
+      setUser(userId, userName);
+    },
+  });
 
   // Restore active module on navigation
   useEffect(() => {
@@ -647,13 +709,14 @@ function AppShell() {
   }
 
   // 6. Patient Selection (default)
-  return (
-    <PatientSelectionPage
-      patientPicker={patientPicker}
-      onConfirmSelection={handleConfirmPatientSelection}
-      onConfirmEncounter={handleEncounterConfirmed}
-    />
-  );
+    return (
+      <PatientSelectionPage
+        patientPicker={patientPicker}
+        onConfirmSelection={handleConfirmPatientSelection}
+        onConfirmEncounter={handleEncounterConfirmed}
+        currentUserName={currentUserName}
+      />
+    );
 }
 
 // ── App Entry ──────────────────────────────────────────────────────────────────
