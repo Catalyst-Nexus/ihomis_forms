@@ -25,18 +25,18 @@ function formatDate(dateString, includeTime = false, timeString = null) {
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
-    
+
     const dateStr = date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-    
+
     if (includeTime && timeString) {
       const timeStr = formatTime(timeString);
       return `${dateStr} ${timeStr}`;
     }
-    
+
     return dateStr;
   } catch {
     return dateString;
@@ -183,7 +183,7 @@ const modules = [
   },
   {
     id: "lab-upload",
-    name: "Laboratory Upload",
+    name: "Diagnostic/s Upload",
     description: "Upload and review laboratory PDF results with workflow tracking.",
     status: "Ready",
     icon: "FlaskConical",
@@ -221,20 +221,19 @@ function useUsersList() {
           : [];
 
         setUsers(list.map((u, i) => {
-                  const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
-                  // Prefer full_name; fall back to first_name + last_name combo
-                  const label =
-                    u?.full_name ??
-                    u?.displayName ??
-                    u?.fullName ??
-                    (u?.first_name || u?.firstName
-                      ? `${u.first_name ?? u.firstName} ${u.last_name ?? u.lastName ?? ""}`.trim()
-                      : null) ??
-                    u?.name ??
-                    u?.username ??
-                    u?.email ??
-                    String(i);
-                  return { id, label };
+          const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
+          const label =
+            u?.full_name ??
+            u?.displayName ??
+            u?.fullName ??
+            (u?.first_name || u?.firstName
+              ? `${u.first_name ?? u.firstName} ${u.last_name ?? u.lastName ?? ""}`.trim()
+              : null) ??
+            u?.name ??
+            u?.username ??
+            u?.email ??
+            String(i);
+          return { id, label };
         }));
       } catch {
         // ignore errors — users stays empty
@@ -257,7 +256,6 @@ function useUrlUserAutoSelect({ users, onAutoSelect }) {
     if (uid) {
       const user = users.find((u) => u.id === uid);
       onAutoSelect(uid, user?.label ?? uid);
-      // Clean URL without reload
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, [users, onAutoSelect]);
@@ -297,7 +295,7 @@ function usePatientTrackingData() {
 }
 
 // ── Page: Patient Selection ────────────────────────────────────────────────────
-function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter, fullName }) {
+function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEncounter, currentUserName }) {
   const navigate = useNavigate();
   const hasSelection = Boolean(patientPicker.selectedPatientId);
 
@@ -327,7 +325,6 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEnco
   return (
     <div className="app-page">
       <div className="app-layout">
-        {/* Hero Header - matches Lab Upload style */}
         <div className="app-hero-wrap">
           <div className="app-hero">
             <div className="app-hero-left">
@@ -341,7 +338,7 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEnco
                   System Ready
                 </span>
               </div>
-              <h1 className="app-hero-title">Welcome, {fullName }</h1>
+              <h1 className="app-hero-title">Welcome, {currentUserName ?? "—"}</h1>
               <p className="app-hero-description">
                 Search and confirm patient record to proceed with form management
               </p>
@@ -369,7 +366,6 @@ function PatientSelectionPage({ patientPicker, onConfirmSelection, onConfirmEnco
           </div>
         </div>
 
-        {/* Patient Picker */}
         <section className="app-patient-picker" aria-label="Patient picker">
           <LabPatientPickerPanel
             patients={patientPicker.patients}
@@ -410,7 +406,7 @@ PatientSelectionPage.propTypes = {
 };
 
 // ── Page: Module Navigator ─────────────────────────────────────────────────────
-function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule, fullName }) {
+function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule, currentUserName }) {
   const patientInitials = (selectedPatient?.displayName || "?")
     .trim()
     .split(/\s+/)
@@ -422,7 +418,6 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
   return (
     <div className="app-page">
       <div className="app-layout">
-        {/* Hero Header - matches Patient Picker style */}
         <div className="app-hero-wrap">
           <div className="app-hero">
             <div className="app-hero-left">
@@ -436,30 +431,29 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
                   System Ready
                 </span>
               </div>
-                            <h1 className="app-hero-title">Welcome, {fullName}</h1>
+              <h1 className="app-hero-title">Welcome, {currentUserName ?? "—"}</h1>
               <p className="app-hero-description">
                 Select a module to open for this patient
               </p>
             </div>
 
-            {/* Patient Info - matches Patient Picker header style */}
             <div className="app-hero-patient">
               <div className="app-hero-patient-avatar" aria-hidden="true">
                 {patientInitials}
               </div>
-                            <div className="app-hero-patient-info">
+              <div className="app-hero-patient-info">
                 <span className="app-hero-patient-label">Selected Patient</span>
                 <span className="app-hero-patient-name">
                   {selectedPatient?.displayName || "—"}
                 </span>
-                                {selectedPatient?.contextParams && (
-                                  <span className={`app-hero-patient-encounter ${getEncounterTypeColor(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}`}>
-                                    {getEncounterTypeLabel(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}
-                                    {selectedPatient.contextParams.encdates && (
-                                      <> • {formatDate(selectedPatient.contextParams.encdates, true, selectedPatient.contextParams.toa)}</>
-                                    )}
-                                  </span>
-                                )}
+                {selectedPatient?.contextParams && (
+                  <span className={`app-hero-patient-encounter ${getEncounterTypeColor(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}`}>
+                    {getEncounterTypeLabel(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}
+                    {selectedPatient.contextParams.encdates && (
+                      <> • {formatDate(selectedPatient.contextParams.encdates, true, selectedPatient.contextParams.toa)}</>
+                    )}
+                  </span>
+                )}
               </div>
               {typeof onChangePatient === "function" && (
                 <button
@@ -484,7 +478,6 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
           </div>
         </div>
 
-        {/* Module Grid */}
         <section className="app-module-grid" aria-label="Available modules">
           {modulesList.map((moduleItem) => (
             <article key={moduleItem.id} className="app-module-card">
@@ -534,7 +527,7 @@ ModuleNavigatorPage.propTypes = {
   ).isRequired,
   onChangePatient: PropTypes.func.isRequired,
   onOpenModule: PropTypes.func.isRequired,
-  fullName: PropTypes.string,
+  currentUserName: PropTypes.string,
 };
 
 // ── Route: Tagging ─────────────────────────────────────────────────────────────
@@ -615,7 +608,6 @@ function AppShell() {
   const { users } = useUsersList();
   const hasConfirmedPatient = Boolean(patientPicker.selectionConfirmed && patientPicker.selectedPatient);
 
-    // Auto-select user from URL uid param
   useUrlUserAutoSelect({
     users,
     onAutoSelect: (userId, userName) => {
@@ -623,20 +615,16 @@ function AppShell() {
     },
   });
 
-    // Auto-select user from URL on initial load (bypass user picker)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
     if (!uid) return;
 
-    // If no current user session, auto-select from URL
     if (!currentUserId) {
       const user = users.find((u) => u.id === uid);
       setUser(uid, user?.label ?? uid);
-      // Clean URL without reload
       window.history.replaceState({}, "", window.location.pathname);
     } else if (currentUserId === uid && users.length > 0) {
-      // If user already set from URL but name needs update from user list
       const user = users.find((u) => u.id === uid);
       if (user?.label && user.label !== currentUserId) {
         setUser(uid, user.label);
@@ -644,7 +632,6 @@ function AppShell() {
     }
   }, [users, currentUserId, setUser]);
 
-  // Restore active module on navigation
   useEffect(() => {
     if (location?.pathname === "/" && !activeModuleId && location.state?.activeModuleId) {
       setActiveModuleId(location.state.activeModuleId);
@@ -654,7 +641,6 @@ function AppShell() {
     }
   }, [currentUserId, landingPage, activeModuleId, location?.pathname, location.state?.activeModuleId]);
 
-  // Redirect if patient not confirmed
   useEffect(() => {
     if (!hasConfirmedPatient && [LANDING_PAGE.MODULE_NAVIGATOR, LANDING_PAGE.TRACKING, LANDING_PAGE.TAGGING].includes(landingPage)) {
       setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
@@ -663,7 +649,6 @@ function AppShell() {
 
   const activeModule = useMemo(() => modules.find((m) => m.id === activeModuleId) || null, [activeModuleId]);
 
-  // ── Handlers ──
   function handleOpenModule(moduleId) {
     if (!hasConfirmedPatient) return;
     setReturnModuleIdAfterEncounterChange(null);
@@ -732,7 +717,6 @@ function AppShell() {
     patientPicker.reopenSelection();
   }
 
-  // ── Render ──
   // 1. No user session
   if (!currentUserId || landingPage === LANDING_PAGE.USER_PICKER) {
     return (
@@ -755,7 +739,7 @@ function AppShell() {
             <div className="app-module-header-icon">
               <Icon name={activeModule.icon} size={20} />
             </div>
-                                                <div className="app-module-header-info">
+            <div className="app-module-header-info">
               <span className="app-module-header-title">{activeModule.name}</span>
               {patientPicker.selectedPatient && (
                 <span className="app-module-header-subtitle">
@@ -821,43 +805,27 @@ function AppShell() {
   }
 
   // 5. Module Navigator
-    if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
-      const fullName = import.meta.env.VITE_TRACKING_USERS
-        ? localStorage.getItem('full_name') || currentUserName
-        : currentUserName;
-
-      return (
-        <ModuleNavigatorPage
-          selectedPatient={patientPicker.selectedPatient}
-          modulesList={modules}
-          onChangePatient={handleChangeLandingPatient}
-          onOpenModule={handleOpenModule}
-          fullName={fullName}
-        />
-      );
-    }
-
-  // 6. Patient Selection (default)
-
-
-
-
-
-
-
-        // Determine full_name based on VITE_TRACKING_USERS
-    const fullName = import.meta.env.VITE_TRACKING_USERS
-      ? localStorage.getItem('full_name') || currentUserName
-      : currentUserName;
-
+  if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
     return (
-      <PatientSelectionPage
-        patientPicker={patientPicker}
-        onConfirmSelection={handleConfirmPatientSelection}
-        onConfirmEncounter={handleEncounterConfirmed}
-        fullName={fullName}
+      <ModuleNavigatorPage
+        selectedPatient={patientPicker.selectedPatient}
+        modulesList={modules}
+        onChangePatient={handleChangeLandingPatient}
+        onOpenModule={handleOpenModule}
+        currentUserName={currentUserName}
       />
     );
+  }
+
+  // 6. Patient Selection (default)
+  return (
+    <PatientSelectionPage
+      patientPicker={patientPicker}
+      onConfirmSelection={handleConfirmPatientSelection}
+      onConfirmEncounter={handleEncounterConfirmed}
+      currentUserName={currentUserName}
+    />
+  );
 }
 
 // ── App Entry ──────────────────────────────────────────────────────────────────

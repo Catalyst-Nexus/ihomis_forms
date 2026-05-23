@@ -650,7 +650,7 @@ export default function LabWorkflowPanel({
                 </svg>
               </span>
               <div>
-                <h3>Select Laboratory Order</h3>
+                <h3>Select Diagnostic/s Orders</h3>
                 <p>Choose the laboratory order to attach results to</p>
               </div>
             </div>

@@ -11,6 +11,7 @@ import {
   softDeleteLabResult,
 } from "../api/labUploadSupabase.js";
 import useLabRequestContext from "../hooks/useLabRequestContext.js";
+import { useCurrentUser } from "../hooks/useCurrentUser.js";
 import "../LabUploadModule.css";
 
 function LabUploadModule({
@@ -127,8 +128,10 @@ function LabUploadModule({
     selectedPatient?.id ||
     "";
 
-  const selectedEnccode =
+    const selectedEnccode =
     contextParams?.enccode || selectedContextParams?.enccode || "";
+
+  const { currentUserName } = useCurrentUser();
 
   const fetchUploadedPdfHistory = useCallback(
     async ({ includeFiles = false, filter = null } = {}) => {
@@ -430,7 +433,8 @@ function LabUploadModule({
                 </div>
               </div>
 
-              <h1 className="lab-hero-title">Lab Result Upload</h1>
+
+              <h1 className="app-hero-title">Welcome, {currentUserName ?? "—"}</h1>
               <p className="lab-hero-meta">
                 {selectedPatient && facilityName !== "—"
                   ? `${facilityName}${departmentName !== "—" ? ` · ${departmentName}` : ""}`
