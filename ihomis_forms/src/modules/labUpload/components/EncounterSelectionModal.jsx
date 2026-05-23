@@ -35,12 +35,15 @@ function formatTime(timeString) {
 
 function getEncounterTypeLabel(type) {
   const typeMap = {
+    adm: "Admission",
+    er: "Emergency Room",
+    eradm: "Emergency Room",
+    opd: "Outpatient",
     1: "Outpatient",
     2: "Inpatient",
     3: "Emergency",
-    ER: "Emergency",
-    OP: "Outpatient",
-    IP: "Inpatient",
+    op: "Outpatient",
+    ip: "Inpatient",
     inpatient: "Inpatient",
     outpatient: "Outpatient",
     emergency: "Emergency",
@@ -50,27 +53,30 @@ function getEncounterTypeLabel(type) {
 
 function getEncounterTypeColor(type) {
   const colorMap = {
-    1: "enc-type--op",
-    2: "enc-type--ip",
+    adm: "enc-type--adm",
+    er: "enc-type--er",
+    eradm: "enc-type--er",
+    opd: "enc-type--opd",
+    1: "enc-type--opd",
+    2: "enc-type--adm",
     3: "enc-type--er",
-    ER: "enc-type--er",
-    OP: "enc-type--op",
-    IP: "enc-type--ip",
-    inpatient: "enc-type--ip",
-    outpatient: "enc-type--op",
+    op: "enc-type--opd",
+    ip: "enc-type--adm",
+    inpatient: "enc-type--adm",
+    outpatient: "enc-type--opd",
     emergency: "enc-type--er",
   };
   return colorMap[String(type).toLowerCase()] || "enc-type--default";
 }
 
 function EncounterCard({ encounter, isSelected, onSelect }) {
-  const { enccode, encdates, toa, tod, fhud, type, status } = encounter;
+  const { enccode, encdates, toa, tod, fhud, type, status, toecode } = encounter;
 
   const displayDate = formatDate(encdates);
   const displayTimeIn = formatTime(toa);
   const displayTimeOut = formatTime(tod);
-  const typeLabel = getEncounterTypeLabel(type);
-  const typeColorClass = getEncounterTypeColor(type);
+  const typeLabel = getEncounterTypeLabel(toecode || type);
+  const typeColorClass = getEncounterTypeColor(toecode || type);
 
   return (
     <button
@@ -194,6 +200,7 @@ EncounterCard.propTypes = {
     patlast: PropTypes.string,
     fhud: PropTypes.string,
     type: PropTypes.string,
+    toecode: PropTypes.string,
     status: PropTypes.string,
     rawData: PropTypes.object,
   }).isRequired,
@@ -404,6 +411,7 @@ EncounterSelectionModal.propTypes = {
       patlast: PropTypes.string,
       fhud: PropTypes.string,
       type: PropTypes.string,
+      toecode: PropTypes.string,
       status: PropTypes.string,
     }),
   ),

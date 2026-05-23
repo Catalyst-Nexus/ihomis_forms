@@ -2413,6 +2413,16 @@
 }
 
 .enc-type--er {
+  background: var(--hospital-success-light);
+  color: var(--hospital-success);
+}
+
+.enc-type--adm {
+  background: var(--hospital-accent-light);
+  color: var(--hospital-accent);
+}
+
+.enc-type--opd {
   background: var(--hospital-warning-light);
   color: var(--hospital-warning);
 }
