@@ -98,7 +98,7 @@ function EncounterCard({ encounter, isSelected, onSelect }) {
         </div>
 
         <div className="enc-card-code">
-          <code>{enccode}</code>
+          {/* <code>{enccode}</code>   */}
         </div>
 
         <div className="enc-card-datetime">
