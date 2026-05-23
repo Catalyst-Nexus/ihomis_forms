@@ -443,6 +443,9 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
               </div>
               <div className="app-hero-patient-info">
                 <span className="app-hero-patient-label">Selected Patient</span>
+                <span className="app-hero-patient-hpercode">
+                  {selectedPatient?.contextParams?.hpercode || selectedPatient?.id || "—"}
+                </span>
                 <span className="app-hero-patient-name">
                   {selectedPatient?.displayName || "—"}
                 </span>

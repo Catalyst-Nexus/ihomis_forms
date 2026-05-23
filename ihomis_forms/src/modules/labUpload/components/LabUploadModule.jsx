@@ -14,6 +14,84 @@ import useLabRequestContext from "../hooks/useLabRequestContext.js";
 import { useCurrentUser } from "../hooks/useCurrentUser.js";
 import "../LabUploadModule.css";
 
+// ── Utility Functions for Encounter Display ─────────────────────────────────────
+function formatDate(dateString, includeTime = false, timeString = null) {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    const dateStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    if (includeTime && timeString) {
+      const timeStr = formatTime(timeString);
+      return `${dateStr} ${timeStr}`;
+    }
+
+    return dateStr;
+  } catch {
+    return dateString;
+  }
+}
+
+function formatTime(timeString) {
+  if (!timeString) return "";
+  try {
+    const [hours, minutes] = timeString.split(":");
+    if (!hours || !minutes) return timeString;
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    return timeString;
+  }
+}
+
+function getEncounterTypeLabel(type) {
+  const typeMap = {
+    adm: "Admission",
+    er: "Emergency Room",
+    eradm: "Emergency Room",
+    opd: "Outpatient",
+    1: "Outpatient",
+    2: "Inpatient",
+    3: "Emergency",
+    op: "Outpatient",
+    ip: "Inpatient",
+    inpatient: "Inpatient",
+    outpatient: "Outpatient",
+    emergency: "Emergency",
+  };
+  return typeMap[String(type).toLowerCase()] || type || "Encounter";
+}
+
+function getEncounterTypeColor(type) {
+  const colorMap = {
+    adm: "enc-type--adm",
+    er: "enc-type--er",
+    eradm: "enc-type--eradm",
+    opd: "enc-type--opd",
+    1: "enc-type--opd",
+    2: "enc-type--adm",
+    3: "enc-type--er",
+    op: "enc-type--opd",
+    ip: "enc-type--adm",
+    inpatient: "enc-type--adm",
+    outpatient: "enc-type--opd",
+    emergency: "enc-type--er",
+  };
+  return colorMap[String(type).toLowerCase()] || "enc-type--default";
+}
+
 function LabUploadModule({
   selectedPatient = null,
   selectedContextParams = {},
@@ -494,54 +572,40 @@ function LabUploadModule({
             </div>
 
             {/* Right: Patient context card */}
-            {selectedPatient ? (
-              <div className="lab-hero-right">
-                <div className="lab-hero-patient">
-                  <div className="lab-hero-patient-avatar">
-                    {(patientName || "?")[0]?.toUpperCase() || "?"}
-                  </div>
-                  <div className="lab-hero-patient-info">
-                    <span className="lab-hero-patient-label">
-                      Current Patient
-                    </span>
-                    <span className="lab-hero-patient-name">{patientName}</span>
-                    <div className="lab-hero-summary-grid">
-                      <div className="lab-hero-summary-item">
-                        <span className="lab-hero-summary-label">
-                          Record No.
-                        </span>
-                        <span className="lab-hero-summary-value">
-                          {recordNo}
-                        </span>
-                      </div>
-                      <div className="lab-hero-summary-item">
-                        <span className="lab-hero-summary-label">
-                          Encounter
-                        </span>
-                        <span className="lab-hero-summary-value">
-                          {encounterCode}
-                        </span>
-                      </div>
-                      <div className="lab-hero-summary-item">
-                        <span className="lab-hero-summary-label">
-                          Age / Sex
-                        </span>
-                        <span className="lab-hero-summary-value">
-                          {patientAge} / {patientSex}
-                        </span>
-                      </div>
-                      <div className="lab-hero-summary-item">
-                        <span className="lab-hero-summary-label">
-                          Admission Date
-                        </span>
-                        <span className="lab-hero-summary-value">
-                          {admissionDate}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        {selectedPatient ? (
+                          <div className="lab-hero-right">
+                            <div className="lab-hero-patient">
+                              <div className="lab-hero-patient-avatar" aria-hidden="true">
+                                {(selectedPatient?.displayName || patientName || "?")
+                                  .trim()
+                                  .split(/\s+/)
+                                  .map((p) => p[0])
+                                  .slice(0, 2)
+                                  .join("")
+                                  .toUpperCase() || "?"}
+                              </div>
+                              <div className="lab-hero-patient-info">
+                                                              <span className="lab-hero-patient-label">
+                                                                Selected Patient
+                                                              </span>
+                                                              <span className="lab-hero-patient-hpercode">
+                                                                {recordNo}
+                                                              </span>
+                                                              <span className="lab-hero-patient-name">
+                                                                {selectedPatient?.displayName || patientName || "—"}
+                                                              </span>
+                                                              {selectedPatient?.contextParams && (
+                                  <span className={`lab-hero-patient-encounter ${getEncounterTypeColor(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}`}>
+                                    {getEncounterTypeLabel(selectedPatient.contextParams.toecode || selectedPatient.contextParams.type || "")}
+                                    {selectedPatient.contextParams.encdates && (
+                                      <> • {formatDate(selectedPatient.contextParams.encdates, true, selectedPatient.contextParams.toa)}</>
+                                    )}
+                                  </span>
+                                )}
+                                
+                              </div>
+                            </div>
+                          </div>
             ) : (
               <div
                 className="lab-hero-no-patient"
