@@ -332,7 +332,7 @@ PatientSelectionPage.propTypes = {
 };
 
 // ── Page: Module Navigator ─────────────────────────────────────────────────────
-function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule }) {
+function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, onOpenModule, fullName }) {
   const patientInitials = (selectedPatient?.displayName || "?")
     .trim()
     .split(/\s+/)
@@ -358,7 +358,7 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
                   System Ready
                 </span>
               </div>
-              <h1 className="app-hero-title">Module Navigator</h1>
+                            <h1 className="app-hero-title">Welcome, {fullName}</h1>
               <p className="app-hero-description">
                 Select a module to open for this patient
               </p>
@@ -448,6 +448,7 @@ ModuleNavigatorPage.propTypes = {
   ).isRequired,
   onChangePatient: PropTypes.func.isRequired,
   onOpenModule: PropTypes.func.isRequired,
+  fullName: PropTypes.string,
 };
 
 // ── Route: Tagging ─────────────────────────────────────────────────────────────
@@ -729,16 +730,21 @@ function AppShell() {
   }
 
   // 5. Module Navigator
-  if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
-    return (
-      <ModuleNavigatorPage
-        selectedPatient={patientPicker.selectedPatient}
-        modulesList={modules}
-        onChangePatient={handleChangeLandingPatient}
-        onOpenModule={handleOpenModule}
-      />
-    );
-  }
+    if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
+      const fullName = import.meta.env.VITE_TRACKING_USERS
+        ? localStorage.getItem('full_name') || currentUserName
+        : currentUserName;
+
+      return (
+        <ModuleNavigatorPage
+          selectedPatient={patientPicker.selectedPatient}
+          modulesList={modules}
+          onChangePatient={handleChangeLandingPatient}
+          onOpenModule={handleOpenModule}
+          fullName={fullName}
+        />
+      );
+    }
 
   // 6. Patient Selection (default)
 
