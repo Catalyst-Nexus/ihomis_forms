@@ -143,9 +143,20 @@ function useUsersList() {
           : [];
 
         setUsers(list.map((u, i) => {
-          const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
-          const label = u?.full_name ?? u?.displayName ?? u?.fullName ?? u?.name ?? u?.username ?? u?.email ?? String(i);
-          return { id, label };
+                  const id = String(u?.user_id ?? u?.id ?? u?.userId ?? u?.uid ?? u?.email ?? i);
+                  // Prefer full_name; fall back to first_name + last_name combo
+                  const label =
+                    u?.full_name ??
+                    u?.displayName ??
+                    u?.fullName ??
+                    (u?.first_name || u?.firstName
+                      ? `${u.first_name ?? u.firstName} ${u.last_name ?? u.lastName ?? ""}`.trim()
+                      : null) ??
+                    u?.name ??
+                    u?.username ??
+                    u?.email ??
+                    String(i);
+                  return { id, label };
         }));
       } catch {
         // ignore errors — users stays empty
@@ -517,13 +528,34 @@ function AppShell() {
   const { users } = useUsersList();
   const hasConfirmedPatient = Boolean(patientPicker.selectionConfirmed && patientPicker.selectedPatient);
 
-  // Auto-select user from URL uid param
+    // Auto-select user from URL uid param
   useUrlUserAutoSelect({
     users,
     onAutoSelect: (userId, userName) => {
       setUser(userId, userName);
     },
   });
+
+    // Auto-select user from URL on initial load (bypass user picker)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get("uid");
+    if (!uid) return;
+
+    // If no current user session, auto-select from URL
+    if (!currentUserId) {
+      const user = users.find((u) => u.id === uid);
+      setUser(uid, user?.label ?? uid);
+      // Clean URL without reload
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (currentUserId === uid && users.length > 0) {
+      // If user already set from URL but name needs update from user list
+      const user = users.find((u) => u.id === uid);
+      if (user?.label && user.label !== currentUserId) {
+        setUser(uid, user.label);
+      }
+    }
+  }, [users, currentUserId, setUser]);
 
   // Restore active module on navigation
   useEffect(() => {
