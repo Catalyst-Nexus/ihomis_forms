@@ -63,7 +63,7 @@ function DashboardLayout({ children, currentUserName, onLogout }: DashboardLayou
           <path d="M9 15l3-3 3 3"/>
         </svg>
       ),
-      path: "/lab-upload",
+      path: "/modules/lab-upload",
     },
     {
       id: "tracking",
