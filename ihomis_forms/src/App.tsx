@@ -198,6 +198,7 @@ const modules = [
 const LANDING_PAGE = {
   LOGIN: "login",
   USER_PICKER: "user-picker",
+  HOME: "home",
   PATIENT_SELECTION: "patient-selection",
   MODULE_NAVIGATOR: "module-navigator",
   TRACKING: "tracking",
@@ -215,58 +216,58 @@ function useValidateUid({ onValidUser, currentUserId }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get("uid");
+    // Validate the uid from the URL when present; otherwise refresh the
+    // existing session's user (so deptcode/email reflect the latest DB values).
+    const idToValidate = uid || currentUserId;
 
-    if (!uid) {
-      // No uid in URL - check if user is already logged in
-      if (currentUserId) {
-        setValidationState('valid');
-      } else {
-        setValidationState('no_uid');
-      }
+    if (!idToValidate) {
+      setValidationState('no_uid');
       return;
     }
 
-    // Always fetch fresh data when uid is in URL
+    // Always fetch fresh data
     let cancelled = false;
     setValidationState('validating');
 
     const baseUrl = import.meta.env.VITE_TRACKING_USERS;
     if (!baseUrl) {
-      setValidationState('invalid');
+      // Can't validate; keep an existing session rather than locking the user out.
+      setValidationState(currentUserId ? 'valid' : 'invalid');
       return;
     }
 
     // Extract base API URL and construct user validation endpoint
     const apiBase = baseUrl.replace(/\/users\/?$/, '');
-    const validateUrl = `${apiBase}/users/${uid}`;
+    const validateUrl = `${apiBase}/users/${idToValidate}`;
 
     (async () => {
       try {
         const res = await fetch(validateUrl);
         if (cancelled) return;
-        
+
         if (!res.ok) {
-          setValidationState('invalid');
+          // For a session refresh, a transient failure shouldn't sign the user out.
+          setValidationState(currentUserId ? 'valid' : 'invalid');
           return;
         }
         const data = await res.json();
         if (cancelled) return;
-        
+
         if (data.ok && data.data) {
           const user = data.data;
-          const userName = user.full_name || user.username || uid;
-          const userData = { id: uid, name: userName, deptcode: user.deptcode, data: user };
+          const userName = user.full_name || user.username || idToValidate;
+          const userData = { id: idToValidate, name: userName, deptcode: user.deptcode, email: user.email, data: user };
           setValidatedUser(userData);
           setValidationState('valid');
           // Always call onValidUser to update session with fresh data
-          onValidUserRef.current(uid, userName, userData);
+          onValidUserRef.current(idToValidate, userName, userData);
           hasValidatedRef.current = true;
         } else {
-          setValidationState('invalid');
+          setValidationState(currentUserId ? 'valid' : 'invalid');
         }
       } catch {
         if (!cancelled) {
-          setValidationState('invalid');
+          setValidationState(currentUserId ? 'valid' : 'invalid');
         }
       }
     })();
@@ -335,6 +336,33 @@ function usePatientTrackingData() {
   );
 
   return { patientPicker, trackingRows };
+}
+
+// ── Page: Welcome (simple landing) ─────────────────────────────────────────────
+function WelcomePage() {
+  return (
+    <div
+      className="app-page"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "70vh",
+      }}
+    >
+      <h1
+        style={{
+          margin: 0,
+          fontSize: "2rem",
+          fontWeight: 700,
+          color: "#0f172a",
+          textAlign: "center",
+        }}
+      >
+        Welcome to iHOMIS Extension
+      </h1>
+    </div>
+  );
 }
 
 // ── Page: Patient Selection ────────────────────────────────────────────────────
@@ -574,7 +602,7 @@ function ModuleNavigatorPage({ selectedPatient, modulesList, onChangePatient, on
 // ── Route: Tagging ─────────────────────────────────────────────────────────────
 function TaggingRoute() {
   const navigate = useNavigate();
-  const { currentUserId, currentUserName, setUser } = useUserSession();
+  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
   const { patientPicker, trackingRows } = usePatientTrackingData();
 
   const handleValidUser = useCallback((id, name, userData) => {
@@ -598,15 +626,17 @@ function TaggingRoute() {
   }
 
   return (
-    <Tagging
-      selectedPatient={patientPicker.selectedPatient}
-      trackingRows={trackingRows}
-      onBackToTracking={() => navigate("/tracking")}
-      onChangePatient={() => patientPicker.reopenSelection()}
-      currentUserId={currentUserId}
-      currentUserName={currentUserName}
-      onAccessChanged={() => {}}
-    />
+    <DashboardLayout currentUserName={currentUserName} onLogout={() => { clearUser(); navigate('/'); }}>
+      <Tagging
+        selectedPatient={patientPicker.selectedPatient}
+        trackingRows={trackingRows}
+        onBackToTracking={() => navigate("/tracking")}
+        onChangePatient={() => patientPicker.reopenSelection()}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        onAccessChanged={() => {}}
+      />
+    </DashboardLayout>
   );
 }
 
@@ -706,7 +736,7 @@ function AppShell() {
       setActiveModuleId(location.state.activeModuleId);
     }
     if (currentUserId && (landingPage === LANDING_PAGE.USER_PICKER || landingPage === LANDING_PAGE.LOGIN)) {
-      setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+      setLandingPage(LANDING_PAGE.HOME);
     }
   }, [currentUserId, landingPage, activeModuleId, location?.pathname, location.state?.activeModuleId]);
 
@@ -788,7 +818,7 @@ function AppShell() {
 
   const handleValidUser = useCallback((id, name, userData) => {
     setUser(id, name, userData);
-    setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+    setLandingPage(LANDING_PAGE.HOME);
   }, [setUser]);
 
   const { validationState } = useValidateUid({ onValidUser: handleValidUser, currentUserId });
@@ -804,7 +834,7 @@ function AppShell() {
       <LoginPage
         onLoginSuccess={(userId, userName, userData) => {
           setUser(userId, userName, userData);
-          setLandingPage(LANDING_PAGE.PATIENT_SELECTION);
+          setLandingPage(LANDING_PAGE.HOME);
         }}
       />
     );
@@ -891,7 +921,16 @@ function AppShell() {
     );
   }
 
-  // 5. Module Navigator
+  // 5. Home (simple welcome landing)
+  if (landingPage === LANDING_PAGE.HOME) {
+    return (
+      <DashboardLayout currentUserName={currentUserName} onLogout={handleSwitchUser}>
+        <WelcomePage />
+      </DashboardLayout>
+    );
+  }
+
+  // 6. Module Navigator
   if (landingPage === LANDING_PAGE.MODULE_NAVIGATOR) {
     return (
       <DashboardLayout currentUserName={currentUserName} onLogout={handleSwitchUser}>

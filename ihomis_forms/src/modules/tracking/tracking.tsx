@@ -43,6 +43,15 @@ function calculateRemainingDays(dischargedDate) {
   return 60 - Math.floor((today - d) / 86400000);
 }
 
+// Row urgency class based on remaining days: <5 red, <10 orange, <15 yellow.
+function getRowUrgencyClass(remainingDays) {
+  if (remainingDays == null) return "";
+  if (remainingDays < 5) return "tracking-row--red";
+  if (remainingDays < 10) return "tracking-row--orange";
+  if (remainingDays < 15) return "tracking-row--yellow";
+  return "";
+}
+
 function fmt(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-PH", {
@@ -261,7 +270,7 @@ export default function Tracking({
   const [loadingApi,  setLoadingApi]  = useState(false);
   const [syncing,     setSyncing]     = useState(false);
   const [error,       setError]       = useState("");
-  const ROWS_PER_PAGE = 30;
+  const ROWS_PER_PAGE = 50;
 
   // ── Refs ──────────────────────────────────────────────────────────────────
   // Dedicated broadcast channel (stable across renders)
@@ -376,14 +385,31 @@ export default function Tracking({
     if (!currentUserId) return;
     let alive = true;
     (async () => {
-      const { data: users, error: usersErr } = await supabase
-        .from("users")
-        .select("user_id, username, full_name")
-        .eq("active", true);
+      // Users live in the legacy iHOMIS DB (via the backend API), not Supabase.
+      let users = [];
+      try {
+        const usersUrl = import.meta.env.VITE_TRACKING_USERS;
+        if (!usersUrl) throw new Error("VITE_TRACKING_USERS not configured");
+        const res = await fetch(usersUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        const list = Array.isArray(raw)        ? raw
+                   : Array.isArray(raw?.data)  ? raw.data
+                   : Array.isArray(raw?.users) ? raw.users
+                   : [];
+        users = list
+          .filter(u => u?.active == null || u.active === true || u.active === 1)
+          .map(u => ({
+            user_id:   String(u?.user_id ?? u?.id ?? ""),
+            username:  u?.username,
+            full_name: u?.full_name,
+          }));
+      } catch (e) {
+        console.error("load users:", e.message);
+      }
 
       if (!alive) return;
-      if (usersErr) console.error("load users:", usersErr.message);
-      setAllUsers(users ?? []);
+      setAllUsers(users);
 
       const { data: allAssignments, error: assignErr } = await supabase
         .from("user_seq_assignment")
@@ -660,13 +686,11 @@ export default function Tracking({
       if (dateFilter && !r.admittedDate.includes(dateFilter)) return false;
       return true;
     });
+    // Order by days left, ascending (fewest days left first); nulls last.
     return f.sort((a, b) => {
       if (a.remainingDays === null && b.remainingDays === null) return 0;
       if (a.remainingDays === null) return 1;
       if (b.remainingDays === null) return -1;
-      if (a.remainingDays < 0 && b.remainingDays < 0) return 0;
-      if (a.remainingDays < 0) return 1;
-      if (b.remainingDays < 0) return -1;
       return a.remainingDays - b.remainingDays;
     });
   }, [mergedRows, encounterFilter, nameFilter, dateFilter]);
@@ -1106,8 +1130,7 @@ export default function Tracking({
 
       <div className="tracking-module-header">
         <div className="tracking-module-header-left">
-          <h1 className="tracking-module-title">CHART Tracking System</h1>
-          <p className="tracking-module-subtitle">Agusan del Norte Provincial Health Office</p>
+          <h1 className="tracking-module-title">CHART Tracking</h1>
         </div>
         <div className="tracking-module-header-right">
           {currentUserName && (
@@ -1198,7 +1221,7 @@ export default function Tracking({
                   : !filteredRows.length
                   ? <tr><td colSpan={7+steps.length} className="tracking-td-center">No records found.</td></tr>
                   : paginatedRows.map((row, idx) => (
-                    <tr key={row.encoCode}>
+                    <tr key={row.encoCode} className={getRowUrgencyClass(row.remainingDays)}>
                       <td>{(currentPage-1)*ROWS_PER_PAGE + idx + 1}</td>
                       <td className="td-mono">{row.hospitalNo}</td>
                       <td>

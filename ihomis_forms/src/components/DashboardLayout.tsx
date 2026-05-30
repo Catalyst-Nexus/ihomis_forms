@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useUserSession } from "../modules/tracking/hooks/useUserSession";
 import "./DashboardLayout.css";
+
+// Email that is granted access to every menu item, regardless of department.
+const ADMIN_EMAIL = "tcp@admin.com";
+
+const norm = (value?: string | null) => (value || "").trim();
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,25 +25,37 @@ interface MenuItem {
 
 function DashboardLayout({ children, currentUserName, onLogout }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(["dashboard"]);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(["settings"]);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUserDeptcode, currentUserEmail } = useUserSession();
 
-  const menuItems: MenuItem[] = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-      ),
-      path: "/",
-    },
+  // Access control: the admin email sees everything; otherwise each menu item is
+  // gated by the user's department code matching the configured env value(s).
+  const isAdmin = norm(currentUserEmail).toLowerCase() === ADMIN_EMAIL;
+  const deptcode = norm(currentUserDeptcode);
+
+  const canAccessDept = (...allowed: Array<string | undefined>) => {
+    if (isAdmin) return true;
+    if (!deptcode) return false;
+    return allowed.some((code) => {
+      const expected = norm(code as string);
+      return expected !== "" && expected === deptcode;
+    });
+  };
+
+  const access: Record<string, boolean> = {
+    forms: canAccessDept(import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_FORMS),
+    "lab-upload": canAccessDept(
+      import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_DIAGNOSTIC_RAD,
+      import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_DIAGNOSTIC_LAB,
+    ),
+    tracking: canAccessDept(import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_TRACKING),
+    settings: canAccessDept(import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_SETTINGS),
+  };
+
+  const allMenuItems: MenuItem[] = [
     {
       id: "forms",
       label: "Forms",
@@ -79,17 +97,6 @@ function DashboardLayout({ children, currentUserName, onLogout }: DashboardLayou
       path: "/tracking",
     },
     {
-      id: "tagging",
-      label: "Tagging",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-          <line x1="7" y1="7" x2="7.01" y2="7"/>
-        </svg>
-      ),
-      path: "/tagging",
-    },
-    {
       id: "settings",
       label: "Settings & Administration",
       icon: (
@@ -110,9 +117,23 @@ function DashboardLayout({ children, currentUserName, onLogout }: DashboardLayou
           ),
           path: "/settings/forms-validation",
         },
+        {
+          id: "tagging",
+          label: "Tagging",
+          icon: (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+          ),
+          path: "/tagging",
+        },
       ],
     },
   ];
+
+  // Each item requires the matching department access.
+  const menuItems: MenuItem[] = allMenuItems.filter((item) => access[item.id]);
 
   const toggleMenu = (menuId: string) => {
     setExpandedMenus(prev => 
@@ -248,7 +269,10 @@ function DashboardLayout({ children, currentUserName, onLogout }: DashboardLayou
                     <div className="header-user-avatar large">{userInitials}</div>
                     <div>
                       <div className="header-user-menu-name">{currentUserName || "User"}</div>
-                      <div className="header-user-menu-email">user@hospital.gov.ph</div>
+                      <div className="header-user-menu-email">{currentUserEmail || "—"}</div>
+                      <div className="header-user-menu-dept">
+                        Dept: {currentUserDeptcode || "—"}
+                      </div>
                     </div>
                   </div>
                   <div className="header-user-menu-divider" />

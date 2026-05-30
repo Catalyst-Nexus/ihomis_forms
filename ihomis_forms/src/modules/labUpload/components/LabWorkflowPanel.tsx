@@ -18,7 +18,13 @@ import usePdfQueue from "../hooks/usePdfQueue";
 import PdfCanvasPreview from "./PdfCanvasPreview";
 import { LAB_UPLOAD_API_TOKEN } from "../labUploadConfig";
 import { fetchPatientUploadedFilesSupabase } from "../api/labUploadSupabase";
+import { useUserSession } from "../../tracking/hooks/useUserSession";
 import "./LabWorkflowPanel.css";
+
+// Email that is allowed to see every order type, regardless of department.
+const ADMIN_EMAIL = "tcp@admin.com";
+
+const norm = (value) => (value || "").trim();
 
 // Shared status mapping helper used across this component
 function getStatusInfo(status) {
@@ -270,6 +276,23 @@ export default function LabWorkflowPanel({
     resetWorkflow,
   } = useLabUploadWorkflow();
 
+  // ── Order-type access (by user email / department) ──────────
+  const { currentUserEmail, currentUserDeptcode } = useUserSession();
+  const isAdmin = norm(currentUserEmail).toLowerCase() === ADMIN_EMAIL;
+  const deptcode = norm(currentUserDeptcode);
+  const radDeptcode = norm(import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_DIAGNOSTIC_RAD);
+  const labDeptcode = norm(import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_DIAGNOSTIC_LAB);
+
+  // Order codes the current user is allowed to see. Admin sees all;
+  // RADIO for the radiology department, LABOR for the laboratory department.
+  const allowedOrcodes = useMemo(() => {
+    if (isAdmin) return null; // null === no restriction (show everything)
+    const allowed = new Set<string>();
+    if (radDeptcode && deptcode === radDeptcode) allowed.add("RADIO");
+    if (labDeptcode && deptcode === labDeptcode) allowed.add("LABOR");
+    return allowed;
+  }, [isAdmin, deptcode, radDeptcode, labDeptcode]);
+
   // ── Local UI state ─────────────────────────────────────────
   const [remarks, setRemarks] = useState("");
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
@@ -394,6 +417,15 @@ export default function LabWorkflowPanel({
       });
     });
     return Object.values(orcodes);
+  };
+
+  // Order requests visible to the current user, filtered by allowed order codes.
+  const getVisibleOrcodes = () => {
+    const all = getOrcodes();
+    if (!allowedOrcodes) return all; // admin / unrestricted
+    return all.filter((group: any) =>
+      allowedOrcodes.has(norm(group.orcode).toUpperCase()),
+    );
   };
 
   // Get selected ORCODE details
@@ -742,8 +774,34 @@ export default function LabWorkflowPanel({
                 <>
                   {/* ORCODE Selection - First Level */}
                   <p className="lwp-section-label">Select an Order Request:</p>
+                  {getVisibleOrcodes().length === 0 ? (
+                    <div className="lwp-empty">
+                      <div className="lwp-empty-icon">
+                        <svg
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </div>
+                      <h4>No Accessible Orders</h4>
+                      <p>
+                        This encounter has orders, but none match the order
+                        type(s) your department is allowed to access.
+                      </p>
+                    </div>
+                  ) : (
                   <div className="lwp-card-grid">
-                    {getOrcodes().map((orcodeGroup) => (
+                    {getVisibleOrcodes().map((orcodeGroup) => (
                       <div
                         key={orcodeGroup.orcode}
                         className="lwp-card lwp-card-clickable"
@@ -825,6 +883,7 @@ export default function LabWorkflowPanel({
                       </div>
                     ))}
                   </div>
+                  )}
                 </>
               ) : (
                 <>

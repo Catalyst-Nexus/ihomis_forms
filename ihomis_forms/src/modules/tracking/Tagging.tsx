@@ -44,58 +44,41 @@ function tagCfg(order) {
 
 function AccessDenied({ userName, onSwitchUser, onBack }) {
   return (
-    <div className="tg-page">
-      <main className="tg-shell">
-        <header className="tg-header">
-          <div className="tg-header-text">
-            <h1>Agusan del Norte Provincial Health Office</h1>
-            <p>CHART Tagging System</p>
+    <div className="tagging-container">
+      <header className="tagging-header">
+        <div className="tagging-header-top">
+          <div className="tagging-patient-info">
+            <h1>CHART Tagging System</h1>
           </div>
           {userName && (
-            <div className="tg-session-pill">
-              <span className="tg-session-dot" />
+            <div className="tagging-user-badge">
+              <span className="tagging-user-badge-dot" />
               {userName?.toUpperCase()}
             </div>
           )}
-        </header>
-        <nav className="tg-nav">
-          
-        </nav>
-        <div className="tg-panel" style={{ textAlign: "center", padding: "3rem 2rem" }}>
-          <div style={{
-            display:        "inline-flex",
-            flexDirection:  "column",
-            alignItems:     "center",
-            gap:            "1rem",
-            background:     "#faebd5",
-            border:         "1.5px solid #e8c97e",
-            borderRadius:   "1rem",
-            padding:        "2.5rem 3rem",
-            maxWidth:       "480px",
-          }}>
-            <span style={{ fontSize: "2.5rem", fontFamily: "inherit" }}>🔒</span>
-            <h2 style={{ margin: 0, color: "#8a4f0b", fontSize: "1.2rem", fontFamily: "inherit" }}>
-              No Access Yet
-            </h2>
-            <p style={{ margin: 0, color: "#7a5c2e", fontSize: ".95rem", lineHeight: 1.6, fontFamily: "inherit" }}>
-              You do not have any assigned steps yet.
-              Please wait for the first tagged user to assign steps to your account
-              before you can access the tagging panel.
-            </p>
-            <p style={{ margin: 0, color: "#aaa", fontSize: ".8rem", fontFamily: "inherit" }}>
-              Logged in as: <strong style={{ color: "#8a4f0b", fontFamily: "inherit" }}>{userName?.toUpperCase()}</strong>
-            </p>
-            <button
-              className="tg-btn tg-btn--primary"
-              onClick={onSwitchUser}
-              style={{ marginTop: ".5rem" }}
-            >
-              Switch User
-            </button>
-          
-          </div>
         </div>
-      </main>
+      </header>
+      <nav className="tagging-nav">
+      </nav>
+      <div className="tagging-panel" style={{ textAlign: "center", padding: "3rem 2rem" }}>
+        <div className="tagging-access-denied">
+          <div className="tagging-access-denied-icon">🔒</div>
+          <h2>No Access Yet</h2>
+          <p>
+            You do not have any assigned steps yet.
+            Please wait for the first tagged user to assign steps to your account
+            before you can access the tagging panel.
+          </p>
+          <small>Logged in as: <strong>{userName?.toUpperCase()}</strong></small>
+          <button
+            className="btn btn-primary"
+            onClick={onSwitchUser}
+            style={{ marginTop: "1rem" }}
+          >
+            Switch User
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -730,21 +713,23 @@ export default function Tagging({
     }
   }
 
-  // ── Access gate: checking ─────────────────────────────────────────────────
+    // ── Access gate: checking ─────────────────────────────────────────────────
   if (accessStatus === "checking") {
     return (
-      <div className="tg-page">
-        <main className="tg-shell">
-          <header className="tg-header">
-            <div className="tg-header-text">
-              <h1>Agusan del Norte Provincial Health Office</h1>
-              <p>CHART Tagging System</p>
+      <div className="tagging-container">
+        <header className="tagging-header">
+          <div className="tagging-header-top">
+            <div className="tagging-patient-info">
+              <h1>CHART Tagging System</h1>
             </div>
-          </header>
-          <div className="tg-panel" style={{ textAlign: "center", padding: "3rem" }}>
-            <span className="tg-spinner" /> Checking access…
           </div>
-        </main>
+        </header>
+        <div className="tagging-panel" style={{ textAlign: "center", padding: "3rem" }}>
+          <div className="tagging-checking">
+            <span className="tagging-spinner" />
+            <p>Checking access…</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -762,63 +747,69 @@ export default function Tagging({
 
   // ── Normal render ─────────────────────────────────────────────────────────
   return (
-    <div className="tg-page">
-      <div className="tg-toasts" aria-live="polite">
+    <div className="tagging-container">
+      <div className="tagging-toasts" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`tg-toast tg-toast--${t.type}`}>{t.msg}</div>
+          <div key={t.id} className={`toast toast--${t.type}`}>{t.msg}</div>
         ))}
       </div>
 
-      <main className="tg-shell">
-        {/* Header - Same style as tracking */}
-        <header className="tg-title-box">
-          <h1>Agusan del Norte Provincial Health Office</h1>
-          <p>CHART Tagging System</p>
-          {taggingUserName && (
-            <small>
-              Viewing as: <strong>{taggingUserName?.toUpperCase()}</strong>
-              {taggedUsers.find((t: { userId: string }) => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
-                <span className="badge-super">SUPER USER</span>
-              )}
-            </small>
-          )}
-        </header>
-
-        <nav className="tg-nav">
-          <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>
-            ← Back to Tracking
-          </button>
-        </nav>
-
-        <div className="tg-panel">
-          <div className="tg-panel-topbar">
-            <div>
-              <h2 className="tg-panel-title">Tagging Panel</h2>
-              <p className="tg-panel-sub">Assign users to records and workflow steps.</p>
-            </div>
-            <div className="tg-users-status">
-              {usersLoading && <span className="tg-spinner" />}
-              {usersError   && <span className="tg-err-text">{usersError}</span>}
-              {!usersLoading && !usersError && <span className="tg-count">{users.length} users loaded</span>}
-              <button className="tg-btn tg-btn--sm" onClick={() => { refreshUsers(); fetchAllData(); }}>↺ Refresh</button>
-            </div>
+      {/* Header - Consistent with forms module */}
+      <header className="tagging-header">
+        <div className="tagging-header-top">
+          <div className="tagging-patient-info">
+            <h1>CHART User Tagging</h1>
+            {taggingUserName && (
+              <p className="tagging-encounter-info">
+                Viewing as: <strong>{taggingUserName?.toUpperCase()}</strong>
+                {taggedUsers.find((t: { userId: string }) => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
+                  <span className="badge-super">SUPER USER</span>
+                )}
+              </p>
+            )}
           </div>
+        </div>
+      </header>
 
-          {!initComplete && (
-            <div className="tg-notice" style={{ background: "#f0f9f8", borderColor: "rgba(31,157,149,.3)", color: "#0f7a6e" }}>
+      {/* Controls bar */}
+      <div className="tagging-controls">
+        <div className="tagging-status">
+          {usersLoading && <span className="tagging-spinner" />}
+          {usersError && <span className="tagging-err-text">{usersError}</span>}
+          {!usersLoading && !usersError && <span className="tagging-count">{users.length} users loaded</span>}
+        </div>
+        <button className="btn btn-secondary btn-sm" onClick={() => { refreshUsers(); fetchAllData(); }}>↺ Refresh</button>
+      </div>
+
+      <nav className="tagging-nav">
+        <button className="btn btn-ghost" onClick={onBackToTracking}>
+          ← Back to Tracking
+        </button>
+      </nav>
+
+      <div className="tagging-panel">
+        <div className="tagging-panel-topbar">
+          <div>
+            <h2 className="tagging-panel-title">Tagging Panel</h2>
+            <p className="tagging-panel-sub">Assign users to records and workflow steps.</p>
+          </div>
+        </div>
+
+                    {!initComplete && (
+            <div className="notice notice--loading">
               ⏳ Initializing records…
             </div>
           )}
           {initError && (
-            <div className="tg-notice tg-notice--error">⚠️ {initError}</div>
+            <div className="notice notice--error">⚠️ {initError}</div>
           )}
 
           {initComplete && selectedRecordId && (
             <>
               {/* ── USER TAGGING ORDER ─────────────────────────────────── */}
-              <div className="tg-section">
-                <p className="tg-section-cap">USER TAGGING ORDER</p>
-                <p className="tg-section-desc">
+              <div className="tagging-section">
+                <p className="tagging-section-cap">USER TAGGING ORDER</p>
+                <p className="tagging-section-desc">
                   The 1st tagged user gets full access to all steps and can manage all tagging.
                   Only the 1st user can add, remove, or manage other users.
                   Tag more users to restrict their access to specific steps only.
@@ -826,7 +817,7 @@ export default function Tagging({
                 </p>
 
                 {taggedUsers.length > 0 && (
-                  <div className="tg-user-list">
+                  <div className="tagging-user-list">
                     {taggedUsers.map((tu) => {
                       const cfg       = tagCfg(tu.tagOrder);
                       const uName     = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
@@ -838,21 +829,21 @@ export default function Tagging({
                       }).length;
                       const isCurrent = String(tu.userId) === String(taggingUserId);
                       return (
-                        <div key={tu.rowId} className="tg-user-row">
-                          <span className="tg-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
+                        <div key={tu.rowId} className="tagging-user-row">
+                          <span className="tagging-order-badge" style={{ color: cfg.color, background: cfg.bg }}>
                             #{tu.tagOrder}
                           </span>
-                          <span className="tg-user-name">
+                          <span className="tagging-user-name">
                             {uName.toUpperCase()}
                             {isCurrent && tu.tagOrder === 1 && <span style={{ marginLeft: ".5rem", fontSize: ".75rem", opacity: .7 }}></span>}
                           </span>
-                          <span className="tg-user-role">{cfg.label}</span>
+                          <span className="tagging-user-role">{cfg.label}</span>
                           {tu.tagOrder === 1
-                            ? <span className="tg-step-count-pill tg-step-count-pill--full">All {steps.length} steps</span>
-                            : <span className="tg-step-count-pill">{stepCount} step{stepCount !== 1 ? "s" : ""} assigned</span>
+                            ? <span className="tagging-step-count-pill tagging-step-count-pill--full">All {steps.length} steps</span>
+                            : <span className="tagging-step-count-pill">{stepCount} step{stepCount !== 1 ? "s" : ""} assigned</span>
                           }
                           <button
-                            className="tg-remove-btn"
+                            className="btn-remove"
                             onClick={() => handleRemoveUser(tu.rowId, tu.userId, tu.tagOrder)}
                             disabled={tu.tagOrder === 1 || !canManageTagging}
                             title={tu.tagOrder === 1 ? "The 1st tag is fixed and cannot be removed." : !canManageTagging ? "Only the 1st tagged user can remove other users." : "Remove user"}
@@ -866,37 +857,37 @@ export default function Tagging({
                 )}
 
                 {taggedUsers.length === 0 && (
-                  <div className="tg-notice tg-notice--hint">
+                  <div className="notice notice--hint">
                     No users tagged yet. Add the first user below to begin.
                   </div>
                 )}
 
-                {canAddUser && canManageTagging && (
-                  <div className="tg-add-row">
-                    <div className="tg-user-picker" ref={userDropdownRef}>
+                                {canAddUser && canManageTagging && (
+                  <div className="tagging-add-row">
+                    <div className="tagging-user-picker" ref={userDropdownRef}>
                       <button
                         type="button"
-                        className={`tg-select tg-select--flex tg-user-picker-trigger ${userDropdownOpen ? "tg-user-picker-trigger--open" : ""}`}
+                        className={`tagging-user-picker-trigger ${userDropdownOpen ? "tagging-user-picker-trigger--open" : ""}`}
                         onClick={toggleUserDropdown}
                         disabled={taggingDisabled}
                         aria-expanded={userDropdownOpen}
                         aria-haspopup="listbox"
                       >
-                        <span className="tg-user-picker-trigger-label">{pendingUserLabel}</span>
-                        <span className="tg-user-picker-caret">▾</span>
+                        <span className="tagging-user-picker-trigger-label">{pendingUserLabel}</span>
+                        <span className="tagging-user-picker-caret">▾</span>
                       </button>
 
                       {userDropdownOpen && !taggingDisabled && (
-                        <div className="tg-user-picker-panel">
+                        <div className="tagging-user-picker-panel">
                           <input
-                            className="tg-user-search"
+                            className="tagging-user-search"
                             type="text"
                             placeholder="Search user to add…"
                             value={userSearch}
                             onChange={(e) => handleUserSearchChange(e.target.value)}
                             autoFocus
                           />
-                          <div className="tg-user-picker-list" role="listbox" aria-label="Users">
+                          <div className="tagging-user-picker-list" role="listbox" aria-label="Users">
                             {filteredUnusedUsers.length > 0 ? (
                               filteredUnusedUsers.map((u) => {
                                 const isSelected = String(pendingUser) === String(u.id);
@@ -904,7 +895,7 @@ export default function Tagging({
                                   <button
                                     key={u.id}
                                     type="button"
-                                    className={`tg-user-picker-option ${isSelected ? "tg-user-picker-option--selected" : ""}`}
+                                    className={`tagging-user-picker-option ${isSelected ? "tagging-user-picker-option--selected" : ""}`}
                                     onClick={() => handlePickUser(u.id)}
                                     role="option"
                                     aria-selected={isSelected}
@@ -914,7 +905,7 @@ export default function Tagging({
                                 );
                               })
                             ) : (
-                              <div className="tg-user-picker-empty">No matching users</div>
+                              <div className="tagging-user-picker-empty">No matching users</div>
                             )}
                           </div>
                         </div>
@@ -922,7 +913,7 @@ export default function Tagging({
                     </div>
 
                     <button
-                      className="tg-btn tg-btn--primary"
+                      className="btn btn-primary"
                       onClick={handleAddUser}
                       disabled={!pendingUser || taggingDisabled}
                     >
@@ -932,19 +923,19 @@ export default function Tagging({
                 )}
 
                 {!canAddUser && (
-                  <p className="tg-notice tg-notice--hint">💡 All available users have been tagged for this record.</p>
+                  <p className="notice notice--hint">💡 All available users have been tagged for this record.</p>
                 )}
 
                 {taggedUsers.length > 0 && !canManageTagging && (
-                  <p className="tg-notice tg-notice--error">Only the 1st tagged user (#1) can add or remove users.</p>
+                  <p className="notice notice--error">Only the 1st tagged user (#1) can add or remove users.</p>
                 )}
               </div>
 
               {/* ── STEP ASSIGNMENTS ───────────────────────────────────── */}
               {canManageTagging && (
-                <div className="tg-section">
-                  <p className="tg-section-cap">STEP ASSIGNMENTS</p>
-                  <p className="tg-section-desc">
+                <div className="tagging-section">
+                  <p className="tagging-section-cap">STEP ASSIGNMENTS</p>
+                  <p className="tagging-section-desc">
                     {stepsEnabled
                       ? "Select a user in each step's dropdown, then click Assign."
                       : taggedUsers.length === 0
@@ -953,15 +944,15 @@ export default function Tagging({
                   </p>
 
                   {!stepsEnabled && taggedUsers.length > 0 && (
-                    <div className="tg-notice tg-notice--hint">
+                    <div className="notice notice--hint">
                       Tag a 2nd user above to start assigning specific steps to them.
                     </div>
                   )}
 
                   {stepsLoading ? (
-                    <p className="tg-loading">Loading steps…</p>
+                    <p className="notice notice--loading">Loading steps…</p>
                   ) : (
-                    <div className="tg-step-grid">
+                    <div className="tagging-step-grid">
                       {steps.map((step, idx) => {
                         const assignedList = stepAssign[step.key] || [];
                         const isSaving  = saving[step.key] ?? false;
@@ -978,7 +969,7 @@ export default function Tagging({
                         return (
                           <div
                             key={step.key}
-                            className={`tg-step-card ${hasAssigned ? "tg-step-card--assigned" : "tg-step-card--remaining"}`}
+                            className={`tagging-step-card ${hasAssigned ? "tagging-step-card--assigned" : "tagging-step-card--remaining"}`}
                             style={hasAssigned && assignedList[0] ? {
                               borderColor: tagCfg(
                                 taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
@@ -988,30 +979,30 @@ export default function Tagging({
                               ).bg} 100%)`,
                             } : {}}
                           >
-                            <div className="tg-step-head">
-                              <span className="tg-step-name">{step.label}</span>
-                              <span className="tg-step-num">Step {idx + 1}</span>
+                            <div className="tagging-step-head">
+                              <span className="tagging-step-name">{step.label}</span>
+                              <span className="tagging-step-num">Step {idx + 1}</span>
                               {hasAssigned && (
-                                <span className="tg-step-count-badge">{assignedList.length} assigned</span>
+                                <span className="tagging-step-count-badge">{assignedList.length} assigned</span>
                               )}
                             </div>
 
-                            <div className="tg-step-badge-wrap">
+                            <div className="tagging-step-badge-wrap">
                               {hasAssigned ? (
-                                <div className="tg-assigned-users-list">
+                                <div className="tagging-assigned-users-list">
                                   {assignedList.map((assignment) => {
                                     const tu = taggedUsers.find((u) => u.userId === assignment.userId);
                                     const cfg = tu ? tagCfg(tu.tagOrder) : null;
                                     return (
-                                      <div key={assignment.rowId} className="tg-assigned-user-item">
+                                      <div key={assignment.rowId} className="tagging-assigned-user-item">
                                         <span 
-                                          className="tg-step-badge" 
+                                          className="tagging-step-badge" 
                                           style={{ background: cfg?.bg, color: cfg?.color }}
                                         >
                                           {assignment.userName.toUpperCase()}
                                         </span>
                                         <button
-                                          className="tg-remove-assign-btn"
+                                          className="tagging-remove-assign-btn"
                                           disabled={isSaving}
                                           onClick={() => handleRemoveStepAssignment(step, assignment.rowId)}
                                           title="Remove this assignment"
@@ -1023,12 +1014,12 @@ export default function Tagging({
                                   })}
                                 </div>
                               ) : (
-                                <span className="tg-step-badge tg-step-badge--none">Unassigned</span>
+                                <span className="tagging-step-badge tagging-step-badge--none">Unassigned</span>
                               )}
                             </div>
 
                             <select
-                              className="tg-step-dropdown"
+                              className="tagging-step-dropdown"
                               value={draftVal}
                               disabled={isSaving || !stepsEnabled}
                               onChange={(e) =>
@@ -1051,9 +1042,9 @@ export default function Tagging({
                               })}
                             </select>
 
-                            <div className="tg-step-owner">
+                            <div className="tagging-step-owner">
                               {hasAssigned ? (
-                                <span className="tg-chip" style={{ 
+                                <span className="chip chip--teal" style={{ 
                                   background: tagCfg(
                                     taggedUsers.find(u => u.userId === assignedList[0].userId)?.tagOrder ?? 1
                                   ).bg, 
@@ -1064,20 +1055,20 @@ export default function Tagging({
                                   {assignedList.length} user{assignedList.length !== 1 ? 's' : ''} assigned
                                 </span>
                               ) : (
-                                <span className="tg-chip tg-chip--amber">Unassigned (remaining)</span>
+                                <span className="chip chip--amber">Unassigned (remaining)</span>
                               )}
                             </div>
 
-                            <div className="tg-step-actions">
+                            <div className="tagging-step-actions">
                               <button
-                                className="tg-btn tg-btn--assign"
+                                className="btn btn-assign"
                                 disabled={!canAssign}
                                 onClick={() => handleAssignStep(step, draftVal)}
                               >
                                 {isSaving ? "Saving…" : "Assign"}
                               </button>
                               <button
-                                className="tg-btn tg-btn--clear"
+                                className="btn btn-clear"
                                 disabled={!hasAssigned || isSaving}
                                 onClick={() => handleClearStep(step)}
                               >
@@ -1094,10 +1085,10 @@ export default function Tagging({
 
               {/* ── ACCESS SUMMARY ── */}
               {taggedUsers.length > 0 && !stepsLoading && (
-                <div className="tg-section">
-                  <p className="tg-section-cap">ACCESS SUMMARY</p>
-                  <p className="tg-section-desc">Overview of what each tagged user can access.</p>
-                  <div className="tg-summary">
+                <div className="tagging-section">
+                  <p className="tagging-section-cap">ACCESS SUMMARY</p>
+                  <p className="tagging-section-desc">Overview of what each tagged user can access.</p>
+                  <div className="tagging-summary">
                     {taggedUsers.map((tu) => {
                       const cfg     = tagCfg(tu.tagOrder);
                       const uName   = users.find((u) => u.id === tu.userId)?.label ?? tu.userId;
@@ -1115,35 +1106,35 @@ export default function Tagging({
                       return (
                         <div
                           key={tu.rowId}
-                          className="tg-summary-row"
+                          className="tagging-summary-row"
                           style={{ "--row-accent": cfg.color, "--row-bg": cfg.bg }}
                         >
-                          <div className="tg-summary-meta">
+                          <div className="tagging-summary-meta">
                             <div style={{ display: "flex", alignItems: "center", gap: ".45rem" }}>
                               <span
-                                className="tg-order-badge"
+                                className="tagging-order-badge"
                                 style={{ color: cfg.color, background: cfg.bg, fontSize: ".65rem" }}
                               >
                                 #{tu.tagOrder}
                               </span>
-                              <strong className="tg-summary-name">{uName.toUpperCase()}</strong>
+                              <strong className="tagging-summary-name">{uName.toUpperCase()}</strong>
                             </div>
-                            <span className="tg-summary-role" style={{ color: cfg.color }}>
+                            <span className="tagging-summary-role" style={{ color: cfg.color }}>
                               {cfg.label}
                             </span>
                           </div>
-                          <div className="tg-summary-chips">
+                          <div className="tagging-summary-chips">
                             {mySteps.length > 0
                               ? mySteps.map((l) => (
                                   <span
                                     key={l}
-                                    className="tg-chip"
+                                    className="chip"
                                     style={{ background: cfg.bg, color: cfg.color, opacity: .85 }}
                                   >
                                     {l}
                                   </span>
                                 ))
-                              : <span className="tg-chip tg-chip--empty">No steps assigned yet</span>}
+                                                            : <span className="chip chip--empty">No steps assigned yet</span>}
                           </div>
                         </div>
                       );
@@ -1154,7 +1145,7 @@ export default function Tagging({
             </>
           )}
         </div>
-      </main>
-    </div>
+      </div>
   );
 }
+

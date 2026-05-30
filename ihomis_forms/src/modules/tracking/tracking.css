@@ -423,7 +423,44 @@
 .tracking-table tbody tr:hover {
   background: rgba(31,157,149,.05);
 }
-.th-step   { 
+
+/* ── Days-left urgency row coloring (<5 red, <10 orange, <15 yellow) ───────── */
+/* Tint every cell so the colour wins over zebra striping and workflow-state
+   cells; a left accent bar marks the row. */
+.tracking-table tbody tr.tracking-row--red > td,
+.tracking-table tbody tr.tracking-row--red:nth-child(odd) > td {
+  background: rgba(220, 38, 38, .12);
+}
+.tracking-table tbody tr.tracking-row--red:hover > td {
+  background: rgba(220, 38, 38, .20);
+}
+.tracking-table tbody tr.tracking-row--red > td:first-child {
+  box-shadow: inset 4px 0 0 #dc2626;
+}
+
+.tracking-table tbody tr.tracking-row--orange > td,
+.tracking-table tbody tr.tracking-row--orange:nth-child(odd) > td {
+  background: rgba(249, 115, 22, .12);
+}
+.tracking-table tbody tr.tracking-row--orange:hover > td {
+  background: rgba(249, 115, 22, .20);
+}
+.tracking-table tbody tr.tracking-row--orange > td:first-child {
+  box-shadow: inset 4px 0 0 #f97316;
+}
+
+.tracking-table tbody tr.tracking-row--yellow > td,
+.tracking-table tbody tr.tracking-row--yellow:nth-child(odd) > td {
+  background: rgba(234, 179, 8, .14);
+}
+.tracking-table tbody tr.tracking-row--yellow:hover > td {
+  background: rgba(234, 179, 8, .22);
+}
+.tracking-table tbody tr.tracking-row--yellow > td:first-child {
+  box-shadow: inset 4px 0 0 #eab308;
+}
+
+.th-step   {
   text-align: center; 
   min-width: 110px; 
   font-size: .72rem; 
