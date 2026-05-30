@@ -447,13 +447,13 @@ function ValidationModule({
   return (
     <div className="validation-module-shell">
       <div className="validation-module-switcher">
-        <button
+        {/* <button
           type="button"
           className={showPatientValidation ? "validation-switcher-btn" : "validation-switcher-btn validation-switcher-btn--active"}
           onClick={() => setViewMode("admin")}
         >
           Mapping Admin
-        </button>
+        </button> */}
         <button
           type="button"
           className={showPatientValidation ? "validation-switcher-btn validation-switcher-btn--active" : "validation-switcher-btn"}
@@ -482,3 +482,4 @@ function ValidationModule({
 
 
 export default ValidationModule;
+export { ValidationAdminPanel };

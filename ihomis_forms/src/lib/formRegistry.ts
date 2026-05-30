@@ -1,4 +1,4 @@
-const FORM_MODULES = import.meta.glob("../modules/forms/!(*Forms*|Modal|Sidebar).{js,jsx}", {
+const FORM_MODULES = import.meta.glob("../modules/forms/!(*Forms*|Modal|Sidebar).{js,jsx,ts,tsx}", {
   eager: true,
 });
 

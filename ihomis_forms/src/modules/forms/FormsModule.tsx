@@ -56,6 +56,7 @@ function FormsModule({ selectedPatient = null, selectedContextParams = null, onR
       // If coming back from validation, pre-select and auto-open
       initialSelectedForms={postValidatedSelectedForms}
       autoOpen={autoOpenForms}
+      onChangePatient={onRequestPatientChange}
     />
   );
 }

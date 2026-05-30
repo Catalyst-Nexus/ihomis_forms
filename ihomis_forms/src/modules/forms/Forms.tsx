@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
 import { supabase } from "../../lib/supabaseClient";
+import { fetchFormValidations, runEncounterValidations } from "../validation/validationScope";
 // Native Browser Print imports
 import { printForms as nativePrintForms } from "../../lib/printController";
 import { getComponentProps, getFormComponent } from "../../lib/formRegistry";
@@ -9,18 +10,7 @@ import FormDocument from "../components/FormDocument";
 // Form Bundling imports
 import { useFormBundles } from "../../lib/formBundleQueries";
 import FormBundleButtons from "./components/FormBundleButtons";
- 
 
-const ThemeToggle = ({ isDarkMode, onToggle }) => (
-  <button
-    className="theme-toggle"
-    onClick={onToggle}
-    aria-label="Toggle dark mode"
-    title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-  >
-    {isDarkMode ? "☀️" : "🌙"}
-  </button>
-);
 
 const MONTH_NAMES = [
   "January",
@@ -315,7 +305,9 @@ function buildPatientFormData(selectedPatient) {
     rawPatient.hpercode || rawPatient.id || selectedPatient?.id || contextParams.hpercode || contextParams.enccode,
   );
   const caseNumber = toSafeString(
-    rawPatient.case_num ||
+    rawPatient.enc ||
+      contextParams.enc ||
+      rawPatient.case_num ||
       rawPatient.caseNum ||
       rawPatient.case_number ||
       contextParams.caseNum ||
@@ -479,12 +471,28 @@ export default function Forms({
   autoOpen = false,
   // Optional callback invoked before generating selected forms: (selectedFormsArray) => void
   onBeforeGenerate = null,
+  // Optional callback to change patient
+  onChangePatient = null,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [dbForms, setDbForms] = useState([]);
+  
+  // Validation modal state
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [validationLoading, setValidationLoading] = useState(false);
+  const [validationResults, setValidationResults] = useState([]);
+  const [validationSummary, setValidationSummary] = useState({
+    total: 0,
+    passed: 0,
+    failed: 0,
+    allPassed: false,
+    noValidations: false,
+    noEnccode: false,
+    error: null,
+  });
 
   // Form Bundling: Use the hook to manage bundle functionality
   // This integrates with the existing selectedForms state
@@ -502,6 +510,35 @@ export default function Forms({
   );
   const patientName =
     patientData.fullName || selectedPatient?.displayName || "DOE, JHON";
+
+  // Encounter info from contextParams or patient data
+  const encounterInfo = useMemo(() => {
+    const ctx = selectedPatient?.contextParams || {};
+    const encounterType = ctx.toecode || ctx.encounterType || ctx.encounter_type || patientData.toecode || "";
+    const admDate = ctx.admdate || ctx.encdates || ctx.admissionDate || patientData.admdate || "";
+    const admTime = ctx.admtime || ctx.toa || ctx.admissionTime || patientData.admtime || "";
+    
+    // Format encounter type label
+    const typeLabels = {
+      ADM: "Admission",
+      OPDAD: "OPD Admission", 
+      ERADM: "ER Admission",
+      OPDCON: "OPD Consultation",
+      ERCON: "ER Consultation",
+    };
+    const typeLabel = typeLabels[encounterType?.toUpperCase?.()] || encounterType || "";
+    
+    // Format date/time
+    let dateTimeStr = "";
+    if (admDate) {
+      dateTimeStr = admDate;
+      if (admTime) {
+        dateTimeStr += ` ${admTime}`;
+      }
+    }
+    
+    return { typeLabel, dateTimeStr };
+  }, [selectedPatient, patientData]);
 
   // Fetch forms from Supabase
   useEffect(() => {
@@ -611,6 +648,144 @@ export default function Forms({
   );
 
   /**
+   * Validate selected forms before generating
+   * Fetches validations for each selected form and runs them against patient encounter
+   */
+  const handleValidateBeforeGenerate = useCallback(async () => {
+    const selectedFormObjects = dbForms.filter((form) => selectedForms.has(form.id));
+    if (selectedFormObjects.length === 0) return;
+
+    setShowValidationModal(true);
+    setValidationLoading(true);
+    setValidationResults([]);
+    setValidationSummary({ total: 0, passed: 0, failed: 0, allPassed: false, noValidations: false, noEnccode: false, error: null });
+
+    try {
+      // Get enccode from patient data
+      const enccode = patientData?.enccode || selectedPatient?.contextParams?.enccode || "";
+      const hpercode = patientData?.hpercode || selectedPatient?.contextParams?.hpercode || "";
+
+      // Fetch validations for all selected forms
+      const allValidations = [];
+      const formValidationMap = new Map();
+
+      for (const form of selectedFormObjects) {
+        const result = await fetchFormValidations(form.id);
+        if (result.ok && result.validations?.length > 0) {
+          formValidationMap.set(form.id, {
+            formName: form.description,
+            validations: result.validations,
+          });
+          result.validations.forEach((v) => {
+            allValidations.push({
+              ...v,
+              formId: form.id,
+              formName: form.description,
+            });
+          });
+        }
+      }
+
+      if (allValidations.length === 0) {
+        // No validations configured for selected forms - allow generation
+        setValidationResults([]);
+        setValidationSummary({ total: 0, passed: 0, failed: 0, allPassed: false, noValidations: true, noEnccode: false, error: null });
+        setValidationLoading(false);
+        return;
+      }
+
+      // Run validations if enccode is available
+      if (enccode) {
+        const validationIds = [...new Set(allValidations.map((v) => v.id))];
+        const runResult = await runEncounterValidations(enccode, validationIds, hpercode);
+
+        if (runResult.ok && runResult.results) {
+          // Map results back to form validations
+          const resultMap = new Map();
+          runResult.results.forEach((r) => {
+            resultMap.set(r.validationId, r);
+          });
+
+          const enrichedResults = allValidations.map((v) => ({
+            ...v,
+            result: resultMap.get(v.id) || { success: null, pending: true },
+          }));
+
+          const passed = enrichedResults.filter((r) => r.result?.success === true).length;
+          const failed = enrichedResults.filter((r) => r.result?.success === false).length;
+
+          setValidationResults(enrichedResults);
+          setValidationSummary({
+            total: enrichedResults.length,
+            passed,
+            failed,
+            allPassed: failed === 0,
+            noValidations: false,
+            noEnccode: false,
+            error: null,
+          });
+        } else {
+          // Validation run failed - show validations as pending
+          const pendingResults = allValidations.map((v) => ({
+            ...v,
+            result: { success: null, pending: true, error: runResult.error },
+          }));
+          setValidationResults(pendingResults);
+          setValidationSummary({
+            total: pendingResults.length,
+            passed: 0,
+            failed: 0,
+            allPassed: false,
+            noValidations: false,
+            noEnccode: false,
+            error: runResult.error,
+          });
+        }
+      } else {
+        // No enccode - show validations as pending
+        const pendingResults = allValidations.map((v) => ({
+          ...v,
+          result: { success: null, pending: true, noEnccode: true },
+        }));
+        setValidationResults(pendingResults);
+        setValidationSummary({
+          total: pendingResults.length,
+          passed: 0,
+          failed: 0,
+          allPassed: false,
+          noValidations: false,
+          noEnccode: true,
+          error: null,
+        });
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
+      setValidationSummary({
+        total: 0,
+        passed: 0,
+        failed: 0,
+        allPassed: false,
+        noValidations: false,
+        noEnccode: false,
+        error: error instanceof Error ? error.message : "Validation failed",
+      });
+    } finally {
+      setValidationLoading(false);
+    }
+  }, [selectedForms, dbForms, patientData, selectedPatient]);
+
+  const handleCloseValidationModal = () => {
+    setShowValidationModal(false);
+    setValidationResults([]);
+    setValidationSummary({ total: 0, passed: 0, failed: 0, allPassed: false, noValidations: false, noEnccode: false, error: null });
+  };
+
+  const handleProceedWithGeneration = () => {
+    setShowValidationModal(false);
+    handlePrintSelectedForms();
+  };
+
+  /**
    * Native Browser Print Handler
    * 
    * Uses the browser's native print engine to render forms with proper CSS support.
@@ -677,11 +852,18 @@ export default function Forms({
           <div className="patient-info">
             <h1>Generate Forms</h1>
             <p className="patient-name">Patient: {patientName}</p>
+            {(encounterInfo.typeLabel || encounterInfo.dateTimeStr) && (
+              <p className="encounter-info">
+                {encounterInfo.typeLabel && <span className="encounter-type">{encounterInfo.typeLabel}</span>}
+                {encounterInfo.dateTimeStr && <span className="encounter-datetime">{encounterInfo.dateTimeStr}</span>}
+              </p>
+            )}
           </div>
-          <ThemeToggle
-            isDarkMode={isDarkMode}
-            onToggle={() => setIsDarkMode(!isDarkMode)}
-          />
+          {onChangePatient && (
+            <button className="btn btn-secondary btn-change-patient" onClick={onChangePatient}>
+              Change Patient
+            </button>
+          )}
         </div>
       </div>
 
@@ -713,8 +895,8 @@ export default function Forms({
         {selectedForms.size > 0 && (
           <button
             className="btn btn-primary"
-            onClick={handleGenerateSelectedFormsPdf}
-            disabled={isGeneratingPdf}
+            onClick={handleValidateBeforeGenerate}
+            disabled={isGeneratingPdf || validationLoading}
           >
             Generate Selected Forms ({selectedForms.size})
           </button>
@@ -754,18 +936,8 @@ export default function Forms({
               <tr
                 key={form.id}
                 className="form-row"
-                onClick={() => {
-                  if (typeof onBeforeGenerate === "function") {
-                    onBeforeGenerate([form]);
-                    return;
-                  }
-                  setOpenForm(form);
-                }}
               >
-                <td
-                  className="checkbox-col"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <td className="checkbox-col">
                   <input
                     type="checkbox"
                     checked={selectedForms.has(form.id)}
@@ -795,6 +967,99 @@ export default function Forms({
       >
         {openForm && renderFormDocument(openForm)}
       </Modal>
+
+      {/* Validation Modal */}
+      {showValidationModal && (
+        <div className="validation-modal-overlay" onClick={handleCloseValidationModal}>
+          <div className="validation-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="validation-modal-header">
+              <h2>Patient Record Verification</h2>
+              <button className="validation-modal-close" onClick={handleCloseValidationModal}>
+                ×
+              </button>
+            </div>
+            
+            <div className="validation-modal-body">
+              {validationLoading ? (
+                <div className="validation-loading">
+                  <div className="validation-spinner"></div>
+                  <p>Validating patient records...</p>
+                </div>
+              ) : validationSummary.noValidations ? (
+                <div className="validation-no-checks">
+                  <div className="validation-icon validation-icon--info">ℹ️</div>
+                  <p>No validation rules configured for the selected forms.</p>
+                  <p className="validation-hint">You may proceed with form generation.</p>
+                </div>
+              ) : validationSummary.error ? (
+                <div className="validation-error-state">
+                  <div className="validation-icon validation-icon--error">⚠️</div>
+                  <p>Validation check failed</p>
+                  <p className="validation-error-message">{validationSummary.error}</p>
+                </div>
+              ) : validationSummary.noEnccode ? (
+                <div className="validation-no-encounter">
+                  <div className="validation-icon validation-icon--warning">⚠️</div>
+                  <p>No encounter code available for validation.</p>
+                  <p className="validation-hint">Patient encounter data is required to run validations.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="validation-summary">
+                    <div className={`validation-summary-badge ${validationSummary.allPassed ? 'validation-summary-badge--success' : 'validation-summary-badge--warning'}`}>
+                      {validationSummary.allPassed ? '✓ All Checks Passed' : `${validationSummary.failed} Issue(s) Found`}
+                    </div>
+                    <div className="validation-summary-stats">
+                      <span className="validation-stat validation-stat--passed">✓ {validationSummary.passed} Passed</span>
+                      <span className="validation-stat validation-stat--failed">✗ {validationSummary.failed} Failed</span>
+                      <span className="validation-stat validation-stat--total">Total: {validationSummary.total}</span>
+                    </div>
+                  </div>
+
+                  <div className="validation-checklist">
+                    <h3>Validation Checklist</h3>
+                    <ul className="validation-list">
+                      {validationResults.map((validation, index) => (
+                        <li 
+                          key={`${validation.id}-${index}`}
+                          className={`validation-item ${
+                            validation.result?.success === true 
+                              ? 'validation-item--passed' 
+                              : validation.result?.success === false 
+                                ? 'validation-item--failed' 
+                                : 'validation-item--pending'
+                          }`}
+                        >
+                          <span className="validation-item-icon">
+                            {validation.result?.success === true ? '✓' : validation.result?.success === false ? '✗' : '○'}
+                          </span>
+                          <span className="validation-item-form">{validation.formName}</span>
+                          <span className="validation-item-desc">{validation.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="validation-modal-footer">
+              <button className="btn btn-secondary" onClick={handleCloseValidationModal}>
+                Cancel
+              </button>
+              {validationSummary.failed === 0 && (
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleProceedWithGeneration}
+                  disabled={validationLoading}
+                >
+                  Generate Forms
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

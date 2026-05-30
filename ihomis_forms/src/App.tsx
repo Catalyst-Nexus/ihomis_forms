@@ -11,6 +11,7 @@ import {
 } from "./modules/labUpload/labUploadConfig";
 import Tracking from "./tracking/tracking";
 import Tagging from "./tracking/Tagging";
+import { ValidationAdminPanel } from "./modules/validation/ValidationModule";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils";
 import { useUserSession } from "./tracking/hooks/useUserSession";
@@ -930,9 +931,147 @@ function AppShell() {
 }
 
 // ── App Entry ──────────────────────────────────────────────────────────────────
+// ── Route: Forms Module Landing ─────────────────────────────────────────────────
+function FormsRoute() {
+  const navigate = useNavigate();
+  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
+  const { patientPicker } = usePatientTrackingData();
+  const hasConfirmedPatient = Boolean(patientPicker.selectionConfirmed && patientPicker.selectedPatient);
+
+  const handleValidUser = useCallback((id, name, userData) => {
+    setUser(id, name, userData);
+  }, [setUser]);
+
+  const { validationState } = useValidateUid({ onValidUser: handleValidUser, currentUserId });
+
+  const handleSelectPatient = (patient) => {
+    const hpercode = patient?.rawData?.hpercode || patient?.contextParams?.hpercode || patient?.id || "";
+    if (hpercode) {
+      patientPicker.openEncounterModalForPatient(patient);
+    } else {
+      patientPicker.selectPatient(patient);
+    }
+  };
+
+  const handleConfirmEncounter = () => {
+    patientPicker.confirmEncounterSelection();
+  };
+
+  // Show appropriate message based on validation state
+  if (!currentUserId) {
+    if (validationState === 'validating' || validationState === 'idle') {
+      return <LoginRequiredMessage state="validating" />;
+    }
+    return (
+      <LoginPage
+        onLoginSuccess={(userId, userName, userData) => {
+          setUser(userId, userName, userData);
+        }}
+      />
+    );
+  }
+
+  // If no patient selected, show patient picker first
+  if (!hasConfirmedPatient) {
+    return (
+      <DashboardLayout currentUserName={currentUserName} onLogout={() => { clearUser(); navigate('/'); }}>
+        <div className="app-page">
+          <div className="app-layout">
+            <div className="app-hero-wrap">
+              <div className="app-hero">
+                <div className="app-hero-left">
+                  <div className="app-hero-eyebrow">
+                    <div className="app-hero-icon-wrap">
+                      <Icon name="FileText" size={18} />
+                    </div>
+                    <span className="app-hero-system">Forms Module</span>
+                  </div>
+                  <h1 className="app-hero-title">Select Patient</h1>
+                  <p className="app-hero-description">
+                    Search and select a patient record to proceed with form generation
+                  </p>
+                </div>
+              </div>
+            </div>
+            <section className="app-patient-picker" aria-label="Patient picker">
+              <LabPatientPickerPanel
+                patients={patientPicker.patients}
+                loading={patientPicker.loading}
+                errorMessage={patientPicker.errorMessage}
+                selectedPatientId={patientPicker.selectedPatientId}
+                searchTerm={patientPicker.searchTerm}
+                pageIndex={patientPicker.pageIndex}
+                hasNextPage={patientPicker.hasNextPage}
+                hasPreviousPage={patientPicker.hasPreviousPage}
+                onSearchTermChange={patientPicker.setSearchTerm}
+                onSelectPatient={handleSelectPatient}
+                onNextPage={patientPicker.goToNextPage}
+                onPreviousPage={patientPicker.goToPreviousPage}
+                showEncounterModal={patientPicker.showEncounterModal}
+                patientForEncounterSelection={patientPicker.patientForEncounterSelection}
+                encounters={patientPicker.encounters}
+                selectedEncounter={patientPicker.selectedEncounter}
+                encountersLoading={patientPicker.encountersLoading}
+                encountersError={patientPicker.encountersError}
+                onCloseEncounterModal={patientPicker.closeEncounterModal}
+                onSelectEncounter={patientPicker.handleEncounterSelection}
+                onConfirmEncounter={handleConfirmEncounter}
+                onRetryEncounters={() => patientPicker.loadPatientEncounters(patientPicker.patientForEncounterSelection)}
+              />
+            </section>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Patient confirmed, show Forms module
+  return (
+    <DashboardLayout currentUserName={currentUserName} onLogout={() => { clearUser(); navigate('/'); }}>
+      <FormsModule
+        selectedPatient={patientPicker.selectedPatient}
+        selectedContextParams={patientPicker.selectedPatient?.contextParams || {}}
+        onRequestPatientChange={() => patientPicker.reopenSelection()}
+      />
+    </DashboardLayout>
+  );
+}
+
+// ── Route: Forms Validation ────────────────────────────────────────────────────
+function FormsValidationRoute() {
+  const { currentUserId, currentUserName, setUser, clearUser } = useUserSession();
+
+  const handleValidUser = useCallback((id, name, userData) => {
+    setUser(id, name, userData);
+  }, [setUser]);
+
+  const { validationState } = useValidateUid({ onValidUser: handleValidUser, currentUserId });
+
+  if (!currentUserId) {
+    if (validationState === 'validating' || validationState === 'idle') {
+      return <LoginRequiredMessage state="validating" />;
+    }
+    return (
+      <LoginPage
+        onLoginSuccess={(userId, userName, userData) => {
+          setUser(userId, userName, userData);
+        }}
+      />
+    );
+  }
+
+  return (
+    <DashboardLayout currentUserName={currentUserName} onLogout={() => clearUser()}>
+      <ValidationAdminPanel />
+    </DashboardLayout>
+  );
+}
+
 function App() {
   return (
     <Routes>
+      <Route path="/modules/forms" element={<FormsRoute />} />
+      <Route path="/settings/forms-validation" element={<FormsValidationRoute />} />
       <Route path="/tagging" element={<TaggingRoute />} />
       <Route path="/tracking" element={<TrackingRoute />} />
       <Route path="/" element={<AppShell />} />

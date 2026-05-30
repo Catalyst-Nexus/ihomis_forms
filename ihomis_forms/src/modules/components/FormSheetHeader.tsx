@@ -11,8 +11,8 @@ function SealPlaceholder({ label }) {
 }
 
 export default function FormSheetHeader({
-  leftLogoSrc,
-  rightLogoSrc,
+  leftLogoSrc = '',
+  rightLogoSrc = '',
   leftLogoPath = import.meta.env.VITE_SUPABASE_LEFT_LOGO_PATH || '',
   rightLogoPath = import.meta.env.VITE_SUPABASE_RIGHT_LOGO_PATH || '',
   leftLogoAlt = 'Left agency seal',
