@@ -9,12 +9,12 @@ import {
   LAB_UPLOAD_CONTEXT_URL,
   LAB_UPLOAD_PATIENT_SEARCH_URL,
 } from "./modules/labUpload/labUploadConfig";
-import Tracking from "./tracking/tracking";
-import Tagging from "./tracking/Tagging";
+import Tracking from "./modules/tracking/tracking";
+import Tagging from "./modules/tracking/Tagging";
 import { ValidationAdminPanel } from "./modules/validation/ValidationModule";
 import useLabPatientPicker from "./modules/labUpload/hooks/useLabPatientPicker";
 import { getContextParamsFromLocation } from "./modules/labUpload/utils/labUploadUtils";
-import { useUserSession } from "./tracking/hooks/useUserSession";
+import { useUserSession } from "./modules/tracking/hooks/useUserSession";
 import LoginPage from "./components/LoginPage";
 import DashboardLayout from "./components/DashboardLayout";
 import "./modules/labUpload/LabUploadModule.css";
