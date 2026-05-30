@@ -605,6 +605,7 @@ function TaggingRoute() {
       onChangePatient={() => patientPicker.reopenSelection()}
       currentUserId={currentUserId}
       currentUserName={currentUserName}
+      onAccessChanged={() => {}}
     />
   );
 }
@@ -655,10 +656,6 @@ function TrackingRoute() {
 
   const { validationState } = useValidateUid({ onValidUser: handleValidUser, currentUserId });
 
-  // Check if user has access to Chart Tracker based on deptcode
-  const trackingDeptcode = (import.meta.env.VITE_SUPABASE_DEPTCODE_FOR_TRACKING || '').trim();
-  const canAccessTracking = trackingDeptcode && (currentUserDeptcode || '').trim() === trackingDeptcode;
-
   // Show appropriate message based on validation state
   if (!currentUserId) {
     if (validationState === 'validating' || validationState === 'idle') {
@@ -673,24 +670,18 @@ function TrackingRoute() {
     );
   }
 
-  // Check department access after user is validated
-  if (!canAccessTracking) {
-    return <AccessDeniedMessage />;
-  }
-
   return (
-    <Tracking
-      selectedPatient={null}
-      onBackToModuleNavigator={() => navigate("/")}
-      onChangePatient={() => navigate("/")}
-      onOpenTagging={() => navigate("/tagging")}
-      currentUserId={currentUserId}
-      currentUserName={currentUserName}
-      onSwitchUser={() => {
-        clearUser();
-        navigate("/tracking");
-      }}
-    />
+    <DashboardLayout currentUserName={currentUserName} onLogout={() => { clearUser(); navigate('/'); }}>
+      <Tracking
+        onBackToModuleNavigator={() => navigate("/")}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        onSwitchUser={() => {
+          clearUser();
+          navigate("/tracking");
+        }}
+      />
+    </DashboardLayout>
   );
 }
 

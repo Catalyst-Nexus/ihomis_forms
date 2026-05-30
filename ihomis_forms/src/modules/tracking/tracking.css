@@ -1,6 +1,72 @@
 
 * { box-sizing: border-box; }
 
+/* ── Module Layout (inside DashboardLayout) ─────────────────────── */
+.tracking-module {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+  min-height: calc(100vh - 80px);
+}
+
+.tracking-module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(165deg, #fff 0%, #f8fdfc 100%);
+  border: 1px solid rgba(16,54,63,.10);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 16px rgba(16,54,63,.06),
+    0 1px 4px rgba(16,54,63,.03);
+}
+
+.tracking-module-header-left {
+  flex: 1;
+}
+
+.tracking-module-title {
+  margin: 0;
+  color: #0e3a42;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tracking-module-subtitle {
+  margin: 0.25rem 0 0;
+  color: #3a6870;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tracking-module-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tracking-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #3a6870;
+}
+
+.tracking-user-label {
+  color: #6b8a90;
+}
+
+.tracking-user-info strong {
+  color: #0e3a42;
+  text-transform: uppercase;
+}
+
+/* Legacy full-page styles (kept for backwards compatibility) */
 .tracking-page {
   min-height: 100vh;
   font-family: inherit;
@@ -32,7 +98,7 @@
   z-index: 1;
 }
 
-/* ── Title Box ──────────────────────────────────────────────────── */
+/* ── Title Box (legacy) ─────────────────────────────────────────── */
 .tracking-title-box {
   background: linear-gradient(165deg, #fff 0%, #f8fdfc 100%);
   border: 1px solid rgba(16,54,63,.10);
@@ -104,12 +170,43 @@
 
 /* ── Filters ────────────────────────────────────────────────────── */
 .tracking-filters { 
-  display: grid; 
-  gap: .6rem; 
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem; 
   background: linear-gradient(165deg, #fff 0%, #f8fdfc 100%);
   border: 1px solid rgba(16,54,63,.10);
+  border-radius: 12px;
   padding: 1rem 1.25rem;
   box-shadow: 0 4px 16px rgba(16,54,63,.05);
+}
+
+.tracking-refresh-btn {
+  margin-left: auto;
+  border: none;
+  cursor: pointer;
+  font-family: inherit; 
+  font-weight: 600; 
+  font-size: .78rem;
+  padding: .45rem .85rem;
+  min-height: 38px;
+  display: inline-flex; 
+  align-items: center; 
+  gap: .35rem;
+  background: linear-gradient(135deg, #1b7f79, #22ada5);
+  color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(27,127,121,.25);
+  transition: all 200ms ease;
+}
+.tracking-refresh-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(27,127,121,.35);
+}
+.tracking-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 .tracking-filter-row { 
   display: flex; 
@@ -227,6 +324,7 @@
   padding: .65rem 1rem;
   background: linear-gradient(165deg, #fff 0%, #f8fdfc 100%);
   border: 1px solid rgba(16,54,63,.08);
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(16,54,63,.04);
 }
 .leg { 
@@ -260,6 +358,7 @@
 /* ── Table ──────────────────────────────────────────────────────── */
 .tracking-table-container {
   border: 1px solid rgba(16,54,63,.10);
+  border-radius: 12px;
   background: #fff;
   box-shadow: 
     0 8px 32px rgba(16,54,63,.08),

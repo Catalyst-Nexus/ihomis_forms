@@ -86,9 +86,9 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
   const [saving,   setSaving]   = useState(false);
 
   const history = Object.entries(row._stepLogs ?? {})
-    .filter(([, l]) => l.status === "done")
+    .filter(([, l]: [string, { status?: string; completed_at?: string; completed_by?: string; remarks?: string }]) => l.status === "done")
     .sort(
-      ([, a], [, b]) => new Date(a.completed_at) - new Date(b.completed_at),
+      ([, a]: [string, { completed_at?: string }], [, b]: [string, { completed_at?: string }]) => new Date(a.completed_at ?? 0).getTime() - new Date(b.completed_at ?? 0).getTime(),
     );
 
   const nextSequenceId = getNextSequenceId(steps, sequenceId);
@@ -137,7 +137,7 @@ function ProcessModal({ ctx, steps, sequenceIdToUsers, onClose, onSave }) {
               Workflow History
             </p>
             <div className="modal-timeline">
-              {history.map(([key, log]) => {
+              {history.map(([key, log]: [string, { status?: string; completed_at?: string; completed_by?: string; remarks?: string }]) => {
                 const step = steps.find(s => String(s.id) === String(key));
                 return (
                   <div key={key} className="timeline-row">
@@ -254,12 +254,14 @@ export default function Tracking({
   const [sequenceIdToUsers,  setSequenceIdToUsers]  = useState({});
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages,  setTotalPages]  = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [modal,       setModal]       = useState(null);
   const [toast,       setToast]       = useState(null);
   const [loadingApi,  setLoadingApi]  = useState(false);
   const [syncing,     setSyncing]     = useState(false);
   const [error,       setError]       = useState("");
-  const ROWS_PER_PAGE = 10;
+  const ROWS_PER_PAGE = 30;
 
   // ── Refs ──────────────────────────────────────────────────────────────────
   // Dedicated broadcast channel (stable across renders)
@@ -432,20 +434,30 @@ export default function Tracking({
   }, [currentUserId]);
 
   // ── Fetch API ─────────────────────────────────────────────────────────────
-  const fetchApi = useCallback(async () => {
-    const url = import.meta.env.VITE_CHART_TRACKING;
-    if (!url) { setError("VITE_CHART_TRACKING not configured."); return; }
+  const fetchApi = useCallback(async (page = 1) => {
+    const baseUrl = import.meta.env.VITE_CHART_TRACKING;
+    if (!baseUrl) { setError("VITE_CHART_TRACKING not configured."); return; }
     setLoadingApi(true); setError("");
     try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(ROWS_PER_PAGE),
+        ...(encounterFilter && { type: encounterFilter }),
+        ...(nameFilter && { search: nameFilter }),
+        ...(dateFilter && { dischargedDate: dateFilter }),
+      });
+      const url = `${baseUrl}?${params.toString()}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       setApiRows(Array.isArray(json) ? json : (json?.data ?? []));
+      setTotalPages(json?.totalPages ?? 1);
+      setTotalRecords(json?.total ?? 0);
     } catch (e) { setError(`API error: ${e.message}`); }
     finally { setLoadingApi(false); }
-  }, []);
+  }, [encounterFilter, nameFilter, dateFilter]);
 
-  useEffect(() => { fetchApi(); }, [fetchApi]);
+  useEffect(() => { fetchApi(currentPage); }, [fetchApi, currentPage]);
 
   // ── Reload DB ─────────────────────────────────────────────────────────────
   const reloadDb = useCallback(async () => {
@@ -500,7 +512,7 @@ export default function Tracking({
         { event: "*", schema: "public", table: "workflow_step_log" },
         (payload) => {
           // Immediately patch local state from the Postgres change payload
-          const row = payload.new ?? payload.old;
+          const row = (payload.new ?? payload.old) as { tracking_id?: number; sequence_id?: number; [key: string]: unknown } | undefined;
           if (row?.tracking_id != null && row?.sequence_id != null) {
             if (payload.eventType === "DELETE") {
               setWfLogs(prev => {
@@ -561,14 +573,14 @@ export default function Tracking({
 
       const expectedStep = steps.find(s => logs?.[s.id]?.status !== "done");
       if (!expectedStep) {
-        for (const l of Object.values(logs)) {
+        for (const l of Object.values(logs) as Array<{ id?: number; status?: string }>) {
           if (l?.status === "active" && l?.id) resetIds.add(l.id);
         }
         continue;
       }
 
       const expectedId = expectedStep.id;
-      for (const l of Object.values(logs)) {
+      for (const l of Object.values(logs) as Array<{ id?: number; status?: string; sequence_id?: number }>) {
         if (!l?.id) continue;
         if (l.status === "active" && String(l.sequence_id) !== String(expectedId)) {
           resetIds.add(l.id);
@@ -659,10 +671,13 @@ export default function Tracking({
     });
   }, [mergedRows, encounterFilter, nameFilter, dateFilter]);
 
-  useEffect(() => { setCurrentPage(1); }, [encounterFilter, nameFilter, dateFilter]);
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchApi(1);
+  }, [encounterFilter, nameFilter, dateFilter]);
 
-  const totalPages    = Math.ceil(filteredRows.length / ROWS_PER_PAGE);
-  const paginatedRows = filteredRows.slice((currentPage-1)*ROWS_PER_PAGE, currentPage*ROWS_PER_PAGE);
+  // Server-side pagination - use filteredRows directly (already paginated from API)
+  const paginatedRows = filteredRows;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const displayUserName = useCallback((userId) => {
@@ -1084,19 +1099,21 @@ export default function Tracking({
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="tracking-page">
-      <main className="tracking-shell">
+    <div className="tracking-module">
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onDone={() => setToast(null)} />
+      )}
 
-        {toast && (
-          <Toast message={toast.message} type={toast.type} onDone={() => setToast(null)} />
-        )}
-
-        <header className="tracking-title-box">
-          <h1>Agusan del Norte Provincial Health Office</h1>
-          <p>CHART Tracking System</p>
+      <div className="tracking-module-header">
+        <div className="tracking-module-header-left">
+          <h1 className="tracking-module-title">CHART Tracking System</h1>
+          <p className="tracking-module-subtitle">Agusan del Norte Provincial Health Office</p>
+        </div>
+        <div className="tracking-module-header-right">
           {currentUserName && (
-            <small>
-              Viewing as: <strong>{currentUserName}</strong>
+            <div className="tracking-user-info">
+              <span className="tracking-user-label">Viewing as:</span>
+              <strong>{currentUserName}</strong>
               {isSuperUser
                 ? <span className="badge-super">SUPER USER</span>
                 : myAssignedSeqIds.size > 0
@@ -1105,70 +1122,63 @@ export default function Tracking({
                   </span>
                 : null
               }
-              {" · "}
-              <button type="button" className="tracking-switch-user-link" onClick={onSwitchUser}>
-                Switch user
-              </button>
-            </small>
+            </div>
           )}
-        </header>
-
-        <div className="tracking-filters">
-          <div className="tracking-filter-row tracking-filter-row--select">
-            <label>Encounter Type</label>
-            <select value={encounterFilter} onChange={e => setEncounterFilter(e.target.value)}>
-              <option value="">All</option>
-              <option value="ADM">Admitted (ADM)</option>
-              <option value="ER">Emergency (ER)</option>
-              <option value="OPD">Out-Patient (OPD)</option>
-            </select>
-          </div>
-          <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Search patient name…" value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => e.key==="Enter" && setNameFilter(nameInput)}/>
-            <button type="button" onClick={() => setNameFilter(nameInput)}><Search size={13}/> Search</button>
-            {nameFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setNameFilter(""); setNameInput(""); }}><X size={12}/> Clear</button>}
-          </div>
-          <div className="tracking-filter-row tracking-filter-row--search">
-            <input type="text" placeholder="Filter by date e.g. 02/18/2026…" value={dateInput}
-              onChange={e => setDateInput(e.target.value)}
-              onKeyDown={e => e.key==="Enter" && setDateFilter(dateInput)}/>
-            <button type="button" onClick={() => setDateFilter(dateInput)}><Calendar size={13}/> Search</button>
-            {dateFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setDateFilter(""); setDateInput(""); }}><X size={12}/> Clear</button>}
-          </div>
         </div>
+      </div>
 
-        <section className="tracking-actions">
-          <button type="button" onClick={onBackToModuleNavigator}>← Back to Navigator</button>
-          <button type="button" onClick={() => { fetchApi(); reloadDb(); }} disabled={isLoading}>
-            <RefreshCw size={13}/> {isLoading ? "Syncing…" : "Refresh"}
-          </button>
-        </section>
-
-        {error && <p className="tracking-error">{error}</p>}
-
-        <div className="tracking-legend">
-          <span className="leg"><span className="leg-dot leg-done"/>Done</span>
-          <span className="leg"><span className="leg-dot leg-active"/>Active – click to process</span>
-          <span className="leg"><span className="leg-dot leg-empty"/> Pending</span>
-          <span className="leg leg-hint">
-            {isSuperUser
-              ? "Super User — click any step cell to process"
-              : myAssignedSeqIds.size > 0
-              ? `You can process: ${[...myAssignedSeqIds].map(id => getStepLabel(steps, id)).join(", ")}`
-              : "👁 View only — no step assigned"}
-          </span>
+      <div className="tracking-filters">
+        <div className="tracking-filter-row tracking-filter-row--select">
+          <label>Encounter Type</label>
+          <select value={encounterFilter} onChange={e => setEncounterFilter(e.target.value)}>
+            <option value="">All</option>
+            <option value="ADM">Admitted (ADM)</option>
+            <option value="ER">Emergency (ER)</option>
+            <option value="OPD">Out-Patient (OPD)</option>
+          </select>
         </div>
-
-        <div className="tracking-status-bar">
-          {isLoading
-            ? "⏳ Syncing records from API…"
-            : `${filteredRows.length} record${filteredRows.length !== 1 ? "s" : ""}  ·  Page ${currentPage} of ${totalPages || 1}`}
+        <div className="tracking-filter-row tracking-filter-row--search">
+          <input type="text" placeholder="Search patient name…" value={nameInput}
+            onChange={e => setNameInput(e.target.value)}
+            onKeyDown={e => e.key==="Enter" && setNameFilter(nameInput)}/>
+          <button type="button" onClick={() => setNameFilter(nameInput)}><Search size={13}/> Search</button>
+          {nameFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setNameFilter(""); setNameInput(""); }}><X size={12}/> Clear</button>}
         </div>
+        <div className="tracking-filter-row tracking-filter-row--search">
+          <input type="text" placeholder="Filter by date e.g. 02/18/2026…" value={dateInput}
+            onChange={e => setDateInput(e.target.value)}
+            onKeyDown={e => e.key==="Enter" && setDateFilter(dateInput)}/>
+          <button type="button" onClick={() => setDateFilter(dateInput)}><Calendar size={13}/> Search</button>
+          {dateFilter && <button type="button" className="tracking-btn-ghost" onClick={() => { setDateFilter(""); setDateInput(""); }}><X size={12}/> Clear</button>}
+        </div>
+        <button type="button" className="tracking-refresh-btn" onClick={() => { fetchApi(currentPage); reloadDb(); }} disabled={isLoading}>
+          <RefreshCw size={13}/> {isLoading ? "Syncing…" : "Refresh"}
+        </button>
+      </div>
 
-        <div className="tracking-table-container">
-          <div className="tracking-table-wrap">
+      {error && <p className="tracking-error">{error}</p>}
+
+      <div className="tracking-legend">
+        <span className="leg"><span className="leg-dot leg-done"/>Done</span>
+        <span className="leg"><span className="leg-dot leg-active"/>Active – click to process</span>
+        <span className="leg"><span className="leg-dot leg-empty"/> Pending</span>
+        <span className="leg leg-hint">
+          {isSuperUser
+            ? "Super User — click any step cell to process"
+            : myAssignedSeqIds.size > 0
+            ? `You can process: ${[...myAssignedSeqIds].map(id => getStepLabel(steps, id)).join(", ")}`
+            : "👁 View only — no step assigned"}
+        </span>
+      </div>
+
+      <div className="tracking-status-bar">
+        {isLoading
+          ? "⏳ Syncing records from API…"
+          : `${totalRecords} record${totalRecords !== 1 ? "s" : ""}  ·  Page ${currentPage} of ${totalPages}`}
+      </div>
+
+      <div className="tracking-table-container">
+        <div className="tracking-table-wrap">
             <table className="tracking-table">
               <thead>
                 <tr>
@@ -1271,7 +1281,6 @@ export default function Tracking({
             </div>
           )}
         </div>
-      </main>
 
       {modal && (
         <ProcessModal

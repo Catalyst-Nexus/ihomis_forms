@@ -104,29 +104,26 @@ export default function Tagging({
   trackingRows = [],
   onBackToTracking,
   onAccessChanged,
+  currentUserId,
+  currentUserName,
+  onChangePatient,
 }) {
   const { toasts, push } = useToast();
 
-  // ── INDEPENDENT TAGGING SESSION ──────────────────────────────────────────
+  // ── TAGGING SESSION (now uses session user automatically) ───────────────────
   const {
-    taggingUserId,
-    taggingUserName,
     users,
     usersLoading,
     usersError,
-    selectTaggingUser,
-    clearTaggingSession,
     refreshUsers,
   } = useTaggingSession();
 
-  // ── Go back to user picker ─────────────────────────────────────────────────
-  const handleSwitchUser = useCallback(() => {
-    clearTaggingSession();
-    setAccessStatus("needs-user");
-  }, [clearTaggingSession]);
+  // Use session user directly instead of separate tagging session
+  const taggingUserId = currentUserId;
+  const taggingUserName = currentUserName;
 
   // ── Access check state ────────────────────────────────────────────────────
-  const [accessStatus, setAccessStatus] = useState("needs-user");
+  const [accessStatus, setAccessStatus] = useState("checking");
 
   // ── Init ──────────────────────────────────────────────────────────────────
   const [initComplete,     setInitComplete]     = useState(false);
@@ -323,12 +320,11 @@ export default function Tagging({
   }, [taggingUserId, firstTaggedUser, taggedUsers.length]);
 
   // ── ACCESS CHECK ───────────────────────────────────────────────────────────
-  // IMPORTANT: Don't guard on initComplete here because fetchAllData runs independently
-  // and taggedUsers will be populated from DB even if init hasn't completed.
-  // When taggedUsers.length > 0, the correct access decision will be made.
+  // User is auto-set from session. Check if they can manage tagging.
   useEffect(() => {
     if (!taggingUserId) {
-      setAccessStatus("needs-user");
+      // No session user - should not happen if properly authenticated
+      setAccessStatus("denied");
       return;
     }
     // Always allow access if no tagged users exist (any logged-in user can be first)
@@ -758,21 +754,8 @@ export default function Tagging({
     return (
       <AccessDenied
         userName={taggingUserName}
-        onSwitchUser={handleSwitchUser}
+        onSwitchUser={onBackToTracking}
         onBack={onBackToTracking}
-      />
-    );
-  }
-
-  // ── Needs user selection ─────────────────────────────────────────────────
-  if (accessStatus === "needs-user") {
-    return (
-      <TaggingUserPicker
-        users={users}
-        usersLoading={usersLoading}
-        usersError={usersError}
-        onSelect={selectTaggingUser}
-        onRefresh={refreshUsers}
       />
     );
   }
@@ -794,13 +777,9 @@ export default function Tagging({
           {taggingUserName && (
             <small>
               Viewing as: <strong>{taggingUserName?.toUpperCase()}</strong>
-              {taggedUsers.find(t => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
+              {taggedUsers.find((t: { userId: string }) => String(t.userId) === String(taggingUserId))?.tagOrder === 1 && (
                 <span className="badge-super">SUPER USER</span>
               )}
-              {" · "}
-              <button type="button" className="tg-switch-user-link" onClick={handleSwitchUser}>
-                Switch user
-              </button>
             </small>
           )}
         </header>
@@ -808,9 +787,6 @@ export default function Tagging({
         <nav className="tg-nav">
           <button className="tg-btn tg-btn--ghost" onClick={onBackToTracking}>
             ← Back to Tracking
-          </button>
-          <button className="tg-btn tg-btn--ghost" onClick={handleSwitchUser}>
-            ← Switch User
           </button>
         </nav>
 
