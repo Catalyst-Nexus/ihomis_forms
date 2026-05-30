@@ -794,6 +794,18 @@
   color: var(--hospital-gray-900);
 }
 
+.app-btn-outline {
+  background: transparent;
+  color: var(--hospital-gray-600);
+  border: 1px solid var(--hospital-gray-300);
+}
+
+.app-btn-outline:hover {
+  background: var(--hospital-gray-100);
+  border-color: var(--hospital-gray-400);
+  color: var(--hospital-gray-900);
+}
+
 /* ── Module Header (Sticky - matches Lab Upload) ─────────── */
 .app-module-host {
   min-height: 100vh;
