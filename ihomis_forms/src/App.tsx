@@ -351,11 +351,11 @@ function WelcomePage() {
       }}
     >
       <h1
+        className="app-welcome-title"
         style={{
           margin: 0,
           fontSize: "2rem",
           fontWeight: 700,
-          color: "#0f172a",
           textAlign: "center",
         }}
       >
@@ -724,7 +724,6 @@ function AppShell() {
   const [activeModuleId, setActiveModuleId] = useState(null);
   const [returnModuleIdAfterEncounterChange, setReturnModuleIdAfterEncounterChange] = useState(null);
   const [landingPage, setLandingPage] = useState(LANDING_PAGE.LOGIN);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [accessVersion, setAccessVersion] = useState(0);
 
   const handleAccessChanged = useCallback(() => setAccessVersion((v) => v + 1), []);
@@ -845,7 +844,7 @@ function AppShell() {
     const ActiveComponent = activeModule.Component;
     return (
       <DashboardLayout currentUserName={currentUserName} onLogout={handleSwitchUser}>
-        <div className="app-module-host" data-theme={isDarkMode ? "dark" : undefined}>
+        <div className="app-module-host">
           <header className="app-module-header">
             <div className="app-module-header-left">
               <div className="app-module-header-icon">
@@ -876,8 +875,6 @@ function AppShell() {
               selectedContextParams={patientPicker.activeContextParams}
               onRequestPatientChange={handleRequestPatientChange}
               onRequestEncounterChange={handleRequestEncounterChange}
-              isDarkMode={isDarkMode}
-              setIsDarkMode={setIsDarkMode}
             />
           </PdfPreviewProvider>
         </div>

@@ -3,7 +3,6 @@ import Forms from "./Forms";
 import ValidationModule from "../validation/ValidationModule";
 
 function FormsModule({ selectedPatient = null, selectedContextParams = null, onRequestPatientChange }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   // Start by showing forms first. Validation will be shown after the user selects forms.
   const [showValidation, setShowValidation] = useState(false);
   const [pendingSelectedForms, setPendingSelectedForms] = useState(null);
@@ -45,8 +44,6 @@ function FormsModule({ selectedPatient = null, selectedContextParams = null, onR
 
   return (
     <Forms
-      isDarkMode={isDarkMode}
-      setIsDarkMode={setIsDarkMode}
       selectedPatient={selectedPatient}
       // When user clicks generate, show validation first
       onBeforeGenerate={(selectedArray) => {

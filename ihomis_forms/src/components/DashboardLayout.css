@@ -468,3 +468,94 @@
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dark mode — the sidebar is already dark, so only the main area, header,
+   search, and user menu need flipping. Activated via <html data-theme="dark">.
+   ═══════════════════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .dashboard-layout {
+  background: #0b121a;
+}
+
+html[data-theme="dark"] .dashboard-header {
+  background: #111b26;
+  border-bottom-color: #22303d;
+}
+
+html[data-theme="dark"] .header-search {
+  background: #0d141d;
+  border-color: #22303d;
+}
+
+html[data-theme="dark"] .header-search:focus-within {
+  background: #111b26;
+  border-color: #2fa39a;
+  box-shadow: 0 0 0 4px rgba(47, 163, 154, 0.15);
+}
+
+html[data-theme="dark"] .header-search input {
+  color: #e6eef1;
+}
+
+html[data-theme="dark"] .header-search-shortcut {
+  background: #22303d;
+  color: #9fb2ba;
+}
+
+html[data-theme="dark"] .header-icon-btn {
+  color: #9fb2ba;
+}
+
+html[data-theme="dark"] .header-icon-btn:hover {
+  background: #1a2733;
+  color: #e6eef1;
+}
+
+html[data-theme="dark"] .header-user-btn {
+  border-color: #22303d;
+}
+
+html[data-theme="dark"] .header-user-btn:hover {
+  background: #1a2733;
+  border-color: #32434f;
+}
+
+html[data-theme="dark"] .header-user-name,
+html[data-theme="dark"] .header-user-menu-name {
+  color: #e6eef1;
+}
+
+html[data-theme="dark"] .header-user-btn svg {
+  color: #9fb2ba;
+}
+
+html[data-theme="dark"] .header-user-menu {
+  background: #111b26;
+  border-color: #22303d;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .header-user-menu-header {
+  background: #0d141d;
+}
+
+html[data-theme="dark"] .header-user-menu-email {
+  color: #9fb2ba;
+}
+
+html[data-theme="dark"] .header-user-menu-divider {
+  background: #22303d;
+}
+
+html[data-theme="dark"] .header-user-menu-item {
+  color: #b9c7cd;
+}
+
+html[data-theme="dark"] .header-user-menu-item:hover {
+  background: #1a2733;
+  color: #e6eef1;
+}
+
+html[data-theme="dark"] .header-user-menu-item.logout:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
