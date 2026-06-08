@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import "./Forms.css";
 import Modal from "./Modal";
+import { useTheme } from "../../lib/ThemeContext";
 import { supabase } from "../../lib/supabaseClient";
 import { fetchFormValidations, runEncounterValidations } from "../validation/validationScope";
 // Native Browser Print imports
@@ -462,8 +463,6 @@ const FORMS_LIST = [
 ];
 
 export default function Forms({
-  isDarkMode,
-  setIsDarkMode,
   selectedPatient = null,
   // Optional: initial selected forms (array or Set) applied when component mounts
   initialSelectedForms = null,
@@ -474,6 +473,7 @@ export default function Forms({
   // Optional callback to change patient
   onChangePatient = null,
 }) {
+  const { isDarkMode } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForms, setSelectedForms] = useState(new Set());
   const [openForm, setOpenForm] = useState(null);

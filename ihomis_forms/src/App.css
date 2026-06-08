@@ -68,6 +68,15 @@
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* ── Welcome landing title ───────────────────────────────── */
+.app-welcome-title {
+  color: #0f172a;
+}
+
+:root[data-theme="dark"] .app-welcome-title {
+  color: #f1f6f8;
+}
+
 /* ── Base Page Layout (matches .lab-page) ────────────────── */
 .app-page {
   box-sizing: border-box;
@@ -1008,4 +1017,111 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dark mode — these --hospital-* tokens are shared by App.css, LabUploadModule
+   (pk-*, enc-*, lab-history-*, lab-hero-*), so overriding them under
+   <html data-theme="dark"> flips every surface that uses the tokens at once.
+   :root[data-theme] has higher specificity than the base :root, so it wins
+   regardless of stylesheet order.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
+  /* Brighter teal/status colors so text/icons stay legible on dark surfaces */
+  --hospital-primary: #2fa39a;
+  --hospital-primary-dark: #218b83;
+  --hospital-primary-light: #14302e;
+  --hospital-primary-hover: #38b3a9;
+
+  --hospital-secondary: #94a3b8;
+  --hospital-secondary-light: #1a2733;
+
+  --hospital-accent: #60a5fa;
+  --hospital-accent-light: #112436;
+
+  --hospital-success: #34d399;
+  --hospital-success-light: #10301f;
+  --hospital-warning: #fbbf24;
+  --hospital-warning-light: #33260f;
+  --hospital-danger: #f87171;
+  --hospital-danger-light: #3a1a1a;
+  --hospital-info: #38bdf8;
+  --hospital-info-light: #102a36;
+
+  /* "white" is the primary surface; the gray scale is inverted (50 = darkest
+     recessed bg, 900 = brightest text). Colored on-primary text is restored
+     to true white below. */
+  --hospital-white: #111b26;
+  --hospital-gray-50: #0d141d;
+  --hospital-gray-100: #18242f;
+  --hospital-gray-200: #25333f;
+  --hospital-gray-300: #32434f;
+  --hospital-gray-400: #6c8089;
+  --hospital-gray-500: #93a7af;
+  --hospital-gray-600: #b3c3ca;
+  --hospital-gray-700: #ccd8dd;
+  --hospital-gray-800: #e0e9ec;
+  --hospital-gray-900: #f1f6f8;
+
+  --hospital-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --hospital-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --hospital-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -1px rgba(0, 0, 0, 0.35);
+  --hospital-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --hospital-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.55), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Restore true white for text/icons that sit on solid teal/danger/success
+   backgrounds (these used var(--hospital-white) as a foreground color). */
+:root[data-theme="dark"] .app-hero-patient-avatar,
+:root[data-theme="dark"] .app-btn-primary,
+:root[data-theme="dark"] .lab-patient-avatar,
+:root[data-theme="dark"] .lab-hero-patient-avatar,
+:root[data-theme="dark"] .lab-action-btn.primary,
+:root[data-theme="dark"] .lab-action-btn.danger,
+:root[data-theme="dark"] .lab-history-modal__icon,
+:root[data-theme="dark"] .lab-history-modal__state--error .lab-history-modal__state-icon,
+:root[data-theme="dark"] .lab-history-card__open,
+:root[data-theme="dark"] .pk-avatar,
+:root[data-theme="dark"] .pk-card-badge,
+:root[data-theme="dark"] .pk-action-btn.primary,
+:root[data-theme="dark"] .enc-card--selected .enc-card-check,
+:root[data-theme="dark"] .enc-confirm-btn,
+:root[data-theme="dark"] .enc-retry-btn {
+  color: #ffffff;
+}
+
+/* Hardcoded light gradients/colors that the token flip can't reach. */
+:root[data-theme="dark"] .app-hero-wrap,
+:root[data-theme="dark"] .lab-hero-wrap {
+  background: linear-gradient(135deg, #132028 0%, #111b26 60%, #14242b 100%);
+  border-color: rgba(47, 163, 154, 0.28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .app-hero-title,
+:root[data-theme="dark"] .lab-hero-title {
+  color: #f1f6f8;
+}
+
+:root[data-theme="dark"] .app-hero-meta-item,
+:root[data-theme="dark"] .lab-hero-summary-item {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="dark"] .lab-history-item,
+:root[data-theme="dark"] .lab-history-card {
+  background: linear-gradient(180deg, #131f2a 0%, #0f1a24 100%);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .lab-history-card__header {
+  background: linear-gradient(135deg, rgba(47, 163, 154, 0.1) 0%, rgba(47, 163, 154, 0.04) 100%);
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+:root[data-theme="dark"] .lab-history-modal {
+  background:
+    radial-gradient(circle at top, rgba(47, 163, 154, 0.18), transparent 50%),
+    rgba(2, 6, 12, 0.78);
 }
